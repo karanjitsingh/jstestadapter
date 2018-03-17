@@ -1,0 +1,25 @@
+{
+  "name": "js-test-execution-host",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^2.7.2"
+  },
+  "scripts": {
+    "start": "npm run build && npm run exec",
+    "build": "./node_modules/.bin/tsc",
+    "exec": "node out/JSTestEngine.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/karanjitsingh/js-test-execution-host.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/karanjitsingh/js-test-execution-host/issues"
+  },
+  "homepage": "https://github.com/karanjitsingh/js-test-execution-host#readme"
+}
