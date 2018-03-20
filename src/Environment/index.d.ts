@@ -1,2 +1,2 @@
-export { default as IEnvironment } from "./IEnvironment";
-export { default as EnvironmentProvider } from "./EnvironmentProvider";
+export * from "./IEnvironment";
+export * from "./EnvironmentProvider";

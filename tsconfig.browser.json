@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "target": "es5",
+        "module": "umd",
+        "sourceMap": true,
+        "rootDir": "./exp",
+        "outDir": "./out/browser",
+        "lib": ["es2015", "dom"]
+    },
+    "exclude": [
+        "./exp/**/Abstractions/Node/*.ts",
+        "./src/*"
+    ]
+}
