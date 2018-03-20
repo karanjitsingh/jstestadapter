@@ -1,7 +1,7 @@
 import {default as IEnvironment, EnvironmentType} from "./IEnvironment";
 
 export default class EnvironmentProvider {
-    public GetEnvironment(a: Int16Array): IEnvironment {
+    public GetEnvironment(): IEnvironment {
         return null;
     }
 
