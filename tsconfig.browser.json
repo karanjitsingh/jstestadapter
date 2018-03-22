@@ -1,14 +1,14 @@
 {
     "compilerOptions": {
         "target": "es5",
-        "module": "umd",
+        "module": "amd",
         "sourceMap": true,
-        "rootDir": "./exp",
-        "outDir": "./out/browser",
-        "lib": ["es2015", "dom"]
+        "rootDir": "./JavaScriptTestHost",
+        "outDir": "./bin/Debug/js/browser",
+        "lib": ["es2015", "dom"],
+        "baseUrl": "./JavaScriptTestHost"
     },
     "exclude": [
-        "./exp/**/Abstractions/Node/*.ts",
-        "./src/*"
+        "*node*"
     ]
 }

@@ -5,21 +5,22 @@
   "main": "index.js",
   "dependencies": {},
   "devDependencies": {
+    "@types/node": "^9.4.7",
     "typescript": "^2.7.2"
   },
   "scripts": {
-    "start": "npm run build && npm run exec",
+    "build:node": "./node_modules/.bin/tsc -p tsconfig.node.json",
     "build:browser": "./node_modules/.bin/tsc -p tsconfig.browser.json",
-    "exec": "node out/JSTestEngine.js"
+    "build": "npm run build:node && npm run build:browser"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/karanjitsingh/js-test-execution-host.git"
+    "url": "git+https://github.com/karanjitsingh/JavaScriptTestHost.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/karanjitsingh/js-test-execution-host/issues"
+    "url": "https://github.com/karanjitsingh/JavaScriptTestHost/issues"
   },
-  "homepage": "https://github.com/karanjitsingh/js-test-execution-host#readme"
+  "homepage": "https://github.com/karanjitsingh/JavaScriptTestHost#readme"
 }

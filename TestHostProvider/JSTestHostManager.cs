@@ -24,7 +24,7 @@ namespace Microsoft.VisualStudio.JSTestHostRuntimeProvider
 
     using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions;
     using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces;
-
+    using System.Reflection;
 
     [ExtensionUri(JavaScriptTestHostUri)]
     [FriendlyName(JavaScriptTestHostFriendlyName)]
@@ -35,8 +35,8 @@ namespace Microsoft.VisualStudio.JSTestHostRuntimeProvider
         private const string TestAdapterRegexPattern = @"TestAdapter.dll";
 
         private IFileHelper fileHelper;
-
         private IProcessHelper processHelper;
+        private IEnvironment environment;
 
         private ITestHostLauncher testHostLauncher;
 
@@ -52,7 +52,7 @@ namespace Microsoft.VisualStudio.JSTestHostRuntimeProvider
         /// Initializes a new instance of the <see cref="DotnetTestHostManager"/> class.
         /// </summary>
         public JSTestHostManager()
-            : this(new FileHelper(), new ProcessHelper())
+            : this(new FileHelper(), new ProcessHelper(), new PlatformEnvironment())
         {
         }
 
@@ -62,10 +62,11 @@ namespace Microsoft.VisualStudio.JSTestHostRuntimeProvider
         /// <param name="processHelper">Process helper instance.</param>
         /// <param name="fileHelper">File helper instance.</param>
         /// <param name="dotnetHostHelper">DotnetHostHelper helper instance.</param>
-        internal JSTestHostManager(IFileHelper fileHelper, IProcessHelper processHelper)
+        internal JSTestHostManager(IFileHelper fileHelper, IProcessHelper processHelper, IEnvironment environment)
         {
             this.fileHelper = fileHelper;
             this.processHelper = processHelper;
+            this.environment = environment;
             Debugger.Launch();
         }
 
@@ -82,7 +83,7 @@ namespace Microsoft.VisualStudio.JSTestHostRuntimeProvider
         /// Dependency resolution for .net core projects are pivoted by the test project. Hence each test
         /// project must be launched in a separate test host process.
         /// </remarks>
-        public bool Shared => false;
+        public bool Shared => true;
 
         /// <inheritdoc/>
         public void Initialize(IMessageLogger logger, string runsettingsXml)
@@ -116,7 +117,36 @@ namespace Microsoft.VisualStudio.JSTestHostRuntimeProvider
             IDictionary<string, string> environmentVariables,
             TestRunnerConnectionInfo connectionInfo)
         {
+            string rootFolder = Path.GetDirectoryName(typeof(JSTestHostManager).GetTypeInfo().Assembly.GetAssemblyLocation());
 
+            string nodeExecutable = string.Empty;
+            string archSuffix = string.Empty;
+
+            if (this.environment.Architecture == PlatformArchitecture.X64)
+            {
+                archSuffix = "-x64";
+            }
+            else if(this.environment.Architecture == PlatformArchitecture.X86)
+            {
+                archSuffix = "-x86";
+            }
+
+            if(this.environment.OperatingSystem == PlatformOperatingSystem.Windows)
+            {
+                nodeExecutable = Path.Combine(rootFolder, nodeExecutable, "win" + archSuffix, "node.exe");
+            }
+            else if(this.environment.OperatingSystem == PlatformOperatingSystem.Unix)
+            {
+                nodeExecutable = Path.Combine(rootFolder, nodeExecutable, "linux" + archSuffix, "node");
+            }
+
+
+            var processInfo = new TestProcessStartInfo();
+            processInfo.FileName = nodeExecutable;
+            processInfo.Arguments = "";
+
+            
+            
             return null;
             //var startInfo = new TestProcessStartInfo();
 

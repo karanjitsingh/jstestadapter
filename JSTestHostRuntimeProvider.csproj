@@ -1,19 +1,23 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
-	<NetStandardImplicitPackageVersion>1.6.0</NetStandardImplicitPackageVersion>
+    <TargetFrameworks>netcoreapp2.0;net451</TargetFrameworks>
+	  <NetStandardImplicitPackageVersion>1.6.0</NetStandardImplicitPackageVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <Reference Include="Microsoft.TestPlatform.PlatformAbstractions">
-      <HintPath>..\..\vstest\artifacts\Debug\net451\win7-x64\Microsoft.TestPlatform.PlatformAbstractions.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Microsoft.VisualStudio.TestPlatform.ObjectModel">
-      <HintPath>..\..\vstest\artifacts\Debug\net451\win7-x64\Microsoft.VisualStudio.TestPlatform.ObjectModel.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
+    <PackageReference Include="Microsoft.TestPlatform.ObjectModel" Version="15.7.0-dev" />
+    <PackageReference Include="Node.js.redist" Version="8.9.1" />
   </ItemGroup>
 
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="if not exist $(ProjectDir)bin\Debug\net451\node mkdir $(ProjectDir)bin\Debug\net451\node&#xD;&#xA;if not exist $(ProjectDir)bin\Debug\netcoreapp2.0\node mkdir $(ProjectDir)bin\Debug\netcoreapp2.0\node&#xD;&#xA;&#xD;&#xA;xcopy $(ProjectDir)packages\node.js.redist\8.9.1\tools\* $(ProjectDir)bin\Debug\net451\node /s /y&#xD;&#xA;xcopy $(ProjectDir)packages\node.js.redist\8.9.1\tools\* $(ProjectDir)bin\Debug\netcoreapp2.0\node /s /y&#xD;&#xA;&#xD;&#xA;xcopy $(ProjectDir)bin\Debug\net451\* D:\vstest\artifacts\Debug\net451\win7-x64\Extensions\ /s /y&#xD;&#xA;xcopy $(ProjectDir)bin\Debug\netcoreapp2.0\* D:\vstest\artifacts\Debug\netcoreapp2.0\Extensions\ /s /y&#xD;&#xA;" />
+  </Target>
+
+  <ItemGroup>
+    <Reference Update="*">
+      <Private>false</Private>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </Reference>
+  </ItemGroup>
 </Project>
