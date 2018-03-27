@@ -9,6 +9,6 @@
         "baseUrl": "./JavaScriptTestHost"
     },
     "exclude": [
-        "*node*"
+        "*/Node/*"
     ]
 }

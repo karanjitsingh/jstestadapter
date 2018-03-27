@@ -5,13 +5,13 @@
   "main": "index.js",
   "dependencies": {},
   "devDependencies": {
-    "@types/node": "^9.4.7",
+    "@types/node": "^9.6.0",
     "typescript": "^2.7.2"
   },
   "scripts": {
     "build:node": "./node_modules/.bin/tsc -p tsconfig.node.json",
     "build:browser": "./node_modules/.bin/tsc -p tsconfig.browser.json",
-    "build": "npm run build:node && npm run build:browser"
+    "build": "./node_modules/.bin/tsc -p tsconfig.json"
   },
   "repository": {
     "type": "git",

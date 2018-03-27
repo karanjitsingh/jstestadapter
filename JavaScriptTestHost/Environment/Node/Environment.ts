@@ -1,17 +1,16 @@
 
 import {default as IEnvironment, EnvironmentType} from "../IEnvironment"
-import Socket from "./Socket";
+import CommunicationManager from "./CommunicationManager"
 
 export default class NodeEnvironment implements IEnvironment {
-    public readonly environmentType: EnvironmentType;
+    public readonly environmentType: EnvironmentType = EnvironmentType.NodeJS;
     public argv: Array<string>;
 
     constructor() {
-        this.environmentType = EnvironmentType.NodeJS;
         this.argv = <Array<string>>process.argv;
     }
 
-    public getSocket(): Socket {
-        return new Socket();
+    public GetCommunicationManager(): CommunicationManager {
+        return new CommunicationManager();
     }
 }

@@ -1,6 +1,6 @@
-import ISocket from "./ISocket";
+import ICommunicationManager from "../CommunicationUtils/ICommunicationManager";
 
-export declare enum EnvironmentType {
+export enum EnvironmentType {
     NodeJS,
     Browser
 }
@@ -8,5 +8,5 @@ export declare enum EnvironmentType {
 export default interface IEnvironment {
     readonly environmentType: EnvironmentType;
     readonly argv: Array<string>;
-    getSocket(): ISocket;
+    GetCommunicationManager(): ICommunicationManager;
 }
