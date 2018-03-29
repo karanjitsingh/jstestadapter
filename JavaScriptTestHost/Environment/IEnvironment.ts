@@ -1,4 +1,7 @@
 import ICommunicationManager from "../CommunicationUtils/ICommunicationManager";
+import IEventDispatcher from "Events/IEventDispatcher";
+import Event from "Events/Event";
+
 
 export enum EnvironmentType {
     NodeJS,
@@ -8,5 +11,7 @@ export enum EnvironmentType {
 export default interface IEnvironment {
     readonly environmentType: EnvironmentType;
     readonly argv: Array<string>;
-    GetCommunicationManager(): ICommunicationManager;
+    readonly EventDispatcher: IEventDispatcher;
+    createCommunicationManager(): ICommunicationManager;
+    createEvent(): Event;
 }

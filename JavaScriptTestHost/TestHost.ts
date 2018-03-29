@@ -4,15 +4,17 @@ import {default as Exception, ExceptionType} from "./Exceptions/Exception";
 import MessageType from "./CommunicationUtils/MessageType";
 import Message from "./CommunicationUtils/Message"
 
+
 const ipRegex = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
 
 export default class TestHost {
     private environment:IEnvironment;
     private communicationManager: ICommunicationManager;
+    private event:Event = new Event(disp);
 
     constructor(environment: IEnvironment) {
         this.environment = environment;
-        this.communicationManager = environment.GetCommunicationManager();
+        this.communicationManager = environment.CommunicationManager;
         this.validateArguments(this.environment.argv);
     }
     

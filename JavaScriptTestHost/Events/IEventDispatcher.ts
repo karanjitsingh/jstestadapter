@@ -1,13 +1,21 @@
+import { EventArgs } from "./Event";
+
 export default abstract class IEventDispatcher {
     abstract subscribe(eventId: string, callback: (args) => void);
     abstract unsubscribe(eventId: string, callback: (args) => void);
-    abstract dispatch(eventId: string);
+    abstract raise(eventId: string, args: EventArgs);
     
     private eventList: JSON;
     
-    public registerEvent() {
-        let id = (new Date()).getTime();
-        this.eventList[id] = 1;
+    public registerEvent(): string {
+        let id = String((new Date()).getTime());
+
+        if(!this.eventList[id]) {
+            this.eventList[id] = 1;
+            return id;
+        }
+
+        return null;
     }
 
     public deregisterEvent(eventId: string) {
@@ -15,6 +23,4 @@ export default abstract class IEventDispatcher {
             delete this.eventList[eventId];
         }
     }
-
 }
-

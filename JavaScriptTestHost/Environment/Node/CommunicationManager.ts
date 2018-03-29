@@ -1,48 +1,56 @@
 import ICommunicationManager from "../../CommunicationUtils/ICommunicationManager"
 import Message from "../../CommunicationUtils/Message";
 import {default as Exception, ExceptionType} from "../../Exceptions/Exception";
+import IEnvironment from "../IEnvironment";
+import Event from "Events/Event";
+import BinaryReader from "./BinaryReader"
 
 export default class CommunicationManager implements ICommunicationManager {
     private socket;
-    private readBuffer: Buffer = new Buffer(1);
+    private binaryReader: BinaryReader;
+    private onmsg: Event;
+    private environment: IEnvironment;
+    public onMessageReceived: Event;
 
-    constructor() {
+    constructor(environment: IEnvironment) {
         let net = require("net");
         this.socket = new net.Socket();
+        this.onmsg = environment.createEvent();
+        this.socket.on('data', this.onSocketDataReceived);
     }
 
     public ConnectToServer(port: number, ip:string, callback: () => void) {
         this.socket.connect(port, ip, callback);
     }
 
-    public onMessageReceived(callback: (data:Message) => void) {
-        this.socket.on('data', (buffer: Buffer) => {
+    private onSocketDataReceived(buffer: Buffer) {
 
-            this.readBuffer = Buffer.concat([this.readBuffer, buffer]);
+        // this.readBuffer = Buffer.concat([this.readBuffer, buffer]);
+        
 
 
-            // try {
-            //     const match = rawData.match(/.*?({.*}).*/);
-            //     if(!match || !match[1]) {
-            //         throw new Exception("Invalid message from socket.", ExceptionType.InvalidMessage);
-            //     }
+        // try {
+        //     const match = rawData.match(/.*?({.*}).*/);
+        //     if(!match || !match[1]) {
+        //         throw new Exception("Invalid message from socket.", ExceptionType.InvalidMessage);
+        //     }
 
-            //     let json: JSON;
+        //     let json: JSON;
 
-            //     try {
-            //         json = JSON.parse(match[1]);
-            //     }
-            //     catch(e) {
-            //         throw new Exception("Invalid message from socket.", ExceptionType.InvalidMessage);
-            //     }
+        //     try {
+        //         json = JSON.parse(match[1]);
+        //     }
+        //     catch(e) {
+        //         throw new Exception("Invalid message from socket.", ExceptionType.InvalidMessage);
+        //     }
 
-                
-            //     callback(Message.FromJSON(json));
-            // }
-            // catch(e) {
+            
+        //     callback(Message.FromJSON(json));
+        // }
+        // catch(e) {
 
-            // }
-        });
+        // }
+
     }
 
     public onConnectionClose(callback: () => {}) {
@@ -58,8 +66,7 @@ export default class CommunicationManager implements ICommunicationManager {
         this.socket.write(data, "binary");
     }
 
-    private Read7BitEncodedInt(buffer: Buffer) {
-    }
+   
 
     private IntTo7BitEncodedInt(integer: number): string {
         let output = "";
@@ -68,11 +75,12 @@ export default class CommunicationManager implements ICommunicationManager {
 
         while(length > 0) {
             byte = length % 128         // will give the 7 least significant bits
-            byte += length > 128 ? 128 : 0  // will set highest bit to 1 if more bits required
+            byte += length >= 128 ? 128 : 0  // will set highest bit to 1 if more bits required
 
             output += String.fromCharCode(byte);
             length = length >> 7;
         }
         return output;
     }
+
 }
