@@ -1,9 +1,9 @@
-import { EventArgs } from "./Event";
+import { IEventArgs } from "./Event";
 
 export default abstract class IEventDispatcher {
-    abstract subscribe(eventId: string, callback: (args) => void);
-    abstract unsubscribe(eventId: string, callback: (args) => void);
-    abstract raise(eventId: string, args: EventArgs);
+    abstract subscribe(eventId: string, callback: (sender:object, args: IEventArgs) => void);
+    abstract unsubscribe(eventId: string, callback: (sender:object, args: IEventArgs) => void);
+    abstract raise(eventId: string, sender:object, args: IEventArgs);
     
     private eventList: JSON;
     

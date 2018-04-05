@@ -1,10 +1,9 @@
 import IEventDispatcher from "./IEventDispatcher";
 
-export class EventArgs {
-    sender: object;
+export interface IEventArgs {
 }
 
-export default class Event {
+export default class Event<TArgs extends IEventArgs> {
     private eventID: string;
     private eventDispatcher: IEventDispatcher;
     
@@ -13,9 +12,9 @@ export default class Event {
         this.eventID = this.eventDispatcher.registerEvent();
     }
 
-    public subscribe = (handler: (args: EventArgs) => void) => this.eventDispatcher.subscribe(this.eventID, handler);
+    public subscribe = (handler: (sender:object, args: TArgs) => void) => this.eventDispatcher.subscribe(this.eventID, handler);
 
-    public unsubscribe = (handler: (args: EventArgs) => void) => this.eventDispatcher.unsubscribe(this.eventID, handler);
+    public unsubscribe = (handler: (sender:object, args: TArgs) => void) => this.eventDispatcher.unsubscribe(this.eventID, handler);
 
-    public raise = (args: EventArgs) => this.eventDispatcher.raise(this.eventID, args);
+    public raise = (sender:object, args: TArgs) => this.eventDispatcher.raise(this.eventID, sender, args);
 }

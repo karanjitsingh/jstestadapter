@@ -1,8 +1,12 @@
 import Message from "./Message";
-import Event from "Events/Event";
+import Event, { IEventArgs } from "Events/Event";
+
+export interface MessageReceivedEventArgs extends IEventArgs {
+    Message: Message;
+}
 
 export default interface ICommunicationManager {
-    onMessageReceived: Event;
+    onMessageReceived: Event<MessageReceivedEventArgs>;
     
     ConnectToServer(port: number, ip:string, callback: () => void);
     onConnectionClose(callback: () => {});

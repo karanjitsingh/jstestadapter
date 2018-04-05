@@ -13,5 +13,5 @@ export default interface IEnvironment {
     readonly argv: Array<string>;
     readonly EventDispatcher: IEventDispatcher;
     createCommunicationManager(): ICommunicationManager;
-    createEvent(): Event;
+    createEvent<T>(): Event<T>;
 }

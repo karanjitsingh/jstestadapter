@@ -1,6 +1,7 @@
 export enum ExceptionType {
     InvalidArgumentsException,
-    InvalidMessage,
+    InvalidMessageException,
+    InvalidJSONException,
     UnknownException
 }
 

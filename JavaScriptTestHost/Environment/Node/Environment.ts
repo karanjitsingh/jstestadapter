@@ -20,7 +20,7 @@ export default class NodeEnvironment implements IEnvironment {
         return new CommunicationManager(this);
     }
 
-    public createEvent(): Event {
-        return new Event(this.EventDispatcher)
+    public createEvent<T>(): Event<T> {
+        return new Event<T>(this.EventDispatcher)
     }
 }

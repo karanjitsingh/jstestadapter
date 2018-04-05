@@ -1,22 +1,28 @@
-import ICommunicationManager from "../../CommunicationUtils/ICommunicationManager"
+import ICommunicationManager, { MessageReceivedEventArgs } from "../../CommunicationUtils/ICommunicationManager"
 import Message from "../../CommunicationUtils/Message";
 import {default as Exception, ExceptionType} from "../../Exceptions/Exception";
 import IEnvironment from "../IEnvironment";
-import Event from "Events/Event";
-import BinaryReader from "./BinaryReader"
+import Event, { IEventArgs } from "Events/Event";
+import { encode } from "punycode";
+
+interface PacketData<T> {
+    byteCount: number;
+    dataObject: T;
+}
 
 export default class CommunicationManager implements ICommunicationManager {
     private socket;
-    private binaryReader: BinaryReader;
-    private onmsg: Event;
     private environment: IEnvironment;
-    public onMessageReceived: Event;
+    public onMessageReceived: Event<MessageReceivedEventArgs>;
+    private socketBuffer: Buffer;
 
     constructor(environment: IEnvironment) {
         let net = require("net");
+
         this.socket = new net.Socket();
-        this.onmsg = environment.createEvent();
-        this.socket.on('data', this.onSocketDataReceived);
+        this.socketBuffer = new Buffer(0);
+        this.onMessageReceived = environment.createEvent();
+        this.socket.on('dataObject', this.onSocketDataReceived);
     }
 
     public ConnectToServer(port: number, ip:string, callback: () => void) {
@@ -24,33 +30,22 @@ export default class CommunicationManager implements ICommunicationManager {
     }
 
     private onSocketDataReceived(buffer: Buffer) {
+        this.socketBuffer = Buffer.concat([this.socketBuffer, buffer]);
+        let messagePacket: PacketData<Message>;        
 
-        // this.readBuffer = Buffer.concat([this.readBuffer, buffer]);
+        do {
+            if(messagePacket != null) {
+                this.socketBuffer = this.socketBuffer.slice(messagePacket.byteCount, this.socketBuffer.length);
+
+                if(messagePacket.dataObject != null) {
+                    this.onMessageReceived.raise(this, <MessageReceivedEventArgs> {
+                        Message: messagePacket.dataObject
+                    })
+                }
+            }
+            messagePacket = this.TryReadMessage(this.socketBuffer);
+        } while(messagePacket != null);
         
-
-
-        // try {
-        //     const match = rawData.match(/.*?({.*}).*/);
-        //     if(!match || !match[1]) {
-        //         throw new Exception("Invalid message from socket.", ExceptionType.InvalidMessage);
-        //     }
-
-        //     let json: JSON;
-
-        //     try {
-        //         json = JSON.parse(match[1]);
-        //     }
-        //     catch(e) {
-        //         throw new Exception("Invalid message from socket.", ExceptionType.InvalidMessage);
-        //     }
-
-            
-        //     callback(Message.FromJSON(json));
-        // }
-        // catch(e) {
-
-        // }
-
     }
 
     public onConnectionClose(callback: () => {}) {
@@ -58,15 +53,68 @@ export default class CommunicationManager implements ICommunicationManager {
     }
 
     public SendMessage(message: Message) {
-        let data = JSON.stringify(message);
+        let dataObject = JSON.stringify(message);
 
         // 7 bit encoded int length padding
-        data = this.IntTo7BitEncodedInt(data.length) + data;
+        dataObject = this.IntTo7BitEncodedInt(dataObject.length) + dataObject;
 
-        this.socket.write(data, "binary");
+        this.socket.write(dataObject, "binary");
     }
 
-   
+    private TryReadMessage(buffer: Buffer): PacketData<Message> {
+
+        let encodedInt: PacketData<number>
+        encodedInt = this.Read7BitEncodedInt(buffer);
+        let messagePacket = <PacketData<Message>> {
+            byteCount: 0,
+            dataObject: null
+        }
+
+        if(encodedInt) {
+            if(buffer.length >= encodedInt.byteCount + encodedInt.dataObject) {
+                let rawMessage = buffer.toString('utf8', encodedInt.byteCount, encodedInt.byteCount + encodedInt.dataObject);
+                messagePacket.byteCount = encodedInt.byteCount + encodedInt.dataObject;
+                
+                try {
+                    let messageJson = JSON.parse(rawMessage);
+                    messagePacket.dataObject = Message.FromJSON(messageJson);
+                }
+                catch(e) {
+                    // log problem
+                    // return packet with null message
+                }
+
+                return messagePacket;
+            }
+        }
+
+        return null;
+    }
+
+    // Will return non-negative integer if read was successful
+    private Read7BitEncodedInt(buffer: Buffer): PacketData<number> {
+        let length:number = 0;
+
+        // max 32bit integer + one extra byte since 32 bit integer encoded in integer can take upto 36 bits
+        for(let i=0;i<5;i++) {
+            
+            if(buffer.length < i+1)
+                break;
+            
+            var byte = buffer.readUInt8(i);
+
+            length += (byte % 128) << 7 * i;
+
+            if(byte < 128) {
+                return {
+                    byteCount: i+1,
+                    dataObject: length
+                };
+            }
+        }
+
+        return null;
+    }
 
     private IntTo7BitEncodedInt(integer: number): string {
         let output = "";

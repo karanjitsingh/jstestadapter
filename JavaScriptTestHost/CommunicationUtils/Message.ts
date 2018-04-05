@@ -20,11 +20,11 @@ export default class Message {
         let version = null;
 
         if(!json['MessageType']) {
-            throw new Exception("Message type was not provided.", ExceptionType.InvalidMessage);
+            throw new Exception("Message type was not provided.", ExceptionType.InvalidMessageException);
         }
 
         if(Object.keys(MessageType).map(key => MessageType[key]).indexOf(json['MessageType']) == -1) {
-            throw new Exception("Unknown message type \'" + json['MessageType'] + "\'.", ExceptionType.InvalidMessage);
+            throw new Exception("Unknown message type \'" + json['MessageType'] + "\'.", ExceptionType.InvalidMessageException);
         }
         
         messageType = <MessageType>json['MessageType'];
