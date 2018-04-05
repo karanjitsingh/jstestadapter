@@ -1,6 +1,6 @@
-import IEventDispatcher from "Events/IEventDispatcher";
+import IEventDispatcher from "../../Events/IEventDispatcher";
+import { IEventArgs } from "../../Events/Event";
 import { EventEmitter } from "events";
-import { IEventArgs } from "Events/Event";
 
 export default class EventDispatcher extends IEventDispatcher {
     private events: EventEmitter;
@@ -19,6 +19,6 @@ export default class EventDispatcher extends IEventDispatcher {
         this.events.removeListener(eventId, callback);
     }
     public raise(eventId: string, sender: object, args: IEventArgs) {
-        this.events.emit(eventId, args);
+        this.events.emit(eventId, sender, args);
     }
 }

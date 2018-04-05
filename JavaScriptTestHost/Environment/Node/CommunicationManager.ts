@@ -2,8 +2,7 @@ import ICommunicationManager, { MessageReceivedEventArgs } from "../../Communica
 import Message from "../../CommunicationUtils/Message";
 import {default as Exception, ExceptionType} from "../../Exceptions/Exception";
 import IEnvironment from "../IEnvironment";
-import Event, { IEventArgs } from "Events/Event";
-import { encode } from "punycode";
+import Event, { IEventArgs } from "../../Events/Event";
 
 interface PacketData<T> {
     byteCount: number;
@@ -22,14 +21,14 @@ export default class CommunicationManager implements ICommunicationManager {
         this.socket = new net.Socket();
         this.socketBuffer = new Buffer(0);
         this.onMessageReceived = environment.createEvent();
-        this.socket.on('dataObject', this.onSocketDataReceived);
+        this.socket.on('data', this.onSocketDataReceived);
     }
 
     public ConnectToServer(port: number, ip:string, callback: () => void) {
         this.socket.connect(port, ip, callback);
     }
 
-    private onSocketDataReceived(buffer: Buffer) {
+    private onSocketDataReceived = (buffer: Buffer) => {
         this.socketBuffer = Buffer.concat([this.socketBuffer, buffer]);
         let messagePacket: PacketData<Message>;        
 

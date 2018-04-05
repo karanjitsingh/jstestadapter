@@ -5,7 +5,11 @@ export default abstract class IEventDispatcher {
     abstract unsubscribe(eventId: string, callback: (sender:object, args: IEventArgs) => void);
     abstract raise(eventId: string, sender:object, args: IEventArgs);
     
-    private eventList: JSON;
+    private eventList;
+
+    constructor() {
+        this.eventList = [];
+    }
     
     public registerEvent(): string {
         let id = String((new Date()).getTime());

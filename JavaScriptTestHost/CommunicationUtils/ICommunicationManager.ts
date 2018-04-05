@@ -1,5 +1,5 @@
 import Message from "./Message";
-import Event, { IEventArgs } from "Events/Event";
+import Event, { IEventArgs } from "../Events/Event";
 
 export interface MessageReceivedEventArgs extends IEventArgs {
     Message: Message;

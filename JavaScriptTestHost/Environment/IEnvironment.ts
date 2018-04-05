@@ -1,6 +1,6 @@
 import ICommunicationManager from "../CommunicationUtils/ICommunicationManager";
-import IEventDispatcher from "Events/IEventDispatcher";
-import Event from "Events/Event";
+import IEventDispatcher from "../Events/IEventDispatcher";
+import Event from "../Events/Event";
 
 
 export enum EnvironmentType {

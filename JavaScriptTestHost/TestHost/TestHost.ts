@@ -1,8 +1,9 @@
-import {IEnvironment} from "./Environment"
-import ICommunicationManager, { MessageReceivedEventArgs } from "./CommunicationUtils/ICommunicationManager";
-import {default as Exception, ExceptionType} from "./Exceptions/Exception";
-import MessageType from "./CommunicationUtils/MessageType";
-import Message from "./CommunicationUtils/Message"
+import {IEnvironment} from "../Environment"
+import ICommunicationManager, { MessageReceivedEventArgs } from "../CommunicationUtils/ICommunicationManager";
+import {default as Exception, ExceptionType} from "../Exceptions/Exception";
+import MessageType from "../CommunicationUtils/MessageType";
+import Message from "../CommunicationUtils/Message"
+import TestRunCriteriaWithSources from "../ObjectModel/TestRunCriteriaWithSources";
 
 
 const ipRegex = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
@@ -18,7 +19,6 @@ export default class TestHost {
     }
     
     public setupCommunication() {
-        debugger;
         this.communicationManager.onMessageReceived.subscribe(this.messageReceived);
         this.communicationManager.ConnectToServer(Number(this.environment.argv[2]), "127.0.0.1", this.onSocketConnected);
     }
@@ -30,6 +30,10 @@ export default class TestHost {
 
         if(message.MessageType == MessageType.VersionCheck && message.Payload == "2") {
             this.communicationManager.SendMessage(message);
+        }
+
+        if(message.MessageType == MessageType.StartTestExecutionWithSources) {
+            let payload: TestRunCriteriaWithSources = JSON.parse(message.Payload)
         }
     };
 
