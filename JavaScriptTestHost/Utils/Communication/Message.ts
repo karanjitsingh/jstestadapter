@@ -1,12 +1,12 @@
 import MessageType from "./MessageType";
-import {default as Exception, ExceptionType} from "../Exceptions/Exception";
+import {default as Exception, ExceptionType} from "../../Exceptions/Exception";
 
 export default class Message {
     public MessageType: MessageType;
-    public Payload: string;
+    public Payload;
     public Version?: number;
 
-    constructor(messageType: MessageType, payload: string, version?:number) {
+    constructor(messageType: MessageType, payload, version?:number) {
         if(version) {
             this.Version = version;
         }

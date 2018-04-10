@@ -1,4 +1,3 @@
-import TestSuite from "./TestSuite";
 import TestCase from "./TestCase";
 
 enum Result {

@@ -2,6 +2,7 @@
 
 $ProjectDir = (Get-Item ([System.IO.Path]::GetDirectoryName($myInvocation.MyCommand.Definition))).Parent.FullName
 $tsCompiler = Join-Path $ProjectDir "node_modules\.bin\tsc"
+$nodeModulesDir = Join-Path $ProjectDir "node_modules\"
 $tsConfig = Join-Path $ProjectDir "tsconfig.json"
 $FullCLRDir = Join-Path $ProjectDir "bin\Debug\net451\"
 $CoreCLRDir = Join-Path $ProjectDir "bin\Debug\netcoreapp2.0\"
@@ -34,6 +35,9 @@ Copy-Item -Path $NodeBinaries -Destination (Join-Path $CoreCLRDir "node\") -Recu
 Write-Host "Copying local output to vstest extensions folder."
 Copy-Item -Path (Join-Path $FullCLRDir "*") -Destination $FullCLRExtensionsDir -Recurse -Force
 Copy-Item -Path (Join-Path $CoreCLRDir "*") -Destination $CoreCLRExtensionsDir -Recurse -Force
+
+Write-Host "Copying node_modules to JSTestHost folder"
+Copy-Item -Path $nodeModulesDir -Destination $TestHostDir -Recurse -Force
 
 Write-Host "Copying JSTestHost to vstest extensions folder."
 Copy-Item -Path $TestHostDir -Destination $FullCLRExtensionsDir -Recurse -Force

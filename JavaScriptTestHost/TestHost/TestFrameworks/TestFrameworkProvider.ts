@@ -1,15 +1,16 @@
 import ITestFramework from "./ITestFramework";
-import JasmineTestFramework from "./JasmineTestFramework";
+import JasmineTestFramework from "./Jasmine/JasmineTestFramework";
+import IEnvironment from "../../Environment/IEnvironment";
 
 export enum TestFramework {
     Jasmine
 }
 
 export default class TestFrameworkProvider {
-    public static GetTestFrameWork(framework: TestFramework): ITestFramework {
+    public static GetTestFramework(framework: TestFramework, enviroment: IEnvironment): ITestFramework {
         switch(framework) {
             case TestFramework.Jasmine:
-                return new JasmineTestFramework();
+                return new JasmineTestFramework(enviroment);
             default:
                 return null;
         }

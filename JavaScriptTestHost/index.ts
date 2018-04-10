@@ -1,16 +1,17 @@
 import {IEnvironment, EnvironmentProvider} from "./Environment";
-import { TestHost } from "./TestHost"
+import { default as TestHost } from "./TestHost/TestHost"
 
 let testHost: TestHost;
 
 EnvironmentProvider.GetEnvironment().then((env: IEnvironment) => {
-    // try {
+    try {
         let testhost = new TestHost(env);
         testhost.setupCommunication();
-    // }
-    // catch(err) {
-    //     console.error(err);
-    // }
+    }
+    catch(err) {
+        var e:Error = <Error>err;
+        console.error(err, err.stack);
+    }
 }, (err) => {
     console.error(err);
 });

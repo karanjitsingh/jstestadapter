@@ -3,10 +3,13 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "dependencies": {},
+  "dependencies": {
+    "jasmine": "^3.1.0"
+  },
   "devDependencies": {
-    "@types/node": "^9.6.0",
-    "typescript": "^2.7.2"
+    "@types/jasmine": "^2.8.6",
+    "@types/node": "^9.6.2",
+    "typescript": "^2.8.1"
   },
   "scripts": {
     "build:node": "./node_modules/.bin/tsc -p tsconfig.node.json",

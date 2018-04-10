@@ -1,5 +1,5 @@
-import ICommunicationManager, { MessageReceivedEventArgs } from "../../CommunicationUtils/ICommunicationManager"
-import Message from "../../CommunicationUtils/Message";
+import ICommunicationManager, { MessageReceivedEventArgs } from "../../Utils/Communication/ICommunicationManager"
+import Message from "../../Utils/Communication/Message";
 import {default as Exception, ExceptionType} from "../../Exceptions/Exception";
 import IEnvironment from "../IEnvironment";
 import Event, { IEventArgs } from "../../Events/Event";
@@ -129,5 +129,4 @@ export default class CommunicationManager implements ICommunicationManager {
         }
         return output;
     }
-
 }

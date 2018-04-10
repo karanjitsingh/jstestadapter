@@ -1,7 +1,7 @@
 
 import {default as IEnvironment, EnvironmentType} from "../IEnvironment"
 import CommunicationManager from "./CommunicationManager"
-import ICommunicationManager from "../../CommunicationUtils/ICommunicationManager";
+import ICommunicationManager from "../../Utils/Communication/ICommunicationManager";
 import IEventDispatcher from "../../Events/IEventDispatcher";
 import EventDispatcher from "./EventDispatcher";
 import Event from "../../Events/Event";
