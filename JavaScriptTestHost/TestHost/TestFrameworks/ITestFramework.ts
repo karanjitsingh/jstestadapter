@@ -1,18 +1,15 @@
 import Event, { IEventArgs } from "../../Events/Event";
 import IEnvironment from "../../Environment/IEnvironment";
-
-export interface TestFrameWorkEventArgs extends IEventArgs {
-
-}
+import { TestCaseEventArgs, TestSuiteEventArgs, TestSessionEventArgs } from "./TestFrameworkEventArgs";
 
 export default interface ITestFramework {
-    onTestCaseStart: Event<TestFrameWorkEventArgs>;
-    onTestCaseEnd: Event<TestFrameWorkEventArgs>;
-    onTestSuiteStart: Event<TestFrameWorkEventArgs>;
-    onTestSuiteEnd: Event<TestFrameWorkEventArgs>;
-    onTestSessionStart: Event<TestFrameWorkEventArgs>;
-    onTestSessionEnd: Event<TestFrameWorkEventArgs>;
-    
+    onTestCaseStart: Event<TestCaseEventArgs>;
+    onTestCaseEnd: Event<TestCaseEventArgs>;
+    onTestSuiteStart: Event<TestSuiteEventArgs>;
+    onTestSuiteEnd: Event<TestSuiteEventArgs>;
+    onTestSessionStart: Event<TestSessionEventArgs>;
+    onTestSessionEnd: Event<TestSessionEventArgs>;
+
     StartExecution(source: string): void;
     StartDiscovery(source: string): void;
 }

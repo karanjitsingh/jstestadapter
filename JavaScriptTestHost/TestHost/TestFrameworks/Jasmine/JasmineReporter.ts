@@ -1,3 +1,6 @@
+import { IEventArgs } from "Events/Event";
+import { TestFrameworkEvents, TestSessionEventArgs } from "../TestFrameworkEvents";
+
 export enum JasmineReporterEvent {
     JasmineStarted,
     JasmineDone,
@@ -19,19 +22,22 @@ export default class JasmineReporter {
     private fileStartTime: number;
     private testStartTime: number;
     private activeTestCase;
-    private reporterEventCallback: (event: JasmineReporterEvent, args) => void;
+    private testFrameworkEvents: TestFrameworkEvents;
     private passedCount: number = 0;
     private skippedCount: number = 0;
     private failedCount: number = 0;
 
-    constructor(reporterEventCallback: (event: JasmineReporterEvent, args) => void) {
-        this.reporterEventCallback =  reporterEventCallback
-                                        ? reporterEventCallback
-                                        : (event: JasmineReporterEvent, args) => {};
+    constructor(testFrameworkEvents: TestFrameworkEvents) {
+        this.testFrameworkEvents = testFrameworkEvents;
     }
 
     public jasmineStarted() {
         this.fileStartTime = new Date().getTime();
+
+        let args: TestSessionEventArgs;
+
+        this.testFrameworkEvents.onTestSessionStart.raise(this, args)
+
         this.reporterEventCallback(JasmineReporterEvent.JasmineStarted, null);
     }
     
