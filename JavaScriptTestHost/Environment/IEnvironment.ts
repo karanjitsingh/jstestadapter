@@ -1,4 +1,4 @@
-import ICommunicationManager from "../Utils/Communication/ICommunicationManager";
+import ICommunicationManager from "../Utils/ICommunicationManager";
 import IEventDispatcher from "../Events/IEventDispatcher";
 import Event from "../Events/Event";
 

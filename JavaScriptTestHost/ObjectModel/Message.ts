@@ -1,5 +1,5 @@
 import MessageType from "./MessageType";
-import {default as Exception, ExceptionType} from "../../Exceptions/Exception";
+import {default as Exception, ExceptionType} from "../Exceptions/Exception";
 
 export default class Message {
     public MessageType: MessageType;

@@ -1,5 +1,5 @@
-import ICommunicationManager, { MessageReceivedEventArgs } from "../../Utils/Communication/ICommunicationManager"
-import Message from "../../Utils/Communication/Message";
+import ICommunicationManager, { MessageReceivedEventArgs } from "../../Utils/ICommunicationManager"
+import Message from "../../ObjectModel/Message";
 import {default as Exception, ExceptionType} from "../../Exceptions/Exception";
 import IEnvironment from "../IEnvironment";
 import Event, { IEventArgs } from "../../Events/Event";

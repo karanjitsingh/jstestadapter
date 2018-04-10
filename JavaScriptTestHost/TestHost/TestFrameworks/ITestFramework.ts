@@ -8,11 +8,11 @@ export interface TestFrameWorkEventArgs extends IEventArgs {
 export default interface ITestFramework {
     onTestCaseStart: Event<TestFrameWorkEventArgs>;
     onTestCaseEnd: Event<TestFrameWorkEventArgs>;
+    onTestSuiteStart: Event<TestFrameWorkEventArgs>;
+    onTestSuiteEnd: Event<TestFrameWorkEventArgs>;
     onTestSessionStart: Event<TestFrameWorkEventArgs>;
     onTestSessionEnd: Event<TestFrameWorkEventArgs>;
-    onFileStart: Event<TestFrameWorkEventArgs>;
-    onFileEnd: Event<TestFrameWorkEventArgs>;
     
-    StartExecution(sources: Array<string>): void;
-    StartDiscovery(sources: Array<string>): void;
+    StartExecution(source: string): void;
+    StartDiscovery(source: string): void;
 }

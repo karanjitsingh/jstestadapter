@@ -1,8 +1,8 @@
 import {IEnvironment} from "../Environment"
-import ICommunicationManager, { MessageReceivedEventArgs } from "../Utils/Communication/ICommunicationManager";
+import ICommunicationManager, { MessageReceivedEventArgs } from "../Utils/ICommunicationManager";
 import {default as Exception, ExceptionType} from "../Exceptions/Exception";
-import MessageType from "../Utils/Communication/MessageType";
-import Message from "../Utils/Communication/Message"
+import MessageType from "../ObjectModel/MessageType";
+import Message from "../ObjectModel/Message"
 import TestRunCriteriaWithSources from "../ObjectModel/TestRunCriteriaWithSources";
 import JobQueue from "../Utils/JobQueue";
 import TestRunner from "./TestRunner";

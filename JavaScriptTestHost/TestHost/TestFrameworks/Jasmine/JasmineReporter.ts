@@ -20,6 +20,9 @@ export default class JasmineReporter {
     private testStartTime: number;
     private activeTestCase;
     private reporterEventCallback: (event: JasmineReporterEvent, args) => void;
+    private passedCount: number = 0;
+    private skippedCount: number = 0;
+    private failedCount: number = 0;
 
     constructor(reporterEventCallback: (event: JasmineReporterEvent, args) => void) {
         this.reporterEventCallback =  reporterEventCallback
@@ -68,16 +71,16 @@ export default class JasmineReporter {
             return;
         }
 
-        // if (result.status === "failed") {
-        //     failedCount++;
-        // }
-        // else if (result.status === "pending") {
-        //     skippedCount++;
-        //     this.activeTestCase.skipped = true;
-        // }
-        // else {
-        //     passedCount++;
-        // }
+        if (result.status === "failed") {
+            this.failedCount++;
+        }
+        else if (result.status === "pending") {
+            this.skippedCount++;
+            this.activeTestCase.skipped = true;
+        }
+        else {
+            this.passedCount++;
+        }
 
         let timetaken = new Date().getTime() - this.testStartTime;
         this.activeTestCase.timetaken = timetaken;
