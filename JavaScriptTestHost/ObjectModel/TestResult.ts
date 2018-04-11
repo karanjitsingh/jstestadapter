@@ -3,7 +3,7 @@ import { TestOutcome } from "./TestOutcome";
 
 export default interface TestResult {
 	TestCase: TestCase;
-	Attachments;    // TODO missing
+	Attachments: Array<any>;    // TODO missing
 	Outcome: TestOutcome;
 	ErrorMessage: string;
 	ErrorStackTrace: string;
@@ -20,3 +20,4 @@ export interface TestResultMessage
     Category: string;
     Text: string;
 }
+

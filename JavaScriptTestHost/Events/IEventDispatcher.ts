@@ -1,8 +1,9 @@
-import { IEventArgs } from "./Event";
+import { IEventArgs, IEventHandler } from "./Event";
+
 
 export default abstract class IEventDispatcher {
-    abstract subscribe(eventId: string, callback: (sender:object, args: IEventArgs) => void);
-    abstract unsubscribe(eventId: string, callback: (sender:object, args: IEventArgs) => void);
+    abstract subscribe(eventId: string, callback: IEventHandler<IEventArgs>);
+    abstract unsubscribe(eventId: string, callback: IEventHandler<IEventArgs>);
     abstract raise(eventId: string, sender:object, args: IEventArgs);
     
     private eventList;
@@ -12,14 +13,16 @@ export default abstract class IEventDispatcher {
     }
     
     public registerEvent(): string {
-        let id = String((new Date()).getTime());
+        let id = "";
 
-        if(!this.eventList[id]) {
-            this.eventList[id] = 1;
-            return id;
+        // TODO potentially dangerous
+        while(id == "" || this.eventList[id]) {
+            id = String((new Date()).getTime());            
         }
+        
+        this.eventList[id] = 1;
+        return id;
 
-        return null;
     }
 
     public deregisterEvent(eventId: string) {

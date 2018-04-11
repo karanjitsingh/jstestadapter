@@ -30,7 +30,7 @@ export default class CommunicationManager implements ICommunicationManager {
 
     private onSocketDataReceived = (buffer: Buffer) => {
         this.socketBuffer = Buffer.concat([this.socketBuffer, buffer]);
-        let messagePacket: PacketData<Message>;        
+        let messagePacket: PacketData<Message> = null; 
 
         do {
             if(messagePacket != null) {

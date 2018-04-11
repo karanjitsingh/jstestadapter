@@ -53,6 +53,7 @@ export default class JobQueue {
     private JobFinished(err?: Error) {
         if(err) {
             // log error
+            console.error(err);
         }
 
         let job = this.jobQueue.pop();

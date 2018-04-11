@@ -1,4 +1,6 @@
-
+param(
+    [switch] $clean
+)
 
 $ProjectDir = (Get-Item ([System.IO.Path]::GetDirectoryName($myInvocation.MyCommand.Definition))).Parent.FullName
 $tsCompiler = Join-Path $ProjectDir "node_modules\.bin\tsc"
@@ -10,6 +12,16 @@ $FullCLRExtensionsDir = "D:\vstest\artifacts\Debug\net451\win7-x64\Extensions\"
 $CoreCLRExtensionsDir = "D:\vstest\artifacts\Debug\netcoreapp2.0\Extensions\"
 $NodeBinaries = Join-Path $ProjectDir "packages\node.js.redist\8.9.1\tools\*"
 $TestHostDir = Join-Path $ProjectDir "bin\Debug\jstesthost\"
+
+if($clean) {
+    Write-Host "Cleaning folders.`n";
+
+    Remove-Item (Join-Path $FullCLRExtensionsDir "node") -Recurse -Force -ErrorAction SilentlyContinue
+    Remove-Item (Join-Path $CoreCLRExtensionsDir "node") -Recurse -Force -ErrorAction SilentlyContinue
+    Remove-Item (Join-Path $FullCLRExtensionsDir "jstesthost") -Recurse -Force -ErrorAction SilentlyContinue
+    Remove-Item (Join-Path $CoreCLRExtensionsDir "jstesthost") -Recurse -Force -ErrorAction SilentlyContinue
+    Remove-Item (Join-Path $ProjectDir "bin\Debug\*") -Recurse -Force -ErrorAction SilentlyContinue
+}
 
 Write-Host "Starting msbuild.`n"
 dotnet msbuild $ProjectDir

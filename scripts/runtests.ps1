@@ -1,4 +1,10 @@
-.\build.ps1
+param(
+    [switch]$runonly
+)
+
+if(!$runonly) {
+    .\build.ps1
+}
 
 Write-Host "`nStarting Execution...`n"
 
