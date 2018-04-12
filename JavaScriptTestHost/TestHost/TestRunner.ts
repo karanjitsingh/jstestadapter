@@ -5,15 +5,24 @@ import TestCase from "../ObjectModel/TestCase";
 import TestResult from "../ObjectModel/TestResult";
 import ITestFramework from "./TestFrameworks/ITestFramework";
 import { TestSessionEventArgs, TestCaseEventArgs, TestSuiteEventArgs } from "./TestFrameworks/TestFrameworkEventArgs";
-import { TestCache, TestRunStatsChangeEventArgs } from "./TestCache";
+import { TestCache } from "./TestCache";
+import TimeSpan from "../Utils/TimeSpan";
+import ICommunicationManager from "../Utils/ICommunicationManager";
+import MessageType from "../ObjectModel/MessageType";
+import { TestRunChangedEventArgs } from "../ObjectModel/TestRunChangedEventArgs";
+import Message from "../ObjectModel/Message";
+import { debug } from "util";
 
 export default class TestRunner {
 
-    private environment: IEnvironment;
+    private readonly environment: IEnvironment;
+    private readonly communicationManager: ICommunicationManager;
+    
     private testCache: TestCache;
 
-    constructor(environment: IEnvironment) {
+    constructor(environment: IEnvironment, communicationManager: ICommunicationManager) {
         this.environment = environment;
+        this.communicationManager = communicationManager;
     }
 
     public DiscoverTests(): Array<TestCase> {
@@ -48,39 +57,63 @@ export default class TestRunner {
         framework.onTestCaseEnd.subscribe(this.HandleTestCaseEnd);
     }
 
-    private HandleTestSessionStart(sender: object, args: TestSessionEventArgs) {
+    private HandleTestSessionStart = (sender: object, args: TestSessionEventArgs) => {
         console.log(args);
-    }
+    };
 
-    private HandleTestSessionEnd(sender: object, args: TestSessionEventArgs) {
+    private HandleTestSessionEnd = (sender: object, args: TestSessionEventArgs) => {
         console.log("test session end trigger");
-        this.testCache.CleanCache();
-    }
+        let x = this.testCache.CleanCache();
+        
+        let testRunChangedMessaged = new Message(MessageType.TestRunStatsChange, x, 2);
+        this.communicationManager.SendMessage(testRunChangedMessaged);
+        debugger;
+    };
 
-    private HandleTestSuiteStart(sender: object, args: TestSuiteEventArgs) {
+    private HandleTestSuiteStart = (sender: object, args: TestSuiteEventArgs) => {
         console.log(args);
-    }
+    };
 
-    private HandleTestSuiteEnd(sender: object, args: TestSuiteEventArgs) {
+    private HandleTestSuiteEnd = (sender: object, args: TestSuiteEventArgs) => {
         console.log(args);
-    }
+    };
 
-    private HandleTestCaseStart(sender: object, args: TestCaseEventArgs) {
+    private HandleTestCaseStart = (sender: object, args: TestCaseEventArgs) => {
         console.log("adding test case to cache");
         this.testCache.AddInProgressTest(args.TestCase);
-    }
+    };
 
-    private HandleTestCaseEnd(sender: object, args: TestCaseEventArgs) {
+    private HandleTestCaseEnd = (sender: object, args: TestCaseEventArgs) => {
         console.log("adding test result to cache");
         
+        // TODO incomplete test results - display name etc are null
+
         let testResult: TestResult = {
             TestCase: args.TestCase,
             Attachments: [],
-            Outcome
+            Outcome: args.Outcome,
+            ErrorMessage: null,
+            ErrorStackTrace: null,
+            DisplayName: null,
+            Messages: [],
+            ComputerName: null,
+            Duration: TimeSpan.MSToString(args.EndTime.getTime() - args.StartTime.getTime()),
+            StartTime: args.StartTime,
+            EndTime: args.EndTime
         }
-    }
 
-    private HandleTestRunStatsChange(sender: object, args: TestRunStatsChangeEventArgs) {
-        console.log(args);
-    }
+        if(args.FailedExpectations.length > 0) {
+            testResult.ErrorMessage = args.FailedExpectations[0].Message;
+            testResult.ErrorStackTrace = args.FailedExpectations[0]. StackTrace;
+        }
+
+        this.testCache.AddTestResult(testResult);
+    };
+
+    private HandleTestRunStatsChange = (sender: object, args: TestRunChangedEventArgs) => {
+        console.log("test run stats change");
+
+        let testRunChangedMessaged = new Message(MessageType.TestRunStatsChange, args, 2);
+        this.communicationManager.SendMessage(testRunChangedMessaged);
+    };
 }

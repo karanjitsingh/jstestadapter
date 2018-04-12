@@ -1,7 +1,7 @@
 import TestCase from "./TestCase";
 import { TestOutcome } from "./TestOutcome";
 
-export default interface TestResult {
+export default class TestResult  {
 	TestCase: TestCase;
 	Attachments: Array<any>;    // TODO missing
 	Outcome: TestOutcome;

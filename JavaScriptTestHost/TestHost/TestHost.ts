@@ -21,7 +21,7 @@ export default class TestHost {
         this.communicationManager = environment.createCommunicationManager();
         this.jobQueue = new JobQueue();
         this.validateArguments(this.environment.argv);
-        this.testRunner = new TestRunner(environment);
+        this.testRunner = new TestRunner(environment, this.communicationManager);
     }
     
     public setupCommunication() {

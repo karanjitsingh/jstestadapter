@@ -7,8 +7,22 @@ export default class TimeSpan {
 	}
 
 	public static MSToString(milliseconds: number) {
-		let total = milliseconds/1000;
-		let s = total % 60;
-		let m = 
+		let duration = milliseconds/1000;
+		
+		let s = duration % 60;
+		duration = (duration - s)/60;
+		let m = duration % 60;
+		duration = (duration - m)/60;
+		let h = duration % 60;
+	
+		let timespan = (h < 10 ? "0" + h : h) + ":" +
+						(m < 10 ? "0" + m : m) + ":" +
+						(String(s).length == 1 ? `0${s}` : `${s}`);					
+	
+		return timespan;
 	}
+}
+
+function MSToString(milliseconds) {
+
 }

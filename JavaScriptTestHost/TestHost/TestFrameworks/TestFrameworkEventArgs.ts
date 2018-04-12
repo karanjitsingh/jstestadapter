@@ -1,5 +1,6 @@
-import Event, { IEventArgs } from "Events/Event";
+import Event, { IEventArgs } from "../../Events/Event";
 import TestCase from "../../ObjectModel/TestCase";
+import { TestOutcome } from "../../ObjectModel/TestOutcome";
 
 interface BaseTestEventArgs extends IEventArgs {
     // test case will have extra source
@@ -17,7 +18,7 @@ export interface FailedExpectation {
 export interface TestCaseEventArgs extends BaseTestEventArgs {
     TestCase: TestCase;
     FailedExpectations: Array<FailedExpectation>;
-    Passed: boolean;
+    Outcome: TestOutcome;
 }
 
 export interface TestSuiteEventArgs extends BaseTestEventArgs {

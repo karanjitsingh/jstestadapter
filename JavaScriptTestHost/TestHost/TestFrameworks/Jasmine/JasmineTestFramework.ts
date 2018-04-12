@@ -2,7 +2,8 @@ import ITestFramework from "../ITestFramework";
 import Event, { IEventArgs } from "../../../Events/Event";
 import IEnvironment from "../../../Environment/IEnvironment";
 import { TestCaseEventArgs, TestSuiteEventArgs, TestSessionEventArgs, FailedExpectation } from "../TestFrameworkEventArgs";
-import TestCase from "ObjectModel/TestCase";
+import TestCase from "../../../ObjectModel/TestCase";
+import { TestOutcome } from "../../../ObjectModel/TestOutcome";
 
 enum JasmineReporterEvent {
     JasmineStarted,
@@ -119,7 +120,7 @@ export default class JasmineTestFramework implements ITestFramework {
                 this.activeSpec = <TestCaseEventArgs> {
                     TestCase: testCase,
                     FailedExpectations: [],
-                    Passed: false,
+                    Outcome: TestOutcome.None,
                     Source: this.source,
                     StartTime: new Date(),
                     InProgress: true,
@@ -130,7 +131,6 @@ export default class JasmineTestFramework implements ITestFramework {
                 break;
             
             case JasmineReporterEvent.SpecDone:
-
                 this.activeSpec.InProgress = false;
                 this.activeSpec.EndTime = new Date();
     
@@ -144,7 +144,15 @@ export default class JasmineTestFramework implements ITestFramework {
                     this.activeSpec.FailedExpectations.push(failedExpectation);        
                 }
 
-                this.activeSpec.Passed = args.failedExpectation.length ? false : true;
+                if (args.status === "disabled") {
+                    this.activeSpec.Outcome = TestOutcome.Skipped;
+                }
+        
+                if (args.status === "failed") {
+                    this.activeSpec.Outcome = TestOutcome.Failed;
+                }
+
+                this.activeSpec.Outcome = args.failedExpectations.length ? TestOutcome.Failed : TestOutcome.Passed;
 
                 this.onTestCaseEnd.raise(this, this.activeSpec);
                 break;
