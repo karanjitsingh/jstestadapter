@@ -21,7 +21,11 @@ export default class CommunicationManager implements ICommunicationManager {
         this.socket = new net.Socket();
         this.socketBuffer = new Buffer(0);
         this.onMessageReceived = environment.createEvent();
+
         this.socket.on('data', this.onSocketDataReceived);
+        this.socket.on('close', () => {
+            console.log("connection close");
+        });
     }
 
     public ConnectToServer(port: number, ip:string, callback: () => void) {
@@ -45,10 +49,6 @@ export default class CommunicationManager implements ICommunicationManager {
             messagePacket = this.TryReadMessage(this.socketBuffer);
         } while(messagePacket != null);
         
-    }
-
-    public onConnectionClose(callback: () => {}) {
-        this.socket.on('close', callback);
     }
 
     public SendMessage(message: Message) {

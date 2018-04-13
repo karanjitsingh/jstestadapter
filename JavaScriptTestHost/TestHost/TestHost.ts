@@ -15,6 +15,7 @@ export default class TestHost {
     private highestSupportedProcolVersion = 2;
     private jobQueue: JobQueue;
     private testRunner: TestRunner;
+    private SessionEnded: boolean;
 
     constructor(environment: IEnvironment) {
         this.environment = environment;
@@ -22,12 +23,20 @@ export default class TestHost {
         this.jobQueue = new JobQueue();
         this.validateArguments(this.environment.argv);
         this.testRunner = new TestRunner(environment, this.communicationManager);
+        this.SessionEnded = false;
+        this.initializeCommunication();
     }
     
-    public setupCommunication() {
-        debugger;
+    private initializeCommunication() {
         this.communicationManager.onMessageReceived.subscribe(this.messageReceived);
         this.communicationManager.ConnectToServer(Number(this.environment.argv[2]), "127.0.0.1", this.onSocketConnected);
+        this.WaitForSessionEnd();
+    }
+
+    private WaitForSessionEnd() {
+        if (!this.SessionEnded) {
+            setTimeout(this.WaitForSessionEnd.bind(this), 1000);
+        }
     }
 
     private messageReceived = (sender: object, args: MessageReceivedEventArgs) => {
@@ -42,12 +51,16 @@ export default class TestHost {
                 break;
             
             case MessageType.StartTestExecutionWithSources:
+
                 let payload: TestRunCriteriaWithSources = <TestRunCriteriaWithSources>message.Payload;
 
                 this.jobQueue.QueueJob(() => {
                     this.testRunner.StartTestRunWithSources(payload)
                 });
                 break;
+
+            case MessageType.SessionEnd:
+                this.SessionEnded = true;
         }
     };
 

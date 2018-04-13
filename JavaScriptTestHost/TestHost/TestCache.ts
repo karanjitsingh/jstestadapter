@@ -64,8 +64,15 @@ export class TestCache {
     }
 
     public CleanCache(): TestRunChangedEventArgs {
-        if(!this.testResultMap.size) {
-            return;
+        if(!this.testRunStatistics.ExecutedTests) {
+            return <TestRunChangedEventArgs> {
+                NewTestResults: [],
+                ActiveTests: [],
+                TestRunStatistics: <TestRunStatistics> {
+                    ExecutedTests: 0,
+                    Stats: {}
+                }
+            };
         }
 
         // TODO testrunchanged event args does not really extend eventargs
@@ -92,6 +99,8 @@ export class TestCache {
 
     private onCacheHit = () => {
         this.setCacheExpireTimer();
-        this.onTestRunStatsChange.raise(this, this.CleanCache());
+        if(this.testRunStatistics.ExecutedTests > 0) {
+            this.onTestRunStatsChange.raise(this, this.CleanCache());
+        }
     }
 }

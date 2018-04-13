@@ -36,30 +36,28 @@ export default class JasmineTestFramework implements ITestFramework {
 
         let Jasmine = require('jasmine');
         this.jasmine = new Jasmine();
+        this.jasmine.exit = () => {};
+        this.jasmine.exitCodeCompletion = () => {};
         
         this.InitializeEvents();
         this.InitializeReporter();
     }
 
-    public StartExecution(source: string): Promise<void> {
+    public StartExecution(source: string): void {
         this.source = source;
-        return (async () => { 
-            this.jasmine.execute([source])
-        })();
+        this.jasmine.execute([source]);
     };
 
-    public StartDiscovery(source: string): Promise<void> {
-        return ( async () => {
-            this.jasmine.jasmine.getEnv().beforeAll = function () { };
-            this.jasmine.jasmine.getEnv().afterAll = function () { };
-            this.jasmine.jasmine.Spec.prototype.execute = function (onComplete) {
+    public StartDiscovery(source: string): void {
+        this.jasmine.jasmine.getEnv().beforeAll = function () { };
+        this.jasmine.jasmine.getEnv().afterAll = function () { };
+        this.jasmine.jasmine.Spec.prototype.execute = function (onComplete) {
 
-                this.onStart(this);
-                this.resultCallback(this.result);
-                if (onComplete)
-                    onComplete();
-            };
-        })()
+            this.onStart(this);
+            this.resultCallback(this.result);
+            if (onComplete)
+                onComplete();
+        };
     };
 
     private HandleJasmineReporterEvents(reporterEvent: JasmineReporterEvent, args: any) {

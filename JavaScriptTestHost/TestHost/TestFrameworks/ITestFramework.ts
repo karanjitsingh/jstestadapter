@@ -11,6 +11,6 @@ export default interface ITestFramework {
     onTestSessionEnd: Event<TestSessionEventArgs>;
     readonly ExecutorUri: string;
 
-    StartExecution(source: string): Promise<void>;
-    StartDiscovery(source: string): Promise<void>;
+    StartExecution(source: string): void;
+    StartDiscovery(source: string): void;
 }

@@ -6,7 +6,6 @@ let testHost: TestHost;
 EnvironmentProvider.GetEnvironment().then((env: IEnvironment) => {
     try {
         let testhost = new TestHost(env);
-        testhost.setupCommunication();
     }
     catch(err) {
         var e:Error = <Error>err;

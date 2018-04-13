@@ -12,6 +12,8 @@ import MessageType from "../ObjectModel/MessageType";
 import { TestRunChangedEventArgs } from "../ObjectModel/TestRunChangedEventArgs";
 import Message from "../ObjectModel/Message";
 import { debug } from "util";
+import { TestRunCompleteEventArgs } from "ObjectModel/TestRunCompleteEventArgs";
+import { TestRunCompletePayload } from "ObjectModel/TestRunCompletePayload";
 
 export default class TestRunner {
 
@@ -31,8 +33,6 @@ export default class TestRunner {
     }
     
     public StartTestRunWithSources(criteria: TestRunCriteriaWithSources): void {
-        console.log("test runner here: ", criteria);
-        
         let framework = TestFrameworkProvider.GetTestFramework(TestFramework.Jasmine, this.environment);
         let sources = criteria.AdapterSourceMap[Object.keys(criteria.AdapterSourceMap)[0]];
         
@@ -40,12 +40,7 @@ export default class TestRunner {
         this.testCache.onTestRunStatsChange.subscribe(this.HandleTestRunStatsChange);
 
         this.SubscribeToFrameworkEvents(framework);
-        framework.StartExecution(sources[0]).then(() => {
-
-        },
-        (err) => {
-           console.error(err); 
-        });
+        framework.StartExecution(sources[0]);
     }
 
     public SubscribeToFrameworkEvents(framework: ITestFramework) {
@@ -58,24 +53,37 @@ export default class TestRunner {
     }
 
     private HandleTestSessionStart = (sender: object, args: TestSessionEventArgs) => {
-        console.log(args);
     };
 
     private HandleTestSessionEnd = (sender: object, args: TestSessionEventArgs) => {
         console.log("test session end trigger");
-        let x = this.testCache.CleanCache();
+        let remainingTestResults = this.testCache.CleanCache();
         
-        let testRunChangedMessaged = new Message(MessageType.TestRunStatsChange, x, 2);
-        this.communicationManager.SendMessage(testRunChangedMessaged);
-        debugger;
+        var testRunCompleteEventArgs = <TestRunCompleteEventArgs> {
+            TestRunStatistics:remainingTestResults.TestRunStatistics,
+            IsCanceled: false,
+            IsAborted: false,
+            Error: null,
+            AttachmentSets: [],
+            ElapsedTimeInRunningTests: TimeSpan.MSToString(args.EndTime.getTime() - args.StartTime.getTime()),
+            Metrics: {}
+        }
+
+        // TODO hardcoded executor uris
+        var testRuncompletePayload = <TestRunCompletePayload> {
+            TestRunCompleteArgs: testRunCompleteEventArgs,
+            LastRunTests: remainingTestResults,
+            RunAttachments: [],
+            ExecutorUris: ["executor://JasmineTestAdapter/v1"]
+        }
+
+        this.communicationManager.SendMessage(new Message(MessageType.ExecutionComplete, testRuncompletePayload, 2));
     };
 
     private HandleTestSuiteStart = (sender: object, args: TestSuiteEventArgs) => {
-        console.log(args);
     };
 
     private HandleTestSuiteEnd = (sender: object, args: TestSuiteEventArgs) => {
-        console.log(args);
     };
 
     private HandleTestCaseStart = (sender: object, args: TestCaseEventArgs) => {
