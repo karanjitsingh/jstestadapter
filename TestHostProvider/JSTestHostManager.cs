@@ -62,6 +62,12 @@ namespace Microsoft.VisualStudio.JSTestHostRuntimeProvider
         public JSTestHostManager()
             : this(new FileHelper(), new ProcessHelper(), new PlatformEnvironment())
         {
+
+            var hostDebugEnabled = Environment.GetEnvironmentVariable("JSTEST_PROV_DEBUG");
+            if(!string.IsNullOrEmpty(hostDebugEnabled) && hostDebugEnabled.Equals("1", StringComparison.Ordinal))
+            {
+                Debugger.Launch();
+            }
         }
 
         /// <summary>
@@ -94,7 +100,7 @@ namespace Microsoft.VisualStudio.JSTestHostRuntimeProvider
         /// Dependency resolution for .net core projects are pivoted by the test project. Hence each test
         /// project must be launched in a separate test host process.
         /// </remarks>
-        public bool Shared => true;
+        public bool Shared => false;
 
         /// <inheritdoc/>
         public void Initialize(IMessageLogger logger, string runsettingsXml)
@@ -186,8 +192,12 @@ namespace Microsoft.VisualStudio.JSTestHostRuntimeProvider
 
             var jstesthost = Path.Combine(rootFolder, "jstesthost", "index.js");
 
+            var hostDebugEnabled = Environment.GetEnvironmentVariable("JSTEST_HOST_DEBUG");
+            var debug = !string.IsNullOrEmpty(hostDebugEnabled) && hostDebugEnabled.Equals("1", StringComparison.Ordinal);
+
             processInfo.Arguments = string.Format(
-                "--inspect-brk=9229 {0} {1} {2}",
+                "{0} {1} {2}",
+                debug ? "--inspect-brk=9229" : "",
                 jstesthost,
                 connectionInfo.Port,
                 connectionInfo.ConnectionInfo.Endpoint);
@@ -225,19 +235,18 @@ namespace Microsoft.VisualStudio.JSTestHostRuntimeProvider
         /// <inheritdoc/>
         public Task CleanTestHostAsync(CancellationToken cancellationToken)
         {
-            //try
-            //{
-            //    this.processHelper.TerminateProcess(this.testHostProcess);
-            //}
-            //catch (Exception ex)
-            //{
-            //    EqtTrace.Warning("DotnetTestHostManager: Unable to terminate test host process: " + ex);
-            //}
+            try
+            {
+                this.processHelper.TerminateProcess(this.testHostProcess);
+            }
+            catch (Exception ex)
+            {
+                EqtTrace.Warning("JSTestHostManager: Unable to terminate test host process: " + ex);
+            }
 
-            //this.testHostProcess?.Dispose();
+            this.testHostProcess?.Dispose();
 
-            //return Task.FromResult(true);
-            return Task.Run(() => { });
+            return Task.FromResult(true);
         }
     }
 }

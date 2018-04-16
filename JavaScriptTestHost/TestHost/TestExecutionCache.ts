@@ -3,14 +3,14 @@ import TestCase from "../ObjectModel/TestCase";
 import Event, { IEventArgs } from "Events/Event";
 import IEnvironment from "../Environment/IEnvironment";
 import TimeSpan from "../Utils/TimeSpan";
-import { TestRunChangedEventArgs } from "../ObjectModel/TestRunChangedEventArgs";
-import { TestRunStatistics } from "ObjectModel/TestRunStatistics";
-import { TestOutcome } from "ObjectModel/TestOutcome";
+import { TestRunChangedEventArgs } from "../ObjectModel/Payloads/TestRunChangedEventArgs";
+import { TestRunStatistics } from "../ObjectModel/TestRunStatistics";
+import { TestOutcome } from "../ObjectModel/TestOutcome";
 
 // override typings for
 declare function setTimeout(callback: (...args: any[]) => void, ms: number, ...args: any[]): number;
 
-export class TestCache {
+export class TestExecutionCache {
     public onTestRunStatsChange: Event<TestRunChangedEventArgs>;
 
     private testResultMap : Map<string, TestResult>;
@@ -58,7 +58,6 @@ export class TestCache {
     }
     
     public AddInProgressTest(testCase: TestCase) {
-
         // TODO data driven tests will override
         this.inProgressTestMap.set(testCase.Id, testCase);
     }

@@ -58,6 +58,9 @@ export default class JasmineTestFramework implements ITestFramework {
             if (onComplete)
                 onComplete();
         };
+
+        this.source = source;
+        this.jasmine.execute([source]);
     };
 
     private HandleJasmineReporterEvents(reporterEvent: JasmineReporterEvent, args: any) {

@@ -1,4 +1,4 @@
-import FilterOptions from "./FilterOptions";
+import FilterOptions from "../FilterOptions";
 
 export default interface TestExecutionContext
 {

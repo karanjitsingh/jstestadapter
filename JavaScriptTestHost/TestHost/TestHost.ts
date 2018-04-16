@@ -3,9 +3,10 @@ import ICommunicationManager, { MessageReceivedEventArgs } from "../Utils/ICommu
 import {default as Exception, ExceptionType} from "../Exceptions/Exception";
 import MessageType from "../ObjectModel/MessageType";
 import Message from "../ObjectModel/Message"
-import TestRunCriteriaWithSources from "../ObjectModel/TestRunCriteriaWithSources";
+import TestRunCriteriaWithSources from "../ObjectModel/Payloads/TestRunCriteriaWithSources";
 import JobQueue from "../Utils/JobQueue";
 import TestRunner from "./TestRunner";
+import DiscoveryCriteria from "../ObjectModel/Payloads/DiscoveryCriteria";
 
 const ipRegex = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
 
@@ -51,12 +52,15 @@ export default class TestHost {
                 break;
             
             case MessageType.StartTestExecutionWithSources:
+                let payload = <TestRunCriteriaWithSources>message.Payload;
 
-                let payload: TestRunCriteriaWithSources = <TestRunCriteriaWithSources>message.Payload;
+                this.jobQueue.QueuePromise(this.testRunner.StartTestRunWithSources(payload));
+                break;
 
-                this.jobQueue.QueueJob(() => {
-                    this.testRunner.StartTestRunWithSources(payload)
-                });
+            case MessageType.StartDiscovery:
+                let discoveryPayload = <DiscoveryCriteria>message.Payload;
+
+                this.jobQueue.QueuePromise(this.testRunner.DiscoverTests(discoveryPayload));
                 break;
 
             case MessageType.SessionEnd:

@@ -1,5 +1,7 @@
 param(
-    [switch]$runonly
+    [switch]$runonly,
+    [switch]$discover,
+    [switch]$parallel
 )
 
 if(!$runonly) {
@@ -8,4 +10,9 @@ if(!$runonly) {
 
 Write-Host "`nStarting Execution...`n"
 
-D:\vstest\artifacts\Debug\net451\win7-x64\vstest.console.exe --framework:javascript "E:\Public\ChutzpahNodeScenarios\ChutzpahNodeScenarios\spec-basic\simple_test_A.js" "E:\Public\ChutzpahNodeScenarios\ChutzpahNodeScenarios\spec-basic\simple_test_B.js" --listtests /diag:D:\logs\jstest.log
+D:\vstest\artifacts\Debug\net451\win7-x64\vstest.console.exe --framework:javascript `
+"E:\Public\ChutzpahNodeScenarios\ChutzpahNodeScenarios\spec-basic\simple_test_A.js" `
+"E:\Public\ChutzpahNodeScenarios\ChutzpahNodeScenarios\spec-basic\simple_test_B.js" `
+/diag:D:\logs\jstest.log `
+$(if($discover) {"--listtests"}) `
+$(if($parallel) {"--parallel"})

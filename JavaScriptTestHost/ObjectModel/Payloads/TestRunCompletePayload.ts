@@ -1,5 +1,5 @@
 import { TestRunChangedEventArgs } from "./TestRunChangedEventArgs";
-import { TestRunCompleteEventArgs } from "./TestRunCompleteEventArgs";
+import { TestRunCompleteEventArgs } from "../EventArgs/TestRunCompleteEventArgs";
 
 export interface TestRunCompletePayload
 {

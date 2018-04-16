@@ -2,6 +2,7 @@ import { start } from "repl";
 
 interface Job {
     Action: () => void,
+    Promise: Promise<any>,
     Callback?: (e?:Error) => void
 }
 
@@ -19,6 +20,17 @@ export default class JobQueue {
     public QueueJob(action: () => void, callback?: (e?: Error) => void) {
         this.jobQueue.push(<Job> {
             Action: action,
+            Callback: callback
+        });
+
+        if(!this.isRunning && this.Autostart) {
+            this.Start();
+        }
+    }
+
+    public QueuePromise(promise: Promise<any>, callback?: (e?: Error) => void) {
+        this.jobQueue.push(<Job> {
+            Promise: promise,
             Callback: callback
         });
 
@@ -66,6 +78,10 @@ export default class JobQueue {
 
     private async ExecuteJob() {
         let job = this.jobQueue[0];
-        job.Action();
+        if(job.Action)
+            job.Action();
+        else if(job.Promise) {
+            await job.Promise;
+        }
     }
 }

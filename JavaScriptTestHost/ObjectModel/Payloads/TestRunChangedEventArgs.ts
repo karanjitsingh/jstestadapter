@@ -1,6 +1,6 @@
-import TestCase from "./TestCase";
-import TestResult from "./TestResult";
-import { TestRunStatistics } from "./TestRunStatistics";
+import TestCase from "../TestCase";
+import TestResult from "../TestResult";
+import { TestRunStatistics } from "../TestRunStatistics";
 
 export interface TestRunChangedEventArgs
 {
