@@ -195,6 +195,18 @@ namespace Microsoft.VisualStudio.JSTestHostRuntimeProvider
             var hostDebugEnabled = Environment.GetEnvironmentVariable("JSTEST_HOST_DEBUG");
             var debug = !string.IsNullOrEmpty(hostDebugEnabled) && hostDebugEnabled.Equals("1", StringComparison.Ordinal);
 
+            var modulePaths = this.NodeModulesPaths(sources);
+
+            var pathBuilder = new StringBuilder();
+            foreach(var path in modulePaths)
+            {
+                pathBuilder.Append(";");
+                pathBuilder.Append(path);
+            }
+
+            processInfo.EnvironmentVariables = new Dictionary<string, string>();
+            processInfo.EnvironmentVariables.Add("Path", Environment.GetEnvironmentVariable("Path") + pathBuilder.ToString());
+
             processInfo.Arguments = string.Format(
                 "{0} {1} {2}",
                 debug ? "--inspect-brk=9229" : "",
@@ -203,6 +215,25 @@ namespace Microsoft.VisualStudio.JSTestHostRuntimeProvider
                 connectionInfo.ConnectionInfo.Endpoint);
 
             return processInfo;
+        }
+
+        private IEnumerable<string> NodeModulesPaths(IEnumerable<string> sources)
+        {
+            var paths = new HashSet<string>();
+
+            foreach (var source in sources)
+            {
+                var dir = new DirectoryInfo(Path.GetDirectoryName(source));
+                do
+                {
+                    if (Directory.Exists(Path.Combine(dir.FullName, "node_modules")))
+                    {
+                        paths.Add(Path.Combine(dir.FullName, "node_modules"));
+                    }
+                    dir = dir.Parent;
+                } while (dir != null);
+            }
+            return paths;
         }
 
         /// <inheritdoc/>
