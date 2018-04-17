@@ -40,6 +40,9 @@ function CreateDirectory($dir)
 CreateDirectory (Join-Path $FullCLRDir "node\")
 CreateDirectory (Join-Path $CoreCLRDir "node\")
 
+Write-Host "Killing node process.`n"
+Stop-Process -Force -Name "node" -ErrorAction SilentlyContinue
+
 Write-Host "Copying node binaries to local output directory."
 Copy-Item -Path $NodeBinaries -Destination (Join-Path $FullCLRDir "node\") -Recurse -force
 Copy-Item -Path $NodeBinaries -Destination (Join-Path $CoreCLRDir "node\") -Recurse -force

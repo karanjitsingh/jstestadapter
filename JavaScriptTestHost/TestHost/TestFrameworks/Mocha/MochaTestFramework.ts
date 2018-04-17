@@ -4,26 +4,30 @@ import IEnvironment from "../../../Environment/IEnvironment";
 import { TestCaseEventArgs, TestSuiteEventArgs, TestSessionEventArgs, FailedExpectation } from "../TestFrameworkEventArgs";
 import TestCase from "../../../ObjectModel/TestCase";
 import { TestOutcome } from "../../../ObjectModel/TestOutcome";
+import { reporters } from "mocha";
 
-enum JasmineReporterEvent {
-    JasmineStarted,
-    JasmineDone,
+
+enum ReporterEvent {
+    SessionStarted,
+    SessionDone,
     SuiteStarted,
     SuiteDone,
     SpecStarted,
     SpecDone
 }
 
-export default class JasmineTestFramework implements ITestFramework {
+export default class MochaTestFramework implements ITestFramework {
     public onTestCaseStart: Event<TestCaseEventArgs>;
     public onTestCaseEnd: Event<TestCaseEventArgs>;
     public onTestSuiteStart: Event<TestSuiteEventArgs>;
     public onTestSuiteEnd: Event<TestSuiteEventArgs>;
     public onTestSessionStart: Event<TestSessionEventArgs>;
     public onTestSessionEnd: Event<TestSessionEventArgs>;
-    public readonly ExecutorUri: string = "executor://JasmineTestAdapter/v1"
+    public readonly ExecutorUri: string = "executor://MochaTestAdapter/v1"
 
-    private jasmine;
+    private MochaLib;
+    private mocha: Mocha;
+    private mochaRunner;
     private environment: IEnvironment;
     private source;
     private sessionEventArgs: TestSessionEventArgs;
@@ -34,38 +38,33 @@ export default class JasmineTestFramework implements ITestFramework {
         this.environment = environment;
         this.suiteStack = [];
 
-        let Jasmine = require('jasmine');
-        this.jasmine = new Jasmine();
-        this.jasmine.exit = () => {};
-        this.jasmine.exitCodeCompletion = () => {};
-        
         this.InitializeEvents();
-        this.InitializeReporter();
+
+        this.MochaLib = require('mocha');
+        this.mocha = new this.MochaLib({
+            reporter: 'base'
+        });
     }
 
     public StartExecution(source: string): void {
         this.source = source;
-        this.jasmine.execute([source]);
+        
+        this.mocha.addFile(source);
+        this.mocha.run();
+        this.InitializeReporter(this.mocha.run()); 
     };
 
     public StartDiscovery(source: string): void {
-        this.jasmine.jasmine.getEnv().beforeAll = function () { };
-        this.jasmine.jasmine.getEnv().afterAll = function () { };
-        this.jasmine.jasmine.Spec.prototype.execute = function (onComplete) {
-
-            this.onStart(this);
-            this.resultCallback(this.result);
-            if (onComplete)
-                onComplete();
-        };
-
-        this.source = source;
-        this.jasmine.execute([source]);
+        this.MochaLib.Suite.prototype.beforeAll = function() {};
+        this.MochaLib.Suite.prototype.afterAll = function() {};
+        this.MochaLib.Suite.prototype.beforeEach = function() {};
+        this.MochaLib.Suite.prototype.afterEach = function() {};
+        this.MochaLib.Suite.prototype.it = function() {};
     };
 
-    private HandleJasmineReporterEvents(reporterEvent: JasmineReporterEvent, args: any) {
+    private HandleReporterEvents(reporterEvent: ReporterEvent, args: any) {
         switch (reporterEvent) {
-            case JasmineReporterEvent.JasmineStarted:
+            case ReporterEvent.SessionStarted:
                 this.sessionEventArgs = {
                     Source: this.source,
                     StartTime: new Date(),
@@ -76,17 +75,17 @@ export default class JasmineTestFramework implements ITestFramework {
                 this.onTestSessionStart.raise(this, this.sessionEventArgs);
                 break;
 
-            case JasmineReporterEvent.JasmineDone:
+            case ReporterEvent.SessionDone:
                 this.sessionEventArgs.EndTime = new Date();
                 this.sessionEventArgs.InProgress = false;
 
                 this.onTestSessionEnd.raise(this, this.sessionEventArgs);    
                 break;
 
-            case JasmineReporterEvent.SuiteStarted:
+            case ReporterEvent.SuiteStarted:
 
                 let suiteEventArgs: TestSuiteEventArgs = {
-                    Name: args.description,
+                    Name: args.title,
                     Source: this.source,
                     StartTime: new Date(),
                     InProgress: true,
@@ -98,7 +97,10 @@ export default class JasmineTestFramework implements ITestFramework {
                 this.onTestSuiteStart.raise(this, suiteEventArgs)
                 break;
             
-            case JasmineReporterEvent.SuiteDone:
+            case ReporterEvent.SuiteDone:
+                if(!this.suiteStack.length)
+                    break;
+
                 let suiteEndEventArgs = this.suiteStack.pop();
 
                 suiteEndEventArgs.InProgress = false;
@@ -107,16 +109,10 @@ export default class JasmineTestFramework implements ITestFramework {
                 this.onTestSuiteEnd.raise(this, suiteEndEventArgs);
                 break;
 
-            case JasmineReporterEvent.SpecStarted:
+            case ReporterEvent.SpecStarted:
 
-                // TODO null problems will occur here
-                // let currentSuiteName = this.suiteStack.length > 0
-                // ? this.suiteStack[this.suiteStack.length - 1].fullName
-                // : null;
-                // let suiteName = currentSuiteName;
-
-                let testCase = new TestCase(this.source, args.fullName, this.ExecutorUri);
-                testCase.DisplayName = args.description;
+                let testCase = new TestCase(this.source, args.fullTitle(), this.ExecutorUri);
+                testCase.DisplayName = args.title;
 
                 this.activeSpec = <TestCaseEventArgs> {
                     TestCase: testCase,
@@ -131,29 +127,24 @@ export default class JasmineTestFramework implements ITestFramework {
                 this.onTestCaseStart.raise(this, this.activeSpec);
                 break;
             
-            case JasmineReporterEvent.SpecDone:
+            case ReporterEvent.SpecDone:
                 this.activeSpec.InProgress = false;
                 this.activeSpec.EndTime = new Date();
-    
-                for (let i = 0; i < args.failedExpectations.length; i++) {
-                    let expectation = args.failedExpectations[i];
-        
-                    let failedExpectation: FailedExpectation = {
-                        Message: expectation.message,
-                        StackTrace: this.recordStackTrace(expectation.stack)
-                    }
-                    this.activeSpec.FailedExpectations.push(failedExpectation);        
-                }
 
-                if (args.status === "disabled") {
+                if(args.pending === true) {
                     this.activeSpec.Outcome = TestOutcome.Skipped;
                 }
-        
-                if (args.status === "failed") {
-                    this.activeSpec.Outcome = TestOutcome.Failed;
-                }
 
-                this.activeSpec.Outcome = args.failedExpectations.length ? TestOutcome.Failed : TestOutcome.Passed;
+                if (args.state === "passed") {
+                    this.activeSpec.Outcome = TestOutcome.Passed;
+                }
+                else if (args.state === "failed") {
+                    this.activeSpec.Outcome = TestOutcome.Failed;
+                    this.activeSpec.FailedExpectations.push(<FailedExpectation> {
+                        Message: args.err.message,
+                        StackTrace: args.err.stack
+                    });       
+                }
 
                 this.onTestCaseEnd.raise(this, this.activeSpec);
                 break;
@@ -169,23 +160,27 @@ export default class JasmineTestFramework implements ITestFramework {
         this.onTestSessionEnd = this.environment.createEvent();
     }
 
-    private InitializeReporter() {
-        this.jasmine.clearReporters();
-        this.jasmine.addReporter({
-            jasmineStarted: (args) => { this.HandleJasmineReporterEvents(JasmineReporterEvent.JasmineStarted, args) },
-            jasmineDone: (args) => { this.HandleJasmineReporterEvents(JasmineReporterEvent.JasmineDone, args) },
-            suiteStarted: (args) => { this.HandleJasmineReporterEvents(JasmineReporterEvent.SuiteStarted, args) },
-            suiteDone: (args) => { this.HandleJasmineReporterEvents(JasmineReporterEvent.SuiteDone, args) },
-            specStarted: (args) => { this.HandleJasmineReporterEvents(JasmineReporterEvent.SpecStarted, args) },
-            specDone: (args) => { this.HandleJasmineReporterEvents(JasmineReporterEvent.SpecDone, args) },
-        });
-    }
+    private InitializeReporter(runner) {
+        runner.setMaxListeners(20);
 
-    private recordStackTrace(stack) {
-        if (stack) {
-            // Truncate stack to 5 deep. 
-            stack = stack.split('\n').slice(1, 6).join('\n');
-        }
-        return stack;
+        // A known issue with mocha that start event is called before we can subscribe
+        // this.mochaRunner.on('start', (args) => { this.HandleReporterEvents(ReporterEvent.SessionStarted, args); });
+        this.HandleReporterEvents(ReporterEvent.SessionStarted, null);
+
+        runner.on('suite', (args) => {
+            this.HandleReporterEvents(ReporterEvent.SuiteStarted, args);
+        });
+        runner.on('suite end', (args) => {
+            this.HandleReporterEvents(ReporterEvent.SuiteDone, args);
+        });
+        runner.on('test', (args) => {
+            this.HandleReporterEvents(ReporterEvent.SpecStarted, args);
+        });
+        runner.on('test end', (args) => {
+            this.HandleReporterEvents(ReporterEvent.SpecDone, args);
+        });
+        runner.on('end', (args) => {
+            this.HandleReporterEvents(ReporterEvent.SessionDone, args);
+        });
     }
 }

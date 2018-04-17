@@ -35,11 +35,11 @@ export default class TestRunner {
     }
 
     public DiscoverTests(criteria: DiscoveryCriteria): Promise<void> {
-        let framework = TestFrameworkProvider.GetTestFramework(TestFramework.Jasmine, this.environment);
+        let framework = TestFrameworkProvider.GetTestFramework(TestFramework.Mocha, this.environment);
         let sources = criteria.AdapterSourceMap[Object.keys(criteria.AdapterSourceMap)[0]];
 
         this.testDiscoveryCache = new TestDiscoveryCache(this.environment, criteria.FrequencyOfDiscoveredTestsEvent, criteria.DiscoveredTestEventTimeout);
-        this.testDiscoveryCache.onReportTestCases.subscribe(this.TestCacheEventHandlers.HandleTestDiscoveryStatsChange)
+        this.testDiscoveryCache.onReportTestCases.subscribe(this.TestCacheEventHandlers.TestDiscoveryStatsChange)
 
         this.DiscoveryEventHandlers.Subscribe(framework);
         framework.StartDiscovery(sources[0]);
@@ -50,11 +50,11 @@ export default class TestRunner {
     }
     
     public StartTestRunWithSources(criteria: TestRunCriteriaWithSources): Promise<void> {
-        let framework = TestFrameworkProvider.GetTestFramework(TestFramework.Jasmine, this.environment);
+        let framework = TestFrameworkProvider.GetTestFramework(TestFramework.Mocha, this.environment);
         let sources = criteria.AdapterSourceMap[Object.keys(criteria.AdapterSourceMap)[0]];
         
         this.testExecutionCache = new TestExecutionCache(this.environment, criteria.TestExecutionContext.FrequencyOfRunStatsChangeEvent, criteria.TestExecutionContext.RunStatsChangeEventTimeout)
-        this.testExecutionCache.onTestRunStatsChange.subscribe(this.TestCacheEventHandlers.HandleTestRunStatsChange);
+        this.testExecutionCache.onTestRunStatsChange.subscribe(this.TestCacheEventHandlers.TestRunStatsChange);
 
         this.ExecutionEventHandlers.Subscribe(framework);
         framework.StartExecution(sources[0]);
@@ -66,18 +66,19 @@ export default class TestRunner {
 
     private ExecutionEventHandlers = {
         Subscribe: (framework: ITestFramework) => {
-            // framework.onTestSessionStart.subscribe(this.HandleTestSessionStart);
-            framework.onTestSessionEnd.subscribe(this.ExecutionEventHandlers.HandleTestSessionEnd);
-            // // framework.onTestSuiteStart.subscribe(this.HandleTestSuiteStart);
-            // // framework.onTestSuiteEnd.subscribe(this.HandleTestSuiteEnd);
-            framework.onTestCaseStart.subscribe(this.ExecutionEventHandlers.HandleTestCaseStart);
-            framework.onTestCaseEnd.subscribe(this.ExecutionEventHandlers.HandleTestCaseEnd);
+            // framework.onTestSessionStart.subscribe(this.ExecutionEventHandlers.TestSessionStart);
+            framework.onTestSessionEnd.subscribe(this.ExecutionEventHandlers.TestSessionEnd);
+            // framework.onTestSuiteStart.subscribe(this.ExecutionEventHandlers.TestSuiteStart);
+            // framework.onTestSuiteEnd.subscribe(this.ExecutionEventHandlers.TestSuiteEnd);
+            framework.onTestCaseStart.subscribe(this.ExecutionEventHandlers.TestCaseStart);
+            framework.onTestCaseEnd.subscribe(this.ExecutionEventHandlers.TestCaseEnd);
         },
 
-        HandleTestSessionStart: (sender: object, args: TestSessionEventArgs) => {
+        TestSessionStart: (sender: object, args: TestSessionEventArgs) => {
+
         },
     
-        HandleTestSessionEnd: (sender: object, args: TestSessionEventArgs) => {
+        TestSessionEnd: (sender: object, args: TestSessionEventArgs) => {
             console.log("test session end trigger");
             let remainingTestResults = this.testExecutionCache.CleanCache();
             
@@ -104,18 +105,18 @@ export default class TestRunner {
             this.onComplete.raise(this, null);
         },
     
-        HandleTestSuiteStart: (sender: object, args: TestSuiteEventArgs) => {
+        TestSuiteStart: (sender: object, args: TestSuiteEventArgs) => {
         },
     
-        HandleTestSuiteEnd: (sender: object, args: TestSuiteEventArgs) => {
+        TestSuiteEnd: (sender: object, args: TestSuiteEventArgs) => {
         },
     
-        HandleTestCaseStart: (sender: object, args: TestCaseEventArgs) => {
+        TestCaseStart: (sender: object, args: TestCaseEventArgs) => {
             console.log("adding test case to cache");
             this.testExecutionCache.AddInProgressTest(args.TestCase);
         },
     
-        HandleTestCaseEnd: (sender: object, args: TestCaseEventArgs) => {
+        TestCaseEnd: (sender: object, args: TestCaseEventArgs) => {
             console.log("adding test result to cache");
             
             // TODO incomplete test results - display name etc are null
@@ -145,18 +146,18 @@ export default class TestRunner {
 
     private DiscoveryEventHandlers = {
         Subscribe: (framework: ITestFramework) => {
-            // framework.onTestSessionStart.subscribe(this.HandleTestSessionStart);
-            framework.onTestSessionEnd.subscribe(this.DiscoveryEventHandlers.HandleTestSessionEnd);
-            // // framework.onTestSuiteStart.subscribe(this.HandleTestSuiteStart);
-            // // framework.onTestSuiteEnd.subscribe(this.HandleTestSuiteEnd);
-            framework.onTestCaseStart.subscribe(this.DiscoveryEventHandlers.HandleTestCaseStart);
-            // framework.onTestCaseEnd.subscribe(this.DiscoveryEventHandlers.HandleTestCaseEnd);
+            // framework.onTestSessionStart.subscribe(this.TestSessionStart);
+            framework.onTestSessionEnd.subscribe(this.DiscoveryEventHandlers.TestSessionEnd);
+            // // framework.onTestSuiteStart.subscribe(this.TestSuiteStart);
+            // // framework.onTestSuiteEnd.subscribe(this.TestSuiteEnd);
+            framework.onTestCaseStart.subscribe(this.DiscoveryEventHandlers.TestCaseStart);
+            // framework.onTestCaseEnd.subscribe(this.DiscoveryEventHandlers.TestCaseEnd);
         },
 
-        HandleTestSessionStart: (sender: object, args: TestSessionEventArgs) => {
+        TestSessionStart: (sender: object, args: TestSessionEventArgs) => {
         },
     
-        HandleTestSessionEnd: (sender: object, args: TestSessionEventArgs) => {
+        TestSessionEnd: (sender: object, args: TestSessionEventArgs) => {
             console.log("test session end trigger");
             let remainingTests = this.testDiscoveryCache.CleanCache();
             
@@ -172,31 +173,30 @@ export default class TestRunner {
             this.onComplete.raise(this, null);
         },
     
-        HandleTestSuiteStart: (sender: object, args: TestSuiteEventArgs) => {
+        TestSuiteStart: (sender: object, args: TestSuiteEventArgs) => {
         },
     
-        HandleTestSuiteEnd: (sender: object, args: TestSuiteEventArgs) => {
+        TestSuiteEnd: (sender: object, args: TestSuiteEventArgs) => {
         },
     
-        HandleTestCaseStart: (sender: object, args: TestCaseEventArgs) => {
+        TestCaseStart: (sender: object, args: TestCaseEventArgs) => {
             console.log("adding test case to cache");
             this.testDiscoveryCache.AddTest(args.TestCase);
         },
     
-        HandleTestCaseEnd: (sender: object, args: TestCaseEventArgs) => {
+        TestCaseEnd: (sender: object, args: TestCaseEventArgs) => {
         }
     };
 
-
     private TestCacheEventHandlers = {
-        HandleTestRunStatsChange: (sender: object, args: TestRunChangedEventArgs) => {
+        TestRunStatsChange: (sender: object, args: TestRunChangedEventArgs) => {
             console.log("test run stats change");
     
             let testRunChangedMessaged = new Message(MessageType.TestRunStatsChange, args, 2);
             this.communicationManager.SendMessage(testRunChangedMessaged);
         },
 
-        HandleTestDiscoveryStatsChange: (sender: object, args: TestsDiscoveredEventArgs) => {
+        TestDiscoveryStatsChange: (sender: object, args: TestsDiscoveredEventArgs) => {
             console.log("tests discovered");
 
             let testsFoundMessage = new Message(MessageType.TestCasesFound, args.DiscoveredTests, 2);
