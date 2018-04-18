@@ -50,7 +50,6 @@ export default class MochaTestFramework implements ITestFramework {
         this.source = source;
         
         this.mocha.addFile(source);
-        this.mocha.run();
         this.InitializeReporter(this.mocha.run()); 
     };
 

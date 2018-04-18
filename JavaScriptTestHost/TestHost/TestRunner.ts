@@ -27,6 +27,7 @@ export default class TestRunner {
 
     private testExecutionCache: TestExecutionCache;
     private testDiscoveryCache: TestDiscoveryCache;
+    private runner: TestFramework = TestFramework.Jasmine;
 
     constructor(environment: IEnvironment, communicationManager: ICommunicationManager) {
         this.environment = environment;
@@ -35,7 +36,7 @@ export default class TestRunner {
     }
 
     public DiscoverTests(criteria: DiscoveryCriteria): Promise<void> {
-        let framework = TestFrameworkProvider.GetTestFramework(TestFramework.Mocha, this.environment);
+        let framework = TestFrameworkProvider.GetTestFramework(this.runner, this.environment);
         let sources = criteria.AdapterSourceMap[Object.keys(criteria.AdapterSourceMap)[0]];
 
         this.testDiscoveryCache = new TestDiscoveryCache(this.environment, criteria.FrequencyOfDiscoveredTestsEvent, criteria.DiscoveredTestEventTimeout);
@@ -50,7 +51,7 @@ export default class TestRunner {
     }
     
     public StartTestRunWithSources(criteria: TestRunCriteriaWithSources): Promise<void> {
-        let framework = TestFrameworkProvider.GetTestFramework(TestFramework.Mocha, this.environment);
+        let framework = TestFrameworkProvider.GetTestFramework(this.runner, this.environment);
         let sources = criteria.AdapterSourceMap[Object.keys(criteria.AdapterSourceMap)[0]];
         
         this.testExecutionCache = new TestExecutionCache(this.environment, criteria.TestExecutionContext.FrequencyOfRunStatsChangeEvent, criteria.TestExecutionContext.RunStatsChangeEventTimeout)

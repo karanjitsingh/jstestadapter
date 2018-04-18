@@ -15,9 +15,15 @@ export default class TimeSpan {
 		duration = (duration - m)/60;
 		let h = duration % 60;
 	
+		let ss = (String(s).length == 1 ? `0${s}` : `${s}`);
+		let regex = ss.match(/([0-9]*(?:\.[0-9]{0,6})?)/);
+		if(regex) {
+			ss = regex[1];
+		}
+
 		let timespan = (h < 10 ? "0" + h : h) + ":" +
 						(m < 10 ? "0" + m : m) + ":" +
-						(String(s).length == 1 ? `0${s}` : `${s}`);					
+						ss;					
 	
 		return timespan;
 	}

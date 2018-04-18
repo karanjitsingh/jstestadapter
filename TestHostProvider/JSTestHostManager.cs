@@ -206,9 +206,10 @@ namespace Microsoft.VisualStudio.JSTestHostRuntimeProvider
 
             processInfo.EnvironmentVariables = new Dictionary<string, string>();
             processInfo.EnvironmentVariables.Add("Path", Environment.GetEnvironmentVariable("Path") + pathBuilder.ToString());
+            processInfo.EnvironmentVariables.Add("NODE_NO_WARNINGS", "1");
 
             processInfo.Arguments = string.Format(
-                "--trace-warnings {0} {1} {2} {3}",
+                "{0} {1} {2} {3}",
                 debug ? "--inspect-brk=9229" : "",
                 jstesthost,
                 connectionInfo.Port,
