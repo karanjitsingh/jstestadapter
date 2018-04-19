@@ -2,12 +2,12 @@
     "compilerOptions": {
         "target": "es5",
         "module": "commonjs",
-        "rootDir": "./JavaScriptTestHost",
+        "rootDir": "./src",
         "outDir": "./bin/Debug/jstesthost",
         "sourceMap": true,
         "lib": ["es2015", "dom"],
-        "baseUrl": "./JavaScriptTestHost",
-        "sourceRoot": "D:\\JavaScriptTestHost\\JavaScriptTestHost",
+        "baseUrl": "./src",
+        "sourceRoot": "D:\\JavaScriptTestHost\\src",
         "skipLibCheck": true
     }
 }
