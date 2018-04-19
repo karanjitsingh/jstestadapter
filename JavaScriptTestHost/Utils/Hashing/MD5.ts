@@ -34,6 +34,7 @@ THE SOFTWARE.
   0. You just DO WHAT THE FUCK YOU WANT TO.
 */
 
+/* tslint:disable */
 export class Md5 {
 
     // One time hashing functions

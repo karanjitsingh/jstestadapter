@@ -1,3 +1,3 @@
-export default interface ISerializable {
+export interface ISerializable {
     toJSON(): string;
 }

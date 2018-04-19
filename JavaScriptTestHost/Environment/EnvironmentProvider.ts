@@ -1,26 +1,26 @@
-import IEnvironment from "./IEnvironment";
-import Node from "./Node/Environment";
+import { IEnvironment } from './IEnvironment';
+import { Environment as NodeEnvironment } from './Node/Environment';
 
-export default class EnvironmentProvider {
-    private static environment: IEnvironment;
+export namespace EnvironmentProvider {
+    let environment: IEnvironment;
 
-    private static GetFolderString() : string {
-        const isBrowser = this["window"] === this;
-        if(isBrowser) {
-            return "Browser";
-        }
-        else {
-            return "Node";
+    export function getFolderString() : string {
+        // tslint:disable-next-line
+        const isBrowser = this['window'] === this;
+        if (isBrowser) {
+            return 'Browser';
+        } else {
+            return 'Node';
         }
 
     }
-    
-    public static async GetEnvironment() : Promise<IEnvironment> {
-        if(! this.environment) {
-            const module = await import("./" + this.GetFolderString() + "/Environment");
-            this.environment = new module.default();
+
+    export async function getEnvironmnet() : Promise<IEnvironment> {
+        if (!environment) {
+            const env = await import('./' + EnvironmentProvider.getFolderString() + '/Environment');
+            environment = new env.Environment();
         }
 
-        return this.environment;
+        return environment;
     }
 }

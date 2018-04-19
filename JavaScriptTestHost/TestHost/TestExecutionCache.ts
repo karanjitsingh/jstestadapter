@@ -1,11 +1,11 @@
-import TestResult from "../ObjectModel/TestResult";
-import TestCase from "../ObjectModel/TestCase";
-import Event, { IEventArgs } from "Events/Event";
-import IEnvironment from "../Environment/IEnvironment";
-import TimeSpan from "../Utils/TimeSpan";
-import { TestRunChangedEventArgs } from "../ObjectModel/Payloads/TestRunChangedEventArgs";
-import { TestRunStatistics } from "../ObjectModel/TestRunStatistics";
-import { TestOutcome } from "../ObjectModel/TestOutcome";
+import { TestResult } from '../ObjectModel/TestResult';
+import { TestCase } from '../ObjectModel/TestCase';
+import { Event, IEventArgs } from 'Events/Event';
+import { IEnvironment } from '../Environment/IEnvironment';
+import { TimeSpan } from '../Utils/TimeSpan';
+import { TestRunChangedEventArgs } from '../ObjectModel/Payloads/TestRunChangedEventArgs';
+import { TestRunStatistics } from '../ObjectModel/TestRunStatistics';
+import { TestOutcome } from '../ObjectModel/TestOutcome';
 
 // override typings for
 declare function setTimeout(callback: (...args: any[]) => void, ms: number, ...args: any[]): number;
@@ -28,7 +28,7 @@ export class TestExecutionCache {
         this.testRunStatistics = {
             Stats: {},
             ExecutedTests: 0
-        }
+        };
 
         this.onTestRunStatsChange = environment.createEvent();
 
@@ -36,34 +36,32 @@ export class TestExecutionCache {
         this.cacheExpiryTime = TimeSpan.StringToMS(cacheExpiryTime);
         this.cacheTimer = 0;
 
-
         this.setCacheExpireTimer();
     }
-    
-    public AddTestResult(testResult: TestResult) {
-        this.inProgressTestMap.delete(testResult.TestCase.Id);
-        this.testResultMap.set(testResult.TestCase.Id, testResult);
+
+    public addTestResult(testResult: TestResult) {
+        this.inProgressTestMap.delete(testResult.TestCase.id);
+        this.testResultMap.set(testResult.TestCase.id, testResult);
         this.testRunStatistics.ExecutedTests += 1;
-        
-        if(this.testRunStatistics.Stats[testResult.Outcome]) {
+
+        if (this.testRunStatistics.Stats[testResult.Outcome]) {
             this.testRunStatistics.Stats[testResult.Outcome] += 1;
-        }
-        else {
-            this.testRunStatistics.Stats[testResult.Outcome] = 1;            
+        } else {
+            this.testRunStatistics.Stats[testResult.Outcome] = 1;
         }
 
-        if(this.testResultMap.size == this.cacheCapacity) {
+        if (this.testResultMap.size === this.cacheCapacity) {
             this.onCacheHit();
         }
     }
-    
-    public AddInProgressTest(testCase: TestCase) {
+
+    public addInProgressTest(testCase: TestCase) {
         // TODO data driven tests will override
-        this.inProgressTestMap.set(testCase.Id, testCase);
+        this.inProgressTestMap.set(testCase.id, testCase);
     }
 
-    public CleanCache(): TestRunChangedEventArgs {
-        if(!this.testRunStatistics.ExecutedTests) {
+    public cleanCache(): TestRunChangedEventArgs {
+        if (!this.testRunStatistics.ExecutedTests) {
             return <TestRunChangedEventArgs> {
                 NewTestResults: [],
                 ActiveTests: [],
@@ -75,7 +73,7 @@ export class TestExecutionCache {
         }
 
         // TODO testrunchanged event args does not really extend eventargs
-        let args = <TestRunChangedEventArgs> {
+        const args = <TestRunChangedEventArgs> {
             NewTestResults: Array.from(this.testResultMap.values()),
             ActiveTests: Array.from(this.inProgressTestMap.values()),
             TestRunStatistics: this.testRunStatistics
@@ -98,8 +96,8 @@ export class TestExecutionCache {
 
     private onCacheHit = () => {
         this.setCacheExpireTimer();
-        if(this.testRunStatistics.ExecutedTests > 0) {
-            this.onTestRunStatsChange.raise(this, this.CleanCache());
+        if (this.testRunStatistics.ExecutedTests > 0) {
+            this.onTestRunStatsChange.raise(this, this.cleanCache());
         }
     }
 }

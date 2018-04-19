@@ -1,4 +1,4 @@
-export default interface FilterOptions {
-    FilterRegEx: string,
-    FilterRegExReplacement: string
+export interface FilterOptions {
+    FilterRegEx: string;
+    FilterRegExReplacement: string;
 }

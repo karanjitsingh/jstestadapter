@@ -1,6 +1,6 @@
-export default class DiscoveryCriteria {
+export interface DiscoveryCriteria {
     Package: string;
-    AdapterSourceMap: {[key:string]: Array<string>};
+    AdapterSourceMap: {[key: string]: Array<string>};
     FrequencyOfDiscoveredTestsEvent: number;
     DiscoveredTestEventTimeout: string;
     RunSettings: string;

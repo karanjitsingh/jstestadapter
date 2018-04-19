@@ -1,16 +1,12 @@
-import {IEnvironment, EnvironmentProvider} from "./Environment";
-import { default as TestHost } from "./TestHost/TestHost"
+import {IEnvironment, EnvironmentProvider} from './Environment';
+import { TestHost } from './TestHost/TestHost';
 
-let testHost: TestHost;
-
-EnvironmentProvider.GetEnvironment().then((env: IEnvironment) => {
+EnvironmentProvider.getEnvironmnet().then((env: IEnvironment) => {
     try {
-        let testhost = new TestHost(env);
-    }
-    catch(err) {
-        var e:Error = <Error>err;
+        const testHost = new TestHost(env);
+    } catch (err) {
         console.error(err, err.stack);
     }
 }, (err) => {
-    console.error(err);
+    console.error(err, err.stack);
 });

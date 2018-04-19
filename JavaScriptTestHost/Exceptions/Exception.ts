@@ -2,20 +2,20 @@ export enum ExceptionType {
     InvalidArgumentsException,
     InvalidMessageException,
     InvalidJSONException,
+    NotImplementedException,
     UnknownException
 }
 
-export default class Exception extends Error {
-    constructor(message: string, type:ExceptionType) {
-        let exceptionType:string = typeof(ExceptionType[type]);
+export class Exception extends Error {
+    constructor(message: string, exceptionType: ExceptionType) {
+        let exception: string = typeof(ExceptionType[exceptionType]);
 
-        if(exceptionType == "undefined") {
-            exceptionType = ExceptionType[ExceptionType.UnknownException]
-        }
-        else {
-            exceptionType = ExceptionType[type]
+        if (exception === 'undefined') {
+            exception = ExceptionType[ExceptionType.UnknownException];
+        } else {
+            exception = ExceptionType[exceptionType];
         }
 
-        super(exceptionType + ": " + message);
+        super(exceptionType + ': ' + message);
     }
 }

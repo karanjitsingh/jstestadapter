@@ -1,22 +1,22 @@
-import {IEnvironment} from "../Environment"
-import ICommunicationManager, { MessageReceivedEventArgs } from "../Utils/ICommunicationManager";
-import {default as Exception, ExceptionType} from "../Exceptions/Exception";
-import MessageType from "../ObjectModel/MessageType";
-import Message from "../ObjectModel/Message"
-import TestRunCriteriaWithSources from "../ObjectModel/Payloads/TestRunCriteriaWithSources";
-import JobQueue from "../Utils/JobQueue";
-import TestRunner from "./TestRunner";
-import DiscoveryCriteria from "../ObjectModel/Payloads/DiscoveryCriteria";
+import {IEnvironment} from '../Environment';
+import {ICommunicationManager, MessageReceivedEventArgs } from '../Utils/ICommunicationManager';
+import { Exception, ExceptionType} from '../Exceptions/Exception';
+import { MessageType } from '../ObjectModel/MessageType';
+import { Message } from '../ObjectModel/Message';
+import { TestRunCriteriaWithSources } from '../ObjectModel/Payloads/TestRunCriteriaWithSources';
+import { JobQueue } from '../Utils/JobQueue';
+import { TestRunner } from './TestRunner';
+import { DiscoveryCriteria } from '../ObjectModel/Payloads/DiscoveryCriteria';
 
-const ipRegex = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+const ipRegex = /^(?!.*\.$)((?!0\d)(1?\d?\d|25[0-5]|2[0-4]\d)(\.|$)){4}$/;
 
-export default class TestHost {
-    private environment:IEnvironment;
+export class TestHost {
+    private environment: IEnvironment;
     private communicationManager: ICommunicationManager;
-    private highestSupportedProcolVersion = 2;
+    private highestSupportedProcolVersion: number = 2;
     private jobQueue: JobQueue;
     private testRunner: TestRunner;
-    private SessionEnded: boolean;
+    private sessionEnded: boolean;
 
     constructor(environment: IEnvironment) {
         this.environment = environment;
@@ -24,61 +24,61 @@ export default class TestHost {
         this.jobQueue = new JobQueue();
         this.validateArguments(this.environment.argv);
         this.testRunner = new TestRunner(environment, this.communicationManager);
-        this.SessionEnded = false;
+        this.sessionEnded = false;
         this.initializeCommunication();
     }
-    
+
     private initializeCommunication() {
         this.communicationManager.onMessageReceived.subscribe(this.messageReceived);
-        this.communicationManager.ConnectToServer(Number(this.environment.argv[2]), "127.0.0.1", this.onSocketConnected);
-        this.WaitForSessionEnd();
+        this.communicationManager.connectToServer(Number(this.environment.argv[2]), '127.0.0.1', this.onSocketConnected);
+        this.waitForSessionEnd();
     }
 
-    private WaitForSessionEnd() {
-        if (!this.SessionEnded) {
-            setTimeout(this.WaitForSessionEnd.bind(this), 1000);
+    private waitForSessionEnd() {
+        if (!this.sessionEnded) {
+            setTimeout(this.waitForSessionEnd.bind(this), 1000);
         }
     }
 
     private messageReceived = (sender: object, args: MessageReceivedEventArgs) => {
-        let message = args.Message;
-        
-        console.log("Message Received", message);
+        const message = args.Message;
 
-        switch(message.MessageType) {
+        console.log('Message Received', message);
+
+        switch (message.messageType) {
             case MessageType.VersionCheck:
-                let versionCheckMessage = new Message(MessageType.VersionCheck, this.highestSupportedProcolVersion);
-                this.communicationManager.SendMessage(versionCheckMessage);
+                const versionCheckMessage = new Message(MessageType.VersionCheck, this.highestSupportedProcolVersion);
+                this.communicationManager.sendMessage(versionCheckMessage);
                 break;
-            
-            case MessageType.StartTestExecutionWithSources:
-                let payload = <TestRunCriteriaWithSources>message.Payload;
 
-                this.jobQueue.QueuePromise(this.testRunner.StartTestRunWithSources(payload));
+            case MessageType.StartTestExecutionWithSources:
+                const payload = <TestRunCriteriaWithSources>message.payload;
+
+                this.jobQueue.queuePromise(this.testRunner.startTestRunWithSources(payload));
                 break;
 
             case MessageType.StartDiscovery:
-                let discoveryPayload = <DiscoveryCriteria>message.Payload;
+                const discoveryPayload = <DiscoveryCriteria>message.payload;
 
-                this.jobQueue.QueuePromise(this.testRunner.DiscoverTests(discoveryPayload));
+                this.jobQueue.queuePromise(this.testRunner.discoverTests(discoveryPayload));
                 break;
 
             case MessageType.SessionEnd:
-                this.SessionEnded = true;
+                this.sessionEnded = true;
         }
-    };
+    }
 
     private onSocketConnected() {
-        console.log("socket connected");
+        console.log('socket connected');
     }
 
     private validateArguments(args: Array<string>) {
-        if(isNaN(Number(args[2]))) {
-            throw new Exception("Invalid Port.", ExceptionType.InvalidArgumentsException);
+        if (isNaN(Number(args[2]))) {
+            throw new Exception('Invalid Port.', ExceptionType.InvalidArgumentsException);
         }
 
-        if(typeof(args[3]) === 'undefined' || args[3].match(ipRegex)) {
-            throw new Exception("Invalid IP.", ExceptionType.InvalidArgumentsException);
+        if (args[3] === undefined || args[3].match(ipRegex)) {
+            throw new Exception('Invalid IP.', ExceptionType.InvalidArgumentsException);
         }
     }
 }

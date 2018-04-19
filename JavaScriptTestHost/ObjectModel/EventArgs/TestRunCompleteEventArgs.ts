@@ -1,12 +1,11 @@
-import { TestRunStatistics } from "../TestRunStatistics";
-import ISerializable from "../ISerializable";
+import { TestRunStatistics } from '../TestRunStatistics';
+import { ISerializable } from '../ISerializable';
 
-export interface TestRunCompleteEventArgs
-{
+export interface TestRunCompleteEventArgs {
     TestRunStatistics: TestRunStatistics;
     IsCanceled: boolean;
     IsAborted: boolean;
-    Error: ISerializable;              // TODO SERIALIZED EXCEPTION
+    Error: ISerializable;
     AttachmentSets: Array<any>;
     ElapsedTimeInRunningTests: string;
     Metrics: { [id: string]: ISerializable };

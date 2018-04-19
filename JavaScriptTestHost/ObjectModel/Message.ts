@@ -1,38 +1,40 @@
-import MessageType from "./MessageType";
-import {default as Exception, ExceptionType} from "../Exceptions/Exception";
+import { MessageType } from './MessageType';
+import { Exception, ExceptionType} from '../Exceptions/Exception';
 
-export default class Message {
-    public MessageType: MessageType;
-    public Payload;
-    public Version?: number;
+export class Message {
+    public messageType: MessageType;
+    public payload: any;
+    public version?: number;
 
-    constructor(messageType: MessageType, payload, version?:number) {
-        if(version) {
-            this.Version = version;
+    constructor(messageType: MessageType, payload: any, version?: number) {
+        if (version) {
+            this.version = version;
         }
 
-        this.MessageType = messageType;
-        this.Payload = payload;
+        this.messageType = messageType;
+        this.payload = payload;
     }
 
-    public static FromJSON(json : JSON): Message {
+    public static FROM_JSON(messageJSON : JSON): Message {
         let messageType : MessageType;
         let version = null;
 
-        if(!json['MessageType']) {
-            throw new Exception("Message type was not provided.", ExceptionType.InvalidMessageException);
+        const json = <any>messageJSON;
+
+        if (!json.MessageType) {
+            throw new Exception('Message type was not provided.', ExceptionType.InvalidMessageException);
         }
 
-        if(Object.keys(MessageType).map(key => MessageType[key]).indexOf(json['MessageType']) == -1) {
-            throw new Exception("Unknown message type \'" + json['MessageType'] + "\'.", ExceptionType.InvalidMessageException);
-        }
-        
-        messageType = <MessageType>json['MessageType'];
-
-        if(json['Version']) {
-            version = json['Version'];
+        if (Object.keys(MessageType).map(key => MessageType[key]).indexOf(json.MessageType) === -1) {
+            throw new Exception('Unknown message type \'' + json.MessageType + '\'.', ExceptionType.InvalidMessageException);
         }
 
-        return new Message(messageType, json['Payload'], version);
+        messageType = <MessageType>json.MessageType;
+
+        if (json.Version) {
+            version = json.Version;
+        }
+
+        return new Message(messageType, json.Payload, version);
     }
 }

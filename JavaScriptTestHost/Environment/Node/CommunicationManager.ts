@@ -1,84 +1,82 @@
-import ICommunicationManager, { MessageReceivedEventArgs } from "../../Utils/ICommunicationManager"
-import Message from "../../ObjectModel/Message";
-import {default as Exception, ExceptionType} from "../../Exceptions/Exception";
-import IEnvironment from "../IEnvironment";
-import Event, { IEventArgs } from "../../Events/Event";
+import { ICommunicationManager, MessageReceivedEventArgs } from '../../Utils/ICommunicationManager';
+import { Message } from '../../ObjectModel/Message';
+import { Exception, ExceptionType} from '../../Exceptions/Exception';
+import { IEnvironment } from '../IEnvironment';
+import { Event, IEventArgs } from '../../Events/Event';
+import { Socket } from 'net';
 
 interface PacketData<T> {
     byteCount: number;
     dataObject: T;
 }
 
-export default class CommunicationManager implements ICommunicationManager {
-    private socket;
+export class CommunicationManager implements ICommunicationManager {
+    private socket: Socket;
     private environment: IEnvironment;
     public onMessageReceived: Event<MessageReceivedEventArgs>;
     private socketBuffer: Buffer;
 
     constructor(environment: IEnvironment) {
-        let net = require("net");
-
-        this.socket = new net.Socket();
+        this.socket = new Socket();
         this.socketBuffer = new Buffer(0);
         this.onMessageReceived = environment.createEvent();
 
         this.socket.on('data', this.onSocketDataReceived);
         this.socket.on('close', () => {
-            console.log("connection close");
+            console.log('connection close');
         });
     }
 
-    public ConnectToServer(port: number, ip:string, callback: () => void) {
+    public connectToServer(port: number, ip: string, callback: () => void) {
         this.socket.connect(port, ip, callback);
     }
 
     private onSocketDataReceived = (buffer: Buffer) => {
         this.socketBuffer = Buffer.concat([this.socketBuffer, buffer]);
-        let messagePacket: PacketData<Message> = null; 
+        let messagePacket: PacketData<Message> = null;
 
         do {
-            if(messagePacket != null) {
+            if (messagePacket != null) {
                 this.socketBuffer = this.socketBuffer.slice(messagePacket.byteCount, this.socketBuffer.length);
 
-                if(messagePacket.dataObject != null) {
+                if (messagePacket.dataObject != null) {
                     this.onMessageReceived.raise(this, <MessageReceivedEventArgs> {
                         Message: messagePacket.dataObject
-                    })
+                    });
                 }
             }
-            messagePacket = this.TryReadMessage(this.socketBuffer);
-        } while(messagePacket != null);
-        
+            messagePacket = this.tryReadMessage(this.socketBuffer);
+        } while (messagePacket != null);
+
     }
 
-    public SendMessage(message: Message) {
+    public sendMessage(message: Message) {
         let dataObject = JSON.stringify(message);
 
         // 7 bit encoded int length padding
-        dataObject = this.IntTo7BitEncodedInt(dataObject.length) + dataObject;
+        dataObject = this.intTo7BitEncodedInt(dataObject.length) + dataObject;
 
-        this.socket.write(dataObject, "binary");
+        this.socket.write(dataObject, 'binary');
     }
 
-    private TryReadMessage(buffer: Buffer): PacketData<Message> {
+    private tryReadMessage(buffer: Buffer): PacketData<Message> {
 
-        let encodedInt: PacketData<number>
-        encodedInt = this.Read7BitEncodedInt(buffer);
-        let messagePacket = <PacketData<Message>> {
+        let encodedInt: PacketData<number>;
+        encodedInt = this.read7BitEncodedInt(buffer);
+        const messagePacket = <PacketData<Message>> {
             byteCount: 0,
             dataObject: null
-        }
+        };
 
-        if(encodedInt) {
-            if(buffer.length >= encodedInt.byteCount + encodedInt.dataObject) {
-                let rawMessage = buffer.toString('utf8', encodedInt.byteCount, encodedInt.byteCount + encodedInt.dataObject);
+        if (encodedInt) {
+            if (buffer.length >= encodedInt.byteCount + encodedInt.dataObject) {
+                const rawMessage = buffer.toString('utf8', encodedInt.byteCount, encodedInt.byteCount + encodedInt.dataObject);
                 messagePacket.byteCount = encodedInt.byteCount + encodedInt.dataObject;
-                
+
                 try {
-                    let messageJson = JSON.parse(rawMessage);
-                    messagePacket.dataObject = Message.FromJSON(messageJson);
-                }
-                catch(e) {
+                    const messageJson = JSON.parse(rawMessage);
+                    messagePacket.dataObject = Message.FROM_JSON(messageJson);
+                } catch (e) {
                     // log problem
                     // return packet with null message
                 }
@@ -91,22 +89,24 @@ export default class CommunicationManager implements ICommunicationManager {
     }
 
     // Will return non-negative integer if read was successful
-    private Read7BitEncodedInt(buffer: Buffer): PacketData<number> {
-        let length:number = 0;
+    private read7BitEncodedInt(buffer: Buffer): PacketData<number> {
+        let length: number = 0;
 
         // max 32bit integer + one extra byte since 32 bit integer encoded in integer can take upto 36 bits
-        for(let i=0;i<5;i++) {
-            
-            if(buffer.length < i+1)
-                break;
-            
-            var byte = buffer.readUInt8(i);
+        for (let i = 0; i < 5; i++) {
 
+            if (buffer.length < i + 1) {
+                break;
+            }
+
+            const byte = buffer.readUInt8(i);
+
+            // tslint:disable-next-line
             length += (byte % 128) << 7 * i;
 
-            if(byte < 128) {
+            if (byte < 128) {
                 return {
-                    byteCount: i+1,
+                    byteCount: i + 1,
                     dataObject: length
                 };
             }
@@ -115,16 +115,17 @@ export default class CommunicationManager implements ICommunicationManager {
         return null;
     }
 
-    private IntTo7BitEncodedInt(integer: number): string {
-        let output = "";
+    private intTo7BitEncodedInt(integer: number): string {
+        let output = '';
         let length = Math.floor(integer);  // just in case
         let byte;
 
-        while(length > 0) {
-            byte = length % 128         // will give the 7 least significant bits
-            byte += length >= 128 ? 128 : 0  // will set highest bit to 1 if more bits required
+        while (length > 0) {
+            byte = length % 128;         // will give the 7 least significant bits
+            byte += length >= 128 ? 128 : 0;  // will set highest bit to 1 if more bits required
 
             output += String.fromCharCode(byte);
+            // tslint:disable-next-line
             length = length >> 7;
         }
         return output;

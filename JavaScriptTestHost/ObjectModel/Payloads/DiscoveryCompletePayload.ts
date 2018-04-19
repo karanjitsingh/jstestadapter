@@ -1,9 +1,9 @@
-import TestCase from "../TestCase";
-import ISerializable from "../ISerializable";
+import { TestCase } from '../TestCase';
+import { ISerializable } from '../ISerializable';
 
-export default class DiscoveryCompletePayload {
+export interface DiscoveryCompletePayload {
     TotalTests: number;
     LastDiscoveredTests: Array<TestCase>;
     IsAborted: boolean;
-    Metrics: {[id:string]: ISerializable};
+    Metrics: {[id: string]: ISerializable};
 }

@@ -1,86 +1,84 @@
-import { start } from "repl";
-
 interface Job {
-    Action: () => void,
-    Promise: Promise<any>,
-    Callback?: (e?:Error) => void
+    Action: () => void;
+    Promise: Promise<any>;
+    Callback?: (e?: Error) => void;
 }
 
-export default class JobQueue {
+export class JobQueue {
     private jobQueue: Array<Job>;
     private isRunning: boolean;
-    public Autostart: boolean;
+    public autoStart: boolean;
 
     constructor() {
         this.jobQueue = <Array<Job>>[];
         this.isRunning = false;
-        this.Autostart = true;
+        this.autoStart = true;
     }
 
-    public QueueJob(action: () => void, callback?: (e?: Error) => void) {
+    public queueJob(action: () => void, callback?: (e?: Error) => void) {
         this.jobQueue.push(<Job> {
             Action: action,
             Callback: callback
         });
 
-        if(!this.isRunning && this.Autostart) {
-            this.Start();
+        if (!this.isRunning && this.autoStart) {
+            this.start();
         }
     }
 
-    public QueuePromise(promise: Promise<any>, callback?: (e?: Error) => void) {
+    public queuePromise(promise: Promise<any>, callback?: (e?: Error) => void) {
         this.jobQueue.push(<Job> {
             Promise: promise,
             Callback: callback
         });
 
-        if(!this.isRunning && this.Autostart) {
-            this.Start();
+        if (!this.isRunning && this.autoStart) {
+            this.start();
         }
     }
 
-    public Start() {
+    public start() {
         this.isRunning = true;
-        this.ProcessJobs();
+        this.processJobs();
     }
 
-    public Pause() {
+    public pause() {
         this.isRunning = false;
     }
 
-    private ProcessJobs() {
-        if(!this.isRunning || this.jobQueue.length == 0) {
+    private processJobs() {
+        if (!this.isRunning || this.jobQueue.length === 0) {
             this.isRunning = false;
             return;
         }
 
-        this.ExecuteJob().then(() => {
-            this.JobFinished(null);
+        this.executeJob().then(() => {
+            this.jobFinished(null);
         },
-        (err:Error) => {
-            this.JobFinished(err);
+        (err: Error) => {
+            this.jobFinished(err);
         });
     }
 
-    private JobFinished(err?: Error) {
-        if(err) {
+    private jobFinished(err?: Error) {
+        if (err) {
             // log error
             console.error(err);
         }
 
-        let job = this.jobQueue.pop();
-        if(job.Callback) {
+        const job = this.jobQueue.pop();
+        if (job.Callback) {
             job.Callback(err ? err : null);
         }
 
-        this.ProcessJobs();
+        this.processJobs();
     }
 
-    private async ExecuteJob() {
-        let job = this.jobQueue[0];
-        if(job.Action)
+    private async executeJob() {
+        const job = this.jobQueue[0];
+        if (job.Action) {
             job.Action();
-        else if(job.Promise) {
+        } else if (job.Promise) {
             await job.Promise;
         }
     }

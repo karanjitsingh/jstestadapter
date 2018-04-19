@@ -1,13 +1,17 @@
-import Message from "../ObjectModel/Message";
-import Event, { IEventArgs } from "../Events/Event";
+/**
+ * This is a description of the foo function.
+ * */
+
+import { Message } from '../ObjectModel/Message';
+import { Event, IEventArgs } from '../Events/Event';
 
 export interface MessageReceivedEventArgs extends IEventArgs {
     Message: Message;
 }
 
-export default interface ICommunicationManager {
+export interface ICommunicationManager {
     onMessageReceived: Event<MessageReceivedEventArgs>;
-    
-    ConnectToServer(port: number, ip:string, callback: () => void);
-    SendMessage(message: Message);
+
+    connectToServer(port: number, ip: string, callback: () => void);
+    sendMessage(message: Message);
 }

@@ -1,16 +1,16 @@
-import Event, { IEventArgs } from "../../Events/Event";
-import IEnvironment from "../../Environment/IEnvironment";
-import { TestCaseEventArgs, TestSuiteEventArgs, TestSessionEventArgs } from "./TestFrameworkEventArgs";
+import { Event, IEventArgs } from '../../Events/Event';
+import { IEnvironment } from '../../Environment/IEnvironment';
+import { TestCaseEventArgs, TestSuiteEventArgs, TestSessionEventArgs } from './TestFrameworkEventArgs';
 
-export default interface ITestFramework {
+export interface ITestFramework {
     onTestCaseStart: Event<TestCaseEventArgs>;
     onTestCaseEnd: Event<TestCaseEventArgs>;
     onTestSuiteStart: Event<TestSuiteEventArgs>;
     onTestSuiteEnd: Event<TestSuiteEventArgs>;
     onTestSessionStart: Event<TestSessionEventArgs>;
     onTestSessionEnd: Event<TestSessionEventArgs>;
-    readonly ExecutorUri: string;
+    readonly executorUri: string;
 
-    StartExecution(source: string): void;
-    StartDiscovery(source: string): void;
+    startExecution(source: string): void;
+    startDiscovery(source: string): void;
 }

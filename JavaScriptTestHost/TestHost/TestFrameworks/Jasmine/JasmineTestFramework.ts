@@ -1,9 +1,10 @@
-import ITestFramework from "../ITestFramework";
-import Event, { IEventArgs } from "../../../Events/Event";
-import IEnvironment from "../../../Environment/IEnvironment";
-import { TestCaseEventArgs, TestSuiteEventArgs, TestSessionEventArgs, FailedExpectation } from "../TestFrameworkEventArgs";
-import TestCase from "../../../ObjectModel/TestCase";
-import { TestOutcome } from "../../../ObjectModel/TestOutcome";
+import { ITestFramework } from '../ITestFramework';
+import { Event, IEventArgs } from '../../../Events/Event';
+import { IEnvironment, EnvironmentType } from '../../../Environment/IEnvironment';
+import { TestCaseEventArgs, TestSuiteEventArgs, TestSessionEventArgs, FailedExpectation } from '../TestFrameworkEventArgs';
+import { TestCase } from '../../../ObjectModel/TestCase';
+import { TestOutcome } from '../../../ObjectModel/TestOutcome';
+import { Exception, ExceptionType } from '../../../Exceptions/Exception';
 
 enum JasmineReporterEvent {
     JasmineStarted,
@@ -14,64 +15,83 @@ enum JasmineReporterEvent {
     SpecDone
 }
 
-export default class JasmineTestFramework implements ITestFramework {
+export class JasmineTestFramework implements ITestFramework {
     public onTestCaseStart: Event<TestCaseEventArgs>;
     public onTestCaseEnd: Event<TestCaseEventArgs>;
     public onTestSuiteStart: Event<TestSuiteEventArgs>;
     public onTestSuiteEnd: Event<TestSuiteEventArgs>;
     public onTestSessionStart: Event<TestSessionEventArgs>;
     public onTestSessionEnd: Event<TestSessionEventArgs>;
-    public readonly ExecutorUri: string = "executor://JasmineTestAdapter/v1"
+    public readonly executorUri: string = 'executor://JasmineTestAdapter/v1';
 
-    private jasmine;
+    private jasmine: any;
     private environment: IEnvironment;
-    private source;
+    private source: string;
     private sessionEventArgs: TestSessionEventArgs;
     private suiteStack: Array<TestSuiteEventArgs>;
     private activeSpec: TestCaseEventArgs;
+
+    private getJasmine() {
+        switch (this.environment.environmentType) {
+            case EnvironmentType.NodeJS:
+                // tslint:disable-next-line
+                return require('jasmine');
+            default:
+                throw new Exception('Not implemented.', ExceptionType.NotImplementedException);
+        }
+    }
 
     constructor(environment: IEnvironment) {
         this.environment = environment;
         this.suiteStack = [];
 
-        let Jasmine = require('jasmine');
-        this.jasmine = new Jasmine();
+        const jasmineLib = this.getJasmine();
+        this.jasmine = new jasmineLib();
+
+        // tslint:disable: no-empty
         this.jasmine.exit = () => {};
-        this.jasmine.exitCodeCompletion = () => {};
-        
-        this.InitializeEvents();
-        this.InitializeReporter();
+        this.jasmine.exitCodeCompletion = () => { };
+        // tslint:enable: no-empty
+
+        this.initializeEvents();
+        this.initializeReporter();
     }
 
-    public StartExecution(source: string): void {
+    public startExecution(source: string): void {
         this.source = source;
         this.jasmine.execute([source]);
-    };
+    }
 
-    public StartDiscovery(source: string): void {
-        this.jasmine.jasmine.getEnv().beforeAll = function () { };
-        this.jasmine.jasmine.getEnv().afterAll = function () { };
-        this.jasmine.jasmine.Spec.prototype.execute = function (onComplete) {
+    public startDiscovery(source: string): void {
+        // tslint:disable: no-empty
+        this.jasmine.jasmine.getEnv().beforeAll = () => {};
+        this.jasmine.jasmine.getEnv().afterAll = () => {};
+        // tslint:enable: no-emptys
+        this.jasmine.jasmine.Spec.prototype.execute = function (onComplete: any) {
 
             this.onStart(this);
             this.resultCallback(this.result);
-            if (onComplete)
+            if (onComplete) {
                 onComplete();
+            }
         };
 
         this.source = source;
         this.jasmine.execute([source]);
-    };
+    }
 
-    private HandleJasmineReporterEvents(reporterEvent: JasmineReporterEvent, args: any) {
+    private handleJasmineReporterEvents(reporterEvent: JasmineReporterEvent, args: any) {
         switch (reporterEvent) {
             case JasmineReporterEvent.JasmineStarted:
+                const start = new Date();
+
                 this.sessionEventArgs = {
+                    SessionId: String(start.getTime()),
                     Source: this.source,
-                    StartTime: new Date(),
+                    StartTime: start,
                     InProgress: true,
                     EndTime: null
-                }
+                };
 
                 this.onTestSessionStart.raise(this, this.sessionEventArgs);
                 break;
@@ -80,12 +100,12 @@ export default class JasmineTestFramework implements ITestFramework {
                 this.sessionEventArgs.EndTime = new Date();
                 this.sessionEventArgs.InProgress = false;
 
-                this.onTestSessionEnd.raise(this, this.sessionEventArgs);    
+                this.onTestSessionEnd.raise(this, this.sessionEventArgs);
                 break;
 
             case JasmineReporterEvent.SuiteStarted:
 
-                let suiteEventArgs: TestSuiteEventArgs = {
+                const suiteEventArgs: TestSuiteEventArgs = {
                     Name: args.description,
                     Source: this.source,
                     StartTime: new Date(),
@@ -93,13 +113,13 @@ export default class JasmineTestFramework implements ITestFramework {
                     EndTime: undefined
                 };
 
-                this.suiteStack.push(suiteEventArgs)
+                this.suiteStack.push(suiteEventArgs);
 
-                this.onTestSuiteStart.raise(this, suiteEventArgs)
+                this.onTestSuiteStart.raise(this, suiteEventArgs);
                 break;
-            
+
             case JasmineReporterEvent.SuiteDone:
-                let suiteEndEventArgs = this.suiteStack.pop();
+                const suiteEndEventArgs = this.suiteStack.pop();
 
                 suiteEndEventArgs.InProgress = false;
                 suiteEndEventArgs.EndTime = new Date();
@@ -115,8 +135,8 @@ export default class JasmineTestFramework implements ITestFramework {
                 // : null;
                 // let suiteName = currentSuiteName;
 
-                let testCase = new TestCase(this.source, args.fullName, this.ExecutorUri);
-                testCase.DisplayName = args.description;
+                const testCase = new TestCase(this.source, args.fullName, this.executorUri);
+                testCase.displayName = args.description;
 
                 this.activeSpec = <TestCaseEventArgs> {
                     TestCase: testCase,
@@ -126,30 +146,30 @@ export default class JasmineTestFramework implements ITestFramework {
                     StartTime: new Date(),
                     InProgress: true,
                     EndTime: null
-                }
+                };
 
                 this.onTestCaseStart.raise(this, this.activeSpec);
                 break;
-            
+
             case JasmineReporterEvent.SpecDone:
                 this.activeSpec.InProgress = false;
                 this.activeSpec.EndTime = new Date();
-    
+
                 for (let i = 0; i < args.failedExpectations.length; i++) {
-                    let expectation = args.failedExpectations[i];
-        
-                    let failedExpectation: FailedExpectation = {
+                    const expectation = args.failedExpectations[i];
+
+                    const failedExpectation: FailedExpectation = {
                         Message: expectation.message,
                         StackTrace: this.recordStackTrace(expectation.stack)
-                    }
-                    this.activeSpec.FailedExpectations.push(failedExpectation);        
+                    };
+                    this.activeSpec.FailedExpectations.push(failedExpectation);
                 }
 
-                if (args.status === "disabled") {
+                if (args.status === 'disabled') {
                     this.activeSpec.Outcome = TestOutcome.Skipped;
                 }
-        
-                if (args.status === "failed") {
+
+                if (args.status === 'failed') {
                     this.activeSpec.Outcome = TestOutcome.Failed;
                 }
 
@@ -160,7 +180,7 @@ export default class JasmineTestFramework implements ITestFramework {
         }
     }
 
-    private InitializeEvents() {
+    private initializeEvents() {
         this.onTestCaseStart = this.environment.createEvent();
         this.onTestCaseEnd = this.environment.createEvent();
         this.onTestSuiteStart = this.environment.createEvent();
@@ -169,21 +189,21 @@ export default class JasmineTestFramework implements ITestFramework {
         this.onTestSessionEnd = this.environment.createEvent();
     }
 
-    private InitializeReporter() {
+    private initializeReporter() {
         this.jasmine.clearReporters();
         this.jasmine.addReporter({
-            jasmineStarted: (args) => { this.HandleJasmineReporterEvents(JasmineReporterEvent.JasmineStarted, args) },
-            jasmineDone: (args) => { this.HandleJasmineReporterEvents(JasmineReporterEvent.JasmineDone, args) },
-            suiteStarted: (args) => { this.HandleJasmineReporterEvents(JasmineReporterEvent.SuiteStarted, args) },
-            suiteDone: (args) => { this.HandleJasmineReporterEvents(JasmineReporterEvent.SuiteDone, args) },
-            specStarted: (args) => { this.HandleJasmineReporterEvents(JasmineReporterEvent.SpecStarted, args) },
-            specDone: (args) => { this.HandleJasmineReporterEvents(JasmineReporterEvent.SpecDone, args) },
+            jasmineStarted: (args) => { this.handleJasmineReporterEvents(JasmineReporterEvent.JasmineStarted, args); },
+            jasmineDone: (args) => { this.handleJasmineReporterEvents(JasmineReporterEvent.JasmineDone, args); },
+            suiteStarted: (args) => { this.handleJasmineReporterEvents(JasmineReporterEvent.SuiteStarted, args); },
+            suiteDone: (args) => { this.handleJasmineReporterEvents(JasmineReporterEvent.SuiteDone, args); },
+            specStarted: (args) => { this.handleJasmineReporterEvents(JasmineReporterEvent.SpecStarted, args); },
+            specDone: (args) => { this.handleJasmineReporterEvents(JasmineReporterEvent.SpecDone, args); }
         });
     }
 
-    private recordStackTrace(stack) {
+    private recordStackTrace(stack: any) {
         if (stack) {
-            // Truncate stack to 5 deep. 
+            // Truncate stack to 5 deep.
             stack = stack.split('\n').slice(1, 6).join('\n');
         }
         return stack;

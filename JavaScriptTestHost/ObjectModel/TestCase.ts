@@ -1,31 +1,31 @@
-import { Md5 } from "../Utils/Hashing/MD5";
+import { Md5 } from '../Utils/Hashing/MD5';
 
-export default class TestCase {
-    public Id: string;
-    public FullyQualifiedName: string;
-    public DisplayName: string;
-    public ExecutorUri: string;
-    public Source: string;
-    public CodeFilePath: string;
-    public LineNumber: number;
-    public Properties: Array<JSON>;
+export class TestCase {
+    public id: string;
+    public fullyQualifiedName: string;
+    public displayName: string;
+    public executorUri: string;
+    public source: string;
+    public codeFilePath: string;
+    public lineNumber: number;
+    public properties: Array<JSON>;
 
-    constructor(source:string, fullyQualifiedName: string, executorUri: string) {
-        
-        this.FullyQualifiedName = fullyQualifiedName;
-        this.Source = source;
-        this.ExecutorUri = executorUri;
-        this.DisplayName = "";
-        this.LineNumber = -1;
-        this.Properties = [];
-        this.CodeFilePath = "";
+    constructor(source: string, fullyQualifiedName: string, executorUri: string) {
+
+        this.fullyQualifiedName = fullyQualifiedName;
+        this.source = source;
+        this.executorUri = executorUri;
+        this.displayName = '';
+        this.lineNumber = -1;
+        this.properties = [];
+        this.codeFilePath = '';
 
         // TODO collision possibility
-        let hash = new Md5();
-        hash.appendStr(this.FullyQualifiedName)
-            .appendStr(this.ExecutorUri)
-            .appendStr(this.Source);
+        const hash = new Md5();
+        hash.appendStr(this.fullyQualifiedName)
+            .appendStr(this.executorUri)
+            .appendStr(this.source);
 
-        this.Id = hash.end().toString();
+        this.id = hash.end().toString();
     }
 }

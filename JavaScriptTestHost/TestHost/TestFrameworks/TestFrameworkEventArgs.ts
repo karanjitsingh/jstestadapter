@@ -1,6 +1,6 @@
-import Event, { IEventArgs } from "../../Events/Event";
-import TestCase from "../../ObjectModel/TestCase";
-import { TestOutcome } from "../../ObjectModel/TestOutcome";
+import { Event, IEventArgs } from '../../Events/Event';
+import { TestCase } from '../../ObjectModel/TestCase';
+import { TestOutcome } from '../../ObjectModel/TestOutcome';
 
 interface BaseTestEventArgs extends IEventArgs {
     // test case will have extra source
@@ -26,5 +26,5 @@ export interface TestSuiteEventArgs extends BaseTestEventArgs {
 }
 
 export interface TestSessionEventArgs extends BaseTestEventArgs {
-
+    SessionId: string;
 }

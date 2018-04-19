@@ -1,6 +1,6 @@
-import TestExecutionContext from "./TestExecutionContext";
+import { TestExecutionContext } from './TestExecutionContext';
 
-export default interface TestRunCriteriaWithSources {
+export interface TestRunCriteriaWithSources {
     AdapterSourceMap: JSON;
     RunSettings: string;
     TestExecutionContext: TestExecutionContext;
