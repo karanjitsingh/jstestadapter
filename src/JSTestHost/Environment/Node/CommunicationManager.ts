@@ -1,4 +1,4 @@
-import { ICommunicationManager, MessageReceivedEventArgs } from '../../Utils/ICommunicationManager';
+import { ICommunicationManager, MessageReceivedEventArgs } from '../ICommunicationManager';
 import { Message } from '../../ObjectModel/Message';
 import { Exception, ExceptionType} from '../../Exceptions/Exception';
 import { IEnvironment } from '../IEnvironment';
@@ -11,10 +11,12 @@ interface PacketData<T> {
 }
 
 export class CommunicationManager implements ICommunicationManager {
-    private socket: Socket;
     private environment: IEnvironment;
-    public onMessageReceived: Event<MessageReceivedEventArgs>;
     private socketBuffer: Buffer;
+
+    protected socket: Socket;
+
+    public onMessageReceived: Event<MessageReceivedEventArgs>;
 
     constructor(environment: IEnvironment) {
         this.socket = new Socket();
@@ -29,6 +31,17 @@ export class CommunicationManager implements ICommunicationManager {
 
     public connectToServer(port: number, ip: string, callback: () => void) {
         this.socket.connect(port, ip, callback);
+    }
+
+    public sendMessage(message: Message) {
+        let dataObject = JSON.stringify(message);
+
+        console.log('Message Send', message);
+
+        // 7 bit encoded int length padding
+        dataObject = this.intTo7BitEncodedInt(dataObject.length) + dataObject;
+
+        this.socket.write(dataObject, 'binary');
     }
 
     private onSocketDataReceived = (buffer: Buffer) => {
@@ -48,15 +61,6 @@ export class CommunicationManager implements ICommunicationManager {
             messagePacket = this.tryReadMessage(this.socketBuffer);
         } while (messagePacket != null);
 
-    }
-
-    public sendMessage(message: Message) {
-        let dataObject = JSON.stringify(message);
-
-        // 7 bit encoded int length padding
-        dataObject = this.intTo7BitEncodedInt(dataObject.length) + dataObject;
-
-        this.socket.write(dataObject, 'binary');
     }
 
     private tryReadMessage(buffer: Buffer): PacketData<Message> {

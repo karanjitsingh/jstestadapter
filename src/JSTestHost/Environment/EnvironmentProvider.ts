@@ -1,26 +1,28 @@
 import { IEnvironment } from './IEnvironment';
 import { Environment as NodeEnvironment } from './Node/Environment';
 
-export namespace EnvironmentProvider {
-    let environment: IEnvironment;
+export class EnvironmentProvider {
 
-    export function getEnvironmnetBaseDirectory() : string {
-        // tslint:disable-next-line
-        const isBrowser = this['window'] === this;
+    protected isBrowser() : boolean {
+        // tslint:disable:no-string-literal
+        return (function() {
+            return this !== undefined && this['window'] === this;
+        })();
+        // tslint:enable
+    }
+
+    protected getEnvironmentBaseDirectory() : string {
+        const isBrowser = this.isBrowser();
+
         if (isBrowser) {
             return 'Browser';
         } else {
             return 'Node';
         }
-
     }
 
-    export async function getEnvironmnet() : Promise<IEnvironment> {
-        if (!environment) {
-            const env = await import('./' + EnvironmentProvider.getEnvironmnetBaseDirectory() + '/Environment');
-            environment = new env.Environment();
-        }
-
-        return environment;
+    public async getEnvironment() : Promise<IEnvironment> {
+        const env = await import('./' + this.getEnvironmentBaseDirectory() + '/Environment');
+        return new env.Environment();
     }
 }

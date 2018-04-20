@@ -76,6 +76,7 @@ export class MochaTestFramework implements ITestFramework {
     private handleReporterEvents(reporterEvent: ReporterEvent, args: any) {
         switch (reporterEvent) {
             case ReporterEvent.SessionStarted:
+                console.log('session started');
                 const start = new Date();
                 this.sessionEventArgs = {
                     SessionId: String(start.getTime()),
@@ -89,6 +90,7 @@ export class MochaTestFramework implements ITestFramework {
                 break;
 
             case ReporterEvent.SessionDone:
+                console.log('session done');
                 this.sessionEventArgs.EndTime = new Date();
                 this.sessionEventArgs.InProgress = false;
 
@@ -96,7 +98,7 @@ export class MochaTestFramework implements ITestFramework {
                 break;
 
             case ReporterEvent.SuiteStarted:
-
+                console.log('suite started');
                 const suiteEventArgs: TestSuiteEventArgs = {
                     Name: args.title,
                     Source: this.source,
@@ -111,6 +113,7 @@ export class MochaTestFramework implements ITestFramework {
                 break;
 
             case ReporterEvent.SuiteDone:
+                console.log('suite done');
                 if (!this.suiteStack.length) {
                     break;
                 }
@@ -124,6 +127,7 @@ export class MochaTestFramework implements ITestFramework {
                 break;
 
             case ReporterEvent.SpecStarted:
+                console.log('spec started');
 
                 const testCase = new TestCase(this.source, args.fullTitle(), this.executorUri);
                 testCase.displayName = args.title;
@@ -142,6 +146,8 @@ export class MochaTestFramework implements ITestFramework {
                 break;
 
             case ReporterEvent.SpecDone:
+                console.log('spec done');
+
                 this.activeSpec.InProgress = false;
                 this.activeSpec.EndTime = new Date();
 

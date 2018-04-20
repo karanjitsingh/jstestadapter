@@ -1,6 +1,6 @@
-import {IEnvironment} from '../Environment';
-import {ICommunicationManager, MessageReceivedEventArgs } from '../Utils/ICommunicationManager';
-import { Exception, ExceptionType} from '../Exceptions/Exception';
+import { IEnvironment } from '../Environment/IEnvironment';
+import { ICommunicationManager, MessageReceivedEventArgs } from '../Environment/ICommunicationManager';
+import { Exception, ExceptionType } from '../Exceptions/Exception';
 import { MessageType } from '../ObjectModel/MessageType';
 import { Message } from '../ObjectModel/Message';
 import { TestRunCriteriaWithSources } from '../ObjectModel/Payloads/TestRunCriteriaWithSources';
@@ -36,6 +36,7 @@ export class TestHost {
 
     private waitForSessionEnd() {
         if (!this.sessionEnded) {
+            // decrease this.endtimeout = ; cleartimeout
             setTimeout(this.waitForSessionEnd.bind(this), 1000);
         }
     }

@@ -24,7 +24,8 @@ export class TestCase {
         const hash = new Md5();
         hash.appendStr(this.fullyQualifiedName)
             .appendStr(this.executorUri)
-            .appendStr(this.source);
+            .appendStr(this.source)
+            .appendStr(new Date().getTime().toString());
 
         this.id = hash.end().toString();
     }

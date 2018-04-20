@@ -1,7 +1,3 @@
-/**
- * This is a description of the foo function.
- * */
-
 import { Message } from '../ObjectModel/Message';
 import { Event, IEventArgs } from '../Events/Event';
 

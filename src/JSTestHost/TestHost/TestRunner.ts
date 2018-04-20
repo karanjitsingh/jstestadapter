@@ -7,7 +7,7 @@ import { ITestFramework } from './TestFrameworks/ITestFramework';
 import { TestSessionEventArgs, TestCaseEventArgs, TestSuiteEventArgs } from './TestFrameworks/TestFrameworkEventArgs';
 import { TestExecutionCache } from './TestExecutionCache';
 import { TimeSpan } from '../Utils/TimeSpan';
-import { ICommunicationManager } from '../Utils/ICommunicationManager';
+import { ICommunicationManager } from '../Environment/ICommunicationManager';
 import { MessageType } from '../ObjectModel/MessageType';
 import { TestRunChangedEventArgs } from '../ObjectModel/Payloads/TestRunChangedEventArgs';
 import { Message } from '../ObjectModel/Message';
@@ -34,7 +34,6 @@ export class TestRunner {
     private readonly environment: IEnvironment;
     private readonly communicationManager: ICommunicationManager;
     private onComplete: Event<IEventArgs>;
-
     private testExecutionCache: TestExecutionCache;
     private testDiscoveryCache: TestDiscoveryCache;
     private runner: TestFramework = TestFramework.Mocha;

@@ -1,7 +1,10 @@
-import {IEnvironment, EnvironmentProvider} from './Environment';
+import { IEnvironment } from './Environment/IEnvironment';
+import { EnvironmentProvider } from './Environment/EnvironmentProvider';
 import { TestHost } from './TestHost/TestHost';
 
-EnvironmentProvider.getEnvironmnet().then((env: IEnvironment) => {
+const environmentProvider = new EnvironmentProvider();
+
+environmentProvider.getEnvironment().then((env: IEnvironment) => {
     try {
         const testHost = new TestHost(env);
     } catch (err) {
