@@ -9,12 +9,12 @@ $CLRDir = ""
 $CLRExtensionsDir = ""
 $ProjectDir = (Get-Item ([System.IO.Path]::GetDirectoryName($myInvocation.MyCommand.Definition))).Parent.FullName
 $packageJSON = Join-Path $ProjectDir "package.json"
-$FullCLRDir = Join-Path $ProjectDir "bin\Debug\net451\"
-$CoreCLRDir = Join-Path $ProjectDir "bin\Debug\netcoreapp2.0\"
+$FullCLRDir = Join-Path $ProjectDir "src\TestHostProvider\bin\Debug\net451\"
+$CoreCLRDir = Join-Path $ProjectDir "src\TestHostProvider\bin\Debug\netcoreapp2.0\"
 $FullCLRExtensionsDir = "D:\vstest\artifacts\Debug\net451\win7-x64\Extensions\"
 $CoreCLRExtensionsDir = "D:\vstest\artifacts\Debug\netcoreapp2.0\Extensions\"
 $NodeBinaries = Join-Path $ProjectDir "packages\node.js.redist\8.9.1\tools\*"
-$TestHostDir = Join-Path $ProjectDir "bin\Debug\jstesthost\"
+$TestHostDir = Join-Path $ProjectDir "src\JSTestHost\bin\JSTestHost\"
 
 if($target -eq "net451") {
     $CLRDir = $FullCLRDir
@@ -29,15 +29,13 @@ if($clean) {
 
     Remove-Item (Join-Path $FullCLRExtensionsDir "node") -Recurse -Force -ErrorAction SilentlyContinue
     Remove-Item (Join-Path $CoreCLRExtensionsDir "node") -Recurse -Force -ErrorAction SilentlyContinue
-    Remove-Item (Join-Path $FullCLRExtensionsDir "jstesthost") -Recurse -Force -ErrorAction SilentlyContinue
-    Remove-Item (Join-Path $CoreCLRExtensionsDir "jstesthost") -Recurse -Force -ErrorAction SilentlyContinue
+    Remove-Item (Join-Path $FullCLRExtensionsDir "JSTestHost") -Recurse -Force -ErrorAction SilentlyContinue
+    Remove-Item (Join-Path $CoreCLRExtensionsDir "JSTestHost") -Recurse -Force -ErrorAction SilentlyContinue
     Remove-Item (Join-Path $ProjectDir "bin\Debug\*") -Recurse -Force -ErrorAction SilentlyContinue
 }
 
 Write-Host "Starting msbuild.`n"
-dotnet msbuild $ProjectDir
-
-
+dotnet msbuild (Join-Path $ProjectDir "src\TestHostProvider")
 
 Write-Host "`nStarting typescript build."
 if(!$nolint) { npm run lint }
@@ -70,6 +68,6 @@ Copy-Item -Path $TestHostDir -Destination $CLRExtensionsDir -Recurse -Force
 
 Write-Host "`nRunning npm install"
 $dir = Get-Location
-Set-Location (Join-Path $CLRExtensionsDir "jstesthost")
+Set-Location (Join-Path $CLRExtensionsDir "JSTestHost")
 npm install --production
 Set-Location $dir

@@ -1,8 +1,8 @@
-import { EnvironmentProvider } from '../../src/Environment/EnvironmentProvider';
-import { Environment as NodeEnvironment } from '../../src//Environment/Node/Environment';
-import { Environment as BrowserEnvironment } from '../../src//Environment/Browser/Environment';
+import { EnvironmentProvider } from '../../src/JSTestHost/Environment/EnvironmentProvider';
+import { Environment as NodeEnvironment } from '../../src/JSTestHost/Environment/Node/Environment';
+import { Environment as BrowserEnvironment } from '../../src/JSTestHost/Environment/Browser/Environment';
 import * as assert from 'assert';
-import { EnvironmentType } from '../../src/Environment';
+import { EnvironmentType } from '../../src/JSTestHost/Environment';
 
 describe('EnvironmentProvider Suite', () => {
 

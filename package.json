@@ -9,15 +9,15 @@
   },
   "devDependencies": {
     "@types/jasmine": "^2.8.6",
-    "@types/mocha": "^5.1.0",
-    "@types/node": "^9.6.5",
+    "@types/mocha": "^5.2.0",
+    "@types/node": "^9.6.6",
     "tslint": "^5.9.1",
     "tslint-microsoft-contrib": "^5.0.3",
-    "typescript": "^2.8.1"
+    "typescript": "^2.8.3"
   },
   "scripts": {
-    "lint": "tslint --project ./tsconfig.json",
-    "compile": "./node_modules/.bin/tsc -p tsconfig.json",
+    "lint": "tslint --project ./src/JSTestHost/tsconfig.json",
+    "compile": "./node_modules/.bin/tsc -p ./src/JSTestHost/tsconfig.json",
     "build": "npm run lint && npm run compile",
     "test": "./node_modules/.bin/tsc -p tsconfig.test.json"
   },

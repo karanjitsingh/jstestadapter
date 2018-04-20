@@ -2,7 +2,7 @@
 # For ignoring files that appear under a specific folder, you should
 # usually add a .gitignore file to that specific folder.
 # This file is reserved for common file patterns that should be
-# ignored everywhere. 
+# ignored everywhere.
 ############################################################################
 
 ## Ignore Visual Studio temporary files, build results, and
@@ -128,3 +128,7 @@ src/package/sign/sign.nuget.targets
 **/node_modules/*
 .vs/*
 .vscode/*
+
+scripts/*
+!scripts/*.ps1
+!scripts/*.sh

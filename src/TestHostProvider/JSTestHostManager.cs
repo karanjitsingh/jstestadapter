@@ -190,7 +190,7 @@ namespace Microsoft.VisualStudio.JSTestHostRuntimeProvider
 
             processInfo.FileName = nodeExecutable;
 
-            var jstesthost = Path.Combine(rootFolder, "jstesthost", "index.js");
+            var jstesthost = Path.Combine(rootFolder, "JSTestHost", "index.js");
 
             var hostDebugEnabled = Environment.GetEnvironmentVariable("JSTEST_HOST_DEBUG");
             var debug = !string.IsNullOrEmpty(hostDebugEnabled) && hostDebugEnabled.Equals("1", StringComparison.Ordinal);
