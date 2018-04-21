@@ -17,15 +17,12 @@ export class CommunicationManager implements ICommunicationManager {
     protected socket: Socket;
     public onMessageReceived: Event<MessageReceivedEventArgs>;
 
-    constructor(environment: IEnvironment) {
-        this.socket = new Socket();
+    constructor(environment: IEnvironment, socket?: Socket) {
+        this.socket = socket ? socket : new Socket();
         this.socketBuffer = new Buffer(0);
         this.onMessageReceived = environment.createEvent();
 
         this.socket.on('data', this.onSocketDataReceived);
-        this.socket.on('close', () => {
-            console.log('connection close');
-        });
     }
 
     public connectToServer(port: number, ip: string, callback: () => void) {
@@ -120,7 +117,7 @@ export class CommunicationManager implements ICommunicationManager {
 
     private intTo7BitEncodedInt(integer: number): string {
         let output = '';
-        let length = Math.floor(integer);  // just in case
+        let length = integer;
         let byte;
 
         while (length > 0) {

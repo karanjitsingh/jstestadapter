@@ -3,7 +3,7 @@ import { IEnvironment, EnvironmentType} from '../IEnvironment';
 import { CommunicationManager } from './CommunicationManager';
 import { ICommunicationManager } from '../ICommunicationManager';
 import { IEventDispatcher } from '../../Events/IEventDispatcher';
-import { EventDispatcher } from './eventDispatcher';
+import { EventDispatcher } from './EventDispatcher';
 import { Event } from '../../Events/Event';
 
 export class Environment implements IEnvironment {

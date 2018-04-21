@@ -48,20 +48,20 @@ export class TestHost {
 
         console.log('Message Received', message);
 
-        switch (message.messageType) {
+        switch (message.MessageType) {
             case MessageType.VersionCheck:
                 const versionCheckMessage = new Message(MessageType.VersionCheck, this.highestSupportedProcolVersion);
                 this.communicationManager.sendMessage(versionCheckMessage);
                 break;
 
             case MessageType.StartTestExecutionWithSources:
-                const payload = <TestRunCriteriaWithSources>message.payload;
+                const payload = <TestRunCriteriaWithSources>message.Payload;
 
                 this.jobQueue.queuePromise(this.testRunner.startTestRunWithSources(payload));
                 break;
 
             case MessageType.StartDiscovery:
-                const discoveryPayload = <DiscoveryCriteria>message.payload;
+                const discoveryPayload = <DiscoveryCriteria>message.Payload;
 
                 this.jobQueue.queuePromise(this.testRunner.discoverTests(discoveryPayload));
                 break;

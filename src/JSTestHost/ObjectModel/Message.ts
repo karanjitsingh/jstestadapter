@@ -2,17 +2,19 @@ import { MessageType } from './MessageType';
 import { Exception, ExceptionType} from '../Exceptions/Exception';
 
 export class Message {
-    public messageType: MessageType;
-    public payload: any;
-    public version?: number;
+    // tslint:disable:variable-name
+    public MessageType: MessageType;
+    public Payload: any;
+    public Version?: number;
+    // tslint:disable:variable-name
 
     constructor(messageType: MessageType, payload: any, version?: number) {
         if (version) {
-            this.version = version;
+            this.Version = version;
         }
 
-        this.messageType = messageType;
-        this.payload = payload;
+        this.MessageType = messageType;
+        this.Payload = payload;
     }
 
     public static FROM_JSON(messageJSON : JSON): Message {
