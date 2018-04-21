@@ -25,7 +25,7 @@ export abstract class IEventDispatcher {
 
     public deregisterEvent(eventId: string) {
         if (this.eventList[eventId]) {
-            delete this.eventList[eventId];
+            this.eventList[eventId] = 0;
         }
     }
 }

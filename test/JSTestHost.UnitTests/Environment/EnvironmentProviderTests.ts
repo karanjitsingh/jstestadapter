@@ -3,8 +3,7 @@ import { Environment as NodeEnvironment } from '../../../src/JSTestHost/Environm
 import { Environment as BrowserEnvironment } from '../../../src/JSTestHost/Environment/Browser/Environment';
 import { EnvironmentType } from '../../../src/JSTestHost/Environment/IEnvironment';
 import { IEnvironment } from '../../../src/JSTestHost/Environment/IEnvironment';
-import * as assert from 'assert';
-import * as Moq from 'typemoq';
+import * as Assert from 'assert';
 
 describe('EnvironmentProvider Suite', () => {
 
@@ -24,15 +23,14 @@ describe('EnvironmentProvider Suite', () => {
     ];
 
     environments.forEach(data => {
-        // const envProviderMock: Moq.IMock<EnvironmentProvider> = Moq.Mock.ofType(EnvironmentProvider);
         it('EnvironmentProvider will return right environment', (done: any) => {
             // data.setup();
             const envPromise = new TestableEnvironmentProvider(data.isBrowser).getEnvironment();
             envPromise.then((value) => {
-                assert.equal(value.environmentType === data.envType, true, 'Instance should be ' + data.folderName + 'Environment');
+                Assert.equal(value.environmentType === data.envType, true, 'Instance should be ' + data.folderName + 'Environment');
                 done();
             }, (err) => {
-                assert.fail(err);
+                Assert.fail(err);
             }).catch((err) => {
                 done(err);
             });

@@ -4,7 +4,7 @@ import { CommunicationManager } from './CommunicationManager';
 import { ICommunicationManager } from '../ICommunicationManager';
 import { IEventDispatcher } from '../../Events/IEventDispatcher';
 import { EventDispatcher } from './EventDispatcher';
-import { Event } from '../../Events/Event';
+import { Event, IEventArgs } from '../../Events/Event';
 
 export class Environment implements IEnvironment {
     public readonly environmentType: EnvironmentType = EnvironmentType.NodeJS;
@@ -20,7 +20,7 @@ export class Environment implements IEnvironment {
         return new CommunicationManager(this);
     }
 
-    public createEvent<T>(): Event<T> {
+    public createEvent<T extends IEventArgs>(): Event<T> {
         return new Event<T>(this.eventDispatcher);
     }
 }

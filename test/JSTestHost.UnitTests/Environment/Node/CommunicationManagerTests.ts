@@ -6,7 +6,7 @@ import { MessageType } from '../../../../src/JSTestHost/ObjectModel/MessageType'
 import { MessageReceivedEventArgs } from '../../../../src/JSTestHost/Environment/ICommunicationManager';
 import { Socket } from 'net';
 import { It, Mock, Times, MockBehavior, IMock } from 'typemoq';
-import * as assert from 'assert';
+import * as Assert from 'assert';
 
 describe('Node/CommunicationManager Suite', () => {
     let mockSocket: IMock<Socket>;
@@ -43,8 +43,8 @@ describe('Node/CommunicationManager Suite', () => {
         const commManager = new CommunicationManager(new Environment(), mockSocket.object);
 
         commManager.onMessageReceived.subscribe((sender: Object, args: MessageReceivedEventArgs) => {
-            assert.equal(args.Message.MessageType, MessageType.AbortTestRun);
-            assert.equal(args.Message.Payload, 'abort test run');
+            Assert.equal(args.Message.MessageType, MessageType.AbortTestRun);
+            Assert.equal(args.Message.Payload, 'abort test run');
             done();
         });
 
@@ -58,8 +58,8 @@ describe('Node/CommunicationManager Suite', () => {
         const commManager = new CommunicationManager(new Environment(), mockSocket.object);
 
         commManager.onMessageReceived.subscribe((sender: Object, args: MessageReceivedEventArgs) => {
-            assert.equal(args.Message.MessageType, MessageType.AbortTestRun);
-            assert.equal(args.Message.Payload, 'abort test run');
+            Assert.equal(args.Message.MessageType, MessageType.AbortTestRun);
+            Assert.equal(args.Message.Payload, 'abort test run');
             done();
         });
 
