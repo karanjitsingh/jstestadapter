@@ -7,6 +7,8 @@ import { TestRunCriteriaWithSources } from '../ObjectModel/Payloads/TestRunCrite
 import { JobQueue } from '../Utils/JobQueue';
 import { TestRunner } from './TestRunner';
 import { DiscoveryCriteria } from '../ObjectModel/Payloads/DiscoveryCriteria';
+import { TestMessagePayload } from '../ObjectModel/Payloads/TestMessagePayload';
+import { TestMessageLevel } from '../ObjectModel/TestMessageLevel';
 
 const ipRegex = /^(?!.*\.$)((?!0\d)(1?\d?\d|25[0-5]|2[0-4]\d)(\.|$)){4}$/;
 

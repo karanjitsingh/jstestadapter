@@ -1,4 +1,8 @@
 
+param(
+    [string]$filter = ""
+)
+
 Write-Host "Building tests.`n"
 npm run test
 
@@ -11,8 +15,22 @@ $tests = Get-ChildItem -Path $testFolder -Recurse -Filter "*.js"
 
 $command = "D:\vstest\artifacts\Debug\net451\win7-x64\vstest.console.exe --framework:javascript"
 
-foreach($path in $tests) {
-    $command = $($command + " `"$($path.FullName)`"")
+Write-Host "Test files:"
+
+if($filter -eq "") {
+    $filter = "*"
 }
+else {
+    $filter = "*$filter*"
+}
+
+foreach($path in $tests) {
+    if("$($path.FullName)" -like $filter) {
+        Write-Host "$path"
+        $command = $($command + " `"$($path.FullName)`"")
+    }
+}
+
+Write-Host "--------------------------------------------------------------------"
 
 iex $command

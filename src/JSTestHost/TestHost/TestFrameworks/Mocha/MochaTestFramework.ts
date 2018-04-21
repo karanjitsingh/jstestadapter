@@ -59,6 +59,10 @@ export class MochaTestFramework implements ITestFramework {
     public startExecution(source: string): void {
         this.source = source;
 
+        // A known issue with mocha that start event is called before we can subscribe
+        // this.mochaRunner.on('start', (args) => { this.handleReporterEvents(ReporterEvent.SessionStarted, args); });
+        this.handleReporterEvents(ReporterEvent.SessionStarted, null);
+
         this.mocha.addFile(source);
         this.initializeReporter(this.mocha.run());
     }
@@ -181,10 +185,6 @@ export class MochaTestFramework implements ITestFramework {
 
     private initializeReporter(runner: any) {
         runner.setMaxListeners(20);
-
-        // A known issue with mocha that start event is called before we can subscribe
-        // this.mochaRunner.on('start', (args) => { this.handleReporterEvents(ReporterEvent.SessionStarted, args); });
-        this.handleReporterEvents(ReporterEvent.SessionStarted, null);
 
         runner.on('suite', (args) => {
             this.handleReporterEvents(ReporterEvent.SuiteStarted, args);

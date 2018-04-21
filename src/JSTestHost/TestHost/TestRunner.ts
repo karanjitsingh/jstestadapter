@@ -18,6 +18,9 @@ import { Event, IEventArgs } from '../Events/Event';
 import { TestDiscoveryCache } from './TestDiscoveryCache';
 import { TestsDiscoveredEventArgs } from '../ObjectModel/EventArgs/TestsDiscoveredEventArgs';
 import { DiscoveryCompletePayload } from '../ObjectModel/Payloads/DiscoveryCompletePayload';
+import { CSharpException } from '../Exceptions/CSharpException';
+import { TestMessagePayload } from '../ObjectModel/Payloads/TestMessagePayload';
+import { TestMessageLevel } from '../ObjectModel/TestMessageLevel';
 
 interface FrameworkEventHandlers {
     Subscribe: (framework: ITestFramework) => void;
@@ -37,6 +40,7 @@ export class TestRunner {
     private testExecutionCache: TestExecutionCache;
     private testDiscoveryCache: TestDiscoveryCache;
     private runner: TestFramework = TestFramework.Mocha;
+    private currentTestSession: TestSessionEventArgs;
 
     constructor(environment: IEnvironment, communicationManager: ICommunicationManager) {
         this.environment = environment;
@@ -73,16 +77,57 @@ export class TestRunner {
         this.testExecutionCache.onTestRunStatsChange.subscribe(this.testRunStatsChange);
 
         this.executionEventHandlers.Subscribe(framework);
-        framework.startExecution(sources[0]);
+
+        try {
+            framework.startExecution(sources[0]);
+        } catch (e) {
+            this.executionCompleteWithErrors(e);
+        }
 
         return new Promise((resolve) => {
-            this.onComplete.subscribe((sender: object, args: IEventArgs) => { resolve(); });
+            this.onComplete.subscribe((sender: object, args: IEventArgs) => {
+                resolve();
+            });
         });
+    }
+
+    private executionCompleteWithErrors(err: Error): void {
+        console.log('test session end trigger');
+        const remainingTestResults = this.testExecutionCache.cleanCache();
+
+        const testRunCompleteEventArgs = <TestRunCompleteEventArgs> {
+            TestRunStatistics: remainingTestResults.TestRunStatistics,
+            IsCanceled: false,
+            IsAborted: false,
+            Error: null,
+            AttachmentSets: [],
+            ElapsedTimeInRunningTests: TimeSpan.MSToString(new Date().getTime() - this.currentTestSession.StartTime.getTime()),
+            Metrics: {}
+        };
+
+        testRunCompleteEventArgs.Error = new CSharpException(err, this.currentTestSession.Source);
+
+        // TODO hardcoded executor uris
+        const testRuncompletePayload = <TestRunCompletePayload> {
+            TestRunCompleteArgs: testRunCompleteEventArgs,
+            LastRunTests: remainingTestResults,
+            RunAttachments: [],
+            ExecutorUris: ['executor: //JasmineTestAdapter/v1']
+        };
+
+        const testMessagePayload = <TestMessagePayload> {
+            MessageLevel: TestMessageLevel.Error,
+            Message: err.stack ? err.stack : (err.constructor.name + ': ' + err.message + ' at ' + this.currentTestSession.Source)
+        };
+
+        this.communicationManager.sendMessage(new Message(MessageType.TestMessage, testMessagePayload, 2));
+        this.communicationManager.sendMessage(new Message(MessageType.ExecutionComplete, testRuncompletePayload, 2));
+        this.onComplete.raise(this, null);
     }
 
     private executionEventHandlers: FrameworkEventHandlers = {
         Subscribe: (framework: ITestFramework) => {
-            // framework.onTestSessionStart.subscribe(this.executionEventHandlers.TestSessionStart);
+            framework.onTestSessionStart.subscribe(this.executionEventHandlers.TestSessionStart);
             framework.onTestSessionEnd.subscribe(this.executionEventHandlers.TestSessionEnd);
             // framework.onTestSuiteStart.subscribe(this.executionEventHandlers.TestSuiteStart);
             // framework.onTestSuiteEnd.subscribe(this.executionEventHandlers.TestSuiteEnd);
@@ -91,7 +136,7 @@ export class TestRunner {
         },
 
         TestSessionStart: (sender: object, args: TestSessionEventArgs) => {
-            return;
+            this.currentTestSession = args;
         },
 
         TestSessionEnd: (sender: object, args: TestSessionEventArgs) => {

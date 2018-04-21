@@ -53,8 +53,40 @@ namespace Microsoft.VisualStudio.JSTestHostRuntimeProvider
 
         private Action<object, string> ErrorReceivedCallback => (process, data) =>
         {
-            //TestHostManagerCallbacks.ErrorReceivedCallback(this.testHostProcessStdError, data);
+            this.errorReceivedCallback(this.testHostProcessStdError, data);
         };
+
+        public void errorReceivedCallback(StringBuilder testHostProcessStdError, string data)
+        {
+            if (!string.IsNullOrEmpty(data))
+            {
+                // Log all standard error message because on too much data we ignore starting part.
+                // This is helpful in abnormal failure of testhost.
+                EqtTrace.Warning("Test host standard error line: {0}", data);
+
+                // Add newline for readbility.
+                data += Environment.NewLine;
+
+                // if incoming data stream is huge empty entire testError stream, & limit data stream to MaxCapacity
+                if (data.Length > testHostProcessStdError.MaxCapacity)
+                {
+                    testHostProcessStdError.Clear();
+                    data = data.Substring(data.Length - testHostProcessStdError.MaxCapacity);
+                }
+
+                // remove only what is required, from beginning of error stream
+                else
+                {
+                    int required = data.Length + testHostProcessStdError.Length - testHostProcessStdError.MaxCapacity;
+                    if (required > 0)
+                    {
+                        testHostProcessStdError.Remove(0, required);
+                    }
+                }
+
+                testHostProcessStdError.Append(data);
+            }
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DotnetTestHostManager"/> class.

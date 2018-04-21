@@ -107,7 +107,7 @@
     "no-string-literal": true,
     // "no-suspicious-comment": true,
     "no-switch-case-fall-through": true,
-    "no-trailing-whitespace": true,
+    // "no-trailing-whitespace": true,
     "no-typeof-undefined": true,
     "no-unnecessary-bind": true,
     "no-unnecessary-field-initialization": true,

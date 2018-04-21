@@ -15,7 +15,6 @@ export class CommunicationManager implements ICommunicationManager {
     private socketBuffer: Buffer;
 
     protected socket: Socket;
-
     public onMessageReceived: Event<MessageReceivedEventArgs>;
 
     constructor(environment: IEnvironment) {

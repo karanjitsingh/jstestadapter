@@ -1,3 +1,6 @@
+import { ISerializable } from '../ObjectModel/ISerializable';
+import { CSharpException } from './CSharpException';
+
 export enum ExceptionType {
     InvalidArgumentsException,
     InvalidMessageException,
@@ -6,7 +9,7 @@ export enum ExceptionType {
     UnknownException
 }
 
-export class Exception extends Error {
+export class Exception extends Error implements ISerializable  {
     constructor(message: string, exceptionType: ExceptionType) {
         let exception: string = typeof(ExceptionType[exceptionType]);
 
@@ -17,5 +20,9 @@ export class Exception extends Error {
         }
 
         super(exceptionType + ': ' + message);
+    }
+
+    public toJSON(): string {
+        return JSON.stringify(new CSharpException(this));
     }
 }
