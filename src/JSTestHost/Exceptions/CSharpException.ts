@@ -31,10 +31,8 @@ export class CSharpException implements CSharpException {
     public readonly WatsonBuckets: any = null;
 
     constructor(err: Error, source?: string) {
-        if (source) {
-            this.Source = source;
-            this.Message = err.message;
-            this.StackTraceString = err.stack;
-        }
+        this.Source = source ? source : null;
+        this.Message = err.message;
+        this.StackTraceString = err.stack;
     }
 }

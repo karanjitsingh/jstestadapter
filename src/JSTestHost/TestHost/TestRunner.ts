@@ -1,6 +1,6 @@
 import { TestRunCriteriaWithSources } from '../ObjectModel/Payloads/TestRunCriteriaWithSources';
 import { TestFrameworkProvider, TestFramework } from './TestFrameworks/TestFrameworkProvider';
-import { IEnvironment } from '../Environment/IEnvironment';
+import { IEnvironment, EnvironmentType } from '../Environment/IEnvironment';
 import { TestCase } from '../ObjectModel/TestCase';
 import { TestResult } from '../ObjectModel/TestResult';
 import { ITestFramework } from './TestFrameworks/ITestFramework';
@@ -21,6 +21,7 @@ import { DiscoveryCompletePayload } from '../ObjectModel/Payloads/DiscoveryCompl
 import { CSharpException } from '../Exceptions/CSharpException';
 import { TestMessagePayload } from '../ObjectModel/Payloads/TestMessagePayload';
 import { TestMessageLevel } from '../ObjectModel/TestMessageLevel';
+import { Exception, ExceptionType } from '../Exceptions/Exception';
 
 interface FrameworkEventHandlers {
     Subscribe: (framework: ITestFramework) => void;
@@ -78,17 +79,44 @@ export class TestRunner {
 
         this.executionEventHandlers.Subscribe(framework);
 
-        try {
-            framework.startExecution(sources[0]);
-        } catch (e) {
-            this.executionCompleteWithErrors(e);
-        }
-
         return new Promise((resolve) => {
+            try {
+                this.runInIsolation(() => {
+                    framework.startExecution(sources[0]);
+                });
+            } catch (e) {
+                this.executionCompleteWithErrors(e);
+            }
+
             this.onComplete.subscribe((sender: object, args: IEventArgs) => {
                 resolve();
             });
         });
+    }
+
+    private runInIsolation(action: () => void) {
+        if (this.environment.environmentType === EnvironmentType.NodeJS) {
+            // tslint:disable-next-line:no-require-imports
+            const d = require('domain').create();
+            d.on('error', (er) => {
+                /* THIS IS POTENTIALLY A BAD IDEA
+                 * The error won't crash the process, but what it does is worse!
+                 * Though we've prevented abrupt process restarting, we are leaking
+                 * resources like crazy if this ever happens.
+                 * This is no better than process.on('uncaughtException')!
+                 * 
+                 * But since after this error we're essentially going to shut down execution
+                 * It is fine to do this as long as JSTestHost only handles single sources */
+
+                this.executionCompleteWithErrors(er);
+            });
+            d.run(() => {
+                action();
+            });
+        } else if (this.environment.environmentType === EnvironmentType.Browser) {
+            throw new Exception('TestRunner.runInIsolation: Not implemented for browser',
+                                ExceptionType.NotImplementedException);
+        }
     }
 
     private executionCompleteWithErrors(err: Error): void {

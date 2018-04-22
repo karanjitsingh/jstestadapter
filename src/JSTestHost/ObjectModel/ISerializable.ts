@@ -1,3 +1,3 @@
 export interface ISerializable {
-    toJSON(): string;
+    toJSON(): Object;
 }

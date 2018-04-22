@@ -1,5 +1,8 @@
 
 param(
+    [switch]$runonly,
+    [switch]$discover,
+    [switch]$parallel,
     [string]$filter = ""
 )
 
@@ -14,6 +17,16 @@ $testFolder = Join-Path $ProjectDir "test\JSTestHost.UnitTests\bin\test"
 $tests = Get-ChildItem -Path $testFolder -Recurse -Filter "*.js"
 
 $command = "D:\vstest\artifacts\Debug\net451\win7-x64\vstest.console.exe --framework:javascript"
+if($log) {
+    $command = "$command --diag:D:\logs\jstest.log"
+}
+if($discover) {
+    $command = "$command --listtests"
+}
+if($parallel) {
+    $command = "$command --parallel"
+}
+
 
 Write-Host "Test files:"
 
@@ -31,6 +44,8 @@ foreach($path in $tests) {
     }
 }
 
+Write-Host "--------------------------------------------------------------------"
+Write-Host $command;
 Write-Host "--------------------------------------------------------------------"
 
 iex $command

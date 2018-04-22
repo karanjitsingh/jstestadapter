@@ -10,6 +10,8 @@ export enum ExceptionType {
 }
 
 export class Exception extends Error implements ISerializable  {
+    private cSharpException: CSharpException;
+
     constructor(message: string, exceptionType: ExceptionType) {
         let exception: string = typeof(ExceptionType[exceptionType]);
 
@@ -19,10 +21,16 @@ export class Exception extends Error implements ISerializable  {
             exception = ExceptionType[exceptionType];
         }
 
-        super(exceptionType + ': ' + message);
+        super(exception + ': ' + message);
+
+        // https://github.com/Microsoft/TypeScript/wiki/FAQ#why-doesnt-extending-built-ins-like-error-array-and-map-work
+        Object.setPrototypeOf(this, Exception.prototype);
     }
 
-    public toJSON(): string {
-        return JSON.stringify(new CSharpException(this));
+    public toJSON(): Object {
+        if (!this.cSharpException) {
+            this.cSharpException = new CSharpException(this);
+        }
+        return this.cSharpException;
     }
 }

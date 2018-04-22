@@ -241,7 +241,7 @@ namespace Microsoft.VisualStudio.JSTestHostRuntimeProvider
             processInfo.EnvironmentVariables.Add("NODE_NO_WARNINGS", "1");
 
             processInfo.Arguments = string.Format(
-                "{0} {1} {2} {3}",
+                "-r source-map-support/register {0} {1} {2} {3}",
                 debug ? "--inspect-brk=9229" : "",
                 jstesthost,
                 connectionInfo.Port,

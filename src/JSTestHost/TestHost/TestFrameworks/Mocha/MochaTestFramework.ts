@@ -64,7 +64,11 @@ export class MochaTestFramework implements ITestFramework {
         this.handleReporterEvents(ReporterEvent.SessionStarted, null);
 
         this.mocha.addFile(source);
-        this.initializeReporter(this.mocha.run());
+        try {
+            this.initializeReporter(this.mocha.run());
+        } catch (e) {
+            console.log(e);
+        }
     }
 
     public startDiscovery(source: string): void {
