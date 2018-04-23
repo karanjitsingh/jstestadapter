@@ -9,7 +9,8 @@ import { Event } from '../../Events/Event';
 export class Environment implements IEnvironment {
     public readonly environmentType: EnvironmentType = EnvironmentType.NodeJS;
     public argv: Array<string>;
-    public readonly eventDispatcher: IEventDispatcher;
+    
+    private eventDispatcher: IEventDispatcher;
 
     constructor() {
         this.argv = <Array<string>>process.argv;

@@ -1,6 +1,7 @@
 import { Environment } from '../../../../src/JSTestHost/Environment/Node/Environment';
-import { IEventArgs, Event } from '../../../../src/JSTestHost/Events/Event';
 import * as Assert from 'assert';
+import { IEventArgs } from '../../../../src/JSTestHost/ObjectModel/Common';
+import { Event } from '../../../../src/JSTestHost/Events/Event';
 
 describe('Node EventDispatcher suite', () => {
     it('Event subscribe, raise and unsubscribe', (done: any) => {

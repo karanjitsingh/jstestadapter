@@ -2,7 +2,8 @@ import { IEnvironment } from '../../../../src/JSTestHost/Environment/IEnvironmen
 import { Environment } from '../../../../src/JSTestHost/Environment/Node/Environment';
 import * as Assert from 'assert';
 import { CommunicationManager } from '../../../../src/JSTestHost/Environment/Node/CommunicationManager';
-import { IEventArgs, Event } from '../../../../src/JSTestHost/Events/Event';
+import { IEventArgs } from '../../../../src/JSTestHost/ObjectModel/Common';
+import { Event } from '../../../../src/JSTestHost/Events/Event';
 
 describe('NodeEnvironment Suite', () => {
     let env: IEnvironment;

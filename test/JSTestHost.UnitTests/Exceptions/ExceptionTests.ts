@@ -1,6 +1,6 @@
 import { Exception, ExceptionType } from '../../../src/JSTestHost/Exceptions/Exception';
-import * as Assert from 'assert';
 import { CSharpException } from '../../../src/JSTestHost/Exceptions/CSharpException';
+import * as Assert from 'assert';
 
 describe('Exception Suite', () => {
     it('Exception message is of correct format', (done: any) => {
@@ -31,38 +31,50 @@ describe('Exception Suite', () => {
     });
 
     it('CSharpException should serialize to correct format', (done: any) => {
-        const csException = new CSharpException(new Error('some error'));
-        const csExceptionWithSource = new CSharpException(new Error('some error'), 'some source');
+        const error = new Error('some error');
+        error.stack = 'some stack';
+
+        const csException = new CSharpException(error);
+        const csExceptionWithSource = new CSharpException(error, 'some source');
         
         const csExceptionJson = JSON.parse(JSON.stringify(csException));
         const csExceptionWithSourceJson = JSON.parse(JSON.stringify(csExceptionWithSource));
 
-        // tslint:disable:no-string-literal
-        Assert.equal(csExceptionJson['ClassName'], 'System.Exception');
-        Assert.equal(csExceptionJson['Message'], 'some error');
-        Assert.equal(csExceptionJson['Data'], null);
-        Assert.equal(csExceptionJson['InnerException'], null);
-        Assert.equal(csExceptionJson['HelpURL'], null);
-        Assert.notEqual(csExceptionJson['StackTraceString'], '');
-        Assert.equal(csExceptionJson['RemoteStackTraceString'], null);
-        Assert.equal(csExceptionJson['RemoteStackIndex'], 0);
-        Assert.equal(csExceptionJson['ExceptionMethod'], null);
-        Assert.equal(csExceptionJson['HResult'], -2147023895);
-        Assert.equal(csExceptionJson['Source'], null);
-        Assert.equal(csExceptionJson['WatsonBuckets'], null);
-        
-        Assert.equal(csExceptionWithSourceJson['ClassName'], 'System.Exception');
-        Assert.equal(csExceptionWithSourceJson['Message'], 'some error');
-        Assert.equal(csExceptionWithSourceJson['Data'], null);
-        Assert.equal(csExceptionWithSourceJson['InnerException'], null);
-        Assert.equal(csExceptionWithSourceJson['HelpURL'], null);
-        Assert.notEqual(csExceptionWithSourceJson['StackTraceString'], '');
-        Assert.equal(csExceptionWithSourceJson['RemoteStackTraceString'], null);
-        Assert.equal(csExceptionWithSourceJson['RemoteStackIndex'], 0);
-        Assert.equal(csExceptionWithSourceJson['ExceptionMethod'], null);
-        Assert.equal(csExceptionWithSourceJson['HResult'], -2147023895);
-        Assert.equal(csExceptionWithSourceJson['Source'], 'some source');
-        Assert.equal(csExceptionWithSourceJson['WatsonBuckets'], null);
+        Assert.deepEqual(
+            csExceptionJson,
+            {
+                ClassName: 'System.Exception',
+                Message: 'some error',
+                Data: null,
+                InnerException: null,
+                HelpURL: null,
+                StackTraceString: 'some stack',
+                RemoteStackTraceString: null,
+                RemoteStackIndex: 0,
+                ExceptionMethod: null,
+                HResult: -2147023895,
+                Source: null,
+                WatsonBuckets: null
+            }
+        );
+
+        Assert.deepEqual(
+            csExceptionWithSourceJson,
+            {
+                ClassName: 'System.Exception',
+                Message: 'some error',
+                Data: null,
+                InnerException: null,
+                HelpURL: null,
+                StackTraceString: 'some stack',
+                RemoteStackTraceString: null,
+                RemoteStackIndex: 0,
+                ExceptionMethod: null,
+                HResult: -2147023895,
+                Source: 'some source',
+                WatsonBuckets: null
+            }
+        );
         done();
     });
 });

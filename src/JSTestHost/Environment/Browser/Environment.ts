@@ -9,7 +9,8 @@ import { Event } from '../../Events/Event';
 export class Environment implements IEnvironment {
     public readonly environmentType: EnvironmentType = EnvironmentType.Browser;
     public argv: Array<string>;
-    public readonly eventDispatcher: IEventDispatcher;
+    
+    private readonly eventDispatcher: IEventDispatcher;
 
     constructor() {
         return;
