@@ -1,5 +1,5 @@
 import { TestRunStatistics } from '../TestRunStatistics';
-import { ISerializable } from '../ISerializable';
+import { ISerializable } from '../../Utils/ISerializable';
 import { CSharpException } from '../../Exceptions/CSharpException';
 
 export interface TestRunCompleteEventArgs {

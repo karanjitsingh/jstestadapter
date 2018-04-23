@@ -1,4 +1,4 @@
-import { TestCase } from '../TestCase';
+import { TestCase } from '../Common/TestCase';
 import { TestResult } from '../TestResult';
 import { TestRunStatistics } from '../TestRunStatistics';
 

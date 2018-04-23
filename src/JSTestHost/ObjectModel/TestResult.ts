@@ -1,5 +1,5 @@
-import { TestCase } from './TestCase';
-import { TestOutcome } from './TestOutcome';
+import { TestCase } from './Common/TestCase';
+import { TestOutcome } from './Common/TestOutcome';
 
 export interface TestResult  {
     TestCase: TestCase;

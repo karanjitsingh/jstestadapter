@@ -1,4 +1,4 @@
-import { TestCase } from '../TestCase';
+import { TestCase } from '../Common/TestCase';
 import { IEventArgs } from '../../Events/Event';
 
 export interface TestsDiscoveredEventArgs extends IEventArgs {

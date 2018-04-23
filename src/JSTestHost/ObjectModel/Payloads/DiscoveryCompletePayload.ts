@@ -1,5 +1,5 @@
-import { TestCase } from '../TestCase';
-import { ISerializable } from '../ISerializable';
+import { TestCase } from '../Common/TestCase';
+import { ISerializable } from '../../Utils/ISerializable';
 
 export interface DiscoveryCompletePayload {
     TotalTests: number;

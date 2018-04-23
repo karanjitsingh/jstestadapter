@@ -1,4 +1,4 @@
-import { Md5 } from '../Utils/Hashing/MD5';
+import { Md5 } from '../../Utils/Hashing/MD5';
 
 export class TestCase {
     public id: string;
