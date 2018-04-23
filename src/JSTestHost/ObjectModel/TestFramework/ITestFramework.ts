@@ -1,16 +1,10 @@
-import { Event } from '../../Events/Event';
-import { TestCaseEventArgs, TestSuiteEventArgs, TestSessionEventArgs } from './TestFrameworkEventArgs';
 import { EnvironmentType } from '../Common/EnvironmentType';
+import { ITestFrameworkEvents } from './ITestFrameworkEvents';
 
 export interface ITestFramework {
-    onTestCaseStart: Event<TestCaseEventArgs>;
-    onTestCaseEnd: Event<TestCaseEventArgs>;
-    onTestSuiteStart: Event<TestSuiteEventArgs>;
-    onTestSuiteEnd: Event<TestSuiteEventArgs>;
-    onTestSessionStart: Event<TestSessionEventArgs>;
-    onTestSessionEnd: Event<TestSessionEventArgs>;
     readonly executorUri: string;
     readonly environmentType: EnvironmentType;
+    testFrameworkEvents: ITestFrameworkEvents;
 
     startExecution(source: string): void;
     startDiscovery(source: string): void;

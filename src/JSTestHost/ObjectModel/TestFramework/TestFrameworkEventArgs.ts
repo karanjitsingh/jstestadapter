@@ -1,5 +1,4 @@
-import { IEventArgs } from '../../Events/Event';
-import { TestCase, TestOutcome } from '../Common';
+import { TestCase, TestOutcome, IEventArgs } from '../Common';
 import { FailedExpectation } from './FailedExpectation';
 
 interface BaseTestEventArgs extends IEventArgs {

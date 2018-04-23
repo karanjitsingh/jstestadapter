@@ -1,4 +1,4 @@
-import { IEventArgs, IEventHandler } from './Event';
+import { IEventHandler, IEventArgs } from '../ObjectModel/Common';
 
 export abstract class IEventDispatcher {
     public abstract subscribe(eventId: string, callback: IEventHandler<IEventArgs>);

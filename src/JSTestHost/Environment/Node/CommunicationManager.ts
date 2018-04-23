@@ -1,8 +1,8 @@
 import { Message } from '../../ObjectModel';
+import { IEvent } from '../../ObjectModel/Common';
 import { ICommunicationManager, MessageReceivedEventArgs } from '../ICommunicationManager';
 import { Exception, ExceptionType} from '../../Exceptions/Exception';
 import { IEnvironment } from '../IEnvironment';
-import { Event } from '../../Events/Event';
 import { Socket } from 'net';
 
 interface PacketData<T> {
@@ -14,7 +14,7 @@ export class CommunicationManager implements ICommunicationManager {
     private socketBuffer: Buffer;
 
     protected socket: Socket;
-    public onMessageReceived: Event<MessageReceivedEventArgs>;
+    public onMessageReceived: IEvent<MessageReceivedEventArgs>;
 
     constructor(environment: IEnvironment, socket?: Socket) {
         this.socket = socket ? socket : new Socket();

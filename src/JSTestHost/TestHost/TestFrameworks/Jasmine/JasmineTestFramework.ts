@@ -8,7 +8,7 @@ import {
 
 import { EnvironmentType, TestCase, TestOutcome } from '../../../ObjectModel/Common';
 import { Exception, ExceptionType } from '../../../Exceptions/Exception';
-import { Event } from '../../../Events/Event';
+import { ITestFrameworkEvents } from '../../../ObjectModel/TestFramework';
 
 enum JasmineReporterEvent {
     JasmineStarted,
@@ -20,12 +20,7 @@ enum JasmineReporterEvent {
 }
 
 export class JasmineTestFramework implements ITestFramework {
-    public onTestCaseStart: Event<TestCaseEventArgs>;
-    public onTestCaseEnd: Event<TestCaseEventArgs>;
-    public onTestSuiteStart: Event<TestSuiteEventArgs>;
-    public onTestSuiteEnd: Event<TestSuiteEventArgs>;
-    public onTestSessionStart: Event<TestSessionEventArgs>;
-    public onTestSessionEnd: Event<TestSessionEventArgs>;
+    public testFrameworkEvents: ITestFrameworkEvents;
     public readonly executorUri: string = 'executor://JasmineTestAdapter/v1';
     public readonly environmentType: EnvironmentType;
 
@@ -45,8 +40,10 @@ export class JasmineTestFramework implements ITestFramework {
         }
     }
 
-    constructor(environmentType: EnvironmentType) {
+    constructor(testFrameworkEvents: ITestFrameworkEvents, environmentType: EnvironmentType) {
         this.environmentType = environmentType;
+        this.testFrameworkEvents = testFrameworkEvents;
+
         this.suiteStack = [];
 
         const jasmineLib = this.getJasmine();
@@ -57,7 +54,6 @@ export class JasmineTestFramework implements ITestFramework {
         this.jasmine.exitCodeCompletion = () => { };
         // tslint:enable: no-empty
 
-        // this.initializeEvents();
         this.initializeReporter();
     }
 
@@ -97,14 +93,14 @@ export class JasmineTestFramework implements ITestFramework {
                     EndTime: null
                 };
 
-                this.onTestSessionStart.raise(this, this.sessionEventArgs);
+                this.testFrameworkEvents.onTestSessionStart.raise(this, this.sessionEventArgs);
                 break;
 
             case JasmineReporterEvent.JasmineDone:
                 this.sessionEventArgs.EndTime = new Date();
                 this.sessionEventArgs.InProgress = false;
 
-                this.onTestSessionEnd.raise(this, this.sessionEventArgs);
+                this.testFrameworkEvents.onTestSessionEnd.raise(this, this.sessionEventArgs);
                 break;
 
             case JasmineReporterEvent.SuiteStarted:
@@ -119,7 +115,7 @@ export class JasmineTestFramework implements ITestFramework {
 
                 this.suiteStack.push(suiteEventArgs);
 
-                this.onTestSuiteStart.raise(this, suiteEventArgs);
+                this.testFrameworkEvents.onTestSuiteStart.raise(this, suiteEventArgs);
                 break;
 
             case JasmineReporterEvent.SuiteDone:
@@ -128,7 +124,7 @@ export class JasmineTestFramework implements ITestFramework {
                 suiteEndEventArgs.InProgress = false;
                 suiteEndEventArgs.EndTime = new Date();
 
-                this.onTestSuiteEnd.raise(this, suiteEndEventArgs);
+                this.testFrameworkEvents.onTestSuiteEnd.raise(this, suiteEndEventArgs);
                 break;
 
             case JasmineReporterEvent.SpecStarted:
@@ -152,7 +148,7 @@ export class JasmineTestFramework implements ITestFramework {
                     EndTime: null
                 };
 
-                this.onTestCaseStart.raise(this, this.activeSpec);
+                this.testFrameworkEvents.onTestCaseStart.raise(this, this.activeSpec);
                 break;
 
             case JasmineReporterEvent.SpecDone:
@@ -164,7 +160,7 @@ export class JasmineTestFramework implements ITestFramework {
 
                     const failedExpectation: FailedExpectation = {
                         Message: expectation.message,
-                        StackTrace: this.recordStackTrace(expectation.stack)
+                        StackTrace: expectation.stack
                     };
                     this.activeSpec.FailedExpectations.push(failedExpectation);
                 }
@@ -179,7 +175,7 @@ export class JasmineTestFramework implements ITestFramework {
 
                 this.activeSpec.Outcome = args.failedExpectations.length ? TestOutcome.Failed : TestOutcome.Passed;
 
-                this.onTestCaseEnd.raise(this, this.activeSpec);
+                this.testFrameworkEvents.onTestCaseEnd.raise(this, this.activeSpec);
                 break;
         }
     }
@@ -194,13 +190,5 @@ export class JasmineTestFramework implements ITestFramework {
             specStarted: (args) => { this.handleJasmineReporterEvents(JasmineReporterEvent.SpecStarted, args); },
             specDone: (args) => { this.handleJasmineReporterEvents(JasmineReporterEvent.SpecDone, args); }
         });
-    }
-
-    private recordStackTrace(stack: any) {
-        if (stack) {
-            // Truncate stack to 5 deep.
-            stack = stack.split('\n').slice(1, 6).join('\n');
-        }
-        return stack;
     }
 }

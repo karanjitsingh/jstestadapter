@@ -1,12 +1,12 @@
 import { Message } from '../ObjectModel';
-import { Event, IEventArgs } from '../Events/Event';
+import { IEvent, IEventArgs } from '../ObjectModel/Common';
 
 export interface MessageReceivedEventArgs extends IEventArgs {
     Message: Message;
 }
 
 export interface ICommunicationManager {
-    onMessageReceived: Event<MessageReceivedEventArgs>;
+    onMessageReceived: IEvent<MessageReceivedEventArgs>;
 
     connectToServer(port: number, ip: string, callback: () => void);
     sendMessage(message: Message);

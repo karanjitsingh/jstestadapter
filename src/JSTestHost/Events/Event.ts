@@ -1,10 +1,5 @@
+import { IEventArgs, IEventHandler } from '../ObjectModel/Common/IEvent';
 import { IEventDispatcher } from './IEventDispatcher';
-
-// tslint:disable-next-line
-export interface IEventArgs {
-}
-
-export type IEventHandler<Targs extends IEventArgs> = (sender: object, args: Targs) => void;
 
 export class Event<TArgs extends IEventArgs> {
     private eventID: string;

@@ -1,10 +1,10 @@
-import { EnvironmentType } from '../../ObjectModel/Common';
+import { EnvironmentType, IEventArgs, IEvent } from '../../ObjectModel/Common';
 import { IEnvironment } from '../IEnvironment';
 import { CommunicationManager } from './CommunicationManager';
 import { ICommunicationManager } from '../ICommunicationManager';
 import { IEventDispatcher } from '../../Events/IEventDispatcher';
 import { EventDispatcher } from './EventDispatcher';
-import { Event, IEventArgs } from '../../Events/Event';
+import { Event } from '../../Events/Event';
 
 export class Environment implements IEnvironment {
     public readonly environmentType: EnvironmentType = EnvironmentType.NodeJS;
@@ -20,7 +20,7 @@ export class Environment implements IEnvironment {
         return new CommunicationManager(this);
     }
 
-    public createEvent<T extends IEventArgs>(): Event<T> {
+    public createEvent<T extends IEventArgs>(): IEvent<T> {
         return new Event<T>(this.eventDispatcher);
     }
 }

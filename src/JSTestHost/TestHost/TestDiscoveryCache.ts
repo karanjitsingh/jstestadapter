@@ -1,6 +1,5 @@
-import { TestCase } from '../ObjectModel/Common';
+import { TestCase, IEvent } from '../ObjectModel/Common';
 import { TestsDiscoveredEventArgs } from '../ObjectModel/EventArgs';
-import { Event } from '../Events/Event';
 import { IEnvironment } from '../Environment/IEnvironment';
 import { TimeSpan } from '../Utils/TimeSpan';
 
@@ -8,7 +7,7 @@ import { TimeSpan } from '../Utils/TimeSpan';
 declare function setTimeout(callback: (...args: any[]) => void, ms: number, ...args: any[]): number;
 
 export class TestDiscoveryCache {
-    public onReportTestCases: Event<TestsDiscoveredEventArgs>;
+    public onReportTestCases: IEvent<TestsDiscoveredEventArgs>;
 
     private totalDiscoveredTests: number;
     private testList : Array<TestCase>;

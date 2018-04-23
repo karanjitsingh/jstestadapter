@@ -26,14 +26,13 @@ import {
     TestResult
 } from '../ObjectModel';
 
-import { EnvironmentType } from '../ObjectModel/Common';
+import { EnvironmentType, IEvent, IEventArgs } from '../ObjectModel/Common';
 
-import { TestFrameworkProvider, TestFramework } from './TestFrameworks/TestFrameworkProvider';
+import { TestFrameworkFactory, TestFramework } from './TestFrameworks/TestFrameworkFactory';
 import { IEnvironment } from '../Environment/IEnvironment';
 import { TestExecutionCache } from './TestExecutionCache';
 import { TimeSpan } from '../Utils/TimeSpan';
 import { ICommunicationManager } from '../Environment/ICommunicationManager';
-import { Event, IEventArgs } from '../Events/Event';
 import { TestDiscoveryCache } from './TestDiscoveryCache';
 import { CSharpException } from '../Exceptions/CSharpException';
 import { Exception, ExceptionType } from '../Exceptions/Exception';
@@ -52,20 +51,22 @@ export class TestRunner {
 
     private readonly environment: IEnvironment;
     private readonly communicationManager: ICommunicationManager;
-    private onComplete: Event<IEventArgs>;
+    private onComplete: IEvent<IEventArgs>;
     private testExecutionCache: TestExecutionCache;
     private testDiscoveryCache: TestDiscoveryCache;
     private runner: TestFramework = TestFramework.Mocha;
     private currentTestSession: TestSessionEventArgs;
+    private testFrameworkFactory: TestFrameworkFactory;
 
     constructor(environment: IEnvironment, communicationManager: ICommunicationManager) {
         this.environment = environment;
         this.communicationManager = communicationManager;
         this.onComplete = environment.createEvent();
+        this.testFrameworkFactory = new TestFrameworkFactory(this.environment);
     }
 
     public discoverTests(criteria: DiscoveryCriteria): Promise<void> {
-        const framework = TestFrameworkProvider.getTestFramework(this.runner, this.environment);
+        const framework = this.testFrameworkFactory.getTestFramework(this.runner);
         const sources = criteria.AdapterSourceMap[Object.keys(criteria.AdapterSourceMap)[0]];
 
         this.testDiscoveryCache = new TestDiscoveryCache(this.environment,
@@ -83,7 +84,8 @@ export class TestRunner {
     }
 
     public startTestRunWithSources(criteria: TestRunCriteriaWithSources): Promise<void> {
-        const framework = TestFrameworkProvider.getTestFramework(this.runner, this.environment);
+        const framework = this.testFrameworkFactory.getTestFramework(this.runner);
+        
         const sources = criteria.AdapterSourceMap[Object.keys(criteria.AdapterSourceMap)[0]];
 
         this.testExecutionCache = new TestExecutionCache(this.environment,
@@ -170,12 +172,12 @@ export class TestRunner {
 
     private executionEventHandlers: FrameworkEventHandlers = {
         Subscribe: (framework: ITestFramework) => {
-            framework.onTestSessionStart.subscribe(this.executionEventHandlers.TestSessionStart);
-            framework.onTestSessionEnd.subscribe(this.executionEventHandlers.TestSessionEnd);
-            // framework.onTestSuiteStart.subscribe(this.executionEventHandlers.TestSuiteStart);
-            // framework.onTestSuiteEnd.subscribe(this.executionEventHandlers.TestSuiteEnd);
-            framework.onTestCaseStart.subscribe(this.executionEventHandlers.TestCaseStart);
-            framework.onTestCaseEnd.subscribe(this.executionEventHandlers.TestCaseEnd);
+            framework.testFrameworkEvents.onTestSessionStart.subscribe(this.executionEventHandlers.TestSessionStart);
+            framework.testFrameworkEvents.onTestSessionEnd.subscribe(this.executionEventHandlers.TestSessionEnd);
+            // framework.testFrameworkEvents.onTestSuiteStart.subscribe(this.executionEventHandlers.TestSuiteStart);
+            // framework.testFrameworkEvents.onTestSuiteEnd.subscribe(this.executionEventHandlers.TestSuiteEnd);
+            framework.testFrameworkEvents.onTestCaseStart.subscribe(this.executionEventHandlers.TestCaseStart);
+            framework.testFrameworkEvents.onTestCaseEnd.subscribe(this.executionEventHandlers.TestCaseEnd);
         },
 
         TestSessionStart: (sender: object, args: TestSessionEventArgs) => {
@@ -252,12 +254,12 @@ export class TestRunner {
 
     private discoveryEventHandlers: FrameworkEventHandlers = {
         Subscribe: (framework: ITestFramework) => {
-            // framework.onTestSessionStart.subscribe(this.TestSessionStart);
-            framework.onTestSessionEnd.subscribe(this.discoveryEventHandlers.TestSessionEnd);
-            // // framework.onTestSuiteStart.subscribe(this.TestSuiteStart);
-            // // framework.onTestSuiteEnd.subscribe(this.TestSuiteEnd);
-            framework.onTestCaseStart.subscribe(this.discoveryEventHandlers.TestCaseStart);
-            // framework.onTestCaseEnd.subscribe(this.discoveryEventHandlers.TestCaseEnd);
+            // framework.testFrameworkEvents.onTestSessionStart.subscribe(this.TestSessionStart);
+            framework.testFrameworkEvents.onTestSessionEnd.subscribe(this.discoveryEventHandlers.TestSessionEnd);
+            // // framework.testFrameworkEvents.onTestSuiteStart.subscribe(this.TestSuiteStart);
+            // // framework.testFrameworkEvents.onTestSuiteEnd.subscribe(this.TestSuiteEnd);
+            framework.testFrameworkEvents.onTestCaseStart.subscribe(this.discoveryEventHandlers.TestCaseStart);
+            // framework.testFrameworkEvents.onTestCaseEnd.subscribe(this.discoveryEventHandlers.TestCaseEnd);
         },
 
         TestSessionStart: (sender: object, args: TestSessionEventArgs) => {

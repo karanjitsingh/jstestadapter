@@ -1,7 +1,6 @@
 import { TestResult, TestRunStatistics } from '../ObjectModel';
-import { TestCase } from '../ObjectModel/Common';
+import { TestCase, IEvent } from '../ObjectModel/Common';
 import { TestRunChangedEventArgs } from '../ObjectModel/Payloads';
-import { Event } from '../Events/Event';
 import { IEnvironment } from '../Environment/IEnvironment';
 import { TimeSpan } from '../Utils/TimeSpan';
 
@@ -9,7 +8,7 @@ import { TimeSpan } from '../Utils/TimeSpan';
 declare function setTimeout(callback: (...args: any[]) => void, ms: number, ...args: any[]): number;
 
 export class TestExecutionCache {
-    public onTestRunStatsChange: Event<TestRunChangedEventArgs>;
+    public onTestRunStatsChange: IEvent<TestRunChangedEventArgs>;
 
     private testResultMap : Map<string, TestResult>;
     private inProgressTestMap : Map<string, TestCase>;

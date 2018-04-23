@@ -3,11 +3,11 @@ import {
     TestCaseEventArgs,
     TestSuiteEventArgs,
     TestSessionEventArgs,
-    FailedExpectation
+    FailedExpectation,
+    ITestFrameworkEvents
 } from '../../../ObjectModel/TestFramework';
 
 import { EnvironmentType, TestCase, TestOutcome } from '../../../ObjectModel/Common';
-import { Event } from '../../../Events/Event';
 import { Exception, ExceptionType } from '../../../Exceptions/Exception';
 
 enum ReporterEvent {
@@ -20,12 +20,7 @@ enum ReporterEvent {
 }
 
 export class MochaTestFramework implements ITestFramework {
-    public onTestCaseStart: Event<TestCaseEventArgs>;
-    public onTestCaseEnd: Event<TestCaseEventArgs>;
-    public onTestSuiteStart: Event<TestSuiteEventArgs>;
-    public onTestSuiteEnd: Event<TestSuiteEventArgs>;
-    public onTestSessionStart: Event<TestSessionEventArgs>;
-    public onTestSessionEnd: Event<TestSessionEventArgs>;
+    public testFrameworkEvents: ITestFrameworkEvents;
     public readonly executorUri: string = 'executor://MochaTestAdapter/v1';
     public readonly environmentType: EnvironmentType;
 
@@ -46,7 +41,8 @@ export class MochaTestFramework implements ITestFramework {
         }
     }
 
-    constructor(envrionmentType: EnvironmentType) {
+    constructor(testFrameworkEvents: ITestFrameworkEvents, envrionmentType: EnvironmentType) {
+        this.testFrameworkEvents = testFrameworkEvents;
         this.environmentType = envrionmentType;
         this.suiteStack = [];
 
@@ -64,11 +60,7 @@ export class MochaTestFramework implements ITestFramework {
         this.handleReporterEvents(ReporterEvent.SessionStarted, null);
 
         this.mocha.addFile(source);
-        try {
-            this.initializeReporter(this.mocha.run());
-        } catch (e) {
-            console.log(e);
-        }
+        this.initializeReporter(this.mocha.run());
     }
 
     public startDiscovery(source: string): void {
@@ -94,7 +86,7 @@ export class MochaTestFramework implements ITestFramework {
                     EndTime: null
                 };
 
-                this.onTestSessionStart.raise(this, this.sessionEventArgs);
+                this.testFrameworkEvents.onTestSessionStart.raise(this, this.sessionEventArgs);
                 break;
 
             case ReporterEvent.SessionDone:
@@ -102,7 +94,7 @@ export class MochaTestFramework implements ITestFramework {
                 this.sessionEventArgs.EndTime = new Date();
                 this.sessionEventArgs.InProgress = false;
 
-                this.onTestSessionEnd.raise(this, this.sessionEventArgs);
+                this.testFrameworkEvents.onTestSessionEnd.raise(this, this.sessionEventArgs);
                 break;
 
             case ReporterEvent.SuiteStarted:
@@ -117,7 +109,7 @@ export class MochaTestFramework implements ITestFramework {
 
                 this.suiteStack.push(suiteEventArgs);
 
-                this.onTestSuiteStart.raise(this, suiteEventArgs);
+                this.testFrameworkEvents.onTestSuiteStart.raise(this, suiteEventArgs);
                 break;
 
             case ReporterEvent.SuiteDone:
@@ -131,7 +123,7 @@ export class MochaTestFramework implements ITestFramework {
                 suiteEndEventArgs.InProgress = false;
                 suiteEndEventArgs.EndTime = new Date();
 
-                this.onTestSuiteEnd.raise(this, suiteEndEventArgs);
+                this.testFrameworkEvents.onTestSuiteEnd.raise(this, suiteEndEventArgs);
                 break;
 
             case ReporterEvent.SpecStarted:
@@ -150,7 +142,7 @@ export class MochaTestFramework implements ITestFramework {
                     EndTime: null
                 };
 
-                this.onTestCaseStart.raise(this, this.activeSpec);
+                this.testFrameworkEvents.onTestCaseStart.raise(this, this.activeSpec);
                 break;
 
             case ReporterEvent.SpecDone:
@@ -173,7 +165,7 @@ export class MochaTestFramework implements ITestFramework {
                     });
                 }
 
-                this.onTestCaseEnd.raise(this, this.activeSpec);
+                this.testFrameworkEvents.onTestCaseEnd.raise(this, this.activeSpec);
                 break;
         }
     }
