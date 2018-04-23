@@ -1,26 +1,41 @@
-import { TestRunCriteriaWithSources } from '../ObjectModel/Payloads/TestRunCriteriaWithSources';
+import {
+    ITestFramework,
+    TestSessionEventArgs,
+    TestCaseEventArgs,
+    TestSuiteEventArgs
+} from '../ObjectModel/TestFramework';
+
+import {
+    TestRunCompleteEventArgs,
+    TestsDiscoveredEventArgs
+} from '../ObjectModel/EventArgs';
+
+import {
+    TestRunCriteriaWithSources,
+    DiscoveryCriteria,
+    TestRunChangedEventArgs,
+    DiscoveryCompletePayload,
+    TestRunCompletePayload,
+    TestMessagePayload
+} from '../ObjectModel/Payloads';
+
+import {
+    Message,
+    TestMessageLevel,
+    MessageType,
+    TestResult
+} from '../ObjectModel';
+
+import { EnvironmentType } from '../ObjectModel/Common';
+
 import { TestFrameworkProvider, TestFramework } from './TestFrameworks/TestFrameworkProvider';
-import { IEnvironment, EnvironmentType } from '../Environment/IEnvironment';
-import { TestCase } from '../ObjectModel/TestCase';
-import { TestResult } from '../ObjectModel/TestResult';
-import { ITestFramework } from './TestFrameworks/ITestFramework';
-import { TestSessionEventArgs, TestCaseEventArgs, TestSuiteEventArgs } from './TestFrameworks/TestFrameworkEventArgs';
+import { IEnvironment } from '../Environment/IEnvironment';
 import { TestExecutionCache } from './TestExecutionCache';
 import { TimeSpan } from '../Utils/TimeSpan';
 import { ICommunicationManager } from '../Environment/ICommunicationManager';
-import { MessageType } from '../ObjectModel/MessageType';
-import { TestRunChangedEventArgs } from '../ObjectModel/Payloads/TestRunChangedEventArgs';
-import { Message } from '../ObjectModel/Message';
-import { TestRunCompleteEventArgs } from '../ObjectModel/EventArgs/TestRunCompleteEventArgs';
-import { TestRunCompletePayload } from '../ObjectModel/Payloads/TestRunCompletePayload';
-import { DiscoveryCriteria } from '../ObjectModel/Payloads/DiscoveryCriteria';
 import { Event, IEventArgs } from '../Events/Event';
 import { TestDiscoveryCache } from './TestDiscoveryCache';
-import { TestsDiscoveredEventArgs } from '../ObjectModel/EventArgs/TestsDiscoveredEventArgs';
-import { DiscoveryCompletePayload } from '../ObjectModel/Payloads/DiscoveryCompletePayload';
 import { CSharpException } from '../Exceptions/CSharpException';
-import { TestMessagePayload } from '../ObjectModel/Payloads/TestMessagePayload';
-import { TestMessageLevel } from '../ObjectModel/TestMessageLevel';
 import { Exception, ExceptionType } from '../Exceptions/Exception';
 
 interface FrameworkEventHandlers {

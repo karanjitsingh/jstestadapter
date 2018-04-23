@@ -1,7 +1,7 @@
+import { EnvironmentType } from '../../../src/JSTestHost/ObjectModel/Common';
 import { EnvironmentProvider } from '../../../src/JSTestHost/Environment/EnvironmentProvider';
 import { Environment as NodeEnvironment } from '../../../src/JSTestHost/Environment/Node/Environment';
 import { Environment as BrowserEnvironment } from '../../../src/JSTestHost/Environment/Browser/Environment';
-import { EnvironmentType } from '../../../src/JSTestHost/Environment/IEnvironment';
 import { IEnvironment } from '../../../src/JSTestHost/Environment/IEnvironment';
 import * as Assert from 'assert';
 

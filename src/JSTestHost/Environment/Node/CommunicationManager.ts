@@ -1,8 +1,8 @@
+import { Message } from '../../ObjectModel';
 import { ICommunicationManager, MessageReceivedEventArgs } from '../ICommunicationManager';
-import { Message } from '../../ObjectModel/Message';
 import { Exception, ExceptionType} from '../../Exceptions/Exception';
 import { IEnvironment } from '../IEnvironment';
-import { Event, IEventArgs } from '../../Events/Event';
+import { Event } from '../../Events/Event';
 import { Socket } from 'net';
 
 interface PacketData<T> {
@@ -11,7 +11,6 @@ interface PacketData<T> {
 }
 
 export class CommunicationManager implements ICommunicationManager {
-    private environment: IEnvironment;
     private socketBuffer: Buffer;
 
     protected socket: Socket;

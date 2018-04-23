@@ -1,5 +1,6 @@
 
-import { IEnvironment, EnvironmentType} from '../IEnvironment';
+import { EnvironmentType } from '../../ObjectModel/Common';
+import { IEnvironment } from '../IEnvironment';
 import { ICommunicationManager } from '../ICommunicationManager';
 import { IEventDispatcher } from '../../Events/IEventDispatcher';
 import { Exception, ExceptionType } from '../../Exceptions/Exception';

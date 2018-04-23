@@ -1,11 +1,7 @@
+import { EnvironmentType } from '../ObjectModel/Common';
 import { ICommunicationManager } from './ICommunicationManager';
 import { IEventDispatcher } from '../Events/IEventDispatcher';
 import { Event } from '../Events/Event';
-
-export enum EnvironmentType {
-    NodeJS,
-    Browser
-}
 
 export interface IEnvironment {
     readonly environmentType: EnvironmentType;

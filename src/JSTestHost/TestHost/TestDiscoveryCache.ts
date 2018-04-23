@@ -1,7 +1,7 @@
-import { TestCase } from '../ObjectModel/TestCase';
-import { Event, IEventArgs } from '../Events/Event';
+import { TestCase } from '../ObjectModel/Common';
+import { TestsDiscoveredEventArgs } from '../ObjectModel/EventArgs';
+import { Event } from '../Events/Event';
 import { IEnvironment } from '../Environment/IEnvironment';
-import { TestsDiscoveredEventArgs } from '../ObjectModel/EventArgs/TestsDiscoveredEventArgs';
 import { TimeSpan } from '../Utils/TimeSpan';
 
 // override typings for
@@ -32,6 +32,10 @@ export class TestDiscoveryCache {
     public addTest(test: TestCase): void {
         this.testList.push(test);
         this.totalDiscoveredTests += 1;
+
+        if (this.testList.length === this.cacheCapacity) {
+            this.onCacheHit();
+        }
     }
 
     public cleanCache(): TestsDiscoveredEventArgs {

@@ -1,4 +1,4 @@
-import { Message } from '../ObjectModel/Message';
+import { Message } from '../ObjectModel';
 import { Event, IEventArgs } from '../Events/Event';
 
 export interface MessageReceivedEventArgs extends IEventArgs {

@@ -1,14 +1,10 @@
+import { MessageType, Message } from '../ObjectModel';
+import { TestRunCriteriaWithSources, DiscoveryCriteria } from '../ObjectModel/Payloads';
 import { IEnvironment } from '../Environment/IEnvironment';
 import { ICommunicationManager, MessageReceivedEventArgs } from '../Environment/ICommunicationManager';
 import { Exception, ExceptionType } from '../Exceptions/Exception';
-import { MessageType } from '../ObjectModel/MessageType';
-import { Message } from '../ObjectModel/Message';
-import { TestRunCriteriaWithSources } from '../ObjectModel/Payloads/TestRunCriteriaWithSources';
 import { JobQueue } from '../Utils/JobQueue';
 import { TestRunner } from './TestRunner';
-import { DiscoveryCriteria } from '../ObjectModel/Payloads/DiscoveryCriteria';
-import { TestMessagePayload } from '../ObjectModel/Payloads/TestMessagePayload';
-import { TestMessageLevel } from '../ObjectModel/TestMessageLevel';
 
 const ipRegex = /^(?!.*\.$)((?!0\d)(1?\d?\d|25[0-5]|2[0-4]\d)(\.|$)){4}$/;
 

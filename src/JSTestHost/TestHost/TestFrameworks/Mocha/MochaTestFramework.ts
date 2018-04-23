@@ -1,11 +1,14 @@
-import { ITestFramework } from '../ITestFramework';
-import { Event, IEventArgs } from '../../../Events/Event';
-import { IEnvironment, EnvironmentType } from '../../../Environment/IEnvironment';
-import { TestCaseEventArgs, TestSuiteEventArgs, TestSessionEventArgs, FailedExpectation } from '../TestFrameworkEventArgs';
-import { TestCase } from '../../../ObjectModel/TestCase';
-import { TestOutcome } from '../../../ObjectModel/TestOutcome';
+import {
+    ITestFramework,
+    TestCaseEventArgs,
+    TestSuiteEventArgs,
+    TestSessionEventArgs,
+    FailedExpectation
+} from '../../../ObjectModel/TestFramework';
+
+import { EnvironmentType, TestCase, TestOutcome } from '../../../ObjectModel/Common';
+import { Event } from '../../../Events/Event';
 import { Exception, ExceptionType } from '../../../Exceptions/Exception';
-import { EventEmitter } from 'events';
 
 enum ReporterEvent {
     SessionStarted,
@@ -24,18 +27,17 @@ export class MochaTestFramework implements ITestFramework {
     public onTestSessionStart: Event<TestSessionEventArgs>;
     public onTestSessionEnd: Event<TestSessionEventArgs>;
     public readonly executorUri: string = 'executor://MochaTestAdapter/v1';
+    public readonly environmentType: EnvironmentType;
 
     private mochaLib: any;
-    private mochaRunner: Mocha.IRunner;
     private mocha: Mocha;
-    private environment: IEnvironment;
     private source: string;
     private sessionEventArgs: TestSessionEventArgs;
     private suiteStack: Array<TestSuiteEventArgs>;
     private activeSpec: TestCaseEventArgs;
 
     private getMocha() {
-        switch (this.environment.environmentType) {
+        switch (this.environmentType) {
             case EnvironmentType.NodeJS:
             // tslint:disable-next-line
                 return require('mocha');
@@ -44,11 +46,9 @@ export class MochaTestFramework implements ITestFramework {
         }
     }
 
-    constructor(environment: IEnvironment) {
-        this.environment = environment;
+    constructor(envrionmentType: EnvironmentType) {
+        this.environmentType = envrionmentType;
         this.suiteStack = [];
-
-        this.initializeEvents();
 
         this.mochaLib = this.getMocha();
         this.mocha = new this.mochaLib({
@@ -176,15 +176,6 @@ export class MochaTestFramework implements ITestFramework {
                 this.onTestCaseEnd.raise(this, this.activeSpec);
                 break;
         }
-    }
-
-    private initializeEvents() {
-        this.onTestCaseStart = this.environment.createEvent();
-        this.onTestCaseEnd = this.environment.createEvent();
-        this.onTestSuiteStart = this.environment.createEvent();
-        this.onTestSuiteEnd = this.environment.createEvent();
-        this.onTestSessionStart = this.environment.createEvent();
-        this.onTestSessionEnd = this.environment.createEvent();
     }
 
     private initializeReporter(runner: any) {

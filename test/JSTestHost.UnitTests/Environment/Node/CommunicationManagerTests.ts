@@ -1,8 +1,7 @@
+import { Message, MessageType } from '../../../../src/JSTestHost/ObjectModel';
 import { CommunicationManager } from '../../../../src/JSTestHost/Environment/Node/CommunicationManager';
 import { IEnvironment } from '../../../../src/JSTestHost/Environment/IEnvironment';
 import { Environment } from '../../../../src/JSTestHost/Environment/Node/Environment';
-import { Message } from '../../../../src/JSTestHost/ObjectModel/Message';
-import { MessageType } from '../../../../src/JSTestHost/ObjectModel/MessageType';
 import { MessageReceivedEventArgs } from '../../../../src/JSTestHost/Environment/ICommunicationManager';
 import { Socket } from 'net';
 import { It, Mock, Times, MockBehavior, IMock } from 'typemoq';

@@ -1,11 +1,9 @@
-import { TestResult } from '../ObjectModel/TestResult';
-import { TestCase } from '../ObjectModel/TestCase';
-import { Event, IEventArgs } from '../Events/Event';
+import { TestResult, TestRunStatistics } from '../ObjectModel';
+import { TestCase } from '../ObjectModel/Common';
+import { TestRunChangedEventArgs } from '../ObjectModel/Payloads';
+import { Event } from '../Events/Event';
 import { IEnvironment } from '../Environment/IEnvironment';
 import { TimeSpan } from '../Utils/TimeSpan';
-import { TestRunChangedEventArgs } from '../ObjectModel/Payloads/TestRunChangedEventArgs';
-import { TestRunStatistics } from '../ObjectModel/TestRunStatistics';
-import { TestOutcome } from '../ObjectModel/TestOutcome';
 
 // override typings for
 declare function setTimeout(callback: (...args: any[]) => void, ms: number, ...args: any[]): number;

@@ -1,6 +1,7 @@
-import { ITestFramework } from './ITestFramework';
+import { EnvironmentType } from '../../ObjectModel/Common';
+import { ITestFramework } from '../../ObjectModel/TestFramework';
 import { JasmineTestFramework } from './Jasmine/JasmineTestFramework';
-import { IEnvironment, EnvironmentType } from '../../Environment/IEnvironment';
+import { IEnvironment } from '../../Environment/IEnvironment';
 import { MochaTestFramework } from './Mocha/MochaTestFramework';
 import { Exception, ExceptionType } from '../../Exceptions/Exception';
 
@@ -15,9 +16,13 @@ export namespace TestFrameworkProvider {
         if (enviroment.environmentType === EnvironmentType.NodeJS) {
             switch (framework) {
                 case TestFramework.Jasmine:
-                    return new JasmineTestFramework(enviroment);
+                    const jasmineFramework = new JasmineTestFramework(enviroment.environmentType);    
+                    initializeTestFrameworkEvents(jasmineFramework, enviroment);
+                    return jasmineFramework;
                 case TestFramework.Mocha:
-                    return new MochaTestFramework(enviroment);
+                    const mochaFramework = new MochaTestFramework(enviroment.environmentType);
+                    initializeTestFrameworkEvents(mochaFramework, enviroment);
+                    return mochaFramework;
                 default:
                     return null;
             }
@@ -25,5 +30,14 @@ export namespace TestFrameworkProvider {
             throw new Exception('TestFrameworkProvider.getTestFramework(): Not implemented for browser',
                                 ExceptionType.NotImplementedException);
         }
+    }
+
+    function initializeTestFrameworkEvents(framework: ITestFramework, environment: IEnvironment) {
+        framework.onTestCaseStart = environment.createEvent();
+        framework.onTestCaseEnd = environment.createEvent();
+        framework.onTestSuiteStart = environment.createEvent();
+        framework.onTestSuiteEnd = environment.createEvent();
+        framework.onTestSessionStart = environment.createEvent();
+        framework.onTestSessionEnd = environment.createEvent();
     }
 }

@@ -1,10 +1,14 @@
-import { ITestFramework } from '../ITestFramework';
-import { Event, IEventArgs } from '../../../Events/Event';
-import { IEnvironment, EnvironmentType } from '../../../Environment/IEnvironment';
-import { TestCaseEventArgs, TestSuiteEventArgs, TestSessionEventArgs, FailedExpectation } from '../TestFrameworkEventArgs';
-import { TestCase } from '../../../ObjectModel/TestCase';
-import { TestOutcome } from '../../../ObjectModel/TestOutcome';
+import {
+    ITestFramework,
+    TestCaseEventArgs,
+    TestSuiteEventArgs,
+    TestSessionEventArgs,
+    FailedExpectation
+} from '../../../ObjectModel/TestFramework';
+
+import { EnvironmentType, TestCase, TestOutcome } from '../../../ObjectModel/Common';
 import { Exception, ExceptionType } from '../../../Exceptions/Exception';
+import { Event } from '../../../Events/Event';
 
 enum JasmineReporterEvent {
     JasmineStarted,
@@ -23,16 +27,16 @@ export class JasmineTestFramework implements ITestFramework {
     public onTestSessionStart: Event<TestSessionEventArgs>;
     public onTestSessionEnd: Event<TestSessionEventArgs>;
     public readonly executorUri: string = 'executor://JasmineTestAdapter/v1';
+    public readonly environmentType: EnvironmentType;
 
     private jasmine: any;
-    private environment: IEnvironment;
     private source: string;
     private sessionEventArgs: TestSessionEventArgs;
     private suiteStack: Array<TestSuiteEventArgs>;
     private activeSpec: TestCaseEventArgs;
 
     private getJasmine() {
-        switch (this.environment.environmentType) {
+        switch (this.environmentType) {
             case EnvironmentType.NodeJS:
                 // tslint:disable-next-line
                 return require('jasmine');
@@ -41,8 +45,8 @@ export class JasmineTestFramework implements ITestFramework {
         }
     }
 
-    constructor(environment: IEnvironment) {
-        this.environment = environment;
+    constructor(environmentType: EnvironmentType) {
+        this.environmentType = environmentType;
         this.suiteStack = [];
 
         const jasmineLib = this.getJasmine();
@@ -53,7 +57,7 @@ export class JasmineTestFramework implements ITestFramework {
         this.jasmine.exitCodeCompletion = () => { };
         // tslint:enable: no-empty
 
-        this.initializeEvents();
+        // this.initializeEvents();
         this.initializeReporter();
     }
 
@@ -179,16 +183,7 @@ export class JasmineTestFramework implements ITestFramework {
                 break;
         }
     }
-
-    private initializeEvents() {
-        this.onTestCaseStart = this.environment.createEvent();
-        this.onTestCaseEnd = this.environment.createEvent();
-        this.onTestSuiteStart = this.environment.createEvent();
-        this.onTestSuiteEnd = this.environment.createEvent();
-        this.onTestSessionStart = this.environment.createEvent();
-        this.onTestSessionEnd = this.environment.createEvent();
-    }
-
+    
     private initializeReporter() {
         this.jasmine.clearReporters();
         this.jasmine.addReporter({

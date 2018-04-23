@@ -13,7 +13,7 @@ interface ICSharpException {
     WatsonBuckets: any;
 }
 
-export class CSharpException implements CSharpException {
+export class CSharpException implements ICSharpException {
 
     // Variable names must match with ones in c#
     // tslint:disable: variable-name

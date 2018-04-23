@@ -1,4 +1,4 @@
-import { ISerializable } from '../ObjectModel/ISerializable';
+import { ISerializable } from '../Utils/ISerializable';
 import { CSharpException } from './CSharpException';
 
 export enum ExceptionType {

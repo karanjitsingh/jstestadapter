@@ -1,5 +1,4 @@
 import { IEnvironment } from './IEnvironment';
-import { Environment as NodeEnvironment } from './Node/Environment';
 
 export class EnvironmentProvider {
 
