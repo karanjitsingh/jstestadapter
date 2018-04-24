@@ -12,8 +12,13 @@ export abstract class IEventDispatcher {
     }
 
     public registerEvent(): string {
-        // new Date().getTime() will always generate a unique value
-        const id = String((new Date()).getTime());
+        let id = '';
+
+        // sometimes new Date().getTime() fails to generate a string
+        while (id === '' || this.eventList[id]) {
+            id = String((new Date()).getTime());
+        }
+
         this.eventList[id] = true;
         return id;
     }
