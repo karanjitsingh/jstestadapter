@@ -3,6 +3,8 @@ import { IEnvironment } from './IEnvironment';
 export class EnvironmentProvider {
 
     protected isBrowser() : boolean {
+        // this['window'] === this will hold true only for a browser
+
         // tslint:disable:no-string-literal
         return (function() {
             return this !== undefined && this['window'] === this;

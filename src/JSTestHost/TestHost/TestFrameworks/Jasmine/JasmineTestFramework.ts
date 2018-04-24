@@ -67,6 +67,7 @@ export class JasmineTestFramework implements ITestFramework {
         this.jasmine.jasmine.getEnv().beforeAll = () => {};
         this.jasmine.jasmine.getEnv().afterAll = () => {};
         // tslint:enable: no-emptys
+        
         this.jasmine.jasmine.Spec.prototype.execute = function (onComplete: any) {
 
             this.onStart(this);

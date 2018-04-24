@@ -1,7 +1,7 @@
 import { Md5 } from '../../Utils/Hashing/MD5';
 
 export class TestCase {
-    public id: string;
+    public readonly id: string;
     public fullyQualifiedName: string;
     public displayName: string;
     public executorUri: string;

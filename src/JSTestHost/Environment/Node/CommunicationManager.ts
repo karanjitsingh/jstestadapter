@@ -33,7 +33,7 @@ export class CommunicationManager implements ICommunicationManager {
 
         console.log('Message Send', message);
 
-        // 7 bit encoded int length padding
+        // Left pad with 7 bit encoded int length
         dataObject = this.intTo7BitEncodedInt(dataObject.length) + dataObject;
 
         this.socket.write(dataObject, 'binary');
@@ -77,7 +77,7 @@ export class CommunicationManager implements ICommunicationManager {
                     messagePacket.dataObject = Message.FROM_JSON(messageJson);
                 } catch (e) {
                     // log problem
-                    // return packet with null message
+                    messagePacket.dataObject = null;
                 }
 
                 return messagePacket;
@@ -91,7 +91,7 @@ export class CommunicationManager implements ICommunicationManager {
     private read7BitEncodedInt(buffer: Buffer): PacketData<number> {
         let length: number = 0;
 
-        // max 32bit integer + one extra byte since 32 bit integer encoded in integer can take upto 36 bits
+        // Max 32bit integer + one extra byte since 32 bit integer encoded in integer can take upto 36 bits
         for (let i = 0; i < 5; i++) {
 
             if (buffer.length < i + 1) {
@@ -120,10 +120,11 @@ export class CommunicationManager implements ICommunicationManager {
         let byte;
 
         while (length > 0) {
-            byte = length % 128;         // will give the 7 least significant bits
-            byte += length >= 128 ? 128 : 0;  // will set highest bit to 1 if more bits required
+            byte = length % 128;                // will give the 7 least significant bits
+            byte += length >= 128 ? 128 : 0;    // will set highest bit to 1 if more bits required
 
             output += String.fromCharCode(byte);
+            
             // tslint:disable-next-line
             length = length >> 7;
         }

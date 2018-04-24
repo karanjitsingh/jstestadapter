@@ -2,11 +2,13 @@ import { MessageType } from './MessageType';
 import { Exception, ExceptionType} from '../Exceptions/Exception';
 
 export class Message {
+    /* These variables serialize to a JSON that will be deserialized
+     * to the same object in TestPlatform hence their names must match */
     // tslint:disable:variable-name
     public MessageType: MessageType;
     public Payload: any;
     public Version?: number;
-    // tslint:disable:variable-name
+    // tslint:enable:variable-name
 
     constructor(messageType: MessageType, payload: any, version?: number) {
         if (version) {

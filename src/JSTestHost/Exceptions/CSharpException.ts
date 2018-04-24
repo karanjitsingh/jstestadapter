@@ -1,19 +1,4 @@
-interface ICSharpException {
-    ClassName: string;
-    Message: string;
-    Data: any;
-    InnerException: any;
-    HelpURL: any;
-    StackTraceString: string;
-    RemoteStackTraceString: any;
-    RemoteStackIndex: number;
-    ExceptionMethod: any;
-    HResult: number;
-    Source: string;
-    WatsonBuckets: any;
-}
-
-export class CSharpException implements ICSharpException {
+export class CSharpException {
 
     // Variable names must match with ones in c#
     // tslint:disable: variable-name

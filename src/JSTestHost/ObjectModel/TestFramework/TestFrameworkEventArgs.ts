@@ -2,7 +2,6 @@ import { TestCase, TestOutcome, IEventArgs } from '../Common';
 import { FailedExpectation } from './FailedExpectation';
 
 interface BaseTestEventArgs extends IEventArgs {
-    // test case will have extra source
     Source: string;
     StartTime: Date;
     InProgress: boolean;

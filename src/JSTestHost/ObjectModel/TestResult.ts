@@ -3,7 +3,8 @@ import { TestOutcome } from './Common/TestOutcome';
 
 export interface TestResult  {
     TestCase: TestCase;
-    Attachments: Array<any>;    // TODO missing
+    // Attachments have not been defined for javascript scenario
+    Attachments: Array<any>;
     Outcome: TestOutcome;
     ErrorMessage: string;
     ErrorStackTrace: string;

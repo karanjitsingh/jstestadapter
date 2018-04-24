@@ -15,6 +15,7 @@ export class Exception extends Error implements ISerializable  {
     constructor(message: string, exceptionType: ExceptionType) {
         let exception: string = typeof(ExceptionType[exceptionType]);
 
+        // Get name of enum property
         if (exception === 'undefined') {
             exception = ExceptionType[ExceptionType.UnknownException];
         } else {
