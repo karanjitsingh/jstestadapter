@@ -1,12 +1,5 @@
-import {
-    ITestFramework,
-    TestCaseEventArgs,
-    TestSuiteEventArgs,
-    TestSessionEventArgs,
-    FailedExpectation,
-    ITestFrameworkEvents
-} from '../../../ObjectModel/TestFramework';
-
+import { ITestFramework, TestCaseEventArgs, TestSuiteEventArgs, TestSessionEventArgs, FailedExpectation, ITestFrameworkEvents }
+    from '../../../ObjectModel/TestFramework';
 import { EnvironmentType, TestCase, TestOutcome } from '../../../ObjectModel/Common';
 import { Exception, ExceptionType } from '../../../Exceptions/Exception';
 
@@ -30,6 +23,8 @@ export class MochaTestFramework implements ITestFramework {
     private sessionEventArgs: TestSessionEventArgs;
     private suiteStack: Array<TestSuiteEventArgs>;
     private activeSpec: TestCaseEventArgs;
+    private testCollection: Map<string, TestCase>;
+    private testExecutionCount: Map<string, number>;
 
     private getMocha() {
         switch (this.environmentType) {
@@ -45,6 +40,7 @@ export class MochaTestFramework implements ITestFramework {
         this.testFrameworkEvents = testFrameworkEvents;
         this.environmentType = envrionmentType;
         this.suiteStack = [];
+        this.testExecutionCount = new Map();
 
         this.mochaLib = this.getMocha();
         this.mocha = new this.mochaLib({
@@ -52,7 +48,7 @@ export class MochaTestFramework implements ITestFramework {
         });
     }
 
-    public startExecution(source: string): void {
+    public startExecutionWithSource(source: string): void {
         this.source = source;
 
         // A known issue with mocha that start event is called before we can subscribe
@@ -63,6 +59,11 @@ export class MochaTestFramework implements ITestFramework {
         this.initializeReporter(this.mocha.run());
     }
 
+    public startExecutionWithTests(source: string, testCollection: Map<string, TestCase>): void {
+        this.testCollection = testCollection;
+        this.startExecutionWithSource(source);
+    }
+
     public startDiscovery(source: string): void {
         // tslint:disable:no-empty
         this.mochaLib.Suite.prototype.beforeAll = () => {};
@@ -71,12 +72,13 @@ export class MochaTestFramework implements ITestFramework {
         this.mochaLib.Suite.prototype.afterEach = () => {};
         this.mochaLib.Suite.prototype.it = () => {};
         // tslint:enable:no-empty
+
+        this.startExecutionWithSource(source);
     }
 
     private handleReporterEvents(reporterEvent: ReporterEvent, args: any) {
         switch (reporterEvent) {
             case ReporterEvent.SessionStarted:
-                console.log('session started');
                 const start = new Date();
                 this.sessionEventArgs = {
                     SessionId: String(start.getTime()),
@@ -90,7 +92,6 @@ export class MochaTestFramework implements ITestFramework {
                 break;
 
             case ReporterEvent.SessionDone:
-                console.log('session done');
                 this.sessionEventArgs.EndTime = new Date();
                 this.sessionEventArgs.InProgress = false;
 
@@ -98,7 +99,6 @@ export class MochaTestFramework implements ITestFramework {
                 break;
 
             case ReporterEvent.SuiteStarted:
-                console.log('suite started');
                 const suiteEventArgs: TestSuiteEventArgs = {
                     Name: args.title,
                     Source: this.source,
@@ -113,7 +113,6 @@ export class MochaTestFramework implements ITestFramework {
                 break;
 
             case ReporterEvent.SuiteDone:
-                console.log('suite done');
                 if (!this.suiteStack.length) {
                     break;
                 }
@@ -127,10 +126,17 @@ export class MochaTestFramework implements ITestFramework {
                 break;
 
             case ReporterEvent.SpecStarted:
-                console.log('spec started');
+                let executionCount = 1;
 
-                const testCase = new TestCase(this.source, args.fullTitle(), this.executorUri);
-                testCase.displayName = args.title;
+                if (this.testExecutionCount.has(args.fullTitle())) {
+                    executionCount = this.testExecutionCount.get(args.fullTitle()) + 1;
+                }
+                this.testExecutionCount.set(args.fullTitle(), executionCount);
+
+                const testCase = new TestCase(this.source, args.fullTitle() + ' ' + executionCount, this.executorUri);
+                this.applyTestCaseFilter(args, testCase);
+                
+                testCase.DisplayName = args.title;
 
                 this.activeSpec = <TestCaseEventArgs> {
                     TestCase: testCase,
@@ -146,7 +152,6 @@ export class MochaTestFramework implements ITestFramework {
                 break;
 
             case ReporterEvent.SpecDone:
-                console.log('spec done');
 
                 this.activeSpec.InProgress = false;
                 this.activeSpec.EndTime = new Date();
@@ -170,23 +175,21 @@ export class MochaTestFramework implements ITestFramework {
         }
     }
 
+    private applyTestCaseFilter(args: any, testCase: TestCase) {
+        if (this.testCollection) {
+            if (!this.testCollection.has(testCase.Id)) {
+                args.pending = true;
+            }
+        }
+    }
+
     private initializeReporter(runner: any) {
         runner.setMaxListeners(20);
 
-        runner.on('suite', (args) => {
-            this.handleReporterEvents(ReporterEvent.SuiteStarted, args);
-        });
-        runner.on('suite end', (args) => {
-            this.handleReporterEvents(ReporterEvent.SuiteDone, args);
-        });
-        runner.on('test', (args) => {
-            this.handleReporterEvents(ReporterEvent.SpecStarted, args);
-        });
-        runner.on('test end', (args) => {
-            this.handleReporterEvents(ReporterEvent.SpecDone, args);
-        });
-        runner.on('end', (args) => {
-            this.handleReporterEvents(ReporterEvent.SessionDone, args);
-        });
+        runner.on('suite', (args) => { this.handleReporterEvents(ReporterEvent.SuiteStarted, args); });
+        runner.on('suite end', (args) => { this.handleReporterEvents(ReporterEvent.SuiteDone, args); });
+        runner.on('test', (args) => { this.handleReporterEvents(ReporterEvent.SpecStarted, args); });
+        runner.on('test end', (args) => { this.handleReporterEvents(ReporterEvent.SpecDone, args); });
+        runner.on('end', (args) => { this.handleReporterEvents(ReporterEvent.SessionDone, args); });
     }
 }

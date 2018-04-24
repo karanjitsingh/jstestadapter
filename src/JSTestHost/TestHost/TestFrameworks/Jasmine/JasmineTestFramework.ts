@@ -1,11 +1,5 @@
-import {
-    ITestFramework,
-    TestCaseEventArgs,
-    TestSuiteEventArgs,
-    TestSessionEventArgs,
-    FailedExpectation
-} from '../../../ObjectModel/TestFramework';
-
+import { ITestFramework, TestCaseEventArgs, TestSuiteEventArgs, TestSessionEventArgs, FailedExpectation }
+    from '../../../ObjectModel/TestFramework';
 import { EnvironmentType, TestCase, TestOutcome } from '../../../ObjectModel/Common';
 import { Exception, ExceptionType } from '../../../Exceptions/Exception';
 import { ITestFrameworkEvents } from '../../../ObjectModel/TestFramework';
@@ -49,6 +43,7 @@ export class JasmineTestFramework implements ITestFramework {
         const jasmineLib = this.getJasmine();
         this.jasmine = new jasmineLib();
 
+        // Jasmine forces node to close after completion
         // tslint:disable: no-empty
         this.jasmine.exit = () => {};
         this.jasmine.exitCodeCompletion = () => { };
@@ -57,7 +52,12 @@ export class JasmineTestFramework implements ITestFramework {
         this.initializeReporter();
     }
 
-    public startExecution(source: string): void {
+    public startExecutionWithSource(source: string): void {
+        this.source = source;
+        this.jasmine.execute([source]);
+    }
+
+    public startExecutionWithTests(source: string, testCollection: Map<string, TestCase>): void {
         this.source = source;
         this.jasmine.execute([source]);
     }
@@ -105,7 +105,6 @@ export class JasmineTestFramework implements ITestFramework {
                 break;
 
             case JasmineReporterEvent.SuiteStarted:
-
                 const suiteEventArgs: TestSuiteEventArgs = {
                     Name: args.description,
                     Source: this.source,
@@ -129,15 +128,8 @@ export class JasmineTestFramework implements ITestFramework {
                 break;
 
             case JasmineReporterEvent.SpecStarted:
-
-                // TODO null problems will occur here
-                // let currentSuiteName = this.suiteStack.length > 0
-                // ? this.suiteStack[this.suiteStack.length - 1].fullName
-                // : null;
-                // let suiteName = currentSuiteName;
-
                 const testCase = new TestCase(this.source, args.fullName, this.executorUri);
-                testCase.displayName = args.description;
+                testCase.DisplayName = args.description;
 
                 this.activeSpec = <TestCaseEventArgs> {
                     TestCase: testCase,

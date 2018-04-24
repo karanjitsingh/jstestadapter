@@ -1,32 +1,39 @@
 import { Md5 } from '../../Utils/Hashing/MD5';
 
 export class TestCase {
-    public readonly id: string;
-    public fullyQualifiedName: string;
-    public displayName: string;
-    public executorUri: string;
-    public source: string;
-    public codeFilePath: string;
-    public lineNumber: number;
-    public properties: Array<JSON>;
+    
+    // Variable names must match with ones in c#
+    // tslint:disable: variable-name
+    public readonly Id: string;
+    public FullyQualifiedName: string;
+    public DisplayName: string;
+    public ExecutorUri: string;
+    public Source: string;
+    public CodeFilePath: string;
+    public LineNumber: number;
+    public Properties: Array<JSON>;
 
-    constructor(source: string, fullyQualifiedName: string, executorUri: string) {
+    constructor(source: string, fullyQualifiedName: string, executorUri: string, localIdentifier?: string) {
 
-        this.fullyQualifiedName = fullyQualifiedName;
-        this.source = source;
-        this.executorUri = executorUri;
-        this.displayName = '';
-        this.lineNumber = -1;
-        this.properties = [];
-        this.codeFilePath = '';
+        this.FullyQualifiedName = fullyQualifiedName;
+        this.Source = source;
+        this.ExecutorUri = executorUri;
+        this.DisplayName = '';
+        this.LineNumber = -1;
+        this.Properties = [];
+        this.CodeFilePath = '';
 
-        // TODO collision possibility
+        // TODO test platform uses sha1
         const hash = new Md5();
-        hash.appendStr(this.fullyQualifiedName)
-            .appendStr(this.executorUri)
-            .appendStr(this.source)
-            .appendStr(new Date().getTime().toString());
+        hash.appendStr(this.FullyQualifiedName)
+            .appendStr(this.ExecutorUri)
+            .appendStr(this.Source);
 
-        this.id = hash.end().toString();
+        this.Id = this.toGUIDFormat(hash.end().toString());
+    }
+
+    private toGUIDFormat(hash: string): string {
+        const m = hash.match(/(.{8})(.{4})(.{4})(.{4})(.{12})/);
+        return `${m[1]}-${m[2]}-${m[3]}-${m[4]}-${m[5]}`;
     }
 }

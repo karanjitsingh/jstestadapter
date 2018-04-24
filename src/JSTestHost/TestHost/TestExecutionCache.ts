@@ -37,8 +37,8 @@ export class TestExecutionCache {
     }
 
     public addTestResult(testResult: TestResult) {
-        this.inProgressTestMap.delete(testResult.TestCase.id);
-        this.testResultMap.set(testResult.TestCase.id, testResult);
+        this.inProgressTestMap.delete(testResult.TestCase.Id);
+        this.testResultMap.set(testResult.TestCase.Id, testResult);
         this.testRunStatistics.ExecutedTests += 1;
 
         if (this.testRunStatistics.Stats[testResult.Outcome]) {
@@ -54,7 +54,7 @@ export class TestExecutionCache {
 
     public addInProgressTest(testCase: TestCase) {
         // TODO data driven tests will override
-        this.inProgressTestMap.set(testCase.id, testCase);
+        this.inProgressTestMap.set(testCase.Id, testCase);
     }
 
     public cleanCache(): TestRunChangedEventArgs {

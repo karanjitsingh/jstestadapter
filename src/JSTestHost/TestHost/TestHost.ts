@@ -1,74 +1,75 @@
-import { MessageType, Message } from '../ObjectModel';
-import { TestRunCriteriaWithSources, DiscoveryCriteria } from '../ObjectModel/Payloads';
+import { MessageType } from '../ObjectModel';
+import { TestRunCriteriaWithSources, DiscoveryCriteria, TestRunCriteriaWithTests } from '../ObjectModel/Payloads';
 import { IEnvironment } from '../Environment/IEnvironment';
 import { ICommunicationManager, MessageReceivedEventArgs } from '../Environment/ICommunicationManager';
 import { Exception, ExceptionType } from '../Exceptions/Exception';
 import { JobQueue } from '../Utils/JobQueue';
 import { TestRunner } from './TestRunner';
+import { MessageSender } from './MessageSender';
 
 const ipRegex = /^(?!.*\.$)((?!0\d)(1?\d?\d|25[0-5]|2[0-4]\d)(\.|$)){4}$/;
 
 export class TestHost {
-    private environment: IEnvironment;
-    private communicationManager: ICommunicationManager;
-    private highestSupportedProcolVersion: number = 2;
-    private jobQueue: JobQueue;
-    private testRunner: TestRunner;
+    private readonly environment: IEnvironment;
+    private readonly communicationManager: ICommunicationManager;
+    private readonly jobQueue: JobQueue;
+    private readonly testRunner: TestRunner;
+    private readonly messageSender: MessageSender;
     private sessionEnded: boolean;
 
     constructor(environment: IEnvironment) {
         this.environment = environment;
-        this.communicationManager = environment.createCommunicationManager();
-        this.jobQueue = new JobQueue();
         this.validateArguments(this.environment.argv);
-        this.testRunner = new TestRunner(environment, this.communicationManager);
+        
         this.sessionEnded = false;
+               
+        this.communicationManager = environment.createCommunicationManager();
         this.initializeCommunication();
+        
+        this.jobQueue = new JobQueue();
+        this.messageSender = new MessageSender(this.communicationManager);
+        this.testRunner = new TestRunner(environment, this.messageSender);
     }
 
     private initializeCommunication() {
         this.communicationManager.onMessageReceived.subscribe(this.messageReceived);
-        this.communicationManager.connectToServer(Number(this.environment.argv[2]), '127.0.0.1', this.onSocketConnected);
+        this.communicationManager.connectToServer(Number(this.environment.argv[2]), '127.0.0.1');
         this.waitForSessionEnd();
     }
 
     private waitForSessionEnd() {
         if (!this.sessionEnded) {
-            // decrease this.endtimeout = ; cleartimeout
             setTimeout(this.waitForSessionEnd.bind(this), 1000);
         }
     }
 
     private messageReceived = (sender: object, args: MessageReceivedEventArgs) => {
         const message = args.Message;
-
         console.log('Message Received', message);
 
         switch (message.MessageType) {
             case MessageType.VersionCheck:
-                const versionCheckMessage = new Message(MessageType.VersionCheck, this.highestSupportedProcolVersion);
-                this.communicationManager.sendMessage(versionCheckMessage);
+                this.messageSender.sendVersionCheck();
                 break;
 
             case MessageType.StartTestExecutionWithSources:
-                const payload = <TestRunCriteriaWithSources>message.Payload;
+                const runWithSourcesPayload = <TestRunCriteriaWithSources>message.Payload;
+                this.jobQueue.queuePromise(this.testRunner.startTestRunWithSources(runWithSourcesPayload));
+                break;
 
-                this.jobQueue.queuePromise(this.testRunner.startTestRunWithSources(payload));
+            case MessageType.StartTestExecutionWithTests:
+                const runWithTestsPayload = <TestRunCriteriaWithTests>message.Payload;
+                this.jobQueue.queuePromise(this.testRunner.startTestRunWithTests(runWithTestsPayload));
                 break;
 
             case MessageType.StartDiscovery:
                 const discoveryPayload = <DiscoveryCriteria>message.Payload;
-
                 this.jobQueue.queuePromise(this.testRunner.discoverTests(discoveryPayload));
                 break;
 
             case MessageType.SessionEnd:
                 this.sessionEnded = true;
         }
-    }
-
-    private onSocketConnected() {
-        console.log('socket connected');
     }
 
     private validateArguments(args: Array<string>) {

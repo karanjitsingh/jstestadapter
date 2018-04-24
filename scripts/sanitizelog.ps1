@@ -10,12 +10,10 @@ function Format-Json([Parameter(Mandatory, ValueFromPipeline)][String] $json) {
     ($json -Split '\r\n' |
         % {
             if ($_ -match '^\s*[\}\]]') {
-                # This line contains  ] or }, decrement the indentation level
                 $indent--
             }
             $line = (' ' * $indent * 4) + $_.TrimStart().Replace(':  ', ': ')
             if ($_ -match '(^\s*[\[\{]$)|(^\s*".*":\s*[\{\[])') {
-                # This line contains [ or {, increment the indentation level
                 $indent++
             }
             $line

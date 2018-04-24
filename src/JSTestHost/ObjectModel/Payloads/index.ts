@@ -5,3 +5,4 @@ export { TestMessagePayload } from './TestMessagePayload';
 export { TestRunChangedEventArgs } from './TestRunChangedEventArgs';
 export { TestRunCompletePayload } from './TestRunCompletePayload';
 export { TestRunCriteriaWithSources } from './TestRunCriteriaWithSources';
+export { TestRunCriteriaWithTests } from './TestRunCriteriaWithTests';

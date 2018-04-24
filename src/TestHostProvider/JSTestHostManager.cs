@@ -54,6 +54,12 @@ namespace Microsoft.VisualStudio.JSTestHostRuntimeProvider
         private Action<object, string> ErrorReceivedCallback => (process, data) =>
         {
             this.errorReceivedCallback(this.testHostProcessStdError, data);
+
+            var errorString = this.testHostProcessStdError.ToString();
+            if (!string.IsNullOrEmpty(errorString))
+            {
+                messageLogger.SendMessage(TestMessageLevel.Error, errorString);
+            }
         };
 
         public void errorReceivedCallback(StringBuilder testHostProcessStdError, string data)

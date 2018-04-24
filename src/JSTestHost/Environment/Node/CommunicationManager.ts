@@ -24,7 +24,7 @@ export class CommunicationManager implements ICommunicationManager {
         this.socket.on('data', this.onSocketDataReceived);
     }
 
-    public connectToServer(port: number, ip: string, callback: () => void) {
+    public connectToServer(port: number, ip: string, callback?: () => void) {
         this.socket.connect(port, ip, callback);
     }
 

@@ -14,6 +14,8 @@ export enum TestFramework {
 export class TestFrameworkFactory {
     private testFrameworkEvents: ITestFrameworkEvents;
     private environmentType: EnvironmentType;
+    private frameworkCache: {[testFramework: number]: (testFrameworkEvents: ITestFrameworkEvents,
+                                                       environmentType: EnvironmentType) => void } = [];
 
     constructor(environment: IEnvironment) {
         this.environmentType = environment.environmentType;
@@ -26,22 +28,30 @@ export class TestFrameworkFactory {
             onTestSessionStart: environment.createEvent(),
             onTestSessionEnd: environment.createEvent()
         };
-
     }
     
     public getTestFramework(framework: TestFramework): ITestFramework {
         if (this.environmentType === EnvironmentType.NodeJS) {
-            switch (framework) {
-                case TestFramework.Jasmine:
-                return new JasmineTestFramework(this.testFrameworkEvents, this.environmentType);    
-                case TestFramework.Mocha:
-                    return new MochaTestFramework(this.testFrameworkEvents, this.environmentType);
-                default:
-                    return null;
+            // Check cache otherwise populate it
+            if (!this.frameworkCache[framework]) {
+                this.frameworkCache[framework] = this.dynamiclyLoadConstructor(framework);
             }
+            return new this.frameworkCache[framework](this.testFrameworkEvents, this.environmentType);
+
         } else if (this.environmentType === EnvironmentType.Browser) {
             throw new Exception('TestFrameworkFactory.getTestFramework(): Not implemented for browser',
                                 ExceptionType.NotImplementedException);
+        }
+    }
+
+    private dynamiclyLoadConstructor(framework: TestFramework) : any {
+        switch (framework) {
+            case TestFramework.Jasmine:
+                return JasmineTestFramework;    
+            case TestFramework.Mocha:
+                return MochaTestFramework;
+            default:
+                return null;
         }
     }
 }

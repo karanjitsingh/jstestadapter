@@ -1,12 +1,13 @@
 
 param(
-    [switch]$runonly,
+    [switch]$log,
     [switch]$discover,
     [switch]$parallel,
+    
     [string]$filter = ""
 )
 
-Write-Host "Building tests.`n"
+Write-Host "Building tests."
 npm run test
 
 Write-Host "Killing node process.`n"

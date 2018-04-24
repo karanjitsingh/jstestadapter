@@ -8,6 +8,6 @@ export interface MessageReceivedEventArgs extends IEventArgs {
 export interface ICommunicationManager {
     onMessageReceived: IEvent<MessageReceivedEventArgs>;
 
-    connectToServer(port: number, ip: string, callback: () => void);
+    connectToServer(port: number, ip: string, callback?: () => void);
     sendMessage(message: Message);
 }
