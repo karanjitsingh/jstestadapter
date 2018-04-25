@@ -1,8 +1,7 @@
-import { ITestFramework, TestCaseEventArgs, TestSuiteEventArgs, TestSessionEventArgs, FailedExpectation }
-    from '../../../ObjectModel/TestFramework';
-import { EnvironmentType, TestCase, TestOutcome } from '../../../ObjectModel/Common';
+import { FailedExpectation, ITestFrameworkEvents } from '../../../ObjectModel/TestFramework';
+import { EnvironmentType, TestOutcome } from '../../../ObjectModel/Common';
 import { Exception, ExceptionType } from '../../../Exceptions/Exception';
-import { ITestFrameworkEvents } from '../../../ObjectModel/TestFramework';
+import { BaseTestFramework } from '../BaseTestFramework';
 
 enum JasmineReporterEvent {
     JasmineStarted,
@@ -13,18 +12,12 @@ enum JasmineReporterEvent {
     SpecDone
 }
 
-export class JasmineTestFramework implements ITestFramework {
-    public testFrameworkEvents: ITestFrameworkEvents;
+export class JasmineTestFramework extends BaseTestFramework {
     public readonly executorUri: string = 'executor://JasmineTestAdapter/v1';
     public readonly environmentType: EnvironmentType;
 
     private jasmine: any;
-    private source: string;
-    private sessionEventArgs: TestSessionEventArgs;
-    private suiteStack: Array<TestSuiteEventArgs>;
-    private activeSpec: TestCaseEventArgs;
-    private testCollection: Map<string, TestCase>;
-    private testExecutionCount: Map<string, number>;
+    private skipCurrentSpec: boolean = false;
 
     private getJasmine() {
         switch (this.environmentType) {
@@ -37,10 +30,9 @@ export class JasmineTestFramework implements ITestFramework {
     }
 
     constructor(testFrameworkEvents: ITestFrameworkEvents, environmentType: EnvironmentType) {
-        this.environmentType = environmentType;
+        super(testFrameworkEvents);
         this.testFrameworkEvents = testFrameworkEvents;
-        this.suiteStack = [];
-        this.testExecutionCount = new Map();
+        this.environmentType = environmentType;
         
         const jasmineLib = this.getJasmine();
         this.jasmine = new jasmineLib();
@@ -54,150 +46,48 @@ export class JasmineTestFramework implements ITestFramework {
         this.initializeReporter();
     }
 
-    public startExecutionWithSource(source: string): void {
+    public startExecutionWithSource(source: string): void {        
         this.source = source;
+        this.overrideJasmineExecute(false);
+        
         this.jasmine.execute([source]);
     }
 
-    public skip(testCase: TestCase) {
-        if (!this.testCollection.has(testCase.Id)) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public startExecutionWithTests(source: string, testCollection: Map<string, TestCase>): void {
-        this.testCollection = testCollection;
-
-        const execute = this.jasmine.jasmine.Spec.prototype.execute;
-        const skip = function(onComplete: any) {
-            this.onStart(this);
-            this.result.status = 'disabled';
-            this.resultCallback(this.result);
-            if (onComplete) {
-                onComplete();
-            }
-        };
-        const check = () => { 
-            if (this.skip(this.activeSpec.TestCase)) {
-                return skip;
-            } else {
-                return execute;
-            }
-        };
-
-        // tslint:disable-next-line        
-        const checkSkip = function (name) {
-            return this.skip(new TestCase(this.source, name, this.executorUri));
-        }.bind(this);
-
-        // tslint:disable-next-line
-        this.jasmine.jasmine.Spec.prototype.execute = function (onComplete: any, args: any, check: any = (name:string) => { 
-            if (checkSkip(name)) {
-                return skip;
-            } else {
-                return execute;
-            }
-        } ) {
-            check(this.getFullName()).apply(this, arguments);
-        };
-
-        this.startExecutionWithSource(source);
-    }
-
     public startDiscovery(source: string): void {
+        this.source = source;
+
         // tslint:disable: no-empty
         this.jasmine.jasmine.getEnv().beforeAll = () => {};
         this.jasmine.jasmine.getEnv().afterAll = () => {};
         // tslint:enable: no-emptys
-        
-        const execute = this.jasmine.jasmine.Spec.prototype.execute;
-        this.jasmine.jasmine.Spec.prototype.execute = function (onComplete: any) {
 
-            this.onStart(this);
-            this.resultCallback(this.result);
-            if (onComplete) {
-                onComplete();
-            }
-        };
+        this.overrideJasmineExecute(true);
 
-        this.source = source;
         this.jasmine.execute([source]);
     }
 
     private handleJasmineReporterEvents(reporterEvent: JasmineReporterEvent, args: any) {
         switch (reporterEvent) {
             case JasmineReporterEvent.JasmineStarted:
-                const start = new Date();
-                this.sessionEventArgs = {
-                    SessionId: String(start.getTime()),
-                    Source: this.source,
-                    StartTime: start,
-                    InProgress: true,
-                    EndTime: null
-                };
-
-                this.testFrameworkEvents.onTestSessionStart.raise(this, this.sessionEventArgs);
+                this.handleSessionStarted();
                 break;
             case JasmineReporterEvent.JasmineDone:
-                this.sessionEventArgs.EndTime = new Date();
-                this.sessionEventArgs.InProgress = false;
-
-                this.testFrameworkEvents.onTestSessionEnd.raise(this, this.sessionEventArgs);
+                this.handleSessionDone();
                 break;
             case JasmineReporterEvent.SuiteStarted:
-                const suiteEventArgs: TestSuiteEventArgs = {
-                    Name: args.description,
-                    Source: this.source,
-                    StartTime: new Date(),
-                    InProgress: true,
-                    EndTime: undefined
-                };
-
-                this.suiteStack.push(suiteEventArgs);
-
-                this.testFrameworkEvents.onTestSuiteStart.raise(this, suiteEventArgs);
+                this.handleSuiteStarted(args.description);
                 break;
-
             case JasmineReporterEvent.SuiteDone:
-                const suiteEndEventArgs = this.suiteStack.pop();
-
-                suiteEndEventArgs.InProgress = false;
-                suiteEndEventArgs.EndTime = new Date();
-
-                this.testFrameworkEvents.onTestSuiteEnd.raise(this, suiteEndEventArgs);
+                this.handleSuiteDone();
                 break;
 
             case JasmineReporterEvent.SpecStarted:
-                let executionCount = 1;
-
-                if (this.testExecutionCount.has(args.fullName)) {
-                    executionCount = this.testExecutionCount.get(args.fullName) + 1;
-                }
-                this.testExecutionCount.set(args.fullName, executionCount);
-
-                const testCase = new TestCase(this.source, args.fullName, this.executorUri);
-                this.applyTestCaseFilter(args, testCase);
-
-                testCase.DisplayName = args.description;
-
-                this.activeSpec = <TestCaseEventArgs> {
-                    TestCase: testCase,
-                    FailedExpectations: [],
-                    Outcome: TestOutcome.None,
-                    Source: this.source,
-                    StartTime: new Date(),
-                    InProgress: true,
-                    EndTime: null
-                };
-
-                this.testFrameworkEvents.onTestCaseStart.raise(this, this.activeSpec);
+                this.handleSpecStarted(args.fullName, args.description, null);
                 break;
 
             case JasmineReporterEvent.SpecDone:
-                this.activeSpec.InProgress = false;
-                this.activeSpec.EndTime = new Date();
+                let outcome: TestOutcome = TestOutcome.None;
+                const failedExpectations: Array<FailedExpectation> = [];
 
                 if (!args.failedExpectations) {
                     args.failedExpectations = [];
@@ -210,32 +100,56 @@ export class JasmineTestFramework implements ITestFramework {
                         Message: expectation.message,
                         StackTrace: expectation.stack
                     };
-                    this.activeSpec.FailedExpectations.push(failedExpectation);
+                    failedExpectations.push(failedExpectation);
                 }
 
-                this.activeSpec.Outcome = args.failedExpectations.length ? TestOutcome.Failed : TestOutcome.Passed;
+                outcome = args.failedExpectations.length ? TestOutcome.Failed : TestOutcome.Passed;
 
-                if (args.status === 'disabled') {
-                    this.activeSpec.Outcome = TestOutcome.Skipped;
+                if (args.status === 'disabled' || this.skipCurrentSpec) {
+                    outcome = TestOutcome.Skipped;
                 }
 
                 if (args.status === 'failed') {
-                    this.activeSpec.Outcome = TestOutcome.Failed;
+                    outcome = TestOutcome.Failed;
                 }
 
-                this.testFrameworkEvents.onTestCaseEnd.raise(this, this.activeSpec);
+                this.handleSpecDone(outcome, failedExpectations);
                 break;
         }
     }
 
-    private applyTestCaseFilter(args: any, testCase: TestCase) {
-        if (this.testCollection) {
-            if (!this.testCollection.has(testCase.Id)) {
-                // this.jasmine.jasmine.Spec.prototype.execute = this.jasmineSkipExecute;
-            } else {
-                // this.jasmine.jasmine.Spec.prototype.execute = this.jasmineExecute;
+    protected skip() {
+        this.skipCurrentSpec = true;
+    }
+    
+    private overrideJasmineExecute(discovery: boolean) {
+        const executeSpecHandle = this.jasmine.jasmine.Spec.prototype.execute;
+        const skipSpecHandle = function(onComplete: any) {
+            this.onStart(this);
+            if (!discovery) {
+                this.result.status = 'disabled';
             }
-        }
+            this.resultCallback(this.result);
+            if (onComplete) {
+                onComplete();
+            }
+        };
+
+        // tslint:disable-next-line                
+        const getExecutor = function (fullyQualifiedName: string, testCaseName: string) { 
+            this.skipCurrentSpec = false;
+            this.handleSpecStarted(fullyQualifiedName, testCaseName);  // Will eventually call skip if skip is required
+            if (discovery || this.skipCurrentSpec === true) {
+                return skipSpecHandle;
+            } else {
+                return executeSpecHandle;
+            }
+        }.bind(this);
+
+        // tslint:disable-next-line
+        this.jasmine.jasmine.Spec.prototype.execute = function (onComplete: any, args: any, executor: any = getExecutor) {
+            executor(this.getFullName(), this.description).apply(this, arguments);
+        };
     }
     
     private initializeReporter() {
@@ -245,7 +159,7 @@ export class JasmineTestFramework implements ITestFramework {
             jasmineDone: (args) => { this.handleJasmineReporterEvents(JasmineReporterEvent.JasmineDone, args); },
             suiteStarted: (args) => { this.handleJasmineReporterEvents(JasmineReporterEvent.SuiteStarted, args); },
             suiteDone: (args) => { this.handleJasmineReporterEvents(JasmineReporterEvent.SuiteDone, args); },
-            specStarted: (args) => { this.handleJasmineReporterEvents(JasmineReporterEvent.SpecStarted, args); },
+            // specStarted: (args) => { this.handleJasmineReporterEvents(JasmineReporterEvent.SpecStarted, args); },
             specDone: (args) => { this.handleJasmineReporterEvents(JasmineReporterEvent.SpecDone, args); }
         });
     }

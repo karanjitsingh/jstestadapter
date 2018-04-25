@@ -67,6 +67,8 @@ namespace Microsoft.VisualStudio.JSTestHostRuntimeProvider
         {
             if (!string.IsNullOrEmpty(data))
             {
+                testHostProcessStdError.Clear();
+
                 // Log all standard error message because on too much data we ignore starting part.
                 // This is helpful in abnormal failure of testhost.
                 EqtTrace.Warning("Test host standard error line: {0}", data);

@@ -1,7 +1,7 @@
-import { ITestFramework, TestCaseEventArgs, TestSuiteEventArgs, TestSessionEventArgs, FailedExpectation, ITestFrameworkEvents }
-    from '../../../ObjectModel/TestFramework';
-import { EnvironmentType, TestCase, TestOutcome } from '../../../ObjectModel/Common';
+import { FailedExpectation, ITestFrameworkEvents } from '../../../ObjectModel/TestFramework';
+import { EnvironmentType, TestOutcome } from '../../../ObjectModel/Common';
 import { Exception, ExceptionType } from '../../../Exceptions/Exception';
+import { BaseTestFramework } from '../BaseTestFramework';
 
 enum ReporterEvent {
     SessionStarted,
@@ -12,19 +12,12 @@ enum ReporterEvent {
     SpecDone
 }
 
-export class MochaTestFramework implements ITestFramework {
-    public testFrameworkEvents: ITestFrameworkEvents;
+export class MochaTestFramework extends BaseTestFramework {
     public readonly executorUri: string = 'executor://MochaTestAdapter/v1';
     public readonly environmentType: EnvironmentType;
 
     private mochaLib: any;
     private mocha: Mocha;
-    private source: string;
-    private sessionEventArgs: TestSessionEventArgs;
-    private suiteStack: Array<TestSuiteEventArgs>;
-    private activeSpec: TestCaseEventArgs;
-    private testCollection: Map<string, TestCase>;
-    private testExecutionCount: Map<string, number>;
 
     private getMocha() {
         switch (this.environmentType) {
@@ -37,10 +30,8 @@ export class MochaTestFramework implements ITestFramework {
     }
 
     constructor(testFrameworkEvents: ITestFrameworkEvents, envrionmentType: EnvironmentType) {
-        this.testFrameworkEvents = testFrameworkEvents;
+        super(testFrameworkEvents);
         this.environmentType = envrionmentType;
-        this.suiteStack = [];
-        this.testExecutionCount = new Map();
 
         this.mochaLib = this.getMocha();
         this.mocha = new this.mochaLib({
@@ -59,127 +50,75 @@ export class MochaTestFramework implements ITestFramework {
         this.initializeReporter(this.mocha.run());
     }
 
-    public startExecutionWithTests(source: string, testCollection: Map<string, TestCase>): void {
-        this.testCollection = testCollection;
-        this.startExecutionWithSource(source);
-    }
-
     public startDiscovery(source: string): void {
         // tslint:disable:no-empty
-        this.mochaLib.Suite.prototype.beforeAll = () => {};
-        this.mochaLib.Suite.prototype.afterAll = () => {};
-        this.mochaLib.Suite.prototype.beforeEach = () => {};
-        this.mochaLib.Suite.prototype.afterEach = () => {};
-        this.mochaLib.Suite.prototype.it = () => {};
+        this.mochaLib.Suite.prototype.beforeAll = () => {
+            console.error('beforeall');
+        };
+        this.mochaLib.Suite.prototype.afterAll = () => {
+            console.error('afterall');            
+        };
+        this.mochaLib.Suite.prototype.beforeEach = () => {
+            console.error('beforeeach');
+        };
+        this.mochaLib.Suite.prototype.afterEach = () => {
+            console.error('aftereach');
+        };
+        this.mochaLib.Suite.prototype.run = () => {
+            console.error('test');
+        };
         // tslint:enable:no-empty
 
         this.startExecutionWithSource(source);
     }
 
+    protected skip(specObject: any) {
+        specObject.pending = true;
+    }
+
     private handleReporterEvents(reporterEvent: ReporterEvent, args: any) {
         switch (reporterEvent) {
             case ReporterEvent.SessionStarted:
-                const start = new Date();
-                this.sessionEventArgs = {
-                    SessionId: String(start.getTime()),
-                    Source: this.source,
-                    StartTime: start,
-                    InProgress: true,
-                    EndTime: null
-                };
-
-                this.testFrameworkEvents.onTestSessionStart.raise(this, this.sessionEventArgs);
+                this.handleSessionStarted();
                 break;
 
             case ReporterEvent.SessionDone:
-                this.sessionEventArgs.EndTime = new Date();
-                this.sessionEventArgs.InProgress = false;
-
-                this.testFrameworkEvents.onTestSessionEnd.raise(this, this.sessionEventArgs);
+                this.handleSessionDone();
                 break;
 
             case ReporterEvent.SuiteStarted:
-                const suiteEventArgs: TestSuiteEventArgs = {
-                    Name: args.title,
-                    Source: this.source,
-                    StartTime: new Date(),
-                    InProgress: true,
-                    EndTime: undefined
-                };
-
-                this.suiteStack.push(suiteEventArgs);
-
-                this.testFrameworkEvents.onTestSuiteStart.raise(this, suiteEventArgs);
+                this.handleSuiteStarted(args.title);
                 break;
 
             case ReporterEvent.SuiteDone:
-                if (!this.suiteStack.length) {
-                    break;
-                }
-
-                const suiteEndEventArgs = this.suiteStack.pop();
-
-                suiteEndEventArgs.InProgress = false;
-                suiteEndEventArgs.EndTime = new Date();
-
-                this.testFrameworkEvents.onTestSuiteEnd.raise(this, suiteEndEventArgs);
+                this.handleSuiteDone();
                 break;
 
             case ReporterEvent.SpecStarted:
-                let executionCount = 1;
-
-                if (this.testExecutionCount.has(args.fullTitle())) {
-                    executionCount = this.testExecutionCount.get(args.fullTitle()) + 1;
-                }
-                this.testExecutionCount.set(args.fullTitle(), executionCount);
-
-                const testCase = new TestCase(this.source, args.fullTitle() + ' ' + executionCount, this.executorUri);
-                this.applyTestCaseFilter(args, testCase);
-                
-                testCase.DisplayName = args.title;
-
-                this.activeSpec = <TestCaseEventArgs> {
-                    TestCase: testCase,
-                    FailedExpectations: [],
-                    Outcome: TestOutcome.None,
-                    Source: this.source,
-                    StartTime: new Date(),
-                    InProgress: true,
-                    EndTime: null
-                };
-
-                this.testFrameworkEvents.onTestCaseStart.raise(this, this.activeSpec);
+                this.handleSpecStarted(args.fullTitle(), args.title, args);
                 break;
 
             case ReporterEvent.SpecDone:
-
-                this.activeSpec.InProgress = false;
-                this.activeSpec.EndTime = new Date();
-
-                if (args.pending === true) {
-                    this.activeSpec.Outcome = TestOutcome.Skipped;
-                }
+                let outcome: TestOutcome = TestOutcome.None;
+                const failedExpectations: Array<FailedExpectation> = [];
 
                 if (args.state === 'passed') {
-                    this.activeSpec.Outcome = TestOutcome.Passed;
+                    outcome = TestOutcome.Passed;
                 } else if (args.state === 'failed') {
-                    this.activeSpec.Outcome = TestOutcome.Failed;
-                    this.activeSpec.FailedExpectations.push(<FailedExpectation> {
+                    outcome = TestOutcome.Failed;
+                    failedExpectations.push(<FailedExpectation> {
                         Message: args.err.message,
                         StackTrace: args.err.stack
                     });
                 }
 
-                this.testFrameworkEvents.onTestCaseEnd.raise(this, this.activeSpec);
-                break;
-        }
-    }
+                if (args.pending === true) {
+                    outcome = TestOutcome.Skipped;
+                }
 
-    private applyTestCaseFilter(args: any, testCase: TestCase) {
-        if (this.testCollection) {
-            if (!this.testCollection.has(testCase.Id)) {
-                args.pending = true;
-            }
+                this.handleSpecDone(outcome, failedExpectations);
+
+                break;
         }
     }
 
