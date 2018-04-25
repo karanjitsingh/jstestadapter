@@ -17,7 +17,7 @@ $ProjectDir = (Get-Item ([System.IO.Path]::GetDirectoryName($myInvocation.MyComm
 $testFolder = Join-Path $ProjectDir "test\JSTestHost.UnitTests\bin\test"
 $tests = Get-ChildItem -Path $testFolder -Recurse -Filter "*.js"
 
-$command = "D:\vstest\artifacts\Debug\net451\win7-x64\vstest.console.exe --framework:javascript"
+$command = "D:\vstest\artifacts\Debug\net451\win7-x64\vstest.console.exe --framework:javascript.mocha"
 if($log) {
     $command = "$command --diag:D:\logs\jstest.log"
 }

@@ -23,6 +23,8 @@ export class JasmineTestFramework implements ITestFramework {
     private sessionEventArgs: TestSessionEventArgs;
     private suiteStack: Array<TestSuiteEventArgs>;
     private activeSpec: TestCaseEventArgs;
+    private testCollection: Map<string, TestCase>;
+    private testExecutionCount: Map<string, number>;
 
     private getJasmine() {
         switch (this.environmentType) {
@@ -37,12 +39,12 @@ export class JasmineTestFramework implements ITestFramework {
     constructor(testFrameworkEvents: ITestFrameworkEvents, environmentType: EnvironmentType) {
         this.environmentType = environmentType;
         this.testFrameworkEvents = testFrameworkEvents;
-
         this.suiteStack = [];
-
+        this.testExecutionCount = new Map();
+        
         const jasmineLib = this.getJasmine();
         this.jasmine = new jasmineLib();
-
+        
         // Jasmine forces node to close after completion
         // tslint:disable: no-empty
         this.jasmine.exit = () => {};
@@ -57,9 +59,51 @@ export class JasmineTestFramework implements ITestFramework {
         this.jasmine.execute([source]);
     }
 
+    public skip(testCase: TestCase) {
+        if (!this.testCollection.has(testCase.Id)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public startExecutionWithTests(source: string, testCollection: Map<string, TestCase>): void {
-        this.source = source;
-        this.jasmine.execute([source]);
+        this.testCollection = testCollection;
+
+        const execute = this.jasmine.jasmine.Spec.prototype.execute;
+        const skip = function(onComplete: any) {
+            this.onStart(this);
+            this.result.status = 'disabled';
+            this.resultCallback(this.result);
+            if (onComplete) {
+                onComplete();
+            }
+        };
+        const check = () => { 
+            if (this.skip(this.activeSpec.TestCase)) {
+                return skip;
+            } else {
+                return execute;
+            }
+        };
+
+        // tslint:disable-next-line        
+        const checkSkip = function (name) {
+            return this.skip(new TestCase(this.source, name, this.executorUri));
+        }.bind(this);
+
+        // tslint:disable-next-line
+        this.jasmine.jasmine.Spec.prototype.execute = function (onComplete: any, args: any, check: any = (name:string) => { 
+            if (checkSkip(name)) {
+                return skip;
+            } else {
+                return execute;
+            }
+        } ) {
+            check(this.getFullName()).apply(this, arguments);
+        };
+
+        this.startExecutionWithSource(source);
     }
 
     public startDiscovery(source: string): void {
@@ -68,6 +112,7 @@ export class JasmineTestFramework implements ITestFramework {
         this.jasmine.jasmine.getEnv().afterAll = () => {};
         // tslint:enable: no-emptys
         
+        const execute = this.jasmine.jasmine.Spec.prototype.execute;
         this.jasmine.jasmine.Spec.prototype.execute = function (onComplete: any) {
 
             this.onStart(this);
@@ -85,7 +130,6 @@ export class JasmineTestFramework implements ITestFramework {
         switch (reporterEvent) {
             case JasmineReporterEvent.JasmineStarted:
                 const start = new Date();
-
                 this.sessionEventArgs = {
                     SessionId: String(start.getTime()),
                     Source: this.source,
@@ -96,14 +140,12 @@ export class JasmineTestFramework implements ITestFramework {
 
                 this.testFrameworkEvents.onTestSessionStart.raise(this, this.sessionEventArgs);
                 break;
-
             case JasmineReporterEvent.JasmineDone:
                 this.sessionEventArgs.EndTime = new Date();
                 this.sessionEventArgs.InProgress = false;
 
                 this.testFrameworkEvents.onTestSessionEnd.raise(this, this.sessionEventArgs);
                 break;
-
             case JasmineReporterEvent.SuiteStarted:
                 const suiteEventArgs: TestSuiteEventArgs = {
                     Name: args.description,
@@ -128,7 +170,16 @@ export class JasmineTestFramework implements ITestFramework {
                 break;
 
             case JasmineReporterEvent.SpecStarted:
+                let executionCount = 1;
+
+                if (this.testExecutionCount.has(args.fullName)) {
+                    executionCount = this.testExecutionCount.get(args.fullName) + 1;
+                }
+                this.testExecutionCount.set(args.fullName, executionCount);
+
                 const testCase = new TestCase(this.source, args.fullName, this.executorUri);
+                this.applyTestCaseFilter(args, testCase);
+
                 testCase.DisplayName = args.description;
 
                 this.activeSpec = <TestCaseEventArgs> {
@@ -148,6 +199,10 @@ export class JasmineTestFramework implements ITestFramework {
                 this.activeSpec.InProgress = false;
                 this.activeSpec.EndTime = new Date();
 
+                if (!args.failedExpectations) {
+                    args.failedExpectations = [];
+                }
+
                 for (let i = 0; i < args.failedExpectations.length; i++) {
                     const expectation = args.failedExpectations[i];
 
@@ -158,6 +213,8 @@ export class JasmineTestFramework implements ITestFramework {
                     this.activeSpec.FailedExpectations.push(failedExpectation);
                 }
 
+                this.activeSpec.Outcome = args.failedExpectations.length ? TestOutcome.Failed : TestOutcome.Passed;
+
                 if (args.status === 'disabled') {
                     this.activeSpec.Outcome = TestOutcome.Skipped;
                 }
@@ -166,10 +223,18 @@ export class JasmineTestFramework implements ITestFramework {
                     this.activeSpec.Outcome = TestOutcome.Failed;
                 }
 
-                this.activeSpec.Outcome = args.failedExpectations.length ? TestOutcome.Failed : TestOutcome.Passed;
-
                 this.testFrameworkEvents.onTestCaseEnd.raise(this, this.activeSpec);
                 break;
+        }
+    }
+
+    private applyTestCaseFilter(args: any, testCase: TestCase) {
+        if (this.testCollection) {
+            if (!this.testCollection.has(testCase.Id)) {
+                // this.jasmine.jasmine.Spec.prototype.execute = this.jasmineSkipExecute;
+            } else {
+                // this.jasmine.jasmine.Spec.prototype.execute = this.jasmineExecute;
+            }
         }
     }
     

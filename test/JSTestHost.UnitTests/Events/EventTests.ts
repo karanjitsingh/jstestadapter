@@ -2,6 +2,7 @@ import { Mock, IMock, Times, It } from 'typemoq';
 import { IEventDispatcher } from '../../../src/JSTestHost/Events/IEventDispatcher';
 import { IEventArgs, IEventHandler } from '../../../src/JSTestHost/ObjectModel/Common';
 import { Event } from '../../../src/JSTestHost/Events/Event';
+import * as Assert from 'assert';
 
 describe('Event Suite', () => {
     let mockEventDispatcher: IMock<IEventDispatcher>;
@@ -44,6 +45,20 @@ describe('Event Suite', () => {
                                                   It.is((x) => x.toString() === dummyArgs.toString())),
                                                   Times.once());
 
+        done();
+    });
+
+    it('EventDispatcher will create unique event ids', (done: any) => {
+        const eventidMap = new Map<string, number>();
+        const eventDispatcher = new TestableEventDispatcher();
+        
+        for (let i = 0; i < 1000; i++) {
+            const id = eventDispatcher.registerEvent();
+            eventidMap.set(id, 1);
+            Assert.notEqual(eventDispatcher.registerEvent().match(/[0-9]+/), null);
+        }
+
+        Assert.equal(1000, eventidMap.size);
         done();
     });
 });

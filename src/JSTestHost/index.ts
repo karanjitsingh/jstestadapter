@@ -1,3 +1,6 @@
+// tslint:disable
+const net = require('net');
+
 import { IEnvironment } from './Environment/IEnvironment';
 import { EnvironmentProvider } from './Environment/EnvironmentProvider';
 import { TestHost } from './TestHost/TestHost';

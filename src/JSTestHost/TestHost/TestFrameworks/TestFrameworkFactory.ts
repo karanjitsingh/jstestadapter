@@ -5,7 +5,7 @@ import { IEnvironment } from '../../Environment/IEnvironment';
 import { MochaTestFramework } from './Mocha/MochaTestFramework';
 import { Exception, ExceptionType } from '../../Exceptions/Exception';
 
-export enum TestFramework {
+export enum SupportedFramework {
     Jasmine,
     Mocha
 }
@@ -14,7 +14,7 @@ export enum TestFramework {
 export class TestFrameworkFactory {
     private testFrameworkEvents: ITestFrameworkEvents;
     private environmentType: EnvironmentType;
-    private frameworkCache: {[testFramework: number]: (testFrameworkEvents: ITestFrameworkEvents,
+    private frameworkCache: {[supportedFramework: number]: (testFrameworkEvents: ITestFrameworkEvents,
                                                        environmentType: EnvironmentType) => void } = [];
 
     constructor(environment: IEnvironment) {
@@ -30,7 +30,7 @@ export class TestFrameworkFactory {
         };
     }
     
-    public getTestFramework(framework: TestFramework): ITestFramework {
+    public getTestFramework(framework: SupportedFramework): ITestFramework {
         if (this.environmentType === EnvironmentType.NodeJS) {
             // Check cache otherwise populate it
             if (!this.frameworkCache[framework]) {
@@ -44,11 +44,11 @@ export class TestFrameworkFactory {
         }
     }
 
-    private dynamiclyLoadConstructor(framework: TestFramework) : any {
+    private dynamiclyLoadConstructor(framework: SupportedFramework) : any {
         switch (framework) {
-            case TestFramework.Jasmine:
+            case SupportedFramework.Jasmine:
                 return JasmineTestFramework;    
-            case TestFramework.Mocha:
+            case SupportedFramework.Mocha:
                 return MochaTestFramework;
             default:
                 return null;

@@ -22,10 +22,4 @@ export abstract class IEventDispatcher {
         this.eventList[id] = true;
         return id;
     }
-
-    public deregisterEvent(eventId: string) {
-        if (this.eventList[eventId]) {
-            this.eventList[eventId] = 0;
-        }
-    }
 }

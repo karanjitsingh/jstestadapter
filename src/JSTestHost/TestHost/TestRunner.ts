@@ -4,7 +4,7 @@ import { TestRunCriteriaWithSources, DiscoveryCriteria, TestRunChangedEventArgs,
          TestRunCompletePayload, TestRunCriteriaWithTests, TestExecutionContext } from '../ObjectModel/Payloads';
 import { TestMessageLevel, TestResult } from '../ObjectModel';
 import { EnvironmentType, IEvent, IEventArgs, TestCase } from '../ObjectModel/Common';
-import { TestFrameworkFactory, TestFramework } from './TestFrameworks/TestFrameworkFactory';
+import { TestFrameworkFactory, SupportedFramework } from './TestFrameworks/TestFrameworkFactory';
 import { IEnvironment } from '../Environment/IEnvironment';
 import { TestExecutionCache } from './TestExecutionCache';
 import { TimeSpan } from '../Utils/TimeSpan';
@@ -27,21 +27,22 @@ export class TestRunner {
     private readonly environment: IEnvironment;
     private readonly messageSender: MessageSender;
     private readonly testFrameworkFactory: TestFrameworkFactory;
-    private onComplete: IEvent<IEventArgs>;
+    private readonly testFramework: SupportedFramework;
+    private readonly onComplete: IEvent<IEventArgs>;
     private testExecutionCache: TestExecutionCache;
     private testDiscoveryCache: TestDiscoveryCache;
     private currentTestSession: TestSessionEventArgs;
-    private runner: TestFramework = TestFramework.Mocha;
 
-    constructor(environment: IEnvironment, messageSender: MessageSender) {
+    constructor(environment: IEnvironment, messageSender: MessageSender, testFramework: SupportedFramework) {
         this.environment = environment;
         this.messageSender = messageSender;
         this.onComplete = environment.createEvent();
+        this.testFramework = testFramework;
         this.testFrameworkFactory = new TestFrameworkFactory(this.environment);
     }
 
     public discoverTests(criteria: DiscoveryCriteria): Promise<void> {
-        const framework = this.testFrameworkFactory.getTestFramework(this.runner);
+        const framework = this.testFrameworkFactory.getTestFramework(this.testFramework);
         const sources = criteria.AdapterSourceMap[Object.keys(criteria.AdapterSourceMap)[0]];
 
         this.testDiscoveryCache = new TestDiscoveryCache(this.environment,
@@ -60,7 +61,7 @@ export class TestRunner {
     }
 
     public startTestRunWithSources(criteria: TestRunCriteriaWithSources): Promise<void> {
-        const framework = this.testFrameworkFactory.getTestFramework(this.runner);
+        const framework = this.testFrameworkFactory.getTestFramework(this.testFramework);
         const sources = criteria.AdapterSourceMap[Object.keys(criteria.AdapterSourceMap)[0]];
 
         return this.startExecution(criteria.TestExecutionContext, framework, () => {
@@ -84,7 +85,7 @@ export class TestRunner {
 
         const source = sourceTestMap.keys().next().value;
 
-        const framework = this.testFrameworkFactory.getTestFramework(this.runner);     
+        const framework = this.testFrameworkFactory.getTestFramework(this.testFramework);     
 
         return this.startExecution(criteria.TestExecutionContext, framework, () => {
             framework.startExecutionWithTests(source, sourceTestMap.get(source));
@@ -105,25 +106,25 @@ export class TestRunner {
 
     private createCompletionPromise(executeJob: () => void , jobCallback: (e?: Error) => void): Promise<void> {
         return new Promise((resolve) => {
-            // try {
-            if (this.environment.environmentType === EnvironmentType.NodeJS) {
-                // tslint:disable-next-line:no-require-imports
-                const domain = require('domain').create();
-    
-                domain.on('error', (err: Error) => {
-                    jobCallback(err);
-                });
-                domain.run(() => {
-                    executeJob();
-                });
-            } else if (this.environment.environmentType === EnvironmentType.Browser) {
-                throw new Exception('TestRunner.runInIsolation: Not implemented for browser',
-                                    ExceptionType.NotImplementedException);
+            try {
+                if (this.environment.environmentType === EnvironmentType.NodeJS) {
+                    // tslint:disable-next-line:no-require-imports
+                    const domain = require('domain').create();
+        
+                    domain.on('error', (err: Error) => {
+                        jobCallback(err);
+                    });
+                    domain.run(() => {
+                        executeJob();
+                    });
+                } else if (this.environment.environmentType === EnvironmentType.Browser) {
+                    throw new Exception('TestRunner.runInIsolation: Not implemented for browser',
+                                        ExceptionType.NotImplementedException);
+                }
+            } catch (err) {
+                this.executionComplete(null, err);
+                // TODO log message
             }
-            // } catch (err) {
-            //     this.executionComplete(null, e);
-            //     // TODO log message
-            // }
 
             this.onComplete.subscribe((sender: object, args: IEventArgs) => {
                 resolve();

@@ -25,6 +25,7 @@ namespace Microsoft.VisualStudio.JSTestHostRuntimeProvider
     using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions;
     using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces;
     using System.Reflection;
+    using System.Text.RegularExpressions;
 
     [ExtensionUri(JavaScriptTestHostUri)]
     [FriendlyName(JavaScriptTestHostFriendlyName)]
@@ -32,7 +33,6 @@ namespace Microsoft.VisualStudio.JSTestHostRuntimeProvider
     {
         private const string JavaScriptTestHostUri = "HostProvider://JavaScriptTestHost";
         private const string JavaScriptTestHostFriendlyName = "JavaScriptTestHost";
-        private const string TestAdapterRegexPattern = @"TestAdapter.dll";
 
         private IFileHelper fileHelper;
         private IProcessHelper processHelper;
@@ -43,6 +43,7 @@ namespace Microsoft.VisualStudio.JSTestHostRuntimeProvider
         private IMessageLogger messageLogger;
         private bool hostExitedEventRaised;
         private string hostPackageVersion = "15.0.0";
+        private string testFramework = "";
 
         protected int ErrorLength { get; set; } = 4096;
 
@@ -145,6 +146,7 @@ namespace Microsoft.VisualStudio.JSTestHostRuntimeProvider
         {
             this.messageLogger = logger;
             this.hostExitedEventRaised = false;
+            this.testFramework = this.GetFrameworkNameFromRunSettings(runsettingsXml);
         }
 
         /// <inheritdoc/>
@@ -243,15 +245,16 @@ namespace Microsoft.VisualStudio.JSTestHostRuntimeProvider
             }
 
             processInfo.EnvironmentVariables = new Dictionary<string, string>();
-            processInfo.EnvironmentVariables.Add("Path", Environment.GetEnvironmentVariable("Path") + pathBuilder.ToString());
+            //processInfo.EnvironmentVariables.Add("Path", Environment.GetEnvironmentVariable("Path") + ";" + Path.Combine(rootFolder, "JSTestHost", "node_modules"));
             processInfo.EnvironmentVariables.Add("NODE_NO_WARNINGS", "1");
+            //processInfo.EnvironmentVariables.Add("NODE_DEBUG", "module");
 
             processInfo.Arguments = string.Format(
-                "-r source-map-support/register {0} {1} {2} {3}",
+                "   -r source-map-support/register {0} {1} {2} {3}",
                 debug ? "--inspect-brk=9229" : "",
                 jstesthost,
-                connectionInfo.Port,
-                connectionInfo.ConnectionInfo.Endpoint);
+                connectionInfo.ConnectionInfo.Endpoint,
+                testFramework);
 
             return processInfo;
         }
@@ -291,15 +294,7 @@ namespace Microsoft.VisualStudio.JSTestHostRuntimeProvider
         /// <inheritdoc/>
         public bool CanExecuteCurrentRunConfiguration(string runsettingsXml)
         {
-            var config = XmlRunSettingsUtilities.GetRunConfigurationNode(runsettingsXml);
-            var framework = config.TargetFramework;
-
-            if (framework.Name.IndexOf("javascript", StringComparison.OrdinalIgnoreCase) >= 0)
-            {
-                return true;
-            }
-
-            return false;
+            return !string.IsNullOrEmpty(this.GetFrameworkNameFromRunSettings(runsettingsXml));
         }
 
         /// <inheritdoc/>
@@ -317,6 +312,26 @@ namespace Microsoft.VisualStudio.JSTestHostRuntimeProvider
             this.testHostProcess?.Dispose();
 
             return Task.FromResult(true);
+        }
+
+        private string GetFrameworkNameFromRunSettings(string runsettingsXml)
+        {
+            var config = XmlRunSettingsUtilities.GetRunConfigurationNode(runsettingsXml);
+            var framework = config.TargetFramework;
+
+            var match = new Regex(@"^javascript\.([a-z]+)", RegexOptions.IgnoreCase).Match(framework.Name);
+            if (match.Success)
+            {
+                var testFramework = match.Groups[1].ToString().ToLower();
+                switch (testFramework)
+                {
+                    case "mocha":
+                    case "jasmine":
+                        return testFramework;
+                }
+            }
+
+            return "";
         }
     }
 }

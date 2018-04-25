@@ -6,8 +6,7 @@ import { Exception, ExceptionType } from '../Exceptions/Exception';
 import { JobQueue } from '../Utils/JobQueue';
 import { TestRunner } from './TestRunner';
 import { MessageSender } from './MessageSender';
-
-const ipRegex = /^(?!.*\.$)((?!0\d)(1?\d?\d|25[0-5]|2[0-4]\d)(\.|$)){4}$/;
+import { Settings } from './Settings';
 
 export class TestHost {
     private readonly environment: IEnvironment;
@@ -15,11 +14,13 @@ export class TestHost {
     private readonly jobQueue: JobQueue;
     private readonly testRunner: TestRunner;
     private readonly messageSender: MessageSender;
+    private readonly settings: Settings;
+
     private sessionEnded: boolean;
 
     constructor(environment: IEnvironment) {
         this.environment = environment;
-        this.validateArguments(this.environment.argv);
+        this.settings = new Settings(this.environment.argv);
         
         this.sessionEnded = false;
                
@@ -28,12 +29,12 @@ export class TestHost {
         
         this.jobQueue = new JobQueue();
         this.messageSender = new MessageSender(this.communicationManager);
-        this.testRunner = new TestRunner(environment, this.messageSender);
+        this.testRunner = new TestRunner(environment, this.messageSender, this.settings.testFramework);
     }
 
     private initializeCommunication() {
         this.communicationManager.onMessageReceived.subscribe(this.messageReceived);
-        this.communicationManager.connectToServer(Number(this.environment.argv[2]), '127.0.0.1');
+        this.communicationManager.connectToServer(this.settings.port, this.settings.ip);
         this.waitForSessionEnd();
     }
 
@@ -72,13 +73,4 @@ export class TestHost {
         }
     }
 
-    private validateArguments(args: Array<string>) {
-        if (isNaN(Number(args[2]))) {
-            throw new Exception('Invalid Port.', ExceptionType.InvalidArgumentsException);
-        }
-
-        if (args[3] === undefined || args[3].match(ipRegex)) {
-            throw new Exception('Invalid IP.', ExceptionType.InvalidArgumentsException);
-        }
-    }
 }
