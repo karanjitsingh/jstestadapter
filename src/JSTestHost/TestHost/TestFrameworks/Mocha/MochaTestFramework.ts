@@ -18,6 +18,7 @@ export class MochaTestFramework extends BaseTestFramework {
 
     private mochaLib: any;
     private mocha: Mocha;
+    private discoveryMode: boolean = false;
 
     private getMocha() {
         switch (this.environmentType) {
@@ -52,23 +53,13 @@ export class MochaTestFramework extends BaseTestFramework {
 
     public startDiscovery(source: string): void {
         // tslint:disable:no-empty
-        this.mochaLib.Suite.prototype.beforeAll = () => {
-            console.error('beforeall');
-        };
-        this.mochaLib.Suite.prototype.afterAll = () => {
-            console.error('afterall');            
-        };
-        this.mochaLib.Suite.prototype.beforeEach = () => {
-            console.error('beforeeach');
-        };
-        this.mochaLib.Suite.prototype.afterEach = () => {
-            console.error('aftereach');
-        };
-        this.mochaLib.Suite.prototype.run = () => {
-            console.error('test');
-        };
+        this.mochaLib.Suite.prototype.beforeAll = () => { };
+        this.mochaLib.Suite.prototype.afterAll = () => { };
+        this.mochaLib.Suite.prototype.beforeEach = () => { };
+        this.mochaLib.Suite.prototype.afterEach = () => { };
         // tslint:enable:no-empty
 
+        this.discoveryMode = true;
         this.startExecutionWithSource(source);
     }
 
@@ -95,6 +86,9 @@ export class MochaTestFramework extends BaseTestFramework {
                 break;
 
             case ReporterEvent.SpecStarted:
+                if (this.discoveryMode) {
+                    args.pending = true;
+                }
                 this.handleSpecStarted(args.fullTitle(), args.title, args);
                 break;
 
