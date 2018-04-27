@@ -17,10 +17,11 @@ export class CodeCoverage {
         this.source = source;
 
         const configOverrides = {   
-            verbose: false,
+            verbose:  false,
             instrumentation: {
                 'include-all-sources': false,
-                root: 'D:\\JavaScriptTestHost\\test\\JSTestHost.UnitTests\\bin\\test\\JSTestHost.UnitTests\\'
+                root: 'D:\\JavaScriptTestHost\\test\\JSTestHost.UnitTests\\bin\\',
+                excludes: []
                 
             },
             reporting: {
