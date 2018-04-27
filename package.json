@@ -8,7 +8,9 @@
     "istanbul-lib-coverage": "^1.2.0",
     "jasmine": "^3.1.0",
     "mocha": "^5.1.1",
-    "source-map-support": "^0.5.4"
+    "source-map-support": "^0.5.4",
+    "wait-for-stuff": "^1.4.0",
+    "xml2js": "^0.4.19"
   },
   "devDependencies": {
     "@types/jasmine": "^2.8.6",

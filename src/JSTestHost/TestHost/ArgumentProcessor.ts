@@ -3,7 +3,7 @@ import { ExceptionType, Exception } from '../Exceptions/Exception';
 
 const endpointRegex = /^(?!.*\.$)((?!0\d)(1?\d?\d|25[0-5]|2[0-4]\d)(\.|$)){4}:[0-9]+$/;
 
-export class Settings  {
+export class ArgumentProcessor  {
 
     public readonly ip: string;
     public readonly port: number;

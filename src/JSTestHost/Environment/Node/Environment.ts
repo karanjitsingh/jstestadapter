@@ -5,6 +5,8 @@ import { ICommunicationManager } from '../ICommunicationManager';
 import { IEventDispatcher } from '../../Events/IEventDispatcher';
 import { EventDispatcher } from './EventDispatcher';
 import { Event } from '../../Events/Event';
+import { IXmlParser } from '../IXmlParser';
+import { XmlParser } from './XmlParser';
 
 export class Environment implements IEnvironment {
     public readonly environmentType: EnvironmentType = EnvironmentType.NodeJS;
@@ -23,5 +25,9 @@ export class Environment implements IEnvironment {
 
     public createEvent<T extends IEventArgs>(): IEvent<T> {
         return new Event<T>(this.eventDispatcher);
+    }
+
+    public createXmlParser(): IXmlParser {
+        return  new XmlParser();
     }
 }

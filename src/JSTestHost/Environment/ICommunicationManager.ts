@@ -10,4 +10,5 @@ export interface ICommunicationManager {
 
     connectToServer(port: number, ip: string, callback?: () => void);
     sendMessage(message: Message);
+    receiveMessageSync(): Message;
 }

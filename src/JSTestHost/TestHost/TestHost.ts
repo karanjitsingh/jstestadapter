@@ -6,7 +6,7 @@ import { Exception, ExceptionType } from '../Exceptions/Exception';
 import { JobQueue } from '../Utils/JobQueue';
 import { TestRunner } from './TestRunner';
 import { MessageSender } from './MessageSender';
-import { Settings } from './Settings';
+import { ArgumentProcessor } from './ArgumentProcessor';
 
 export class TestHost {
     private readonly environment: IEnvironment;
@@ -14,13 +14,13 @@ export class TestHost {
     private readonly jobQueue: JobQueue;
     private readonly testRunner: TestRunner;
     private readonly messageSender: MessageSender;
-    private readonly settings: Settings;
+    private readonly argumentProcessor: ArgumentProcessor;
 
     private sessionEnded: boolean;
 
     constructor(environment: IEnvironment) {
         this.environment = environment;
-        this.settings = new Settings(this.environment.argv);
+        this.argumentProcessor = new ArgumentProcessor(this.environment.argv);
         
         this.sessionEnded = false;
                
@@ -29,12 +29,12 @@ export class TestHost {
         
         this.jobQueue = new JobQueue();
         this.messageSender = new MessageSender(this.communicationManager);
-        this.testRunner = new TestRunner(environment, this.messageSender, this.settings.testFramework);
+        this.testRunner = new TestRunner(environment, this.messageSender, this.argumentProcessor.testFramework);
     }
 
     private initializeCommunication() {
         this.communicationManager.onMessageReceived.subscribe(this.messageReceived);
-        this.communicationManager.connectToServer(this.settings.port, this.settings.ip);
+        this.communicationManager.connectToServer(this.argumentProcessor.port, this.argumentProcessor.ip);
         this.waitForSessionEnd();
     }
 

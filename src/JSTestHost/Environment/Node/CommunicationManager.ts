@@ -4,6 +4,7 @@ import { ICommunicationManager, MessageReceivedEventArgs } from '../ICommunicati
 import { Exception, ExceptionType} from '../../Exceptions/Exception';
 import { IEnvironment } from '../IEnvironment';
 import { Socket } from 'net';
+import * as wait from 'wait-for-stuff';
 
 interface PacketData<T> {
     byteCount: number;
@@ -37,6 +38,23 @@ export class CommunicationManager implements ICommunicationManager {
         dataObject = this.intTo7BitEncodedInt(dataObject.length) + dataObject;
 
         this.socket.write(dataObject, 'binary');
+    }
+
+    // tslint:disable-next-line
+    public receiveMessageSync(): Message {
+        let messageReceived: boolean = false;
+        let message: Message = null;
+        const messageCallback = (sender: Object, args: MessageReceivedEventArgs) => {
+            messageReceived = true;
+            message = args.Message;
+        };
+
+        this.onMessageReceived.subscribe(messageCallback);
+
+        wait.for.predicate(() => messageReceived);
+
+        this.onMessageReceived.unsubscribe(messageCallback);
+        return message;
     }
 
     private onSocketDataReceived = (buffer: Buffer) => {
