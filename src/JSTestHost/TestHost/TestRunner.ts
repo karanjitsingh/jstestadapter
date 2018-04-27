@@ -12,6 +12,7 @@ import { TestDiscoveryCache } from './TestDiscoveryCache';
 import { CSharpException } from '../Exceptions/CSharpException';
 import { Exception, ExceptionType } from '../Exceptions/Exception';
 import { MessageSender } from './MessageSender';
+import { CodeCoverage } from './CodeCoverage';
 
 interface FrameworkEventHandlers {
     Subscribe: (framework: ITestFramework) => void;
@@ -32,6 +33,7 @@ export class TestRunner {
     private testExecutionCache: TestExecutionCache;
     private testDiscoveryCache: TestDiscoveryCache;
     private currentTestSession: TestSessionEventArgs;
+    private codecoverage: CodeCoverage;
 
     constructor(environment: IEnvironment, messageSender: MessageSender, testFramework: SupportedFramework) {
         this.environment = environment;
@@ -63,10 +65,11 @@ export class TestRunner {
     public startTestRunWithSources(criteria: TestRunCriteriaWithSources): Promise<void> {
         const framework = this.testFrameworkFactory.getTestFramework(this.testFramework);
         const sources = criteria.AdapterSourceMap[Object.keys(criteria.AdapterSourceMap)[0]];
-
+    
+        this.codecoverage = new CodeCoverage(sources[0]);
         return this.startExecution(criteria.TestExecutionContext, framework, () => {
             framework.startExecutionWithSource(sources[0]);
-        });
+        }, sources[0]);
     }
 
     public startTestRunWithTests(criteria: TestRunCriteriaWithTests): Promise<void> {
@@ -92,7 +95,8 @@ export class TestRunner {
         });
     }
 
-    private startExecution(executionContext: TestExecutionContext, framework: ITestFramework, executeJob: () => void): Promise<void> {
+    private startExecution(executionContext: TestExecutionContext, framework: ITestFramework, executeJob: () => void, source?: string):
+    Promise<void> {
         this.testExecutionCache = new TestExecutionCache(this.environment,
                                                          executionContext.FrequencyOfRunStatsChangeEvent,
                                                          executionContext.RunStatsChangeEventTimeout);
@@ -104,7 +108,7 @@ export class TestRunner {
         });
     }
 
-    private createCompletionPromise(executeJob: () => void , jobCallback: (e?: Error) => void): Promise<void> {
+    private createCompletionPromise(executeJob: () => void , jobCallback: (e?: Error) => void, source?: string): Promise<void> {
         return new Promise((resolve) => {
             try {
                 if (this.environment.environmentType === EnvironmentType.NodeJS) {
@@ -115,7 +119,7 @@ export class TestRunner {
                         jobCallback(err);
                     });
                     domain.run(() => {
-                        executeJob();
+                        this.codecoverage.startCoverage(executeJob);
                     });
                 } else if (this.environment.environmentType === EnvironmentType.Browser) {
                     throw new Exception('TestRunner.runInIsolation: Not implemented for browser',
@@ -134,6 +138,7 @@ export class TestRunner {
 
     private executionComplete(args: TestSessionEventArgs, err?: Error): void {
         console.log('test session end trigger');
+        this.codecoverage.stopCoverage();
 
         if (err) {
             this.messageSender.sendMessage(err.stack ?
@@ -144,8 +149,8 @@ export class TestRunner {
 
         const remainingTestResults = this.testExecutionCache.cleanCache();
         const timeElapsed = args ? 
-                            TimeSpan.MSToString(new Date().getTime() - this.currentTestSession.StartTime.getTime()) :
-                            TimeSpan.MSToString(args.StartTime.getTime() - this.currentTestSession.StartTime.getTime()) ;
+                            TimeSpan.MSToString(args.StartTime.getTime() - this.currentTestSession.StartTime.getTime()) :
+                            TimeSpan.MSToString(new Date().getTime() - this.currentTestSession.StartTime.getTime());
 
         const testRunCompleteEventArgs = <TestRunCompleteEventArgs> {
             TestRunStatistics: remainingTestResults.TestRunStatistics,
