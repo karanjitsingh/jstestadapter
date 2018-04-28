@@ -50,4 +50,8 @@ export class MessageSender {
 
         this.communicationManager.sendMessage(new Message(MessageType.DiscoveryComplete, discoveryCompletePayload, this.protocolVersion));
     }
+
+    // public sendTestCaseStart() {
+
+    // }
 }

@@ -1,12 +1,12 @@
-import { MessageType } from '../ObjectModel';
 import { TestRunCriteriaWithSources, DiscoveryCriteria, TestRunCriteriaWithTests } from '../ObjectModel/Payloads';
+import { MessageType } from '../ObjectModel';
 import { IEnvironment } from '../Environment/IEnvironment';
 import { ICommunicationManager, MessageReceivedEventArgs } from '../Environment/ICommunicationManager';
 import { Exception, ExceptionType } from '../Exceptions/Exception';
 import { JobQueue } from '../Utils/JobQueue';
 import { TestRunner } from './TestRunner';
 import { MessageSender } from './MessageSender';
-import { ArgumentProcessor } from './ArgumentProcessor';
+import { ArgumentProcessor } from './Processors/ArgumentProcessor';
 
 export class TestHost {
     private readonly environment: IEnvironment;

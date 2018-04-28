@@ -21,7 +21,7 @@ export class Environment implements IEnvironment {
         throw new Exception('Not implemented', ExceptionType.NotImplementedException);
     }
 
-    public createXmlParser(): IXmlParser {
+    public getXmlParser(): IXmlParser {
         throw new Exception('Not implemented', ExceptionType.NotImplementedException);
         
     }

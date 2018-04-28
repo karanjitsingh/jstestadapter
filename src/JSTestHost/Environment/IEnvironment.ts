@@ -7,5 +7,5 @@ export interface IEnvironment {
     readonly argv: Array<string>;
     createCommunicationManager(): ICommunicationManager;
     createEvent<T>(): IEvent<T>;
-    createXmlParser(): IXmlParser;
+    getXmlParser(): IXmlParser;         // Singleton
 }

@@ -13,6 +13,7 @@ import { CSharpException } from '../Exceptions/CSharpException';
 import { Exception, ExceptionType } from '../Exceptions/Exception';
 import { MessageSender } from './MessageSender';
 import { CodeCoverage } from './CodeCoverage';
+import { RunSettings } from './RunSettings';
 
 interface FrameworkEventHandlers {
     Subscribe: (framework: ITestFramework) => void;
@@ -28,7 +29,7 @@ export class TestRunner {
     private readonly environment: IEnvironment;
     private readonly messageSender: MessageSender;
     private readonly testFrameworkFactory: TestFrameworkFactory;
-    private readonly testFramework: SupportedFramework;
+    private readonly testFramework: ITestFramework;
     private readonly onComplete: IEvent<IEventArgs>;
     private testExecutionCache: TestExecutionCache;
     private testDiscoveryCache: TestDiscoveryCache;
@@ -39,12 +40,11 @@ export class TestRunner {
         this.environment = environment;
         this.messageSender = messageSender;
         this.onComplete = environment.createEvent();
-        this.testFramework = testFramework;
+        this.testFramework = this.testFrameworkFactory.getTestFramework(testFramework);
         this.testFrameworkFactory = new TestFrameworkFactory(this.environment);
     }
 
     public discoverTests(criteria: DiscoveryCriteria): Promise<void> {
-        const framework = this.testFrameworkFactory.getTestFramework(this.testFramework);
         const sources = criteria.AdapterSourceMap[Object.keys(criteria.AdapterSourceMap)[0]];
 
         this.testDiscoveryCache = new TestDiscoveryCache(this.environment,
@@ -53,22 +53,21 @@ export class TestRunner {
 
         this.testDiscoveryCache.onReportTestCases.subscribe(this.testDiscoveryStatsChange);
 
-        this.discoveryEventHandlers.Subscribe(framework);
+        this.discoveryEventHandlers.Subscribe(this.testFramework);
         
         return this.createCompletionPromise(() => {
-            framework.startDiscovery(sources[0]);
+            this.testFramework.startDiscovery(sources[0]);
         }, (e) => {
             this.discoveryComplete(null, e);
         });
     }
 
     public startTestRunWithSources(criteria: TestRunCriteriaWithSources): Promise<void> {
-        const framework = this.testFrameworkFactory.getTestFramework(this.testFramework);
         const sources = criteria.AdapterSourceMap[Object.keys(criteria.AdapterSourceMap)[0]];
     
         this.codecoverage = new CodeCoverage(sources[0]);
-        return this.startExecution(criteria.TestExecutionContext, framework, () => {
-            framework.startExecutionWithSource(sources[0]);
+        return this.startExecution(criteria.TestExecutionContext, this.testFramework, () => {
+            this.testFramework.startExecutionWithSource(sources[0]);
         }, sources[0]);
     }
 
@@ -85,14 +84,16 @@ export class TestRunner {
                 sourceTestMap.set(test.Source, idMap);
             } 
         });
-
+     
         const source = sourceTestMap.keys().next().value;
 
-        const framework = this.testFrameworkFactory.getTestFramework(this.testFramework);     
-
-        return this.startExecution(criteria.TestExecutionContext, framework, () => {
-            framework.startExecutionWithTests(source, sourceTestMap.get(source));
+        return this.startExecution(criteria.TestExecutionContext, this.testFramework, () => {
+            this.testFramework.startExecutionWithTests(source, sourceTestMap.get(source));
         });
+    }
+
+    private getRunSettingsFromXml(runSettingsXml: string): RunSettings {
+        return new RunSettings(runSettingsXml, this.environment.getXmlParser());
     }
 
     private startExecution(executionContext: TestExecutionContext, framework: ITestFramework, executeJob: () => void, source?: string):

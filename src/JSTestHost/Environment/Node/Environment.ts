@@ -11,7 +11,8 @@ import { XmlParser } from './XmlParser';
 export class Environment implements IEnvironment {
     public readonly environmentType: EnvironmentType = EnvironmentType.NodeJS;
     public argv: Array<string>;
-    
+
+    private xmlParser: IXmlParser;
     private eventDispatcher: IEventDispatcher;
 
     constructor() {
@@ -27,7 +28,10 @@ export class Environment implements IEnvironment {
         return new Event<T>(this.eventDispatcher);
     }
 
-    public createXmlParser(): IXmlParser {
-        return  new XmlParser();
+    public getXmlParser(): IXmlParser {
+        if (!this.xmlParser) {
+            this.xmlParser = new XmlParser();
+        }
+        return this.xmlParser;
     }
 }

@@ -1,5 +1,5 @@
-import { SupportedFramework } from './TestFrameworks/TestFrameworkFactory';
-import { ExceptionType, Exception } from '../Exceptions/Exception';
+import { SupportedFramework } from '../TestFrameworks/TestFrameworkFactory';
+import { ExceptionType, Exception } from '../../Exceptions/Exception';
 
 const endpointRegex = /^(?!.*\.$)((?!0\d)(1?\d?\d|25[0-5]|2[0-4]\d)(\.|$)){4}:[0-9]+$/;
 
