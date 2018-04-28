@@ -1,4 +1,4 @@
-import { ITestFramework, TestSessionEventArgs, TestSuiteEventArgs, TestCaseEventArgs, FailedExpectation }
+import { ITestFramework, TestSessionEventArgs, TestSuiteEventArgs, TestSpecEventArgs, FailedExpectation }
 from '../../ObjectModel/TestFramework';
 import { ITestFrameworkEvents } from '../../ObjectModel/TestFramework';
 import { TestCase, TestOutcome, EnvironmentType } from '../../ObjectModel/Common';
@@ -12,7 +12,7 @@ export abstract class BaseTestFramework implements ITestFramework {
     
     private sessionEventArgs: TestSessionEventArgs;
     private suiteStack: Array<TestSuiteEventArgs>;
-    private activeSpec: TestCaseEventArgs;
+    private activeSpec: TestSpecEventArgs;
     private testCollection: Map<string, TestCase>;
     private testExecutionCount: Map<string, number>;
     
@@ -92,7 +92,7 @@ export abstract class BaseTestFramework implements ITestFramework {
         
         testCase.DisplayName = testCaseName;
 
-        this.activeSpec = <TestCaseEventArgs> {
+        this.activeSpec = <TestSpecEventArgs> {
             TestCase: testCase,
             FailedExpectations: [],
             Outcome: TestOutcome.None,

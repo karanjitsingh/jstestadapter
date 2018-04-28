@@ -2,7 +2,7 @@
 import { EnvironmentType, IEvent } from '../../ObjectModel/Common';
 import { IEnvironment } from '../IEnvironment';
 import { ICommunicationManager } from '../ICommunicationManager';
-import { Exception, ExceptionType } from '../../Exceptions/Exception';
+import { Exception, ExceptionType } from '../../Exceptions';
 import { IXmlParser } from '../IXmlParser';
 
 export class Environment implements IEnvironment {

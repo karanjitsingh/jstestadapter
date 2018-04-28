@@ -1,6 +1,5 @@
-import { TestCase } from '../Common/TestCase';
-import { TestResult } from '../TestResult';
-import { TestRunStatistics } from '../TestRunStatistics';
+import { TestCase } from '../Common';
+import { TestResult, TestRunStatistics } from '../';
 
 export interface TestRunChangedEventArgs {
     NewTestResults: Array<TestResult>;

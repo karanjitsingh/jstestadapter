@@ -1,5 +1,5 @@
-import { MessageType } from './MessageType';
-import { Exception, ExceptionType} from '../Exceptions/Exception';
+import { MessageType } from '.';
+import { Exception, ExceptionType} from '../Exceptions';
 
 export class Message {
     /* These variables serialize to a JSON that will be deserialized

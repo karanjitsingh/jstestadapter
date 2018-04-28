@@ -1,10 +1,9 @@
-import { TestCase } from './Common/TestCase';
-import { TestOutcome } from './Common/TestOutcome';
+import { TestCase, TestOutcome } from './Common';
+import { AttachmentSet } from '.';
 
 export interface TestResult  {
     TestCase: TestCase;
-    // Attachments have not been defined for javascript scenario
-    Attachments: Array<any>;
+    Attachments: Array<AttachmentSet>;
     Outcome: TestOutcome;
     ErrorMessage: string;
     ErrorStackTrace: string;

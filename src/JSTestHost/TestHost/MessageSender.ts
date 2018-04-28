@@ -1,6 +1,8 @@
 import { ICommunicationManager } from '../Environment/ICommunicationManager';
-import { TestMessageLevel, Message, MessageType } from '../ObjectModel';
-import { TestMessagePayload, TestRunCompletePayload, TestRunChangedEventArgs, DiscoveryCompletePayload } from '../ObjectModel/Payloads';
+import { TestMessageLevel, Message, MessageType, AttachmentSet } from '../ObjectModel';
+import { TestMessagePayload, TestRunCompletePayload, TestRunChangedEventArgs, DiscoveryCompletePayload,
+         TestCaseStartEventArgs, 
+         TestCaseEndEventArgs} from '../ObjectModel/Payloads';
 import { TestCase } from '../ObjectModel/Common';
 import { TestsDiscoveredEventArgs } from '../ObjectModel/EventArgs';
 
@@ -31,8 +33,8 @@ export class MessageSender {
     }
 
     public sendTestRunChange(testRunChangedEventArgs: TestRunChangedEventArgs) {
-        const testRunChangedMessaged = new Message(MessageType.TestRunStatsChange, testRunChangedEventArgs, this.protocolVersion);
-        this.communicationManager.sendMessage(testRunChangedMessaged);
+        const testRunChangedMessage = new Message(MessageType.TestRunStatsChange, testRunChangedEventArgs, this.protocolVersion);
+        this.communicationManager.sendMessage(testRunChangedMessage);
     }
 
     public sendDiscoveryStatsChange(testFound: Array<TestCase>) {
@@ -48,10 +50,35 @@ export class MessageSender {
             IsAborted: false
         };
 
-        this.communicationManager.sendMessage(new Message(MessageType.DiscoveryComplete, discoveryCompletePayload, this.protocolVersion));
+        const discoverCompleteMessage = new Message(MessageType.DiscoveryComplete, discoveryCompletePayload, this.protocolVersion);
+        this.communicationManager.sendMessage(discoverCompleteMessage);
     }
 
-    // public sendTestCaseStart() {
+    public sendTestCaseStart(testCaseStartEventArgs: TestCaseStartEventArgs) {
+        const testCaseStartMessage = new Message(MessageType.DataCollectionTestStart, testCaseStartEventArgs, this.protocolVersion);
+        this.communicationManager.sendMessage(testCaseStartMessage);
 
-    // }
+        const message = this.communicationManager.receiveMessageSync();
+        if (message.MessageType !== MessageType.DataCollectionTestStartAck) {
+            // EqtTrace.Error("DataCollectionTestCaseEventSender.SendTestCaseStart : MessageType.DataCollectionTestStartAck not received.");
+        }
+    }
+
+    public sendTestCaseEnd(testCaseEndEventArgs: TestCaseEndEventArgs): Array<AttachmentSet> {
+        const attachmentSets: Array<AttachmentSet> = [];
+
+        const testCaseEndMessage = new Message(MessageType.DataCollectionTestEnd, testCaseEndEventArgs, this.protocolVersion);
+        this.communicationManager.sendMessage(testCaseEndMessage);
+
+        const message = this.communicationManager.receiveMessageSync();
+
+        if (message.MessageType === MessageType.DataCollectionTestEndResult) {
+            const rawAttachments = message.Payload;
+            rawAttachments.forEach(element => {
+                attachmentSets.push(new AttachmentSet(element));
+            });
+        }
+
+        return attachmentSets;
+    }
 }

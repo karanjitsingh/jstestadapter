@@ -6,3 +6,4 @@ export { TestRunChangedEventArgs } from './TestRunChangedEventArgs';
 export { TestRunCompletePayload } from './TestRunCompletePayload';
 export { TestRunCriteriaWithSources } from './TestRunCriteriaWithSources';
 export { TestRunCriteriaWithTests } from './TestRunCriteriaWithTests';
+export { TestCaseStartEventArgs, TestCaseEndEventArgs } from './TestCaseEventArgs';

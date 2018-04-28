@@ -23,7 +23,7 @@ export class TestHost {
         this.argumentProcessor = new ArgumentProcessor(this.environment.argv);
         
         this.sessionEnded = false;
-               
+
         this.communicationManager = environment.createCommunicationManager();
         this.initializeCommunication();
         

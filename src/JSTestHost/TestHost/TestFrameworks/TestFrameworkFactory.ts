@@ -3,7 +3,7 @@ import { ITestFramework, ITestFrameworkEvents } from '../../ObjectModel/TestFram
 import { JasmineTestFramework } from './Jasmine/JasmineTestFramework';
 import { IEnvironment } from '../../Environment/IEnvironment';
 import { MochaTestFramework } from './Mocha/MochaTestFramework';
-import { Exception, ExceptionType } from '../../Exceptions/Exception';
+import { Exception, ExceptionType } from '../../Exceptions';
 
 export enum SupportedFramework {
     Jasmine,

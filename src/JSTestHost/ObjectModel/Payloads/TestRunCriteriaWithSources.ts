@@ -1,4 +1,4 @@
-import { TestExecutionContext } from './TestExecutionContext';
+import { TestExecutionContext } from '.';
 
 export interface TestRunCriteriaWithSources {
     AdapterSourceMap: JSON;

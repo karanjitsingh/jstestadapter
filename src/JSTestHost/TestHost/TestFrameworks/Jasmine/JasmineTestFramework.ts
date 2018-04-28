@@ -1,6 +1,6 @@
 import { FailedExpectation, ITestFrameworkEvents } from '../../../ObjectModel/TestFramework';
 import { EnvironmentType, TestOutcome } from '../../../ObjectModel/Common';
-import { Exception, ExceptionType } from '../../../Exceptions/Exception';
+import { Exception, ExceptionType } from '../../../Exceptions';
 import { BaseTestFramework } from '../BaseTestFramework';
 
 enum JasmineReporterEvent {

@@ -1,4 +1,4 @@
-import { TestMessageLevel } from '../TestMessageLevel';
+import { TestMessageLevel } from '../';
 
 export interface TestMessagePayload {
     MessageLevel: TestMessageLevel;

@@ -1,7 +1,7 @@
 import { Message } from '../../ObjectModel';
 import { IEvent } from '../../ObjectModel/Common';
 import { ICommunicationManager, MessageReceivedEventArgs } from '../ICommunicationManager';
-import { Exception, ExceptionType} from '../../Exceptions/Exception';
+import { Exception, ExceptionType} from '../../Exceptions';
 import { IEnvironment } from '../IEnvironment';
 import { Socket } from 'net';
 import * as wait from 'wait-for-stuff';

@@ -1,4 +1,4 @@
-import { TestCase } from '../Common/TestCase';
+import { TestCase } from '../Common';
 import { ISerializable } from '../../Utils/ISerializable';
 
 export interface DiscoveryCompletePayload {

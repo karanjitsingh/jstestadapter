@@ -1,4 +1,4 @@
-import { IEventDispatcher } from '../../Events/IEventDispatcher';
+import { BaseEventDispatcher } from '../../Events/IEventDispatcher';
 import { IEventHandler, IEventArgs } from '../../ObjectModel/Common';
 import { EventEmitter } from 'events';
 
@@ -7,7 +7,7 @@ import { EventEmitter } from 'events';
  * are same for this particular file
 */
 // tslint:disable:export-name
-export class EventDispatcher extends IEventDispatcher {
+export class EventDispatcher extends BaseEventDispatcher {
     private events: EventEmitter;
 
     constructor() {

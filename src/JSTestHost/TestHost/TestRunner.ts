@@ -1,16 +1,14 @@
-import { ITestFramework, TestSessionEventArgs, TestCaseEventArgs, TestSuiteEventArgs } from '../ObjectModel/TestFramework';
+import { ITestFramework, TestSessionEventArgs, TestSpecEventArgs, TestSuiteEventArgs } from '../ObjectModel/TestFramework';
 import { TestRunCompleteEventArgs, TestsDiscoveredEventArgs } from '../ObjectModel/EventArgs';
 import { TestRunCriteriaWithSources, DiscoveryCriteria, TestRunChangedEventArgs,
-         TestRunCompletePayload, TestRunCriteriaWithTests, TestExecutionContext } from '../ObjectModel/Payloads';
-import { TestMessageLevel, TestResult } from '../ObjectModel';
+         TestRunCompletePayload, TestRunCriteriaWithTests, TestExecutionContext, TestCaseStartEventArgs, TestCaseEndEventArgs } from '../ObjectModel/Payloads';
+import { TestMessageLevel, TestResult, AttachmentSet } from '../ObjectModel';
 import { EnvironmentType, IEvent, IEventArgs, TestCase } from '../ObjectModel/Common';
 import { TestFrameworkFactory, SupportedFramework } from './TestFrameworks/TestFrameworkFactory';
+import { CSharpException, Exception, ExceptionType } from '../Exceptions';
+import { TestExecutionCache, TestDiscoveryCache } from './TestCache';
 import { IEnvironment } from '../Environment/IEnvironment';
-import { TestExecutionCache } from './TestExecutionCache';
 import { TimeSpan } from '../Utils/TimeSpan';
-import { TestDiscoveryCache } from './TestDiscoveryCache';
-import { CSharpException } from '../Exceptions/CSharpException';
-import { Exception, ExceptionType } from '../Exceptions/Exception';
 import { MessageSender } from './MessageSender';
 import { CodeCoverage } from './CodeCoverage';
 import { RunSettings } from './RunSettings';
@@ -21,8 +19,8 @@ interface FrameworkEventHandlers {
     TestSessionEnd?: (sender: object, args: TestSessionEventArgs) => void;
     TestSuiteStart?: (sender: object, args: TestSuiteEventArgs) => void;
     TestSuiteEnd?: (sender: object, args: TestSuiteEventArgs) => void;
-    TestCaseStart?: (sender: object, args: TestCaseEventArgs) => void;
-    TestCaseEnd?: (sender: object, args: TestCaseEventArgs) => void;
+    TestCaseStart?: (sender: object, args: TestSpecEventArgs) => void;
+    TestCaseEnd?: (sender: object, args: TestSpecEventArgs) => void;
 }
 
 export class TestRunner {
@@ -31,10 +29,12 @@ export class TestRunner {
     private readonly testFrameworkFactory: TestFrameworkFactory;
     private readonly testFramework: ITestFramework;
     private readonly onComplete: IEvent<IEventArgs>;
+
     private testExecutionCache: TestExecutionCache;
     private testDiscoveryCache: TestDiscoveryCache;
     private currentTestSession: TestSessionEventArgs;
     private codecoverage: CodeCoverage;
+    private runSettings: RunSettings;
 
     constructor(environment: IEnvironment, messageSender: MessageSender, testFramework: SupportedFramework) {
         this.environment = environment;
@@ -45,6 +45,8 @@ export class TestRunner {
     }
 
     public discoverTests(criteria: DiscoveryCriteria): Promise<void> {
+        this.setRunSettingsFromXml(criteria.RunSettings);
+        
         const sources = criteria.AdapterSourceMap[Object.keys(criteria.AdapterSourceMap)[0]];
 
         this.testDiscoveryCache = new TestDiscoveryCache(this.environment,
@@ -63,6 +65,8 @@ export class TestRunner {
     }
 
     public startTestRunWithSources(criteria: TestRunCriteriaWithSources): Promise<void> {
+        this.setRunSettingsFromXml(criteria.RunSettings);
+        
         const sources = criteria.AdapterSourceMap[Object.keys(criteria.AdapterSourceMap)[0]];
     
         this.codecoverage = new CodeCoverage(sources[0]);
@@ -72,6 +76,8 @@ export class TestRunner {
     }
 
     public startTestRunWithTests(criteria: TestRunCriteriaWithTests): Promise<void> {
+        this.setRunSettingsFromXml(criteria.RunSettings);
+        
         const sourceTestMap = new Map<string, Map<string, TestCase>>();
 
         criteria.Tests.forEach((test: TestCase) => {
@@ -92,8 +98,8 @@ export class TestRunner {
         });
     }
 
-    private getRunSettingsFromXml(runSettingsXml: string): RunSettings {
-        return new RunSettings(runSettingsXml, this.environment.getXmlParser());
+    private setRunSettingsFromXml(runSettingsXml: string) {
+        this.runSettings = new RunSettings(runSettingsXml, this.environment.getXmlParser());
     }
 
     private startExecution(executionContext: TestExecutionContext, framework: ITestFramework, executeJob: () => void, source?: string):
@@ -207,18 +213,42 @@ export class TestRunner {
             this.executionComplete(args);
         },
 
-        TestCaseStart: (sender: object, args: TestCaseEventArgs) => {
+        TestCaseStart: (sender: object, args: TestSpecEventArgs) => {
             console.log('adding test case to cache');
+
+            if (this.runSettings.isDataCollectionEnabled) {
+                const testCaseStart = <TestCaseStartEventArgs> {
+                    TestCaseId: args.TestCase.Id,
+                    TestCaseName: args.TestCase.DisplayName,
+                    TestElement: null,
+                    IsChildTestCase: false              // TODO what is is child test case
+                };
+                this.messageSender.sendTestCaseStart(testCaseStart);
+            }
+
             this.testExecutionCache.addInProgressTest(args.TestCase);
         },
 
-        TestCaseEnd: (sender: object, args: TestCaseEventArgs) => {
+        TestCaseEnd: (sender: object, args: TestSpecEventArgs) => {
             console.log('adding test result to cache');
+
+            let attachments: Array<AttachmentSet> = [];
+
+            if (this.runSettings.isDataCollectionEnabled) {
+                const testCaseEnd = <TestCaseEndEventArgs> {
+                    TestOutcome: args.Outcome,
+                    TestCaseId: args.TestCase.Id,
+                    TestCaseName: args.TestCase.DisplayName,
+                    TestElement: null,
+                    IsChildTestCase: false              // TODO what is is child test case
+                };
+                attachments = this.messageSender.sendTestCaseEnd(testCaseEnd);
+            }
 
             // TODO incomplete test results - display name etc are null
             const testResult: TestResult = {
                 TestCase: args.TestCase,
-                Attachments: [],
+                Attachments: attachments,               // TODO simply send attachments received from dc?
                 Outcome: args.Outcome,
                 ErrorMessage: null,
                 ErrorStackTrace: null,
@@ -251,7 +281,7 @@ export class TestRunner {
             this.discoveryComplete(remainingTests);
         },
 
-        TestCaseStart: (sender: object, args: TestCaseEventArgs) => {
+        TestCaseStart: (sender: object, args: TestSpecEventArgs) => {
             console.log('adding test case to cache');
             this.testDiscoveryCache.addTest(args.TestCase);
         }

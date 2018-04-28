@@ -1,11 +1,11 @@
 import { Mock, IMock, Times, It } from 'typemoq';
-import { IEventDispatcher } from '../../../src/JSTestHost/Events/IEventDispatcher';
+import { BaseEventDispatcher } from '../../../src/JSTestHost/Events/IEventDispatcher';
 import { IEventArgs, IEventHandler } from '../../../src/JSTestHost/ObjectModel/Common';
 import { Event } from '../../../src/JSTestHost/Events/Event';
 import * as Assert from 'assert';
 
 describe('Event Suite', () => {
-    let mockEventDispatcher: IMock<IEventDispatcher>;
+    let mockEventDispatcher: IMock<BaseEventDispatcher>;
 
     before(() => {
         mockEventDispatcher = Mock.ofType(TestableEventDispatcher);
@@ -63,7 +63,7 @@ describe('Event Suite', () => {
     });
 });
 
-class TestableEventDispatcher extends IEventDispatcher {
+class TestableEventDispatcher extends BaseEventDispatcher {
     public subscribe(eventId: string, callback: IEventHandler<IEventArgs>) {
         return;
     }

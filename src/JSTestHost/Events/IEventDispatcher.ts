@@ -1,6 +1,12 @@
 import { IEventHandler, IEventArgs } from '../ObjectModel/Common';
 
-export abstract class IEventDispatcher {
+export interface IEventDispatcher {
+    subscribe(eventId: string, callback: IEventHandler<IEventArgs>): void;
+    unsubscribe(eventId: string, callback: IEventHandler<IEventArgs>): void;
+    raise(eventId: string, sender: object, args: IEventArgs): void;
+}
+
+export abstract class BaseEventDispatcher implements IEventDispatcher {
     public abstract subscribe(eventId: string, callback: IEventHandler<IEventArgs>);
     public abstract unsubscribe(eventId: string, callback: IEventHandler<IEventArgs>);
     public abstract raise(eventId: string, sender: object, args: IEventArgs);

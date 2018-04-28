@@ -1,5 +1,5 @@
 import { TestCase, TestOutcome, IEventArgs } from '../Common';
-import { FailedExpectation } from './FailedExpectation';
+import { FailedExpectation } from '.';
 
 interface BaseTestEventArgs extends IEventArgs {
     Source: string;
@@ -8,7 +8,7 @@ interface BaseTestEventArgs extends IEventArgs {
     EndTime: Date;
 }
 
-export interface TestCaseEventArgs extends BaseTestEventArgs {
+export interface TestSpecEventArgs extends BaseTestEventArgs {
     TestCase: TestCase;
     FailedExpectations: Array<FailedExpectation>;
     Outcome: TestOutcome;

@@ -1,13 +1,13 @@
-import { TestRunStatistics } from '../TestRunStatistics';
+import { TestRunStatistics, AttachmentSet } from '../';
 import { ISerializable } from '../../Utils/ISerializable';
-import { CSharpException } from '../../Exceptions/CSharpException';
+import { CSharpException } from '../../Exceptions';
 
 export interface TestRunCompleteEventArgs {
     TestRunStatistics: TestRunStatistics;
     IsCanceled: boolean;
     IsAborted: boolean;
     Error: CSharpException;
-    AttachmentSets: Array<any>;
+    AttachmentSets: Array<AttachmentSet>;
     ElapsedTimeInRunningTests: string;
     Metrics: { [id: string]: ISerializable };
 }

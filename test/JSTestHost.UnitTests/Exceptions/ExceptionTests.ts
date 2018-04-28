@@ -1,5 +1,4 @@
-import { Exception, ExceptionType } from '../../../src/JSTestHost/Exceptions/Exception';
-import { CSharpException } from '../../../src/JSTestHost/Exceptions/CSharpException';
+import { Exception, ExceptionType, CSharpException } from '../../../src/JSTestHost/Exceptions';
 import * as Assert from 'assert';
 
 describe('Exception Suite', () => {

@@ -1,4 +1,4 @@
-import { FilterOptions } from '../../ObjectModel/Common';
+import { FilterOptions } from '../Common';
 
 export interface TestExecutionContext {
     FrequencyOfRunStatsChangeEvent: number;
