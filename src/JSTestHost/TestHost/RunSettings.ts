@@ -1,5 +1,5 @@
 import { IXmlParser } from '../Environment/IXmlParser';
-import { Constants } from 'ObjectModel';
+import { Constants } from '../ObjectModel';
 
 export class RunSettings {
     public readonly runSettingsXml: string;

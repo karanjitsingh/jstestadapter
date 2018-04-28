@@ -4,6 +4,7 @@ export interface IEventDispatcher {
     subscribe(eventId: string, callback: IEventHandler<IEventArgs>): void;
     unsubscribe(eventId: string, callback: IEventHandler<IEventArgs>): void;
     raise(eventId: string, sender: object, args: IEventArgs): void;
+    registerEvent(): string;
 }
 
 export abstract class BaseEventDispatcher implements IEventDispatcher {

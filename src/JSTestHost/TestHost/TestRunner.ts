@@ -1,7 +1,7 @@
 import { ITestFramework, TestSessionEventArgs, TestSpecEventArgs, TestSuiteEventArgs } from '../ObjectModel/TestFramework';
 import { TestRunCompleteEventArgs, TestsDiscoveredEventArgs } from '../ObjectModel/EventArgs';
-import { TestRunCriteriaWithSources, DiscoveryCriteria, TestRunChangedEventArgs,
-         TestRunCompletePayload, TestRunCriteriaWithTests, TestExecutionContext, TestCaseStartEventArgs, TestCaseEndEventArgs } from '../ObjectModel/Payloads';
+import { TestRunCriteriaWithSources, DiscoveryCriteria, TestRunChangedEventArgs, TestRunCompletePayload,
+         TestRunCriteriaWithTests, TestExecutionContext, TestCaseStartEventArgs, TestCaseEndEventArgs } from '../ObjectModel/Payloads';
 import { TestMessageLevel, TestResult, AttachmentSet } from '../ObjectModel';
 import { EnvironmentType, IEvent, IEventArgs, TestCase } from '../ObjectModel/Common';
 import { TestFrameworkFactory, SupportedFramework } from './TestFrameworks/TestFrameworkFactory';
@@ -10,7 +10,7 @@ import { TestExecutionCache, TestDiscoveryCache } from './TestCache';
 import { IEnvironment } from '../Environment/IEnvironment';
 import { TimeSpan } from '../Utils/TimeSpan';
 import { MessageSender } from './MessageSender';
-import { CodeCoverage } from './CodeCoverage';
+// import { CodeCoverage } from './CodeCoverage';
 import { RunSettings } from './RunSettings';
 
 interface FrameworkEventHandlers {
@@ -33,15 +33,15 @@ export class TestRunner {
     private testExecutionCache: TestExecutionCache;
     private testDiscoveryCache: TestDiscoveryCache;
     private currentTestSession: TestSessionEventArgs;
-    private codecoverage: CodeCoverage;
+    // private codecoverage: CodeCoverage;
     private runSettings: RunSettings;
 
     constructor(environment: IEnvironment, messageSender: MessageSender, testFramework: SupportedFramework) {
         this.environment = environment;
         this.messageSender = messageSender;
         this.onComplete = environment.createEvent();
-        this.testFramework = this.testFrameworkFactory.getTestFramework(testFramework);
         this.testFrameworkFactory = new TestFrameworkFactory(this.environment);
+        this.testFramework = this.testFrameworkFactory.getTestFramework(testFramework);
     }
 
     public discoverTests(criteria: DiscoveryCriteria): Promise<void> {
@@ -69,7 +69,7 @@ export class TestRunner {
         
         const sources = criteria.AdapterSourceMap[Object.keys(criteria.AdapterSourceMap)[0]];
     
-        this.codecoverage = new CodeCoverage(sources[0]);
+        // this.codecoverage = new CodeCoverage(sources[0]);
         return this.startExecution(criteria.TestExecutionContext, this.testFramework, () => {
             this.testFramework.startExecutionWithSource(sources[0]);
         }, sources[0]);
@@ -126,7 +126,8 @@ export class TestRunner {
                         jobCallback(err);
                     });
                     domain.run(() => {
-                        this.codecoverage.startCoverage(executeJob);
+                        // this.codecoverage.startCoverage(executeJob);
+                        executeJob();
                     });
                 } else if (this.environment.environmentType === EnvironmentType.Browser) {
                     throw new Exception('TestRunner.runInIsolation: Not implemented for browser',
@@ -145,7 +146,7 @@ export class TestRunner {
 
     private executionComplete(args: TestSessionEventArgs, err?: Error): void {
         console.log('test session end trigger');
-        this.codecoverage.stopCoverage();
+        // this.codecoverage.stopCoverage();
 
         if (err) {
             this.messageSender.sendMessage(err.stack ?
@@ -216,7 +217,7 @@ export class TestRunner {
         TestCaseStart: (sender: object, args: TestSpecEventArgs) => {
             console.log('adding test case to cache');
 
-            if (this.runSettings.isDataCollectionEnabled) {
+            if (this.runSettings.isDataCollectionEnabled()) {
                 const testCaseStart = <TestCaseStartEventArgs> {
                     TestCaseId: args.TestCase.Id,
                     TestCaseName: args.TestCase.DisplayName,
@@ -234,7 +235,7 @@ export class TestRunner {
 
             let attachments: Array<AttachmentSet> = [];
 
-            if (this.runSettings.isDataCollectionEnabled) {
+            if (this.runSettings.isDataCollectionEnabled()) {
                 const testCaseEnd = <TestCaseEndEventArgs> {
                     TestOutcome: args.Outcome,
                     TestCaseId: args.TestCase.Id,

@@ -141,7 +141,7 @@ namespace Microsoft.VisualStudio.JSTestHostRuntimeProvider
         /// Dependency resolution for .net core projects are pivoted by the test project. Hence each test
         /// project must be launched in a separate test host process.
         /// </remarks>
-        public bool Shared => false;
+        public bool Shared => true;
 
         /// <inheritdoc/>
         public void Initialize(IMessageLogger logger, string runsettingsXml)

@@ -25,11 +25,12 @@ export class TestHost {
         this.sessionEnded = false;
 
         this.communicationManager = environment.createCommunicationManager();
-        this.initializeCommunication();
         
         this.jobQueue = new JobQueue();
         this.messageSender = new MessageSender(this.communicationManager);
         this.testRunner = new TestRunner(environment, this.messageSender, this.argumentProcessor.testFramework);
+        
+        this.initializeCommunication();
     }
 
     private initializeCommunication() {

@@ -34,15 +34,21 @@ export abstract class BaseTestFramework implements ITestFramework {
 
     protected handleSessionStarted() {
         const start = new Date();
-                this.sessionEventArgs = {
-                    SessionId: String(start.getTime()),
-                    Source: this.source,
-                    StartTime: start,
-                    InProgress: true,
-                    EndTime: null
-                };
 
-                this.testFrameworkEvents.onTestSessionStart.raise(this, this.sessionEventArgs);
+        let id = '';
+        while (id === '') {
+            id = String(start.getTime());
+        }
+
+        this.sessionEventArgs = {
+            SessionId: id,
+            Source: this.source,
+            StartTime: start,
+            InProgress: true,
+            EndTime: null
+        };
+
+        this.testFrameworkEvents.onTestSessionStart.raise(this, this.sessionEventArgs);
     }
 
     protected handleSessionDone() {
