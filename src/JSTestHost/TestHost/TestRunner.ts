@@ -32,47 +32,61 @@ export class TestRunner {
 
     private testExecutionCache: TestExecutionCache;
     private testDiscoveryCache: TestDiscoveryCache;
-    private currentTestSession: TestSessionEventArgs;
+    private testSessionBucket: Map<string, TestSessionEventArgs>;
+    private sessionCompleteCount: number;
     // private codecoverage: CodeCoverage;
     private runSettings: RunSettings;
 
     constructor(environment: IEnvironment, messageSender: MessageSender, testFramework: SupportedFramework) {
         this.environment = environment;
+
+        if (this.environment.environmentType !== EnvironmentType.NodeJS) {
+            throw new Exception('Not implemented', ExceptionType.NotImplementedException);
+        }
+
         this.messageSender = messageSender;
         this.onComplete = environment.createEvent();
         this.testFrameworkFactory = new TestFrameworkFactory(this.environment);
         this.testFramework = this.testFrameworkFactory.getTestFramework(testFramework);
     }
 
-    public discoverTests(criteria: DiscoveryCriteria): Promise<void> {
-        this.setRunSettingsFromXml(criteria.RunSettings);
+    // public discoverTests(criteria: DiscoveryCriteria): Promise<void> {
+    //     this.setRunSettingsFromXml(criteria.RunSettings);
         
-        const sources = criteria.AdapterSourceMap[Object.keys(criteria.AdapterSourceMap)[0]];
+    //     const sources = criteria.AdapterSourceMap[Object.keys(criteria.AdapterSourceMap)[0]];
 
-        this.testDiscoveryCache = new TestDiscoveryCache(this.environment,
-                                                         criteria.FrequencyOfDiscoveredTestsEvent,
-                                                         criteria.DiscoveredTestEventTimeout);
+    //     this.testDiscoveryCache = new TestDiscoveryCache(this.environment,
+    //                                                      criteria.FrequencyOfDiscoveredTestsEvent,
+    //                                                      criteria.DiscoveredTestEventTimeout);
 
-        this.testDiscoveryCache.onReportTestCases.subscribe(this.testDiscoveryStatsChange);
+    //     this.testDiscoveryCache.onReportTestCases.subscribe(this.testDiscoveryStatsChange);
 
-        this.discoveryEventHandlers.Subscribe(this.testFramework);
+    //     this.discoveryEventHandlers.Subscribe(this.testFramework);
         
-        return this.createCompletionPromise(() => {
-            this.testFramework.startDiscovery(sources[0]);
-        }, (e) => {
-            this.discoveryComplete(null, e);
-        });
-    }
+    //     return this.createCompletionPromise(() => {
+    //         this.testFramework.startDiscovery(sources[0]);
+    //     }, (e) => {
+    //         this.discoveryComplete(null, e);
+    //     });
+    // }
 
     public startTestRunWithSources(criteria: TestRunCriteriaWithSources): Promise<void> {
-        this.setRunSettingsFromXml(criteria.RunSettings);
+        // this.setRunSettingsFromXml(criteria.RunSettings);
         
-        const sources = criteria.AdapterSourceMap[Object.keys(criteria.AdapterSourceMap)[0]];
+        // const sourceList: Array<string> = [];
+
+        // for (let key in Object.keys(criteria.AdapterSourceMap)) {
+        //     sourceList.concat(criteria)
+        // }
+
+        // const sources = criteria.AdapterSourceMap[Object.keys(criteria.AdapterSourceMap)[0]];
     
-        // this.codecoverage = new CodeCoverage(sources[0]);
-        return this.startExecution(criteria.TestExecutionContext, this.testFramework, () => {
-            this.testFramework.startExecutionWithSource(sources[0]);
-        }, sources[0]);
+        // // this.codecoverage = new CodeCoverage(sources[0]);
+        // return this.startExecution(criteria.TestExecutionContext, this.testFramework, () => {
+        //     this.testFramework.startExecutionWithSource(sources[0]);
+        // }, sources[0]);
+
+
     }
 
     public startTestRunWithTests(criteria: TestRunCriteriaWithTests): Promise<void> {
@@ -102,42 +116,59 @@ export class TestRunner {
         this.runSettings = new RunSettings(runSettingsXml, this.environment.getXmlParser());
     }
 
-    private startExecution(executionContext: TestExecutionContext, framework: ITestFramework, executeJob: () => void, source?: string):
-    Promise<void> {
-        this.testExecutionCache = new TestExecutionCache(this.environment,
-                                                         executionContext.FrequencyOfRunStatsChangeEvent,
-                                                         executionContext.RunStatsChangeEventTimeout);
+    private startExecution(executionContext: TestExecutionContext, executeJob: () => void, sourceList: Array<string>): Promise<void> {
+        // this.testExecutionCache = new TestExecutionCache(this.environment,
+        //                                                  executionContext.FrequencyOfRunStatsChangeEvent,
+        //                                                  executionContext.RunStatsChangeEventTimeout);
 
-        this.testExecutionCache.onTestRunStatsChange.subscribe(this.testRunStatsChange);
-        this.executionEventHandlers.Subscribe(framework);
-        return this.createCompletionPromise(executeJob, (e) => {
-            this.executionComplete(null, e);
-        });
-    }
+        // this.testExecutionCache.onTestRunStatsChange.subscribe(this.testRunStatsChange);
+        // this.executionEventHandlers.Subscribe(framework);
+        // return this.createCompletionPromise(executeJob, (e) => {
+        //     this.executionComplete(null, e);
+        // });
 
-    private createCompletionPromise(executeJob: () => void , jobCallback: (e?: Error) => void, source?: string): Promise<void> {
-        return new Promise((resolve) => {
+        // tslint:disable-next-line:no-require-imports
+        const domain = require('domain');
+
+        sourceList.forEach(source => {
+            const executionDomain = domain.create();
             try {
-                if (this.environment.environmentType === EnvironmentType.NodeJS) {
-                    // tslint:disable-next-line:no-require-imports
-                    const domain = require('domain').create();
-        
-                    domain.on('error', (err: Error) => {
-                        jobCallback(err);
-                    });
-                    domain.run(() => {
-                        // this.codecoverage.startCoverage(executeJob);
-                        executeJob();
-                    });
-                } else if (this.environment.environmentType === EnvironmentType.Browser) {
-                    throw new Exception('TestRunner.runInIsolation: Not implemented for browser',
-                                        ExceptionType.NotImplementedException);
-                }
+                domain.on('error', (err: Error) => {
+                    this.sessionComplete(source, null, err);
+                });
+                domain.run(() => {
+                    // this.codecoverage.startCoverage(executeJob);
+                    executeJob();
+                });
             } catch (err) {
-                this.executionComplete(null, err);
+                console.error('domain did not catch the error. hmmmm');
+                this.sessionComplete(source, null, err);
                 // TODO log message
             }
+        });
 
+        return this.getCompletetionPromise();
+    }
+
+    private sessionComplete(source: string, args?: TestSessionEventArgs, err?: Error) {
+        if (err) {
+            this.messageSender.sendMessage(err.stack ?
+                err.stack :
+                (err.constructor.name + ': ' + err.message + ' at ' + source),
+            TestMessageLevel.Error);
+        }
+
+        if (args) {
+            this.testSessionBucket.set(source, args);
+        } else {
+            const args: TestSessionEventArgs = this.testSessionBucket.get(source);
+            args.InProgress = false;
+            args.EndTime = new Date();
+        }
+    }
+
+    private getCompletetionPromise(): Promise<void> {
+        return new Promise((resolve) => {
             this.onComplete.subscribe((sender: object, args: IEventArgs) => {
                 resolve();
             });
@@ -148,12 +179,6 @@ export class TestRunner {
         console.log('test session end trigger');
         // this.codecoverage.stopCoverage();
 
-        if (err) {
-            this.messageSender.sendMessage(err.stack ?
-                err.stack :
-                (err.constructor.name + ': ' + err.message + ' at ' + this.currentTestSession.Source),
-            TestMessageLevel.Error);
-        }
 
         const remainingTestResults = this.testExecutionCache.cleanCache();
         const timeElapsed = args ? 
@@ -175,7 +200,7 @@ export class TestRunner {
             TestRunCompleteArgs: testRunCompleteEventArgs,
             LastRunTests: remainingTestResults,
             RunAttachments: [],
-            ExecutorUris: ['executor: //JasmineTestAdapter/v1']
+            ExecutorUris: ['executor: //JasmineTestAdapter/v1']     // TODO hardcoded 
         };
 
         this.messageSender.sendExecutionComplete(testRuncompletePayload);
@@ -206,11 +231,19 @@ export class TestRunner {
         },
 
         TestSessionStart: (sender: object, args: TestSessionEventArgs) => {
-            this.currentTestSession = args;
+            if (this.testSessionBucket.has(args.Source)) {
+                // log session duplication
+            }
+            this.testSessionBucket.set(args.Source, args);
         },
 
         TestSessionEnd: (sender: object, args: TestSessionEventArgs) => {
             console.log('test session end trigger');
+            if (this.testSessionBucket.has(args.Source)) {
+                this.testSessionBucket.delete(args.Source);
+            } else {
+                // log test session should've been in bucket. testsessionstart was not called?
+            }
             this.executionComplete(args);
         },
 
