@@ -33,7 +33,6 @@ describe('EnvironmentProvider Suite', () => {
             }).catch((err) => {
                 done(err);
             });
-            setTimeout(() => { process.exit(13); }, 1000);
         });
     });
 });
