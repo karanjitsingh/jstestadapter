@@ -41,8 +41,7 @@ export namespace ArgumentProcessor  {
 
         let argument: Argument = null;
 
-        args = args.slice(2);
-        args.forEach((arg) => {
+        args.slice(2).forEach((arg) => {
             if (arg.match(optionRegex)) {
                 argument = {
                     Option: arg.toLowerCase(),
@@ -100,7 +99,6 @@ export namespace ArgumentProcessor  {
                     }
                     break;
             }
-                
         });
 
         return testHostSettings;

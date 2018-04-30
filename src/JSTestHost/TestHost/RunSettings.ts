@@ -11,11 +11,16 @@ export class RunSettings {
     }
 
     public isDataCollectionEnabled(): boolean {
-        if (this.runSettings[Constants.DataCollectionRunSettingsName]) {
-            if (this.runSettings[Constants.DataCollectionRunSettingsName][Constants.DataCollectorsSettingName]) {
-                const dataCollectors = this.runSettings[Constants.DataCollectionRunSettingsName][Constants.DataCollectorsSettingName];
-                return dataCollectors.length;
+        try {
+            if (this.runSettings[Constants.DataCollectionRunSettingsName]) {
+                if (this.runSettings[Constants.DataCollectionRunSettingsName][Constants.DataCollectorsSettingName]) {
+                    const dataCollectors = this.runSettings[Constants.DataCollectionRunSettingsName][Constants.DataCollectorsSettingName];
+                    return Object.keys(dataCollectors).length > 0;
+                }
             }
+        } catch (e) {
+            return false;
         }
+        return false;
     }
  }

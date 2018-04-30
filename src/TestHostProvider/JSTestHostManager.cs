@@ -252,7 +252,7 @@ namespace Microsoft.VisualStudio.JSTestHostRuntimeProvider
             //processInfo.EnvironmentVariables.Add("NODE_DEBUG", "module");
 
             processInfo.Arguments = string.Format(
-                " -r source-map-support {0} {1} {2} {3}",
+                " -r source-map-support/register {0} {1} {2} {3}",
                 debug ? "--inspect-brk=9229" : "",
                 jstesthost,
                 $"--endpoint {connectionInfo.ConnectionInfo.Endpoint}",

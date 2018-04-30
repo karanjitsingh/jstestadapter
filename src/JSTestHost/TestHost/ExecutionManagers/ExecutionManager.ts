@@ -143,7 +143,7 @@ export class ExecutionManager extends BaseExecutionManager {
                 const testCaseStart = <TestCaseStartEventArgs> {
                     TestCaseId: args.TestCase.Id,
                     TestCaseName: args.TestCase.DisplayName,
-                    TestElement: null,
+                    TestElement: args.TestCase,
                     IsChildTestCase: false              // TODO what is child test case
                 };
                 this.messageSender.sendTestCaseStart(testCaseStart);
@@ -162,7 +162,7 @@ export class ExecutionManager extends BaseExecutionManager {
                     TestOutcome: args.Outcome,
                     TestCaseId: args.TestCase.Id,
                     TestCaseName: args.TestCase.DisplayName,
-                    TestElement: null,
+                    TestElement: args.TestCase,
                     IsChildTestCase: false              // TODO what is is child test case
                 };
                 attachments = this.messageSender.sendTestCaseEnd(testCaseEnd);

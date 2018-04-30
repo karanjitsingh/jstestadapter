@@ -20,15 +20,17 @@ export class TestHost {
 
     constructor(environment: IEnvironment) {
         this.environment = environment;
+        this.sessionEnded = false;
+        this.jobQueue = new JobQueue();
         this.testHostSettings = ArgumentProcessor.processArguments(this.environment.argv);
         
-        this.sessionEnded = false;
-
+        let dcCommManager: ICommunicationManager;
+        if (this.testHostSettings.DataCollectionPort) {
+            dcCommManager = environment.createCommunicationManager();
+            dcCommManager.connectToServer(this.testHostSettings.DataCollectionPort, this.testHostSettings.EndpointIP);
+        }
         this.communicationManager = environment.createCommunicationManager();
-        
-        this.jobQueue = new JobQueue();
-        this.messageSender = new MessageSender(this.communicationManager);
-        // this.testRunner = new TestRunner(environment, this.messageSender, this.argumentProcessor.testFramework);
+        this.messageSender = new MessageSender(this.communicationManager, dcCommManager);
         
         this.initializeCommunication();
     }

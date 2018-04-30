@@ -17,7 +17,6 @@ describe('Node/CommunicationManager Suite', () => {
     });
 
     it('connectToServer will call socket.connect', (done: any) => {
-        console.error('test ran');
         let callBackConfirm = false;
         commManager.connectToServer(1234, '127.0.0.1', () => { callBackConfirm = true; });
         mockSocket.verify((x) => x.connect(It.isValue(1234), It.isValue('127.0.0.1'), It.isAny()), Times.once());
