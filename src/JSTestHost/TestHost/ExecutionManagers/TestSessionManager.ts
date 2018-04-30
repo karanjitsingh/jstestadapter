@@ -7,10 +7,12 @@ interface TestSession {
     TestSessionEventArgs: TestSessionEventArgs;
     Job: () => void;
     ErrorCallback: (err: Error) => void;
+    Complete: boolean;
 }
 
 export class TestSessionManager {
-    private testSessionBucket: Map<string, TestSessionEventArgs>;
+    private testSessionBucket: Map<string, TestSession>;
+    private testSessionIterator: IterableIterator<TestSession>;
     private sessionCompleteCount: number;
     private sessionCount: number;
     public onSessionsComplete: IEvent<IEventArgs>;
@@ -20,11 +22,24 @@ export class TestSessionManager {
         this.sessionCompleteCount = 0;
         this.onSessionsComplete = environment.createEvent();
         this.testSessionBucket = new Map();
+        this.testSessionIterator = this.testSessionBucket.values();
     }
 
     public setSessionComplete(args: TestSessionEventArgs) {
-        this.sessionCompleteCount++;
-        this.testSessionBucket.set(args.Source, args);
+        const testSession = this.testSessionBucket.get(args.Source);
+        testSession.TestSessionEventArgs = args;
+        if (!testSession.Complete) {
+            this.sessionCompleteCount++;
+
+            const nextSession = this.testSessionIterator.next();
+
+            if (!nextSession.done) {
+                this.runSessionInDomain(nextSession.value);
+            }
+        }
+        testSession.Complete = true;
+
+        this.testSessionBucket.set(args.Source, testSession);
 
         // Check for all session completion
         if (this.sessionCount === this.sessionCompleteCount) {
@@ -37,20 +52,26 @@ export class TestSessionManager {
             Source: source,
             TestSessionEventArgs: null,
             Job: job,
-            ErrorCallback: errorCallback
+            ErrorCallback: errorCallback,
+            Complete: false
         };
 
-        this.testSessionBucket.set(source, null);
+        this.testSessionBucket.set(source, testSession);
         this.sessionCount++;
-        this.runSessionInDomain(testSession);
+
+        if (this.sessionCount === 1) {
+            this.runSessionInDomain(this.testSessionIterator.next().value);
+        }
     }
 
     public updateSessionEventArgs(args: TestSessionEventArgs) {
-        this.testSessionBucket.set(args.Source, args);
+        const testSession = this.testSessionBucket.get(args.Source);
+        testSession.TestSessionEventArgs = args;
+        this.testSessionBucket.set(args.Source, testSession);
     }
 
     public getSessionEventArgs(source: string): TestSessionEventArgs {
-        return this.testSessionBucket.get(source);
+        return this.testSessionBucket.get(source).TestSessionEventArgs;
     }
 
     private runSessionInDomain(testSession: TestSession) {

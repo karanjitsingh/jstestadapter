@@ -90,7 +90,7 @@ export class ExecutionManager extends BaseExecutionManager {
         this.testSessionManager.setSessionComplete(currentSession);
     }
 
-    private executionComplete(): void {
+    private executionComplete = () => {
         console.log('test session end trigger');
 
         const remainingTestResults = this.testExecutionCache.cleanCache();

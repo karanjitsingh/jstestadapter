@@ -65,7 +65,7 @@ export class DiscoveryManager extends BaseExecutionManager {
         this.testSessionManager.setSessionComplete(currentSession);
     }
 
-    private discoveryComplete() {
+    private discoveryComplete = () => {
         console.log('discovery complete');
 
         const remainingTests = this.testDiscoveryCache.cleanCache();
