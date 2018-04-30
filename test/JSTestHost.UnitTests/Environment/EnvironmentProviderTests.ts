@@ -24,7 +24,6 @@ describe('EnvironmentProvider Suite', () => {
 
     environments.forEach(data => {
         it('EnvironmentProvider will return right environment', (done: any) => {
-            // data.setup();
             const envPromise = new TestableEnvironmentProvider(data.isBrowser).getEnvironment();
             envPromise.then((value) => {
                 Assert.equal(value.environmentType === data.envType, true, 'Instance should be ' + data.folderName + 'Environment');
@@ -34,6 +33,7 @@ describe('EnvironmentProvider Suite', () => {
             }).catch((err) => {
                 done(err);
             });
+            setTimeout(() => { process.exit(13); }, 1000);
         });
     });
 });

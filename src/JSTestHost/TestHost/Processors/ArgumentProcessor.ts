@@ -1,50 +1,132 @@
 import { SupportedFramework } from '../TestFrameworks/TestFrameworkFactory';
 import { ExceptionType, Exception } from '../../Exceptions';
+import { TestHostSettings } from '../TestHostSettings';
 
-const endpointRegex = /^(?!.*\.$)((?!0\d)(1?\d?\d|25[0-5]|2[0-4]\d)(\.|$)){4}:[0-9]+$/;
+const endpointIpRegex = /^(?!.*\.$)((?!0\d)(1?\d?\d|25[0-5]|2[0-4]\d)(\.|$)){4}$/;
 
-export class ArgumentProcessor  {
+interface Argument {
+    Option: string;
+    Value: string;
+}
 
-    public readonly ip: string;
-    public readonly port: number;
-    public readonly testFramework: SupportedFramework;
+enum Option {
+    TestFrameworkArgument = '--framework',
+    EndpointArgument = '--endpoint',
+    RoleArgument = '--role',
+    ParentProcessIdArgument = '--parentprocessid',
+    LogFileArgument = '--diag',
+    DataCollectionPortArgument = '--datacollectionport',
+    TelemetryOptedIn = '--telemetryoptedin'
+}
 
-    constructor(cliargs: Array<string>) {
-        this.processArguments(cliargs);
-        const endpoint = cliargs[2].split(':');
-        this.ip = endpoint[0];
-        this.port = Number(endpoint[1]);
-        
-        switch (cliargs[3] === undefined || cliargs[3].toLowerCase()) {
-            case 'mocha':
-                this.testFramework = SupportedFramework.Mocha;
-                break;
-            case 'jasmine':
-                this.testFramework = SupportedFramework.Jasmine;
-                break;
-        }
+export namespace ArgumentProcessor  {
+    const requiredArguments: Array<Option> = [
+        Option.TestFrameworkArgument,
+        Option.EndpointArgument
+    ];
+
+    export function processArguments(args: Array<string>): TestHostSettings {
+        const optionRegex = /^--[a-z]+$/i;
+        const options = new Map<string, Argument>();
+        const testHostSettings: TestHostSettings = <TestHostSettings>{
+            TestFramework: null,
+            Port: null,
+            EndpointIP: null,
+            Role: null,
+            PPID: null,
+            LogFile: null,
+            DataCollectionPort: null,
+            TelemetryOptedIn: null
+        };
+
+        let argument: Argument = null;
+
+        args = args.slice(2);
+        args.forEach((arg) => {
+            if (arg.match(optionRegex)) {
+                argument = {
+                    Option: arg.toLowerCase(),
+                    Value: null
+                };
+                options.set(arg.toLowerCase(), argument);
+            } else {
+                if (!argument.Value) {
+                    argument.Value = arg;
+                    options.set(argument.Option, argument);
+                } else {
+                    throw new Exception('Invalid argument \'' + arg + '\'.', ExceptionType.InvalidArgumentsException);
+                }
+            }
+        });
+
+        validateRequiredArguments(options);
+
+        options.forEach(option => {
+            validateArgument(option);
+            switch (option.Option) {
+                case Option.TestFrameworkArgument:
+                    switch (option.Value) {
+                        case 'mocha':
+                            testHostSettings.TestFramework = SupportedFramework.Mocha;
+                            break;
+                        case 'jasmine':
+                            testHostSettings.TestFramework = SupportedFramework.Jasmine;
+                            break;
+                        default:
+                            throw new Exception('Unknown framework \'' + option.Value + '\'', ExceptionType.InvalidArgumentsException);
+                    }
+                    break;
+                case Option.EndpointArgument:
+                    const endpoint = option.Value.split(':');
+                    const ip = endpoint[0];
+                    const port = endpoint[1];
+                    if (ip.match(endpointIpRegex)) {
+                        testHostSettings.EndpointIP = ip;
+                    } else {
+                        throw new Exception('Invalid enpoint.', ExceptionType.InvalidArgumentsException);
+                    }
+
+                    if (port && port.match(/[0-9]+/) && Number(port) < 65536) {
+                        testHostSettings.Port = Number(port);
+                    } else {
+                        throw new Exception('Invalid port.', ExceptionType.InvalidArgumentsException);
+                    }
+                    break;
+                case Option.DataCollectionPortArgument:
+                    if (option.Value.match(/[0-9]+/) && Number(option.Value) < 65536) {
+                        testHostSettings.DataCollectionPort = Number(option.Value);
+                    } else {
+                        throw new Exception('Invalid data collection port.', ExceptionType.InvalidArgumentsException);
+                    }
+                    break;
+            }
+                
+        });
+
+        return testHostSettings;
     }
 
-    private processArguments(args: Array<string>) {
-        if (args.length < 4) {
-            throw new Exception('Insufficient arguments', ExceptionType.InvalidArgumentsException);
-        }
-
-        if (args[2] === undefined || (args[2].match(endpointRegex) && Number(args[2].split(':')[0]) < 65536)) {
-            throw new Exception('Invalid endpoint.', ExceptionType.InvalidArgumentsException);
-        }
-
-        if (args[3] !== undefined && args[3].match(/^[a-z]+$/i)) {
-            switch (args[3].toLowerCase()) {
-                case 'mocha':
-                case 'jasmine':
-                    break;
-                default:
-                    throw new Exception(`Unknown test framework '${args[4]}'.`, ExceptionType.InvalidArgumentsException);
+    function validateRequiredArguments(options: Map<string, Argument>) {
+        requiredArguments.forEach(arg => {
+            if (!options.has(arg.toLowerCase())) {
+                throw new Exception('Required option ' + arg + ' not given.', ExceptionType.InvalidArgumentsException);
             }
-        } else {
-            throw new Exception('Missing test framework argument.', ExceptionType.InvalidArgumentsException);
-        }
+        });
+    }
 
+    function validateArgument(option: Argument) {
+        switch (option.Option) {
+            case Option.TestFrameworkArgument:
+            case Option.EndpointArgument:
+            case Option.RoleArgument:
+            case Option.ParentProcessIdArgument:
+            case Option.LogFileArgument:
+            case Option.DataCollectionPortArgument:
+            case Option.TelemetryOptedIn:
+                if (option.Value === null) {
+                    throw new Exception('Option ' + option.Option + ' requires a value.', ExceptionType.InvalidArgumentsException);
+                }
+                break;
+        }
     }
 }
