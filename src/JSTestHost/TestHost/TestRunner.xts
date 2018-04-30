@@ -1,6 +1,6 @@
 import { ITestFramework, TestSessionEventArgs, TestSpecEventArgs, TestSuiteEventArgs } from '../ObjectModel/TestFramework';
 import { TestRunCompleteEventArgs, TestsDiscoveredEventArgs } from '../ObjectModel/EventArgs';
-import { TestRunCriteriaWithSources, DiscoveryCriteria, TestRunChangedEventArgs, TestRunCompletePayload,
+import { TestRunCriteriaWithSources, TestRunChangedEventArgs, TestRunCompletePayload,
          TestRunCriteriaWithTests, TestExecutionContext, TestCaseStartEventArgs, TestCaseEndEventArgs } from '../ObjectModel/Payloads';
 import { TestMessageLevel, TestResult, AttachmentSet } from '../ObjectModel';
 import { EnvironmentType, IEvent, IEventArgs, TestCase } from '../ObjectModel/Common';
@@ -32,8 +32,7 @@ export class TestRunner {
 
     private testExecutionCache: TestExecutionCache;
     private testDiscoveryCache: TestDiscoveryCache;
-    private testSessionBucket: Map<string, TestSessionEventArgs>;
-    private sessionCompleteCount: number;
+
     // private codecoverage: CodeCoverage;
     private runSettings: RunSettings;
 

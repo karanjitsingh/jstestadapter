@@ -4,15 +4,14 @@ import { IEnvironment } from '../Environment/IEnvironment';
 import { ICommunicationManager, MessageReceivedEventArgs } from '../Environment/ICommunicationManager';
 import { Exception, ExceptionType } from '../Exceptions/Exception';
 import { JobQueue } from '../Utils/JobQueue';
-import { TestRunner } from './TestRunner';
 import { MessageSender } from './MessageSender';
 import { ArgumentProcessor } from './Processors/ArgumentProcessor';
+import { ExecutionManager, DiscoveryManager } from './ExecutionManagers';
 
 export class TestHost {
     private readonly environment: IEnvironment;
     private readonly communicationManager: ICommunicationManager;
     private readonly jobQueue: JobQueue;
-    private readonly testRunner: TestRunner;
     private readonly messageSender: MessageSender;
     private readonly argumentProcessor: ArgumentProcessor;
 
@@ -28,7 +27,7 @@ export class TestHost {
         
         this.jobQueue = new JobQueue();
         this.messageSender = new MessageSender(this.communicationManager);
-        this.testRunner = new TestRunner(environment, this.messageSender, this.argumentProcessor.testFramework);
+        // this.testRunner = new TestRunner(environment, this.messageSender, this.argumentProcessor.testFramework);
         
         this.initializeCommunication();
     }
@@ -55,18 +54,24 @@ export class TestHost {
                 break;
 
             case MessageType.StartTestExecutionWithSources:
+                const executionManager = new ExecutionManager(this.environment, this.messageSender, this.argumentProcessor.testFramework);
+    
                 const runWithSourcesPayload = <TestRunCriteriaWithSources>message.Payload;
-                this.jobQueue.queuePromise(this.testRunner.startTestRunWithSources(runWithSourcesPayload));
+                this.jobQueue.queuePromise(executionManager.startTestRunWithSources(runWithSourcesPayload));
                 break;
 
             case MessageType.StartTestExecutionWithTests:
+                const executionManager2 = new ExecutionManager(this.environment, this.messageSender, this.argumentProcessor.testFramework);
+    
                 const runWithTestsPayload = <TestRunCriteriaWithTests>message.Payload;
-                this.jobQueue.queuePromise(this.testRunner.startTestRunWithTests(runWithTestsPayload));
+                this.jobQueue.queuePromise(executionManager2.startTestRunWithTests(runWithTestsPayload));
                 break;
 
             case MessageType.StartDiscovery:
+                const discoveryManager = new DiscoveryManager(this.environment, this.messageSender, this.argumentProcessor.testFramework);
+
                 const discoveryPayload = <DiscoveryCriteria>message.Payload;
-                this.jobQueue.queuePromise(this.testRunner.discoverTests(discoveryPayload));
+                this.jobQueue.queuePromise(discoveryManager.discoverTests(discoveryPayload));
                 break;
 
             case MessageType.SessionEnd:

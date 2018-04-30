@@ -12,36 +12,38 @@ export enum SupportedFramework {
 
 // tslint:disable:no-stateless-class
 export class TestFrameworkFactory {
-    private testFrameworkEvents: ITestFrameworkEvents;
-    private environmentType: EnvironmentType;
-    private frameworkCache: {[supportedFramework: number]: (testFrameworkEvents: ITestFrameworkEvents,
-                                                       environmentType: EnvironmentType) => void } = [];
+    private readonly environment: IEnvironment;
+    private readonly frameworkCache: {[supportedFramework: number]: (testFrameworkEvents: ITestFrameworkEvents,
+                                                       environmentType: EnvironmentType) => void };
 
     constructor(environment: IEnvironment) {
-        this.environmentType = environment.environmentType;
-        
-        this.testFrameworkEvents = <ITestFrameworkEvents> {
-            onTestCaseEnd: environment.createEvent(),
-            onTestCaseStart: environment.createEvent(),
-            onTestSuiteStart: environment.createEvent(),
-            onTestSuiteEnd: environment.createEvent(),
-            onTestSessionStart: environment.createEvent(),
-            onTestSessionEnd: environment.createEvent()
-        };
+        this.environment = environment;
+        this.frameworkCache = [];
     }
     
-    public getTestFramework(framework: SupportedFramework): ITestFramework {
-        if (this.environmentType === EnvironmentType.NodeJS) {
+    public createTestFramework(framework: SupportedFramework): ITestFramework {
+        if (this.environment.environmentType === EnvironmentType.NodeJS) {
             // Check cache otherwise populate it
             if (!this.frameworkCache[framework]) {
                 this.frameworkCache[framework] = this.dynamiclyLoadConstructor(framework);
             }
-            return new this.frameworkCache[framework](this.testFrameworkEvents, this.environmentType);
+            return new this.frameworkCache[framework](this.createFrameworkEvents(), this.environment.environmentType);
 
-        } else if (this.environmentType === EnvironmentType.Browser) {
+        } else if (this.environment.environmentType === EnvironmentType.Browser) {
             throw new Exception('TestFrameworkFactory.getTestFramework(): Not implemented for browser',
                                 ExceptionType.NotImplementedException);
         }
+    }
+
+    private createFrameworkEvents(): ITestFrameworkEvents {
+        return <ITestFrameworkEvents> {
+            onTestCaseEnd: this.environment.createEvent(),
+            onTestCaseStart: this.environment.createEvent(),
+            onTestSuiteStart: this.environment.createEvent(),
+            onTestSuiteEnd: this.environment.createEvent(),
+            onTestSessionStart: this.environment.createEvent(),
+            onTestSessionEnd: this.environment.createEvent()
+        };
     }
 
     private dynamiclyLoadConstructor(framework: SupportedFramework) : any {

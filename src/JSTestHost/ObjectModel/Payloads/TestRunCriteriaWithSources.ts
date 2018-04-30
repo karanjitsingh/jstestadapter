@@ -1,7 +1,7 @@
 import { TestExecutionContext } from '.';
 
 export interface TestRunCriteriaWithSources {
-    AdapterSourceMap: JSON;
+    AdapterSourceMap: {[key: string]: Array<string>};
     RunSettings: string;
     TestExecutionContext: TestExecutionContext;
     Package: string;
