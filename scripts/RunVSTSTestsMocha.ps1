@@ -1,4 +1,4 @@
-../node_modules/.bin/mocha.cmd `
+D:\vsts-tasks\node_modules\.bin\mocha.cmd `
 "D:/vsts-tasks/_build/Tasks/AndroidSigning/Tests/L0.js" `
 "D:/vsts-tasks/_build/Tasks/AppCenterDistribute/Tests/L0.js" `
 "D:/vsts-tasks/_build/Tasks/AppCenterTest/Tests/L0.js" `
