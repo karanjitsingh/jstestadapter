@@ -8,9 +8,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		NuGet.config = NuGet.config
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JSTestHostRuntimeProvider", "src\TestHostProvider\JSTestHostRuntimeProvider.csproj", "{7571D3F4-6603-41F8-A806-F322713A676F}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A6078738-4435-4351-90B7-2CBAF778A023}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JSCodeCoverageDataCollector", "src\CodeCoverageDataCollector\JSCodeCoverageDataCollector\JSCodeCoverageDataCollector.csproj", "{0888281C-1387-4D70-AECB-CB3D2F6DC28B}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{13A0564A-48C6-4B51-99DD-5146C9F8027F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JSTest", "src\JSTest\JSTest.csproj", "{832CF89A-268A-4E1B-BD5D-1F621877121F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSAdapter", "src\VSAdapter\VSAdapter.csproj", "{E057A47A-AE7F-482C-ADB3-FF5C44BD75A2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,21 +22,21 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{7571D3F4-6603-41F8-A806-F322713A676F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7571D3F4-6603-41F8-A806-F322713A676F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7571D3F4-6603-41F8-A806-F322713A676F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7571D3F4-6603-41F8-A806-F322713A676F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0888281C-1387-4D70-AECB-CB3D2F6DC28B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0888281C-1387-4D70-AECB-CB3D2F6DC28B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0888281C-1387-4D70-AECB-CB3D2F6DC28B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0888281C-1387-4D70-AECB-CB3D2F6DC28B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{832CF89A-268A-4E1B-BD5D-1F621877121F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{832CF89A-268A-4E1B-BD5D-1F621877121F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{832CF89A-268A-4E1B-BD5D-1F621877121F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{832CF89A-268A-4E1B-BD5D-1F621877121F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E057A47A-AE7F-482C-ADB3-FF5C44BD75A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E057A47A-AE7F-482C-ADB3-FF5C44BD75A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E057A47A-AE7F-482C-ADB3-FF5C44BD75A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E057A47A-AE7F-482C-ADB3-FF5C44BD75A2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{7571D3F4-6603-41F8-A806-F322713A676F} = {2B571660-C6A2-4351-BED8-12C8CED0D251}
-		{0888281C-1387-4D70-AECB-CB3D2F6DC28B} = {2B571660-C6A2-4351-BED8-12C8CED0D251}
+		{832CF89A-268A-4E1B-BD5D-1F621877121F} = {A6078738-4435-4351-90B7-2CBAF778A023}
+		{E057A47A-AE7F-482C-ADB3-FF5C44BD75A2} = {A6078738-4435-4351-90B7-2CBAF778A023}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FE119E53-2BC9-4A43-B209-FF9C125B5FAC}
