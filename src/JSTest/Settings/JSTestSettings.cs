@@ -6,17 +6,10 @@ namespace JSTest.Settings
 {
     public class JSTestSettings
     {
-        public JavaScriptRuntime Runtime;
-        public JSTestFramework TestFramework;
-        public bool Discovery
-        {
-            get; set;
-        }
-
-        public bool Parallel
-        {
-            get; set;
-        }
+        public JavaScriptRuntime Runtime { get; set; }
+        public JSTestFramework TestFramework { get; set; }
+        public bool Discovery { get; set; }
+        public bool Parallel { get; set; }
 
         // Copy constructor
         public JSTestSettings(JSTestSettings settings)      
