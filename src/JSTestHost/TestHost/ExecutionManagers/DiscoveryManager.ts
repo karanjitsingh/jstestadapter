@@ -1,8 +1,7 @@
-import { ITestFramework, TestSessionEventArgs, TestSpecEventArgs } from '../../ObjectModel/TestFramework';
+import { ITestFramework, TestSessionEventArgs, TestSpecEventArgs, TestFrameworks } from '../../ObjectModel/TestFramework';
 import { TestsDiscoveredEventArgs } from '../../ObjectModel/EventArgs';
-import { DiscoveryCriteria } from '../../ObjectModel/Payloads';
+import { DiscoveryCriteria } from '../../ObjectModel/TPPayloads';
 import { TestMessageLevel } from '../../ObjectModel';
-import { SupportedFramework } from '../TestFrameworks/TestFrameworkFactory';
 import { TestDiscoveryCache } from '../TestCache';
 import { IEnvironment } from '../../Environment/IEnvironment';
 import { MessageSender } from '../MessageSender';
@@ -12,9 +11,9 @@ import { BaseExecutionManager } from './BaseExecutionManager';
 export class DiscoveryManager extends BaseExecutionManager {
 
     private testDiscoveryCache: TestDiscoveryCache;
-    private testFramework: SupportedFramework;
+    private testFramework: TestFrameworks;
 
-    constructor(environment: IEnvironment, messageSender: MessageSender, testFramework: SupportedFramework) {
+    constructor(environment: IEnvironment, messageSender: MessageSender, testFramework: TestFrameworks) {
         super(environment, messageSender, testFramework);
         this.testFramework = testFramework;
         this.testSessionManager.onSessionsComplete.subscribe(this.discoveryComplete);

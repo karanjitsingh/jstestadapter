@@ -4,7 +4,9 @@ using System.Text;
 
 namespace JSTest.Communication
 {
-    internal class MessageType
+    internal static class MessageType
     {
+        public const string TestRunSettings = "JSTest.TestRunSettings";
+        public const string VersionCheck = "ProtocolVersion";
     }
 }

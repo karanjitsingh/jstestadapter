@@ -1,11 +1,9 @@
-import { ITestFramework, TestSessionEventArgs, TestSpecEventArgs } from '../../ObjectModel/TestFramework';
+import { ITestFramework, TestSessionEventArgs, TestSpecEventArgs, TestFrameworks } from '../../ObjectModel/TestFramework';
 import { TestRunCompleteEventArgs } from '../../ObjectModel/EventArgs';
 import { TestRunCriteriaWithSources, TestRunChangedEventArgs, TestRunCompletePayload,
-         TestRunCriteriaWithTests, TestExecutionContext, TestCaseStartEventArgs, TestCaseEndEventArgs } from '../../ObjectModel/Payloads';
+         TestRunCriteriaWithTests, TestExecutionContext, TestCaseStartEventArgs, TestCaseEndEventArgs } from '../../ObjectModel/TPPayloads';
 import { TestMessageLevel, TestResult, AttachmentSet } from '../../ObjectModel';
 import { TestCase } from '../../ObjectModel/Common';
-import { SupportedFramework } from '../TestFrameworks/TestFrameworkFactory';
-import { CSharpException, Exception, ExceptionType } from '../../Exceptions';
 import { IEnvironment } from '../../Environment/IEnvironment';
 import { TimeSpan } from '../../Utils/TimeSpan';
 import { MessageSender } from '../MessageSender';
@@ -17,10 +15,10 @@ import { TestFrameworkEventHandlers } from '../TestFrameworks/TestFrameworkEvent
 export class ExecutionManager extends BaseExecutionManager {
 
     private testExecutionCache: TestExecutionCache;
-    private testFramework: SupportedFramework;
+    private testFramework: TestFrameworks;
     private startTime: Date;
 
-    constructor(environment: IEnvironment, messageSender: MessageSender, testFramework: SupportedFramework) {
+    constructor(environment: IEnvironment, messageSender: MessageSender, testFramework: TestFrameworks) {
         super(environment, messageSender, testFramework);
         this.testFramework = testFramework;
         this.testSessionManager.onSessionsComplete.subscribe(this.executionComplete);

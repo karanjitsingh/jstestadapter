@@ -1,14 +1,9 @@
 import { EnvironmentType } from '../../ObjectModel/Common';
-import { ITestFramework, ITestFrameworkEvents } from '../../ObjectModel/TestFramework';
+import { ITestFramework, ITestFrameworkEvents, TestFrameworks } from '../../ObjectModel/TestFramework';
 import { JasmineTestFramework } from './Jasmine/JasmineTestFramework';
 import { IEnvironment } from '../../Environment/IEnvironment';
 import { MochaTestFramework } from './Mocha/MochaTestFramework';
 import { Exception, ExceptionType } from '../../Exceptions';
-
-export enum SupportedFramework {
-    Jasmine,
-    Mocha
-}
 
 // tslint:disable:no-stateless-class
 export class TestFrameworkFactory {
@@ -21,7 +16,7 @@ export class TestFrameworkFactory {
         this.frameworkCache = [];
     }
     
-    public createTestFramework(framework: SupportedFramework): ITestFramework {
+    public createTestFramework(framework: TestFrameworks): ITestFramework {
         if (this.environment.environmentType === EnvironmentType.NodeJS) {
             // Check cache otherwise populate it
             if (!this.frameworkCache[framework]) {
@@ -46,11 +41,11 @@ export class TestFrameworkFactory {
         };
     }
 
-    private dynamiclyLoadConstructor(framework: SupportedFramework) : any {
+    private dynamiclyLoadConstructor(framework: TestFrameworks) : any {
         switch (framework) {
-            case SupportedFramework.Jasmine:
+            case TestFrameworks.Jasmine:
                 return JasmineTestFramework;    
-            case SupportedFramework.Mocha:
+            case TestFrameworks.Mocha:
                 return MochaTestFramework;
             default:
                 return null;

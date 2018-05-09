@@ -2,14 +2,14 @@ import { ICommunicationManager } from '../Environment/ICommunicationManager';
 import { TestMessageLevel, Message, MessageType, AttachmentSet } from '../ObjectModel';
 import { TestMessagePayload, TestRunCompletePayload, TestRunChangedEventArgs, DiscoveryCompletePayload,
          TestCaseStartEventArgs, 
-         TestCaseEndEventArgs} from '../ObjectModel/Payloads';
+         TestCaseEndEventArgs} from '../ObjectModel/TPPayloads';
 import { TestCase } from '../ObjectModel/Common';
 import { TestsDiscoveredEventArgs } from '../ObjectModel/EventArgs';
 
 export class MessageSender {
     private readonly tsCommManager: ICommunicationManager;
     private readonly dcCommManager: ICommunicationManager;
-    private readonly protocolVersion: number = 2;
+    public static readonly protocolVersion: number = 1;
 
     constructor(testSessionCommManager: ICommunicationManager, dataCollectionCommManager?: ICommunicationManager) {
         this.tsCommManager = testSessionCommManager;
@@ -17,7 +17,7 @@ export class MessageSender {
     }
 
     public sendVersionCheck() {
-        const versionCheckMessage = new Message(MessageType.VersionCheck, this.protocolVersion);
+        const versionCheckMessage = new Message(MessageType.VersionCheck, MessageSender.protocolVersion);
         this.tsCommManager.sendMessage(versionCheckMessage);
     }
 
@@ -27,20 +27,20 @@ export class MessageSender {
             Message: message
         };
 
-        this.tsCommManager.sendMessage(new Message(MessageType.TestMessage, testMessagePayload, this.protocolVersion));
+        this.tsCommManager.sendMessage(new Message(MessageType.TestMessage, testMessagePayload, MessageSender.protocolVersion));
     }
 
     public sendExecutionComplete(testRuncompletePayload: TestRunCompletePayload) {
-        this.tsCommManager.sendMessage(new Message(MessageType.ExecutionComplete, testRuncompletePayload, this.protocolVersion));
+        this.tsCommManager.sendMessage(new Message(MessageType.ExecutionComplete, testRuncompletePayload, MessageSender.protocolVersion));
     }
 
     public sendTestRunChange(testRunChangedEventArgs: TestRunChangedEventArgs) {
-        const testRunChangedMessage = new Message(MessageType.TestRunStatsChange, testRunChangedEventArgs, this.protocolVersion);
+        const testRunChangedMessage = new Message(MessageType.TestRunStatsChange, testRunChangedEventArgs, MessageSender.protocolVersion);
         this.tsCommManager.sendMessage(testRunChangedMessage);
     }
 
     public sendDiscoveryStatsChange(testFound: Array<TestCase>) {
-        const testsFoundMessage = new Message(MessageType.TestCasesFound, testFound, this.protocolVersion);
+        const testsFoundMessage = new Message(MessageType.TestCasesFound, testFound, MessageSender.protocolVersion);
         this.tsCommManager.sendMessage(testsFoundMessage);
     }
 
@@ -52,7 +52,7 @@ export class MessageSender {
             IsAborted: false
         };
 
-        const discoverCompleteMessage = new Message(MessageType.DiscoveryComplete, discoveryCompletePayload, this.protocolVersion);
+        const discoverCompleteMessage = new Message(MessageType.DiscoveryComplete, discoveryCompletePayload, MessageSender.protocolVersion);
         this.tsCommManager.sendMessage(discoverCompleteMessage);
     }
 
@@ -62,7 +62,9 @@ export class MessageSender {
             return;
         }
 
-        const testCaseStartMessage = new Message(MessageType.DataCollectionTestStart, testCaseStartEventArgs, this.protocolVersion);
+        const testCaseStartMessage = new Message(MessageType.DataCollectionTestStart,
+                                                 testCaseStartEventArgs,
+                                                 MessageSender.protocolVersion);
         this.dcCommManager.sendMessage(testCaseStartMessage);
 
         const message = this.dcCommManager.receiveMessageSync();
@@ -79,7 +81,7 @@ export class MessageSender {
 
         const attachmentSets: Array<AttachmentSet> = [];
 
-        const testCaseEndMessage = new Message(MessageType.DataCollectionTestEnd, testCaseEndEventArgs, this.protocolVersion);
+        const testCaseEndMessage = new Message(MessageType.DataCollectionTestEnd, testCaseEndEventArgs, MessageSender.protocolVersion);
         this.dcCommManager.sendMessage(testCaseEndMessage);
 
         const message = this.dcCommManager.receiveMessageSync();

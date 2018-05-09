@@ -1,6 +1,6 @@
-import { SupportedFramework } from '../TestFrameworks/TestFrameworkFactory';
 import { ExceptionType, Exception } from '../../Exceptions';
 import { TestHostSettings } from '../TestHostSettings';
+import { TestFrameworks } from '../../ObjectModel/TestFramework';
 
 const endpointIpRegex = /^(?!.*\.$)((?!0\d)(1?\d?\d|25[0-5]|2[0-4]\d)(\.|$)){4}$/;
 
@@ -66,10 +66,10 @@ export namespace ArgumentProcessor  {
                 case Option.TestFrameworkArgument:
                     switch (option.Value) {
                         case 'mocha':
-                            testHostSettings.TestFramework = SupportedFramework.Mocha;
+                            testHostSettings.TestFramework = TestFrameworks.Mocha;
                             break;
                         case 'jasmine':
-                            testHostSettings.TestFramework = SupportedFramework.Jasmine;
+                            testHostSettings.TestFramework = TestFrameworks.Jasmine;
                             break;
                         default:
                             throw new Exception('Unknown framework \'' + option.Value + '\'', ExceptionType.InvalidArgumentsException);

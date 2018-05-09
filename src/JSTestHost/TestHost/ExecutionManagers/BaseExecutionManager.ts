@@ -1,11 +1,12 @@
 import { IEnvironment } from '../../Environment/IEnvironment';
 import { MessageSender } from '../MessageSender';
-import { SupportedFramework, TestFrameworkFactory } from '../TestFrameworks/TestFrameworkFactory';
+import { TestFrameworkFactory } from '../TestFrameworks/TestFrameworkFactory';
 import { IEvent, IEventArgs, EnvironmentType, IEventHandler } from '../../ObjectModel/Common';
 import { Exception, ExceptionType } from '../../Exceptions';
 import { RunSettings } from '../RunSettings';
 import { TestFrameworkEventHandlers } from '../TestFrameworks/TestFrameworkEventHandlers';
 import { TestSessionManager } from './TestSessionManager';
+import { TestFrameworks } from '../../ObjectModel/TestFramework';
 
 export abstract class BaseExecutionManager {
     protected readonly environment: IEnvironment;
@@ -19,7 +20,7 @@ export abstract class BaseExecutionManager {
     protected abstract testFrameworkEventHandlers: TestFrameworkEventHandlers;
     protected abstract runStatsChange: IEventHandler<IEventArgs>;
     
-    constructor(environment: IEnvironment, messageSender: MessageSender, testFramework: SupportedFramework) {
+    constructor(environment: IEnvironment, messageSender: MessageSender, testFramework: TestFrameworks) {
         this.environment = environment;
 
         if (this.environment.environmentType !== EnvironmentType.NodeJS) {

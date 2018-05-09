@@ -1,6 +1,6 @@
 import { TestResult, TestRunStatistics } from '../../ObjectModel';
 import { TestCase, IEvent } from '../../ObjectModel/Common';
-import { TestRunChangedEventArgs } from '../../ObjectModel/Payloads';
+import { TestRunChangedEventArgs } from '../../ObjectModel/TPPayloads';
 import { IEnvironment } from '../../Environment/IEnvironment';
 import { TimeSpan } from '../../Utils/TimeSpan';
 

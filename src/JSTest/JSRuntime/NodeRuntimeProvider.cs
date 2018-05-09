@@ -51,6 +51,8 @@ namespace JSTest.JSRuntime
             var hostDebugEnabled = Environment.GetEnvironmentVariable("JSTEST_HOST_DEBUG");
             var debug = !string.IsNullOrEmpty(hostDebugEnabled) && hostDebugEnabled.Equals("1", StringComparison.Ordinal);
 
+            //debug = true;
+
             // Maybe this is not required after setting working directory
             processInfo.EnvironmentVariables.Add("NODE_PATH", Environment.GetEnvironmentVariable("NODE_PATH") + ";" + Path.Combine(rootFolder, "JSTestHost", "node_modules"));
 
@@ -60,7 +62,7 @@ namespace JSTest.JSRuntime
                 " -r source-map-support/register {0} {1} {2}",
                 debug ? "--inspect-brk=9229" : "",
                 jstesthost,
-                $"--framework {settings.TestFramework}");
+                $"--framework {settings.JSTestFramework}");
 
             return processInfo;
         }

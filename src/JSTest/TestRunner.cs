@@ -7,17 +7,25 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using System;
+using JSTest.Communication;
 
 namespace JSTest
 {
-    public class TestRunner
+    public class TestRunner: IDisposable
     {
-        private RuntimeManager runtimeManager;
+        private TestRuntimeManager runtimeManager;
+        private ManualResetEventSlim executionComplete;
 
-        public TestRunEvents StartExecution(IEnumerable<string> sources, JSTestSettings settings) {
+        public TestRunner()
+        {
+            this.executionComplete = new ManualResetEventSlim(false);
+        }
+
+        public TestRunEvents StartExecution(IEnumerable<string> sources, JSTestSettings settings)
+        {
 
             var processInfo = RuntimeProviderFactory.Instance.GetRuntimeProcessInfo(settings);
-            this.runtimeManager = new RuntimeManager(settings);
+            this.runtimeManager = new TestRuntimeManager(settings);
 
             Task<bool> launchTask = null;
 
@@ -31,13 +39,19 @@ namespace JSTest
                 EqtTrace.Error(e);
             }
 
-            if (launchTask != null || launchTask.Status != TaskStatus.RanToCompletion)
+            if (launchTask == null || launchTask.Status != TaskStatus.RanToCompletion)
             {
                 EqtTrace.Error("TestRunner.StartExecution: Could not start javascript runtime.");
                 return null;
             }
 
+            //this.executionComplete.Wait();
             return this.runtimeManager.TestRunEvents;
-        }        
+        }
+
+        public void Dispose()
+        {
+            this.runtimeManager.CleanProcessAsync(new CancellationToken()).Wait();
+        }
     }
 }

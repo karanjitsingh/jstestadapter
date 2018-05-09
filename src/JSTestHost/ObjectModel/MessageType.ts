@@ -4,7 +4,7 @@ export enum MessageType {
     SessionAbort = 'TestSession.Abort',
     SessionConnected = 'TestSession.Connected',
     TestMessage = 'TestSession.Message',
-    VersionCheck = 'ProtocolVersion',
+    // VersionCheck = 'ProtocolVersion',
     ProtocolError = 'ProtocolError',
     DiscoveryInitialize = 'TestDiscovery.Initialize',
     StartDiscovery = 'TestDiscovery.Start',
@@ -35,5 +35,9 @@ export enum MessageType {
     DataCollectionTestStart = 'DataCollection.TestStart',
     DataCollectionTestEnd = 'DataCollection.TestEnd',
     DataCollectionTestEndResult = 'DataCollection.TestEndResult',
-    DataCollectionTestStartAck = 'DataCollection.TestStartAck'
+    DataCollectionTestStartAck = 'DataCollection.TestStartAck',
+
+    TestRunSettings = 'JSTest.TestRunSettings',
+    VersionCheck = 'ProtocolVersion'
+    
 }

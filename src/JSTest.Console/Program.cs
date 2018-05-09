@@ -12,8 +12,10 @@ namespace JSTest.Console
 
             runner.StartExecution(new string[0] { }, new JSTestSettings());
 
-            System.Console.WriteLine(runner == null);
+            System.Console.WriteLine(runner != null);
             System.Console.ReadLine();
+
+            runner.Dispose();
         }
     }
 }

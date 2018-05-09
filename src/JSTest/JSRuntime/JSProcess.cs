@@ -9,16 +9,28 @@ namespace JSTest.JSRuntime
 {
     internal class JSProcess
     {
-        private BinaryWriter binaryWriter;
-        private BinaryReader binaryReader;
         private Process process;
+        private CommunicationChannel channel;
 
-        private event EventHandler<EventArgs> onMessageReceived;
+        public CommunicationChannel CommunicationChannel
+        {
+            get
+            {
+                if (this.IsAlive)
+                {
+                    return this.channel;
+                }
+                else
+                {
+                    throw new Exception("Process is not running.");
+                }
+            }
+        }
 
         public JSProcess()
         {
         }
-
+      
         public bool IsAlive
         {
             get
@@ -75,19 +87,11 @@ namespace JSTest.JSRuntime
             }
 
             this.process = process;
-            this.InitializeStreams();
+            this.InitializeChannel();
 
             return process != null;
         }
-
-        public void SendMessage(string message)
-        {
-            if (this.IsAlive)
-            {
-                this.binaryWriter.Write(message);
-            }
-        }
-
+        
         public void TerminateProcess()
         {
             if (this.IsAlive)
@@ -96,13 +100,9 @@ namespace JSTest.JSRuntime
             }
         }
 
-        private void InitializeStreams()
+        private void InitializeChannel()
         {
-            if (this.IsAlive)
-            {
-                this.binaryWriter = new BinaryWriter(process.StandardInput.BaseStream);
-                this.binaryReader = new BinaryReader(process.StandardOutput.BaseStream);
-            }
+            this.channel = new CommunicationChannel(this.process.StandardInput.BaseStream, this.process.StandardOutput.BaseStream);
         }
     }
 }

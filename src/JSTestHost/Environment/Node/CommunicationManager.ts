@@ -1,10 +1,9 @@
-import { Message } from '../../ObjectModel';
+import { Message, TestMessageLevel, MessageType } from '../../ObjectModel';
 import { IEvent } from '../../ObjectModel/Common';
 import { ICommunicationManager, MessageReceivedEventArgs } from '../ICommunicationManager';
-import { Exception, ExceptionType} from '../../Exceptions';
 import { IEnvironment } from '../IEnvironment';
-import { Socket } from 'net';
 import * as wait from 'wait-for-stuff';
+import { TestMessagePayload } from 'ObjectModel/TPPayloads';
 
 interface PacketData<T> {
     byteCount: number;
@@ -14,30 +13,38 @@ interface PacketData<T> {
 export class CommunicationManager implements ICommunicationManager {
     private socketBuffer: Buffer;
 
-    protected socket: Socket;
     public onMessageReceived: IEvent<MessageReceivedEventArgs>;
 
-    constructor(environment: IEnvironment, socket?: Socket) {
-        this.socket = socket ? socket : new Socket();
+    constructor(environment: IEnvironment) {
         this.socketBuffer = new Buffer(0);
+
+        ['log', 'warn', 'error'].forEach((method) => {
+            // const oldMethod = console[method].bind(console);
+            // tslint:disable-next-line
+            console[method] = function() {
+                // oldMethod.apply(
+                //     console,
+                //     [new Date().toISOString()].concat(arguments)
+                // );
+                this.logMessage(method, arguments);
+            }.bind(this);
+        });
+
         this.onMessageReceived = environment.createEvent();
-
-        this.socket.on('data', this.onSocketDataReceived);
+        process.stdin.on('data', this.stdinDataReceived);
     }
 
-    public connectToServer(port: number, ip: string, callback?: () => void) {
-        this.socket.connect(port, ip, callback);
-    }
-
-    public sendMessage(message: Message) {
+    public sendMessage(message: Message, log: boolean = true) {
         let dataObject = JSON.stringify(message);
 
-        console.log('Message Send', message);
+        if (log) {
+            console.log('Message Send', message);
+        }
 
         // Left pad with 7 bit encoded int length
         dataObject = this.intTo7BitEncodedInt(dataObject.length) + dataObject;
 
-        this.socket.write(dataObject, 'binary');
+        process.stdout.write(dataObject);
     }
 
     // tslint:disable-next-line
@@ -57,7 +64,7 @@ export class CommunicationManager implements ICommunicationManager {
         return message;
     }
 
-    private onSocketDataReceived = (buffer: Buffer) => {
+    private stdinDataReceived = (buffer: Buffer) => {
         this.socketBuffer = Buffer.concat([this.socketBuffer, buffer]);
         let messagePacket: PacketData<Message> = null;
 
@@ -147,5 +154,42 @@ export class CommunicationManager implements ICommunicationManager {
             length = length >> 7;
         }
         return output;
+    }
+
+    // For some reason this is a false positive
+    // tslint:disable:no-unused-variable
+    private logMessage(method: string, args: Array<any>): void {
+        if (!args || !args.length) {
+            return;
+        }
+
+        args = Array.from(args);
+
+        let messageLevel = TestMessageLevel.Informational;
+
+        switch (method) {
+            case 'log':
+                messageLevel = TestMessageLevel.Informational;
+                break;
+            case 'warn':
+                messageLevel = TestMessageLevel.Warning;
+                break;
+            case 'error':
+                messageLevel = TestMessageLevel.Error;
+                break;
+        }
+
+        args.forEach((arg, i) => {
+            args[i] = JSON.stringify(arg);
+        });
+        
+        const messageString = args.join('\n');
+
+        const message = new Message(MessageType.TestMessage, <TestMessagePayload> {
+            Message: messageString,
+            MessageLevel: messageLevel
+        });
+
+        this.sendMessage(message, false);
     }
 }

@@ -1,7 +1,7 @@
-import { SupportedFramework } from './TestFrameworks/TestFrameworkFactory';
+import { TestFrameworks } from '../ObjectModel/TestFramework';
 
 export interface TestHostSettings {
-    TestFramework: SupportedFramework;
+    TestFramework: TestFrameworks;
     Port: number;
     EndpointIP: string;
     Role: string;

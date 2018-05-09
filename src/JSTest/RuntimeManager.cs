@@ -16,7 +16,7 @@ using JSTest.JSRuntime;
 
 namespace JSTest
 {
-    internal class RuntimeManager
+    internal class TestRuntimeManager
     {
         private JSTestSettings settings;
         private StringBuilder processStdError;
@@ -32,14 +32,14 @@ namespace JSTest
 
         public TestRunEvents TestRunEvents { private set; get; }
 
-        public RuntimeManager(TestRunEvents testRunEvents, JsonDataSerializer dataSerializer, IProcessHelper processHelper, JSProcess process)
+        public TestRuntimeManager(TestRunEvents testRunEvents, JsonDataSerializer dataSerializer, IProcessHelper processHelper, JSProcess process)
         {
             this.TestRunEvents = TestRunEvents;
             this.dataSerializer = dataSerializer;
             this.jsProcess = process;
         }
 
-        public RuntimeManager(JSTestSettings settings)
+        public TestRuntimeManager(JSTestSettings settings)
             : this(new TestRunEvents(), JsonDataSerializer.Instance, new ProcessHelper(), new JSProcess())
         {
             this.settings = settings;
@@ -62,7 +62,8 @@ namespace JSTest
             var errorString = this.processStdError.ToString();
             if (!string.IsNullOrEmpty(errorString))
             {
-                messageLogger.SendMessage(TestMessageLevel.Error, errorString);
+                //messageLogger.SendMessage(TestMessageLevel.Error, errorString);
+                Console.Error.Write(errorString);
             }
         };
 
@@ -131,25 +132,88 @@ namespace JSTest
                 catch (OperationCanceledException ex)
                 {
                     EqtTrace.Error("DotnetTestHostManager.LaunchHost: Failed to launch testhost: {0}", ex);
-                    this.messageLogger.SendMessage(TestMessageLevel.Error, ex.ToString());
+                    //this.messageLogger.SendMessage(TestMessageLevel.Error, ex.ToString());
+                    Console.Write(ex);
                     return false;
                 }
 
                 //this.OnHostLaunched(new HostProviderEventArgs("Test Runtime launched", 0, this.testHostProcess.Id));
-
+                this.InitializeCommunication();
+                Task.Run(() => { this.MessageLoopAsync(this.jsProcess.CommunicationChannel, cancellationToken); }).Wait();
 
                 return this.jsProcess.IsAlive;
             });
         }
 
-        void SendMessage(string messageType, object payload)
+        public SendStartExecution(IEnumerable<string> sources)
         {
-            var message = this.dataSerializer.SerializePayload(messageType, payload);
-            this.jsProcess.SendMessage(message);
+            var message = this.dataSerializer.SerializePayload(MessageType)
         }
 
-        private void onMessageReceivedHandler(object sender, EventArgs e)
+        public void SendMessage(string messageType, object payload)
         {
+            var message = this.dataSerializer.SerializePayload(messageType, payload);
+            this.jsProcess.CommunicationChannel.Send(message);
+        }
+
+        private void InitializeCommunication()
+        {
+            if (jsProcess.IsAlive)
+            {
+                this.jsProcess.CommunicationChannel.MessageReceived += onMessageReceived;
+                this.SendMessage(MessageType.TestRunSettings, settings);
+
+                Task.Run(() => this.jsProcess.CommunicationChannel.NotifyDataAvailable()).Wait();
+            }
+        }
+
+        private Task MessageLoopAsync(CommunicationChannel channel, CancellationToken cancellationToken)
+        {
+            Exception error = null;
+
+            // Set read timeout to avoid blocking receive raw message
+            while (channel != null && !cancellationToken.IsCancellationRequested && this.jsProcess.IsAlive)
+            {
+                try
+                {
+                    channel.NotifyDataAvailable();
+                }
+                catch (Exception exception)
+                {
+                    EqtTrace.Error(
+                            "Socket: Message loop: failed to receive message {0}",
+                            exception);
+                    error = exception;
+                    break;
+                }
+            }
+
+            // Try clean up and raise client disconnected events
+            //errorHandler(error);
+
+            return Task.FromResult(0);
+        }
+
+        private void onMessageReceived(object sender, MessageReceivedEventArgs e)
+        {
+            var message = this.dataSerializer.DeserializeMessage(e.Data);
+
+            switch(message.MessageType)
+            {
+                case MessageType.VersionCheck:
+                    var version = this.dataSerializer.DeserializePayload<int>(message);
+
+                    if (version != Constants.MessageProtocolVersion)
+                    {
+                        throw new Exception("");
+                    }
+
+                    break;
+
+                default:
+                    Console.Error.Write(e.Data);
+                    break;
+            }
 
         }
     }
