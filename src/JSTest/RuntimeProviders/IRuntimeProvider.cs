@@ -5,14 +5,12 @@ using System.Threading.Tasks;
 using JSTest.Settings;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Host;
+using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces;
 
 namespace JSTest.RuntimeProviders
 {
     internal interface IRuntimeProvider
     {
-        TestProcessStartInfo GetRuntimeProcessInfo();
-
-        void Initialize(JSTestSettings settings);
-
+        TestProcessStartInfo GetRuntimeProcessInfo(JSTestSettings settings, IEnvironment environment);
     }
 }

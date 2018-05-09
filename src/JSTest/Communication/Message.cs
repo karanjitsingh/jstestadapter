@@ -1,4 +1,4 @@
-﻿namespace JSTest
+﻿namespace JSTest.Communication
 {
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
@@ -23,13 +23,29 @@
         {
             return "(" + MessageType + ") -> " + (Payload == null ? "null" : Payload.ToString(Formatting.Indented));
         }
-    }
 
-    public class VersionedMessage : Message
-    {
         /// <summary>
         /// Gets or sets the version of the message
         /// </summary>
         public int Version { get; set; }
+
+        public Message(string messageType, JToken payload, int version)
+        {
+            this.MessageType = messageType;
+            this.Payload = payload;
+            this.Version = version;
+        }
+
+        public Message(string messageType, JToken payload) : base()
+        {
+            this.MessageType = messageType;
+            this.Payload = payload;
+        }
+
+        public Message()
+        {
+            this.Version = Constants.MessageProtocolVersion;
+        }
+
     }
 }

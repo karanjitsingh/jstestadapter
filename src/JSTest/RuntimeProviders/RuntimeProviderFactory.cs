@@ -1,15 +1,42 @@
 ﻿using JSTest.Settings;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel;
+using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions;
+using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces;
+using System.Diagnostics;
 
 namespace JSTest.RuntimeProviders
 {
-    internal static class RuntimeProviderFactory
+    internal class RuntimeProviderFactory
     {
-        public static IRuntimeProvider GetRuntime(JavaScriptRuntime javaScriptRuntime)
+        private static RuntimeProviderFactory instance;
+        public static RuntimeProviderFactory Instance
         {
-            switch(javaScriptRuntime)
+            get
+            {
+                if (RuntimeProviderFactory.instance != null)
+                {
+                    return RuntimeProviderFactory.instance;
+                }
+                else
+                {
+                    return RuntimeProviderFactory.instance = new RuntimeProviderFactory();
+                }
+            }
+        }
+
+        private IEnvironment environment;
+
+        private RuntimeProviderFactory()
+        {
+            this.environment = new PlatformEnvironment();
+        }
+
+        public TestProcessStartInfo GetRuntimeProcessInfo(JSTestSettings settings)
+        {
+            switch(settings.Runtime)
             {
                 case JavaScriptRuntime.NodeJS:
-                    return new NodeRuntimeProvider();
+                    return NodeRuntimeProvider.Instance.GetRuntimeProcessInfo(settings, environment);
             }
 
             return null;

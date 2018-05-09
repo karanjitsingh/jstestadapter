@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-namespace JSTest.Utils
+namespace JSTest.Communication
 {
     using System.IO;
 
@@ -57,7 +57,7 @@ namespace JSTest.Utils
         {
             // Convert to VersionedMessage
             // Message can be deserialized to VersionedMessage where version will be 0
-            return JsonConvert.DeserializeObject<VersionedMessage>(rawMessage);
+            return JsonConvert.DeserializeObject<Message>(rawMessage);
         }
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace JSTest.Utils
         {
             T retValue = default(T);
 
-            var versionedMessage = message as VersionedMessage;
+            var versionedMessage = message as Message;
             var serializer = this.GetPayloadSerializer(versionedMessage?.Version);
 
             retValue = message.Payload.ToObject<T>(serializer);
@@ -130,8 +130,8 @@ namespace JSTest.Utils
             var serializer = this.GetPayloadSerializer(version);
             var serializedPayload = JToken.FromObject(payload, serializer);
 
-            var message = version > 1 ?
-            new VersionedMessage { MessageType = messageType, Version = version, Payload = serializedPayload } :
+            var message = version >= 1 ?
+            new Message { MessageType = messageType, Version = version, Payload = serializedPayload } :
             new Message { MessageType = messageType, Payload = serializedPayload };
 
             return JsonConvert.SerializeObject(message);

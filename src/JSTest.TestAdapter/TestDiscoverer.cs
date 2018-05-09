@@ -9,7 +9,7 @@ using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 using JSTest;
 using JSTest.Settings;
 
-namespace JSTest.VSAdapter
+namespace JSTest.TestAdapter
 {
     [FileExtension(Constants.Extensions.JavaScript)]
     [DefaultExecutorUri(Constants.ExecutorUri)]

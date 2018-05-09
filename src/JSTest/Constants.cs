@@ -7,5 +7,6 @@ namespace JSTest
     internal static class Constants
     {
         internal const int ClientConnectionTimeout = 60 * 1000;
+        internal const int MessageProtocolVersion = 1;
     }
 }

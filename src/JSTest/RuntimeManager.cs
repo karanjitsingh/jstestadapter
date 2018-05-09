@@ -9,8 +9,10 @@ using System.Diagnostics;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using JSTest.Communication;
+using System.IO;
 
-namespace JSTest.RuntimeManager
+namespace JSTest
 {
     internal class RuntimeManager
     {
@@ -20,12 +22,25 @@ namespace JSTest.RuntimeManager
         private Process process;
         private StringBuilder processStdError;
         private IMessageLogger messageLogger;
+        private JsonDataSerializer dataSerializer;
+
+        private BinaryWriter binaryWriter;
+        private BinaryReader binaryReader;
 
         protected int ErrorLength { get; set; } = 4096;
 
         public event EventHandler<HostProviderEventArgs> HostLaunched;
 
         public event EventHandler<HostProviderEventArgs> HostExited;
+
+        public TestRunEvents TestRunEvents { private set; get; }
+
+        public RuntimeManager(JSTestSettings settings)
+        {
+            this.settings = settings;
+            this.dataSerializer = JsonDataSerializer.Instance;
+            this.TestRunEvents = new TestRunEvents();
+        }
 
         private Action<object> ExitCallBack => (process) =>
         {
@@ -93,7 +108,7 @@ namespace JSTest.RuntimeManager
             return Task.FromResult(true);
         }
 
-        public async Task<bool> LaunchTestHostAsync(TestProcessStartInfo testHostStartInfo, CancellationToken cancellationToken)
+        public async Task<bool> LaunchProcessAsync(TestProcessStartInfo testHostStartInfo, CancellationToken cancellationToken)
         {
             return await Task.Run(() =>
             {
@@ -103,7 +118,13 @@ namespace JSTest.RuntimeManager
                     EqtTrace.Verbose("DotnetTestHostManager: Starting process '{0}' with command line '{1}'", testHostStartInfo.FileName, testHostStartInfo.Arguments);
 
                     cancellationToken.ThrowIfCancellationRequested();
-                    this.process = this.processHelper.LaunchProcess(testHostStartInfo.FileName, testHostStartInfo.Arguments, testHostStartInfo.WorkingDirectory, testHostStartInfo.EnvironmentVariables, this.ErrorReceivedCallback, this.ExitCallBack) as Process;
+                    this.process = this.processHelper.LaunchProcess(testHostStartInfo.FileName,
+                                                                    testHostStartInfo.Arguments,
+                                                                    testHostStartInfo.WorkingDirectory,
+                                                                    testHostStartInfo.EnvironmentVariables,
+                                                                    this.ErrorReceivedCallback,
+                                                                    this.ExitCallBack) as Process;
+
                 }
                 catch (OperationCanceledException ex)
                 {
@@ -114,14 +135,28 @@ namespace JSTest.RuntimeManager
 
                 //this.OnHostLaunched(new HostProviderEventArgs("Test Runtime launched", 0, this.testHostProcess.Id));
 
+                this.InitializeStreams(process);
+
                 return this.process != null;
             });
-            //return await Task.Run(() => this.LaunchHost(testHostStartInfo, cancellationToken), cancellationToken);
         }
 
-        void SendMessage(Message message)
+        private void InitializeStreams(Process process)
         {
+            if (this.process != null && !process.HasExited)
+            {
+                this.binaryWriter = new BinaryWriter(process.StandardInput.BaseStream);
+                this.binaryReader = new BinaryReader(process.StandardOutput.BaseStream);
+            }
+        }
 
+        void SendMessage(string messageType, object payload)
+        {
+            if(this.process != null && !this.process.HasExited)
+            {
+                var message = this.dataSerializer.SerializePayload(messageType, payload);
+                this.binaryWriter.Write(message);
+            }
         }
     }
 }

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace JSTest.VSAdapter
+namespace JSTest.TestAdapter
 {
     internal static class Constants
     {

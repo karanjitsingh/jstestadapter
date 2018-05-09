@@ -16,28 +16,28 @@ namespace JSTest.RuntimeProviders
 
     class NodeRuntimeProvider : IRuntimeProvider
     {
-        private JSTestSettings settings;
-        private IEnvironment environment;
-
-        public NodeRuntimeProvider() : this(new PlatformEnvironment(), new ProcessHelper()) { }
-
-        public NodeRuntimeProvider(IEnvironment environment, IProcessHelper processHelper)
+        private static NodeRuntimeProvider instance;
+        public static NodeRuntimeProvider Instance
         {
-            this.environment = environment;
+            get
+            {
+                if (NodeRuntimeProvider.instance != null)
+                {
+                    return NodeRuntimeProvider.instance;
+                }
+                else
+                {
+                    return NodeRuntimeProvider.instance = new NodeRuntimeProvider();
+                }
+            }
         }
 
-        public void Initialize(JSTestSettings settings)
-        {
-            this.settings = settings;
-        }
-
-
-        public TestProcessStartInfo GetRuntimeProcessInfo()
+        public TestProcessStartInfo GetRuntimeProcessInfo(JSTestSettings settings, IEnvironment environment)
         {
             var processInfo = new TestProcessStartInfo();
             string rootFolder = Path.GetDirectoryName(typeof(TestRunner).GetTypeInfo().Assembly.GetAssemblyLocation());
 
-            processInfo.FileName = this.getNodeBinaryPath(rootFolder);
+            processInfo.FileName = this.getNodeBinaryPath(environment.Architecture, environment.OperatingSystem, rootFolder);
 
             var jstesthost = Path.Combine(rootFolder, "JSTestHost", "index.js");
 
@@ -53,43 +53,48 @@ namespace JSTest.RuntimeProviders
                 " -r source-map-support/register {0} {1} {2}",
                 debug ? "--inspect-brk=9229" : "",
                 jstesthost,
-                $"--framework {this.settings.TestFramework}");
+                $"--framework {settings.TestFramework}");
 
             return processInfo;
         }
 
-        private string getNodeBinaryPath(string rootFolder)
+        private NodeRuntimeProvider()
         {
-            string platform = string.Empty;
-            string architecture = string.Empty;
-            string executable = string.Empty;
+
+        }
+
+        private string getNodeBinaryPath(PlatformArchitecture architecture, PlatformOperatingSystem os, string rootFolder)
+        {
+            string platformString = string.Empty;
+            string archSuffix = string.Empty;
+            string executableString = string.Empty;
 
 
-            if (this.environment.Architecture == PlatformArchitecture.X64)
+            if (architecture == PlatformArchitecture.X64)
             {
-                architecture = "x64";
+                archSuffix = "x64";
             }
-            else if (this.environment.Architecture == PlatformArchitecture.X86)
+            else if (architecture == PlatformArchitecture.X86)
             {
-                architecture = "x86";
-            }
-
-            if (this.environment.OperatingSystem == PlatformOperatingSystem.Windows)
-            {
-                platform = "win";
-                executable = "node.exe";
-            }
-            else if (this.environment.OperatingSystem == PlatformOperatingSystem.Unix)
-            {
-                platform = "linux";
-                executable = "node";
+                archSuffix = "x86";
             }
 
-            Debug.Assert(!string.IsNullOrEmpty(platform));
-            Debug.Assert(!string.IsNullOrEmpty(architecture));
-            Debug.Assert(!string.IsNullOrEmpty(executable));
+            if (os == PlatformOperatingSystem.Windows)
+            {
+                platformString = "win";
+                executableString = "node.exe";
+            }
+            else if (os == PlatformOperatingSystem.Unix)
+            {
+                platformString = "linux";
+                executableString = "node";
+            }
 
-            return String.Format(Path.Combine(rootFolder, "node", $"{platform}-{architecture}", executable));
+            Debug.Assert(!string.IsNullOrEmpty(platformString));
+            Debug.Assert(!string.IsNullOrEmpty(archSuffix));
+            Debug.Assert(!string.IsNullOrEmpty(executableString));
+
+            return String.Format(Path.Combine(rootFolder, "node", $"{platformString}-{archSuffix}", executableString));
         }
 
     }
