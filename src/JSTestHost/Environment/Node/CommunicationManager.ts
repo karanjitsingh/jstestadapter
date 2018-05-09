@@ -3,7 +3,7 @@ import { IEvent } from '../../ObjectModel/Common';
 import { ICommunicationManager, MessageReceivedEventArgs } from '../ICommunicationManager';
 import { IEnvironment } from '../IEnvironment';
 import * as wait from 'wait-for-stuff';
-import { TestMessagePayload } from 'ObjectModel/TPPayloads';
+// import { TestMessagePayload } from 'ObjectModel/TPPayloads';
 
 interface PacketData<T> {
     byteCount: number;

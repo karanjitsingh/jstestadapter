@@ -1,4 +1,4 @@
-import { TestRunCriteriaWithSources, DiscoveryCriteria, TestRunCriteriaWithTests } from '../ObjectModel/TPPayloads';
+// import { TestRunCriteriaWithSources, DiscoveryCriteria, TestRunCriteriaWithTests } from '../ObjectModel/TPPayloads';
 import { MessageType } from '../ObjectModel';
 import { IEnvironment } from '../Environment/IEnvironment';
 import { ICommunicationManager, MessageReceivedEventArgs } from '../Environment/ICommunicationManager';

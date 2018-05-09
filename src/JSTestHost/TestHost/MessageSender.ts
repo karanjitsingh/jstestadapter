@@ -1,8 +1,8 @@
 import { ICommunicationManager } from '../Environment/ICommunicationManager';
 import { TestMessageLevel, Message, MessageType, AttachmentSet } from '../ObjectModel';
-import { TestMessagePayload, TestRunCompletePayload, TestRunChangedEventArgs, DiscoveryCompletePayload,
-         TestCaseStartEventArgs, 
-         TestCaseEndEventArgs} from '../ObjectModel/TPPayloads';
+// import { TestMessagePayload, TestRunCompletePayload, TestRunChangedEventArgs, DiscoveryCompletePayload,
+        //  TestCaseStartEventArgs, 
+        //  TestCaseEndEventArgs} from '../ObjectModel/TPPayloads';
 import { TestCase } from '../ObjectModel/Common';
 import { TestsDiscoveredEventArgs } from '../ObjectModel/EventArgs';
 

@@ -1,7 +1,7 @@
 import { ITestFramework, TestSessionEventArgs, TestSpecEventArgs, TestFrameworks } from '../../ObjectModel/TestFramework';
 import { TestRunCompleteEventArgs } from '../../ObjectModel/EventArgs';
-import { TestRunCriteriaWithSources, TestRunChangedEventArgs, TestRunCompletePayload,
-         TestRunCriteriaWithTests, TestExecutionContext, TestCaseStartEventArgs, TestCaseEndEventArgs } from '../../ObjectModel/TPPayloads';
+// import { TestRunCriteriaWithSources, TestRunChangedEventArgs, TestRunCompletePayload,
+        //  TestRunCriteriaWithTests, TestExecutionContext, TestCaseStartEventArgs, TestCaseEndEventArgs } from '../../ObjectModel/TPPayloads';
 import { TestMessageLevel, TestResult, AttachmentSet } from '../../ObjectModel';
 import { TestCase } from '../../ObjectModel/Common';
 import { IEnvironment } from '../../Environment/IEnvironment';
@@ -14,7 +14,6 @@ import { TestFrameworkEventHandlers } from '../TestFrameworks/TestFrameworkEvent
 
 export class ExecutionManager extends BaseExecutionManager {
 
-    private testExecutionCache: TestExecutionCache;
     private testFramework: TestFrameworks;
     private startTime: Date;
 

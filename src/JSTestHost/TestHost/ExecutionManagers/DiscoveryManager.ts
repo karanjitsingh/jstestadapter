@@ -1,6 +1,6 @@
 import { ITestFramework, TestSessionEventArgs, TestSpecEventArgs, TestFrameworks } from '../../ObjectModel/TestFramework';
 import { TestsDiscoveredEventArgs } from '../../ObjectModel/EventArgs';
-import { DiscoveryCriteria } from '../../ObjectModel/TPPayloads';
+// import { DiscoveryCriteria } from '../../ObjectModel/TPPayloads';
 import { TestMessageLevel } from '../../ObjectModel';
 import { TestDiscoveryCache } from '../TestCache';
 import { IEnvironment } from '../../Environment/IEnvironment';
@@ -10,7 +10,6 @@ import { BaseExecutionManager } from './BaseExecutionManager';
 
 export class DiscoveryManager extends BaseExecutionManager {
 
-    private testDiscoveryCache: TestDiscoveryCache;
     private testFramework: TestFrameworks;
 
     constructor(environment: IEnvironment, messageSender: MessageSender, testFramework: TestFrameworks) {
