@@ -11,21 +11,18 @@ using System.Threading;
 using System.Threading.Tasks;
 using JSTest.Communication;
 using System.IO;
+using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions;
+using JSTest.JSRuntime;
 
 namespace JSTest
 {
     internal class RuntimeManager
     {
         private JSTestSettings settings;
-        private IProcessHelper processHelper;
-        private IEnvironment environment;
-        private Process process;
         private StringBuilder processStdError;
-        private IMessageLogger messageLogger;
-        private JsonDataSerializer dataSerializer;
-
-        private BinaryWriter binaryWriter;
-        private BinaryReader binaryReader;
+        private readonly IMessageLogger messageLogger;
+        private readonly JSProcess jsProcess;
+        private readonly JsonDataSerializer dataSerializer;
 
         protected int ErrorLength { get; set; } = 4096;
 
@@ -35,19 +32,30 @@ namespace JSTest
 
         public TestRunEvents TestRunEvents { private set; get; }
 
-        public RuntimeManager(JSTestSettings settings)
+        public RuntimeManager(TestRunEvents testRunEvents, JsonDataSerializer dataSerializer, IProcessHelper processHelper, JSProcess process)
         {
-            this.settings = settings;
-            this.dataSerializer = JsonDataSerializer.Instance;
-            this.TestRunEvents = new TestRunEvents();
+            this.TestRunEvents = TestRunEvents;
+            this.dataSerializer = dataSerializer;
+            this.jsProcess = process;
         }
 
-        private Action<object> ExitCallBack => (process) =>
+        public RuntimeManager(JSTestSettings settings)
+            : this(new TestRunEvents(), JsonDataSerializer.Instance, new ProcessHelper(), new JSProcess())
+        {
+            this.settings = settings;
+        }
+
+        private Action<object> ProcessExitReceived => (process) =>
         {
             //TestHostManagerCallbacks.ExitCallBack(this.processHelper, process, this.testHostProcessStdError, this.OnHostExited);
         };
 
-        private Action<object, string> ErrorReceivedCallback => (process, data) =>
+        private Action<object, string> ProcessOutputReceived => (process, data) =>
+        {
+
+        };
+
+        private Action<object, string> ProcessErrorReceived => (process, data) =>
         {
             this.errorReceivedCallback(this.processStdError, data);
 
@@ -92,38 +100,32 @@ namespace JSTest
             }
         }
 
-        public Task CleanTestHostAsync(CancellationToken cancellationToken)
+        public Task CleanProcessAsync(CancellationToken cancellationToken)
         {
             try
             {
-                this.processHelper.TerminateProcess(this.process);
+                this.jsProcess.TerminateProcess();
             }
             catch (Exception ex)
             {
                 EqtTrace.Warning("JSTestHostManager: Unable to terminate test host process: " + ex);
             }
 
-            this.process?.Dispose();
-
             return Task.FromResult(true);
         }
 
-        public async Task<bool> LaunchProcessAsync(TestProcessStartInfo testHostStartInfo, CancellationToken cancellationToken)
+        public async Task<bool> LaunchProcessAsync(ProcessStartInfo runtimeProcessStartInfo, CancellationToken cancellationToken)
         {
             return await Task.Run(() =>
             {
                 try
                 {
                     this.processStdError = new StringBuilder(this.ErrorLength, this.ErrorLength);
-                    EqtTrace.Verbose("DotnetTestHostManager: Starting process '{0}' with command line '{1}'", testHostStartInfo.FileName, testHostStartInfo.Arguments);
+                    EqtTrace.Verbose("DotnetTestHostManager: Starting process '{0}' with command line '{1}'", runtimeProcessStartInfo.FileName, runtimeProcessStartInfo.Arguments);
 
                     cancellationToken.ThrowIfCancellationRequested();
-                    this.process = this.processHelper.LaunchProcess(testHostStartInfo.FileName,
-                                                                    testHostStartInfo.Arguments,
-                                                                    testHostStartInfo.WorkingDirectory,
-                                                                    testHostStartInfo.EnvironmentVariables,
-                                                                    this.ErrorReceivedCallback,
-                                                                    this.ExitCallBack) as Process;
+
+                    this.jsProcess.LaunchProcess(runtimeProcessStartInfo, this.ProcessErrorReceived, this.ProcessExitReceived);
 
                 }
                 catch (OperationCanceledException ex)
@@ -135,28 +137,20 @@ namespace JSTest
 
                 //this.OnHostLaunched(new HostProviderEventArgs("Test Runtime launched", 0, this.testHostProcess.Id));
 
-                this.InitializeStreams(process);
 
-                return this.process != null;
+                return this.jsProcess.IsAlive;
             });
-        }
-
-        private void InitializeStreams(Process process)
-        {
-            if (this.process != null && !process.HasExited)
-            {
-                this.binaryWriter = new BinaryWriter(process.StandardInput.BaseStream);
-                this.binaryReader = new BinaryReader(process.StandardOutput.BaseStream);
-            }
         }
 
         void SendMessage(string messageType, object payload)
         {
-            if(this.process != null && !this.process.HasExited)
-            {
-                var message = this.dataSerializer.SerializePayload(messageType, payload);
-                this.binaryWriter.Write(message);
-            }
+            var message = this.dataSerializer.SerializePayload(messageType, payload);
+            this.jsProcess.SendMessage(message);
+        }
+
+        private void onMessageReceivedHandler(object sender, EventArgs e)
+        {
+
         }
     }
 }

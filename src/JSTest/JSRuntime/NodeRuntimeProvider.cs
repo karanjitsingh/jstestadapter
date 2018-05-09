@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-namespace JSTest.RuntimeProviders
+namespace JSTest.JSRuntime
 {
     using System;
     using System.Diagnostics;
@@ -13,6 +13,7 @@ namespace JSTest.RuntimeProviders
     using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces;
 
     using JSTest.Settings;
+    using System.Collections.Generic;
 
     class NodeRuntimeProvider : IRuntimeProvider
     {
@@ -32,22 +33,28 @@ namespace JSTest.RuntimeProviders
             }
         }
 
-        public TestProcessStartInfo GetRuntimeProcessInfo(JSTestSettings settings, IEnvironment environment)
+        public ProcessStartInfo GetRuntimeProcessInfo(JSTestSettings settings, IEnvironment environment)
         {
-            var processInfo = new TestProcessStartInfo();
+            var processInfo = new ProcessStartInfo();
+
             string rootFolder = Path.GetDirectoryName(typeof(TestRunner).GetTypeInfo().Assembly.GetAssemblyLocation());
 
+#if DEBUG
+            rootFolder = @"D:\JSTestAdapter\src\JSTestHost\bin";
+#endif
+
             processInfo.FileName = this.getNodeBinaryPath(environment.Architecture, environment.OperatingSystem, rootFolder);
+            processInfo.WorkingDirectory = rootFolder;
 
             var jstesthost = Path.Combine(rootFolder, "JSTestHost", "index.js");
 
             var hostDebugEnabled = Environment.GetEnvironmentVariable("JSTEST_HOST_DEBUG");
             var debug = !string.IsNullOrEmpty(hostDebugEnabled) && hostDebugEnabled.Equals("1", StringComparison.Ordinal);
 
+            // Maybe this is not required after setting working directory
             processInfo.EnvironmentVariables.Add("NODE_PATH", Environment.GetEnvironmentVariable("NODE_PATH") + ";" + Path.Combine(rootFolder, "JSTestHost", "node_modules"));
 
             processInfo.EnvironmentVariables.Add("NODE_NO_WARNINGS", "1");
-            //processInfo.EnvironmentVariables.Add("NODE_DEBUG", "module");
 
             processInfo.Arguments = string.Format(
                 " -r source-map-support/register {0} {1} {2}",

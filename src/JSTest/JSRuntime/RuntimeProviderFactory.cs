@@ -1,10 +1,9 @@
 ﻿using JSTest.Settings;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions;
 using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces;
 using System.Diagnostics;
 
-namespace JSTest.RuntimeProviders
+namespace JSTest.JSRuntime
 {
     internal class RuntimeProviderFactory
     {
@@ -31,7 +30,7 @@ namespace JSTest.RuntimeProviders
             this.environment = new PlatformEnvironment();
         }
 
-        public TestProcessStartInfo GetRuntimeProcessInfo(JSTestSettings settings)
+        public ProcessStartInfo GetRuntimeProcessInfo(JSTestSettings settings)
         {
             switch(settings.Runtime)
             {

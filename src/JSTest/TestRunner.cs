@@ -1,11 +1,12 @@
 ﻿using JSTest.Settings;
-using JSTest.RuntimeProviders;
+using JSTest.JSRuntime;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
+using System;
 
 namespace JSTest
 {
@@ -18,17 +19,25 @@ namespace JSTest
             var processInfo = RuntimeProviderFactory.Instance.GetRuntimeProcessInfo(settings);
             this.runtimeManager = new RuntimeManager(settings);
 
-            var launchTask = Task.Run(() => this.runtimeManager.LaunchProcessAsync(processInfo, new CancellationToken()));
-            launchTask.Wait();
+            Task<bool> launchTask = null;
 
-            if(!launchTask.Result)
+            try
+            {
+                launchTask = Task.Run(() => this.runtimeManager.LaunchProcessAsync(processInfo, new CancellationToken()));
+                launchTask.Wait();
+            }
+            catch (Exception e)
+            {
+                EqtTrace.Error(e);
+            }
+
+            if (launchTask != null || launchTask.Status != TaskStatus.RanToCompletion)
             {
                 EqtTrace.Error("TestRunner.StartExecution: Could not start javascript runtime.");
                 return null;
             }
 
             return this.runtimeManager.TestRunEvents;
-
         }        
     }
 }

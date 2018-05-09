@@ -16,7 +16,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JSTest", "src\JSTest\JSTest
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JSTest.TestAdapter", "src\JSTest.TestAdapter\JSTest.TestAdapter.csproj", "{E057A47A-AE7F-482C-ADB3-FF5C44BD75A2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JSTest.Console", "src\JSTest.Console\JSTest.Console.csproj", "{3877ABAE-7388-4800-97D5-0383D1897B55}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JSTest.Console", "src\JSTest.Console\JSTest.Console.csproj", "{3877ABAE-7388-4800-97D5-0383D1897B55}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
