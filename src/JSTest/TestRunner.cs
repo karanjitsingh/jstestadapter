@@ -49,7 +49,7 @@ namespace JSTest
 
         }
 
-        public ITestRunEvents StartExecution(IEnumerable<string> sources, JSTestSettings settings)
+        public ITestRunEvents StartExecution(IEnumerable<string> sources, JSTestSettings settings, CancellationToken? cancellationToken)
         {
             this.StartRuntimeManager(settings);
 
@@ -65,7 +65,7 @@ namespace JSTest
             return this.runtimeManager.TestRunEvents;
         }
 
-        public ITestRunEvents StartExecution(IEnumerable<TestCase> tests, JSTestSettings settings)
+        public ITestRunEvents StartExecution(IEnumerable<TestCase> tests, JSTestSettings settings, CancellationToken? cancellationToken)
         {
             this.StartRuntimeManager(settings);
 

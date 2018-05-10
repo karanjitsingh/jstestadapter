@@ -19,17 +19,16 @@ namespace JSTest.TestAdapter
         private readonly TestRunner testRunner;
         private ITestCaseDiscoverySink discoverySink;
         private IMessageLogger messageLogger;
-        private ManualResetEventSlim DiscoveryCompletion;
+        private ManualResetEventSlim discoveryCompletion;
 
         public JavaScriptTestDiscoverer()
         {
             this.testRunner = new TestRunner();
-            this.DiscoveryCompletion = new ManualResetEventSlim();
+            this.discoveryCompletion = new ManualResetEventSlim();
         }
 
         public void DiscoverTests(IEnumerable<string> sources, IDiscoveryContext discoveryContext, IMessageLogger logger, ITestCaseDiscoverySink discoverySink)
         {
-            Debugger.Launch();
             this.discoverySink = discoverySink;
             this.messageLogger = logger;
 
@@ -37,11 +36,21 @@ namespace JSTest.TestAdapter
             var settings = new JSTestSettings();
             settings.Discovery = true;
 
-            var events =  this.testRunner.StartExecution(sources, settings);
+            var events =  this.testRunner.StartExecution(sources, settings, null);
 
             events.onTestCaseFound += onTestCaseFoundHandler;
+            events.onTestSessionEnd += onTestSessionEndHandler;
+            events.onTestMessageReceived += onTestMessageReceived;
 
-            this.DiscoveryCompletion.Wait();
+            this.discoveryCompletion.Wait();
+        }
+
+        private void onTestMessageReceived(object sender, TestMessagePayload e)
+        {
+            if (e.MessageLevel != TestMessageLevel.Informational)
+            {
+                this.messageLogger.SendMessage(e.MessageLevel, e.Message);
+            }
         }
 
         private void onTestCaseFoundHandler(object sender, TestCaseFoundEventArgs e)
@@ -49,9 +58,9 @@ namespace JSTest.TestAdapter
             this.discoverySink.SendTestCase(e.TestCase);
         }
 
-        private void onTestSessionEndHandler(object sender)
+        private void onTestSessionEndHandler(object sender, EventArgs e)
         {
-            this.DiscoveryCompletion.Set();
+            this.discoveryCompletion.Set();
         }
     }
 }
