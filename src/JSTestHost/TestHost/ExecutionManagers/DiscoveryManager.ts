@@ -1,12 +1,10 @@
 import { ITestFramework, TestSessionEventArgs, TestSpecEventArgs, TestFrameworks } from '../../ObjectModel/TestFramework';
-import { TestsDiscoveredEventArgs } from '../../ObjectModel/EventArgs';
-// import { DiscoveryCriteria } from '../../ObjectModel/TPPayloads';
-import { TestMessageLevel } from '../../ObjectModel';
-import { TestDiscoveryCache } from '../TestCache';
 import { IEnvironment } from '../../Environment/IEnvironment';
 import { MessageSender } from '../MessageSender';
 import { TestFrameworkEventHandlers } from '../TestFrameworks/TestFrameworkEventHandlers';
 import { BaseExecutionManager } from './BaseExecutionManager';
+import { StartDiscoveryPayload } from '../../ObjectModel/Payloads';
+import { TestMessageLevel } from '../../ObjectModel';
 
 export class DiscoveryManager extends BaseExecutionManager {
 
@@ -15,19 +13,11 @@ export class DiscoveryManager extends BaseExecutionManager {
     constructor(environment: IEnvironment, messageSender: MessageSender, testFramework: TestFrameworks) {
         super(environment, messageSender, testFramework);
         this.testFramework = testFramework;
-        this.testSessionManager.onSessionsComplete.subscribe(this.discoveryComplete);
+        this.testSessionManager.onAllSessionsComplete.subscribe(this.discoveryComplete);
     }
 
-    public discoverTests(criteria: DiscoveryCriteria): Promise<void> {
-        this.setRunSettingsFromXml(criteria.RunSettings);
-        
-        const sources = this.getSourcesFromAdapterSourceMap(criteria.AdapterSourceMap);
-
-        this.testDiscoveryCache = new TestDiscoveryCache(this.environment,
-                                                         criteria.FrequencyOfDiscoveredTestsEvent,
-                                                         criteria.DiscoveredTestEventTimeout);
-
-        this.testDiscoveryCache.onReportTestCases.subscribe(this.runStatsChange);
+    public discoverTests(request: StartDiscoveryPayload): Promise<void> {
+        const sources = request.Sources;
         
         sources.forEach(source => {
             this.testSessionManager.addSession(source, () => {
@@ -47,8 +37,7 @@ export class DiscoveryManager extends BaseExecutionManager {
         if (err) {
             this.messageSender.sendMessage(err.stack ?
                 err.stack :
-                (err.constructor.name + ': ' + err.message + ' at ' + source),
-            TestMessageLevel.Error);
+                (err.constructor.name + ': ' + err.message + ' at ' + source), TestMessageLevel.Error);
         }
 
         const currentSession = this.testSessionManager.getSessionEventArgs(source);
@@ -66,8 +55,9 @@ export class DiscoveryManager extends BaseExecutionManager {
     private discoveryComplete = () => {
         console.log('discovery complete');
 
-        const remainingTests = this.testDiscoveryCache.cleanCache();
-        this.messageSender.sendDiscoveryComplete(remainingTests);
+        // const remainingTests = this.testDiscoveryCache.cleanCache();
+        // this.messageSender.sendDiscoveryComplete(remainingTests);
+        this.messageSender.sendDiscoveryComplete();
         this.onComplete.raise(this, null);
     }
 
@@ -84,12 +74,8 @@ export class DiscoveryManager extends BaseExecutionManager {
 
         TestCaseStart: (sender: object, args: TestSpecEventArgs) => {
             console.log('adding test case to cache');
-            this.testDiscoveryCache.addTest(args.TestCase);
+            // this.testDiscoveryCache.addTest(args.TestCase);
+            this.messageSender.sendTestCaseFound(args.TestCase);
         }
     };
-    
-    protected runStatsChange = (sender: object, args: TestsDiscoveredEventArgs) => {
-        console.log('tests discovered');
-        this.messageSender.sendDiscoveryStatsChange(args.DiscoveredTests);
-    }
 }

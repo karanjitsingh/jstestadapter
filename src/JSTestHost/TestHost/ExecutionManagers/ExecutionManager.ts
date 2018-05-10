@@ -1,7 +1,4 @@
 import { ITestFramework, TestSessionEventArgs, TestSpecEventArgs, TestFrameworks } from '../../ObjectModel/TestFramework';
-import { TestRunCompleteEventArgs } from '../../ObjectModel/EventArgs';
-// import { TestRunCriteriaWithSources, TestRunChangedEventArgs, TestRunCompletePayload,
-        //  TestRunCriteriaWithTests, TestExecutionContext, TestCaseStartEventArgs, TestCaseEndEventArgs } from '../../ObjectModel/TPPayloads';
 import { TestMessageLevel, TestResult, AttachmentSet } from '../../ObjectModel';
 import { TestCase } from '../../ObjectModel/Common';
 import { IEnvironment } from '../../Environment/IEnvironment';
@@ -9,50 +6,39 @@ import { TimeSpan } from '../../Utils/TimeSpan';
 import { MessageSender } from '../MessageSender';
 // import { CodeCoverage } from './CodeCoverage';
 import { BaseExecutionManager } from './BaseExecutionManager';
-import { TestExecutionCache } from '../TestCache';
 import { TestFrameworkEventHandlers } from '../TestFrameworks/TestFrameworkEventHandlers';
+import { StartExecutionWithSourcesPayload, StartExecutionWithTestsPayload } from '../../ObjectModel/Payloads';
 
 export class ExecutionManager extends BaseExecutionManager {
 
     private testFramework: TestFrameworks;
-    private startTime: Date;
 
     constructor(environment: IEnvironment, messageSender: MessageSender, testFramework: TestFrameworks) {
         super(environment, messageSender, testFramework);
         this.testFramework = testFramework;
-        this.testSessionManager.onSessionsComplete.subscribe(this.executionComplete);
+        this.testSessionManager.onAllSessionsComplete.subscribe(this.executionComplete);
     }
 
-    public startTestRunWithSources(criteria: TestRunCriteriaWithSources): Promise<void> {
-        this.setRunSettingsFromXml(criteria.RunSettings);
-        const sources = this.getSourcesFromAdapterSourceMap(criteria.AdapterSourceMap);
-        return this.startExecution(criteria.TestExecutionContext, sources);
+    public startTestRunWithSources(request: StartExecutionWithSourcesPayload): Promise<void> {
+        const sources = request.Sources;
+        return this.startExecution(sources);
     }
 
-    public startTestRunWithTests(criteria: TestRunCriteriaWithTests): Promise<void> {
-        this.setRunSettingsFromXml(criteria.RunSettings);
+    public startTestRunWithTests(request: StartExecutionWithTestsPayload): Promise<void> {
         
         const sourceMap = {};
 
-        criteria.Tests.forEach((test: TestCase) => {
+        request.Tests.forEach((test: TestCase) => {
             if (!sourceMap.hasOwnProperty(test.Source)) {
                 sourceMap[test.Source] = 1;
             }
         });
      
         const sources = Object.keys(sourceMap);
-        return this.startExecution(criteria.TestExecutionContext, sources);
+        return this.startExecution(sources);
     }
 
-    private startExecution(context: TestExecutionContext, sources: Array<string>): Promise<void> {
-        this.startTime = new Date();
-        
-        this.testExecutionCache = new TestExecutionCache(this.environment,
-                                                         context.FrequencyOfRunStatsChangeEvent,
-                                                         context.RunStatsChangeEventTimeout);
-
-        this.testExecutionCache.onTestRunStatsChange.subscribe(this.runStatsChange);
-        
+    private startExecution(sources: Array<string>): Promise<void> {
         sources.forEach(source => {
             this.testSessionManager.addSession(source, () => {
                 const testFrameworkInstance = this.testFrameworkFactory.createTestFramework(this.testFramework);
@@ -90,28 +76,7 @@ export class ExecutionManager extends BaseExecutionManager {
     private executionComplete = () => {
         console.log('test session end trigger');
 
-        const remainingTestResults = this.testExecutionCache.cleanCache();
-        const timeElapsed = TimeSpan.MSToString(new Date().getTime() - this.startTime.getTime());
-
-        const testRunCompleteEventArgs = <TestRunCompleteEventArgs> {
-            TestRunStatistics: remainingTestResults.TestRunStatistics,
-            IsCanceled: false,
-            IsAborted: false,
-            Error: null,            // sending multiple errors?
-            AttachmentSets: [],
-            ElapsedTimeInRunningTests: timeElapsed,
-            Metrics: {}
-        };
-
-        // TODO hardcoded executor uris
-        const testRuncompletePayload = <TestRunCompletePayload> {
-            TestRunCompleteArgs: testRunCompleteEventArgs,
-            LastRunTests: remainingTestResults,
-            RunAttachments: [],
-            ExecutorUris: ['executor: //JasmineTestAdapter/v1']     // TODO hardcoded 
-        };
-
-        this.messageSender.sendExecutionComplete(testRuncompletePayload);
+        this.messageSender.sendExecutionComplete();
         this.onComplete.raise(this, null);
     }
 
@@ -136,34 +101,14 @@ export class ExecutionManager extends BaseExecutionManager {
         TestCaseStart: (sender: object, args: TestSpecEventArgs) => {
             console.log('adding test case to cache');
 
-            if (this.runSettings.isDataCollectionEnabled()) {
-                const testCaseStart = <TestCaseStartEventArgs> {
-                    TestCaseId: args.TestCase.Id,
-                    TestCaseName: args.TestCase.DisplayName,
-                    TestElement: args.TestCase,
-                    IsChildTestCase: false              // TODO what is child test case
-                };
-                this.messageSender.sendTestCaseStart(testCaseStart);
-            }
+            this.messageSender.sendTestCaseStart(args.TestCase);
 
-            this.testExecutionCache.addInProgressTest(args.TestCase);
         },
 
         TestCaseEnd: (sender: object, args: TestSpecEventArgs) => {
             console.log('adding test result to cache');
 
-            let attachments: Array<AttachmentSet> = [];
-
-            if (this.runSettings.isDataCollectionEnabled()) {
-                const testCaseEnd = <TestCaseEndEventArgs> {
-                    TestOutcome: args.Outcome,
-                    TestCaseId: args.TestCase.Id,
-                    TestCaseName: args.TestCase.DisplayName,
-                    TestElement: args.TestCase,
-                    IsChildTestCase: false              // TODO what is is child test case
-                };
-                attachments = this.messageSender.sendTestCaseEnd(testCaseEnd);
-            }
+            const attachments: Array<AttachmentSet> = [];
 
             // TODO incomplete test results - display name etc are null
             const testResult: TestResult = {
@@ -185,13 +130,8 @@ export class ExecutionManager extends BaseExecutionManager {
                 testResult.ErrorStackTrace = args.FailedExpectations[0]. StackTrace;
             }
 
-            this.testExecutionCache.addTestResult(testResult);
+            this.messageSender.sendTestCaseEnd(testResult);
         }
     };
-
-    protected runStatsChange = (sender: object, args: TestRunChangedEventArgs) => {
-        console.log('test run stats change');
-        this.messageSender.sendTestRunChange(args);
-    }
 
 }

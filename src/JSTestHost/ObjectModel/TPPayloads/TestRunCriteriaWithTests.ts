@@ -1,4 +1,4 @@
-import { TestExecutionContext } from '.';
+import { TestExecutionContext } from './TestExecutionContext';
 import { TestCase } from '../Common';
 
 export interface TestRunCriteriaWithTests {

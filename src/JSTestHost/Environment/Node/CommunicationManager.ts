@@ -1,5 +1,6 @@
 import { Message, TestMessageLevel, MessageType } from '../../ObjectModel';
 import { IEvent } from '../../ObjectModel/Common';
+import { TestMessagePayload } from '../../ObjectModel/Payloads';
 import { ICommunicationManager, MessageReceivedEventArgs } from '../ICommunicationManager';
 import { IEnvironment } from '../IEnvironment';
 import * as wait from 'wait-for-stuff';
@@ -14,9 +15,12 @@ export class CommunicationManager implements ICommunicationManager {
     private socketBuffer: Buffer;
 
     public onMessageReceived: IEvent<MessageReceivedEventArgs>;
+    private con: any;
 
     constructor(environment: IEnvironment) {
         this.socketBuffer = new Buffer(0);
+
+        this.con = console.log;
 
         ['log', 'warn', 'error'].forEach((method) => {
             // const oldMethod = console[method].bind(console);
@@ -44,7 +48,8 @@ export class CommunicationManager implements ICommunicationManager {
         // Left pad with 7 bit encoded int length
         dataObject = this.intTo7BitEncodedInt(dataObject.length) + dataObject;
 
-        process.stdout.write(dataObject);
+        // this.con(dataObject);
+        const x = process.stdout.write(dataObject, 'binary');
     }
 
     // tslint:disable-next-line

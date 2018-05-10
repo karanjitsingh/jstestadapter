@@ -1,4 +1,4 @@
-import { TestRunChangedEventArgs } from '.';
+import { TestRunChangedEventArgs } from './TestRunChangedEventArgs';
 import { AttachmentSet } from '../';
 import { TestRunCompleteEventArgs } from '../EventArgs/TestRunCompleteEventArgs';
 

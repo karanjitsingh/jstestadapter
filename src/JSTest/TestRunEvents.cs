@@ -1,42 +1,58 @@
-﻿using Microsoft.VisualStudio.TestPlatform.ObjectModel;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using JSTest.Communication;
+using JSTest.Communication.Payloads;
+using JSTest.Interfaces;
 
 namespace JSTest
 {
-    public class TestRunEvents
+    internal class TestRunEvents : ITestRunEvents
     {
-        public event EventHandler<EventArgs> onTestCaseStart;
-        public event EventHandler<EventArgs> onTestCaseEnd;
-        public event EventHandler<EventArgs> onTestSessionEnd;
+        public event EventHandler<TestCaseStartEventArgs> onTestCaseStart;
+        public event EventHandler<TestCaseEndEventArgs> onTestCaseEnd;
         public event EventHandler<TestCaseFoundEventArgs> onTestCaseFound;
-        public event EventHandler<TestMessageReceivedEventArgs> onTestMessageReceived;
-    }
+        public event EventHandler<TestMessagePayload> onTestMessageReceived;
+        public event EventHandler<EventArgs> onTestSessionEnd;
 
-    public class TestCaseFoundEventArgs : EventArgs
-    {
-        public TestCase TestCase {
-            private set;
-            get;
+        internal void InvokeTestCaseStart(object sender, TestCaseStartEventArgs args)
+        {
+            if (this.onTestCaseStart != null)
+            {
+                this.onTestCaseStart.Invoke(sender, args);
+            }
         }
 
-        public TestCaseFoundEventArgs(TestCase testCase)
+        internal void InvokeTestCaseEnd(object sender, TestCaseEndEventArgs args)
         {
-            this.TestCase = testCase;
+            if (this.onTestCaseEnd != null)
+            {
+                this.onTestCaseEnd.Invoke(sender, args);
+            }
         }
-    }
 
-    public class TestMessageReceivedEventArgs : EventArgs
-    {
-        public string Message { private set; get; }
-        public TestMessageLevel MessageLevel { private set; get; }
-
-        public TestMessageReceivedEventArgs(Message message)
+        internal void InvokeTestCaseFound(object sender, TestCaseFoundEventArgs args)
         {
+            if (this.onTestCaseFound != null)
+            {
+                this.onTestCaseFound.Invoke(sender, args);
+            }
+        }
 
+        internal void InvokeMessageReceived(object sender, TestMessagePayload args)
+        {
+            if (this.onTestMessageReceived != null)
+            {
+                this.onTestMessageReceived.Invoke(sender, args);
+            }
+        }
+
+        internal void InvokeTestSessionEnd(object sender)
+        {
+            if (this.onTestSessionEnd != null)
+            {
+                this.onTestSessionEnd.Invoke(sender, null);
+            }
         }
     }
 

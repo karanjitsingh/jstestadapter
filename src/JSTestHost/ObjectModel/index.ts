@@ -5,3 +5,4 @@ export { TestResult } from './TestResult';
 export { TestRunStatistics } from './TestRunStatistics';
 export { Constants } from './Constants';
 export { AttachmentSet } from './AttachmentSet';
+export { TestRunSettings } from './TestRunSettings';

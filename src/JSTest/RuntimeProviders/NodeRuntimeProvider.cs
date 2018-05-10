@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-namespace JSTest.JSRuntime
+namespace JSTest.RuntimeProviders
 {
     using System;
     using System.Diagnostics;
@@ -33,9 +33,9 @@ namespace JSTest.JSRuntime
             }
         }
 
-        public ProcessStartInfo GetRuntimeProcessInfo(JSTestSettings settings, IEnvironment environment)
+        public TestProcessStartInfo GetRuntimeProcessInfo(JSTestSettings settings, IEnvironment environment)
         {
-            var processInfo = new ProcessStartInfo();
+            var processInfo = new TestProcessStartInfo();
 
             string rootFolder = Path.GetDirectoryName(typeof(TestRunner).GetTypeInfo().Assembly.GetAssemblyLocation());
 
@@ -52,6 +52,8 @@ namespace JSTest.JSRuntime
             var debug = !string.IsNullOrEmpty(hostDebugEnabled) && hostDebugEnabled.Equals("1", StringComparison.Ordinal);
 
             //debug = true;
+
+            processInfo.EnvironmentVariables = new Dictionary<string, string>();
 
             // Maybe this is not required after setting working directory
             processInfo.EnvironmentVariables.Add("NODE_PATH", Environment.GetEnvironmentVariable("NODE_PATH") + ";" + Path.Combine(rootFolder, "JSTestHost", "node_modules"));

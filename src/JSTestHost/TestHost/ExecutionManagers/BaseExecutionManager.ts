@@ -1,7 +1,7 @@
 import { IEnvironment } from '../../Environment/IEnvironment';
 import { MessageSender } from '../MessageSender';
 import { TestFrameworkFactory } from '../TestFrameworks/TestFrameworkFactory';
-import { IEvent, IEventArgs, EnvironmentType, IEventHandler } from '../../ObjectModel/Common';
+import { IEvent, IEventArgs, EnvironmentType } from '../../ObjectModel/Common';
 import { Exception, ExceptionType } from '../../Exceptions';
 import { RunSettings } from '../RunSettings';
 import { TestFrameworkEventHandlers } from '../TestFrameworks/TestFrameworkEventHandlers';
@@ -18,7 +18,6 @@ export abstract class BaseExecutionManager {
     protected runSettings: RunSettings;
 
     protected abstract testFrameworkEventHandlers: TestFrameworkEventHandlers;
-    protected abstract runStatsChange: IEventHandler<IEventArgs>;
     
     constructor(environment: IEnvironment, messageSender: MessageSender, testFramework: TestFrameworks) {
         this.environment = environment;

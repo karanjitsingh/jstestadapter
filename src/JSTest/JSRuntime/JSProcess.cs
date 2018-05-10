@@ -1,4 +1,5 @@
 ﻿using JSTest.Communication;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -39,23 +40,15 @@ namespace JSTest.JSRuntime
             }
         }
 
-        public bool LaunchProcess(ProcessStartInfo startInfo, Action<object, string> processErrorReceived,  Action<object> processExitReceived)
+        public bool LaunchProcess(TestProcessStartInfo startInfo, Action<object, string> processErrorReceived, Action<object> processExitReceived)
         {
             var process = new Process();
             try
             {
-                process.StartInfo = startInfo;
-                process.StartInfo.UseShellExecute = false;
-                process.StartInfo.CreateNoWindow = true;
-
-                process.StartInfo.RedirectStandardInput = true;
-                process.StartInfo.RedirectStandardOutput = true;
-                process.StartInfo.RedirectStandardError = true;
+                this.InitializeStartInfo(process, startInfo);
 
                 process.EnableRaisingEvents = true;
-
                 process.ErrorDataReceived += (sender, args) => processErrorReceived(sender as Process, args.Data);
-
                 process.Exited += (sender, args) =>
                 {
                     // Call WaitForExit without again to ensure all streams are flushed,
@@ -98,6 +91,30 @@ namespace JSTest.JSRuntime
             {
                 this.process.Kill();
             }
+        }
+
+        private void InitializeStartInfo(Process process, TestProcessStartInfo startInfo)
+        {
+            process.StartInfo.FileName = startInfo.FileName;
+            process.StartInfo.WorkingDirectory = startInfo.WorkingDirectory;
+            process.StartInfo.Arguments = startInfo.Arguments;
+
+            foreach(var entry in startInfo.EnvironmentVariables)
+            {
+#if NETSTANDARD14
+                process.StartInfo.Environment.Add(entry);
+#endif
+#if NET451
+                process.StartInfo.EnvironmentVariables.Add(entry.Key, entry.Value);
+#endif
+            }
+
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.CreateNoWindow = true;
+
+            process.StartInfo.RedirectStandardInput = true;
+            process.StartInfo.RedirectStandardOutput = true;
+            process.StartInfo.RedirectStandardError = true;
         }
 
         private void InitializeChannel()

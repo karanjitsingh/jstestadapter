@@ -4,6 +4,7 @@
 namespace JSTest.Communication
 {
     using Microsoft.VisualStudio.TestPlatform.ObjectModel;
+    using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions;
     using Microsoft.VisualStudio.TestPlatform.Utilities;
     using System;
     using System.IO;
@@ -29,7 +30,7 @@ namespace JSTest.Communication
             this.reader = new BinaryReader(outputStream, Encoding.UTF8, true);
 
             // Using the Buffered stream while writing, improves the write performance. By reducing the number of writes.
-            this.writer = new BinaryWriter(new BufferedStream(inputStream, JSTest.Constants.StreamBufferSize), Encoding.UTF8, true);
+            this.writer = new BinaryWriter(new PlatformStream().CreateBufferedStream(inputStream, JSTest.Constants.StreamBufferSize), Encoding.UTF8, true);
         }
 
         /// <inheritdoc />

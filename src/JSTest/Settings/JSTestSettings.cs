@@ -30,11 +30,10 @@ namespace JSTest.Settings
             }
         }
 
-        [DataMember]
         public bool Discovery { get; set; }
 
         [DataMember]
-        public bool Parallel { get; set; }
+        public bool RunInParallel { get; set; }
 
         // Copy constructor
         public JSTestSettings(JSTestSettings settings)      
@@ -53,7 +52,7 @@ namespace JSTest.Settings
             settings.Runtime = JavaScriptRuntime.NodeJS;
             settings.JSTestFramework = JSTestFramework.Jasmine;
             settings.Discovery = false;
-            settings.Parallel = true;
+            settings.RunInParallel = true;
         }
     }
 }

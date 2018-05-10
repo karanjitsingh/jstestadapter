@@ -13,6 +13,7 @@ using JSTest.Communication;
 using System.IO;
 using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions;
 using JSTest.JSRuntime;
+using JSTest.Communication.Payloads;
 
 namespace JSTest
 {
@@ -23,6 +24,7 @@ namespace JSTest
         private readonly IMessageLogger messageLogger;
         private readonly JSProcess jsProcess;
         private readonly JsonDataSerializer dataSerializer;
+        private ManualResetEventSlim versionCheckComplete;
 
         protected int ErrorLength { get; set; } = 4096;
 
@@ -37,6 +39,8 @@ namespace JSTest
             this.TestRunEvents = TestRunEvents;
             this.dataSerializer = dataSerializer;
             this.jsProcess = process;
+            this.versionCheckComplete = new ManualResetEventSlim();
+            this.TestRunEvents = new TestRunEvents();
         }
 
         public TestRuntimeManager(JSTestSettings settings)
@@ -115,7 +119,7 @@ namespace JSTest
             return Task.FromResult(true);
         }
 
-        public async Task<bool> LaunchProcessAsync(ProcessStartInfo runtimeProcessStartInfo, CancellationToken cancellationToken)
+        public async Task<bool> LaunchProcessAsync(TestProcessStartInfo runtimeProcessStartInfo, CancellationToken cancellationToken)
         {
             return await Task.Run(() =>
             {
@@ -138,32 +142,48 @@ namespace JSTest
                 }
 
                 //this.OnHostLaunched(new HostProviderEventArgs("Test Runtime launched", 0, this.testHostProcess.Id));
-                this.InitializeCommunication();
-                Task.Run(() => { this.MessageLoopAsync(this.jsProcess.CommunicationChannel, cancellationToken); }).Wait();
+                this.InitializeCommunication(cancellationToken);
 
                 return this.jsProcess.IsAlive;
             });
         }
 
-        public SendStartExecution(IEnumerable<string> sources)
+        public void SendStartExecution(IEnumerable<string> sources)
         {
-            var message = this.dataSerializer.SerializePayload(MessageType)
+            var payload = new StartExecutionWithSourcesPayload() { Sources = sources };
+            this.SendMessage(MessageType.StartTestExecutionWithSources, payload);
         }
 
-        public void SendMessage(string messageType, object payload)
+        public void SendStartExecution(IEnumerable<TestCase> tests)
+        {
+            var payload = new StartExecutionWithTestsPayload() { Tests = tests };
+            this.SendMessage(MessageType.StartTestExecutionWithTests, payload);
+        }
+
+        public void SendStartDiscovery(IEnumerable<string> sources)
+        {
+            var payload = new StartDiscoveryPayload() { Sources = sources };
+            this.SendMessage(MessageType.StartDiscovery, payload);
+        }
+
+        private void SendMessage(string messageType, object payload)
         {
             var message = this.dataSerializer.SerializePayload(messageType, payload);
             this.jsProcess.CommunicationChannel.Send(message);
         }
 
-        private void InitializeCommunication()
+        private void InitializeCommunication(CancellationToken cancellationToken)
         {
+
             if (jsProcess.IsAlive)
             {
+                // Start the message loop
+                Task.Run(() => { this.MessageLoopAsync(this.jsProcess.CommunicationChannel, cancellationToken); });
+
                 this.jsProcess.CommunicationChannel.MessageReceived += onMessageReceived;
                 this.SendMessage(MessageType.TestRunSettings, settings);
 
-                Task.Run(() => this.jsProcess.CommunicationChannel.NotifyDataAvailable()).Wait();
+                this.versionCheckComplete.Wait();
             }
         }
 
@@ -188,9 +208,6 @@ namespace JSTest
                 }
             }
 
-            // Try clean up and raise client disconnected events
-            //errorHandler(error);
-
             return Task.FromResult(0);
         }
 
@@ -207,7 +224,36 @@ namespace JSTest
                     {
                         throw new Exception("");
                     }
+                    else
+                    {
+                        this.versionCheckComplete.Set();
+                    }
 
+                    break;
+
+                case MessageType.TestCaseFound:
+                    var testFoundPayload = this.dataSerializer.DeserializePayload<TestCaseFoundEventArgs>(message);
+                    this.TestRunEvents.InvokeTestCaseFound(this, testFoundPayload);
+                    break;
+
+                case MessageType.TestCaseStart:
+                    var testStartPayload = this.dataSerializer.DeserializePayload<TestCaseStartEventArgs>(message);
+                    this.TestRunEvents.InvokeTestCaseStart(this, testStartPayload);
+                    break;
+
+                case MessageType.TestCaseEnd:
+                    var testEndPayload = this.dataSerializer.DeserializePayload<TestCaseEndEventArgs>(message);
+                    this.TestRunEvents.InvokeTestCaseEnd(this, testEndPayload);
+                    break;
+
+                case MessageType.ExecutionComplete:
+                case MessageType.DiscoveryComplete:
+                    this.TestRunEvents.InvokeTestSessionEnd(this);
+                    break;
+
+                case MessageType.TestMessage:
+                    var messagePayload = this.dataSerializer.DeserializePayload<TestMessagePayload>(message);
+                    this.TestRunEvents.InvokeMessageReceived(this, messagePayload);
                     break;
 
                 default:

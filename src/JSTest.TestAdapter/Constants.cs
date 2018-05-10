@@ -7,9 +7,9 @@ namespace JSTest.TestAdapter
     internal static class Constants
     {
 
-        public const string ExecutorUri = "executor://jstestadapter/v1";
+        public const string ExecutorUri = "executor://JSTestAdapter";
 
-        internal static class Extensions
+        internal static class FileExtensions
         {
             public const string JavaScript = ".js";
         }

@@ -1,12 +1,20 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFrameworks>netstandard1.4;net451</TargetFrameworks>
+    <DefineConstants Condition="'$(TargetFramework)' == 'netstandard1.4'">NETSTANDARD14</DefineConstants>
+    <DefineConstants Condition="'$(TargetFramework)' == 'net451'">NET451</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.TestPlatform.ObjectModel" Version="15.7.0" />
+    <PackageReference Include="Microsoft.TestPlatform.ObjectModel" Version="15.7.0-dev" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.4'">
+    <PackageReference Include="System.Diagnostics.Process">
+      <Version>4.3.0</Version>
+    </PackageReference>
   </ItemGroup>
 
 </Project>

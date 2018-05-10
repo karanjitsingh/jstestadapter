@@ -15,12 +15,12 @@ export class TestSessionManager {
     private testSessionIterator: IterableIterator<TestSession>;
     private sessionCompleteCount: number;
     private sessionCount: number;
-    public onSessionsComplete: IEvent<IEventArgs>;
+    public onAllSessionsComplete: IEvent<IEventArgs>;
     
     constructor(environment: IEnvironment) {
         this.sessionCount = 0;
         this.sessionCompleteCount = 0;
-        this.onSessionsComplete = environment.createEvent();
+        this.onAllSessionsComplete = environment.createEvent();
         this.testSessionBucket = new Map();
         this.testSessionIterator = this.testSessionBucket.values();
     }
@@ -43,7 +43,7 @@ export class TestSessionManager {
 
         // Check for all session completion
         if (this.sessionCount === this.sessionCompleteCount) {
-            this.onSessionsComplete.raise(this, {});
+            this.onAllSessionsComplete.raise(this, {});
         }
     }
 
