@@ -62,7 +62,7 @@ namespace JSTest.RuntimeProviders
                 " -r source-map-support/register {0} {1} {2}",
                 debug ? "--inspect-brk=9229" : "",
                 jstesthost,
-                $"--framework {settings.JSTestFramework}");
+                $"--framework {settings.JavaScriptTestFramework}");
 
             return processInfo;
         }

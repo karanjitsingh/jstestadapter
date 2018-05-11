@@ -1,6 +1,3 @@
-// tslint:disable
-const net = require('net');
-
 import { IEnvironment } from './Environment/IEnvironment';
 import { EnvironmentProvider } from './Environment/EnvironmentProvider';
 import { TestHost } from './TestHost/TestHost';
@@ -12,8 +9,8 @@ environmentProvider.getEnvironment().then((env: IEnvironment) => {
         // tslint:disable-next-line
         new TestHost(env);
     } catch (err) {
-        console.error(err, err.stack);
+        console.error('JSTest ran into an internal error while executing:', err.stack);
     }
 }, (err) => {
-    console.error(err, err.stack);
+    console.error('JSTest ran into an internal error while executing:', err.stack);
 });

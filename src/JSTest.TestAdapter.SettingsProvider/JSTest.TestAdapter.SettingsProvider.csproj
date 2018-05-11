@@ -5,11 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.TestPlatform.ObjectModel" Version="15.7.0-dev" />
+    <PackageReference Include="System.Xml.XmlSerializer" Version="4.3.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\JSTest.TestAdapter.SettingsProvider\JSTest.TestAdapter.SettingsProvider.csproj" />
     <ProjectReference Include="..\JSTest\JSTest.csproj" />
   </ItemGroup>
 

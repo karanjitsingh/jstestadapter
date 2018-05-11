@@ -2,57 +2,41 @@
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Xml.Serialization;
 
 namespace JSTest.Settings
 {
+
     [DataContract]
     public class JSTestSettings
     {
-        public JavaScriptRuntime Runtime { get; set; }
-        public JSTestFramework JSTestFramework { get; set; }
+        #region Adapter Specific Settings
 
-        [DataMember]
-        private string TestFramework
-        {
-            get
-            {
-                switch(this.JSTestFramework)
-                {
-                    case JSTestFramework.Jasmine:
-                        return Constants.TestFrameworkStrings.Jasmine;
-                    case JSTestFramework.Mocha:
-                        return Constants.TestFrameworkStrings.Mocha;
-                    case JSTestFramework.Jest:
-                        return Constants.TestFrameworkStrings.Jest;
-                    default:
-                        return string.Empty;
-                }
-            }
-        }
+        public JavaScriptRuntime Runtime { get; set; }
 
         public bool Discovery { get; set; }
 
-        [DataMember]
         public bool RunInParallel { get; set; }
 
-        // Copy constructor
-        public JSTestSettings(JSTestSettings settings)      
-        {
-            this.Runtime = settings.Runtime;
-            this.JSTestFramework = settings.JSTestFramework;
-        }
+        #endregion
 
+        #region JS Runner Specific Settings
+        
+        [DataMember]
+        public JSTestFramework JavaScriptTestFramework { get; set; }
+
+        [XmlIgnore]
+        [DataMember]
+        public IDictionary<string, string> TestFrameworkOptions { get; set; }
+
+        #endregion
+        
         public JSTestSettings()
         {
-            JSTestSettings.SetDefaultSettings(this);
-        }
-
-        public static void SetDefaultSettings(JSTestSettings settings)
-        {
-            settings.Runtime = JavaScriptRuntime.NodeJS;
-            settings.JSTestFramework = JSTestFramework.Jasmine;
-            settings.Discovery = false;
-            settings.RunInParallel = true;
+            this.Runtime = JavaScriptRuntime.NodeJS;
+            this.JavaScriptTestFramework = JSTestFramework.Jasmine;
+            this.Discovery = false;
+            this.RunInParallel = true;
         }
     }
 }

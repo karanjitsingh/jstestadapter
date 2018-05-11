@@ -14,8 +14,8 @@ using JSTest.Interfaces;
 
 namespace JSTest.TestAdapter
 {
-    [FileExtension(Constants.FileExtensions.JavaScript)]
-    [DefaultExecutorUri(Constants.ExecutorUri)]
+    [FileExtension(AdapterConstants.FileExtensions.JavaScript)]
+    [DefaultExecutorUri(AdapterConstants.ExecutorUri)]
     public class JavaScriptTestDiscoverer : ITestDiscoverer
     {
         private readonly TestRunner testRunner;
@@ -27,6 +27,8 @@ namespace JSTest.TestAdapter
         {
             this.testRunner = new TestRunner();
             this.discoveryCompletion = new ManualResetEventSlim();
+
+            this.SubscribeToEvents(this.testRunner.TestRunEvents);
         }
 
         public void DiscoverTests(IEnumerable<string> sources, IDiscoveryContext discoveryContext, IMessageLogger logger, ITestCaseDiscoverySink discoverySink)
@@ -37,11 +39,9 @@ namespace JSTest.TestAdapter
             var settings = new JSTestSettings();
             settings.Discovery = true;
 
-            ITestRunEvents testRunEvents;
-
             try
             {
-                testRunEvents = this.testRunner.StartExecution(sources, settings, null);
+                this.testRunner.StartExecution(sources, settings, null);
             }
             catch(JSTestException e)
             {
@@ -49,11 +49,14 @@ namespace JSTest.TestAdapter
                 return;
             }
 
+            this.discoveryCompletion.Wait();
+        }
+
+        private void SubscribeToEvents(ITestRunEvents testRunEvents)
+        {
             testRunEvents.onTestCaseFound += onTestCaseFoundHandler;
             testRunEvents.onTestSessionEnd += onTestSessionEndHandler;
             testRunEvents.onTestMessageReceived += onTestMessageReceived;
-
-            this.discoveryCompletion.Wait();
         }
 
         private void onTestMessageReceived(object sender, TestMessagePayload e)

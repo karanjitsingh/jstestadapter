@@ -1,33 +1,45 @@
-﻿using JSTest.Settings;
-using JSTest.JSRuntime;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel;
-using System;
-using JSTest.Communication;
-using JSTest.Interfaces;
-using JSTest.RuntimeProviders;
-using JSTest.Exceptions;
+﻿
 
 namespace JSTest
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Threading;
+    using System.Threading.Tasks;
+
+    using Microsoft.VisualStudio.TestPlatform.ObjectModel;
+
+    using JSTest.Exceptions;
+    using JSTest.Interfaces;
+    using JSTest.RuntimeProviders;
+    using JSTest.Settings;
+
+
     public class TestRunner: IDisposable
     {
         private TestRuntimeManager runtimeManager;
-        private ManualResetEventSlim executionComplete;
+        private readonly ManualResetEventSlim executionComplete;
+        private readonly TestRunEvents testRunEvents;
+
+        public ITestRunEvents TestRunEvents
+        {
+            get
+            {
+                return this.testRunEvents;
+            }
+        }
 
         public TestRunner()
         {
             this.executionComplete = new ManualResetEventSlim(false);
+            this.testRunEvents = new TestRunEvents();
         }
 
         private void StartRuntimeManager(JSTestSettings settings)
         {
             var processInfo = RuntimeProviderFactory.Instance.GetRuntimeProcessInfo(settings);
-            this.runtimeManager = new TestRuntimeManager(settings);
+            this.runtimeManager = new TestRuntimeManager(settings, this.testRunEvents);
 
             Task<bool> launchTask = null;
 
@@ -57,7 +69,7 @@ namespace JSTest
             }
         }
 
-        public ITestRunEvents StartExecution(IEnumerable<string> sources, JSTestSettings settings, CancellationToken? cancellationToken)
+        public void StartExecution(IEnumerable<string> sources, JSTestSettings settings, CancellationToken? cancellationToken)
         {
             this.StartRuntimeManager(settings);
 
@@ -65,27 +77,22 @@ namespace JSTest
             {
                 this.runtimeManager.SendStartDiscovery(sources);
             }
-            else { 
+            else
+            { 
                 this.runtimeManager.SendStartExecution(sources);
             }
-
-            //this.executionComplete.Wait();
-            return this.runtimeManager.TestRunEvents;
         }
 
-        public ITestRunEvents StartExecution(IEnumerable<TestCase> tests, JSTestSettings settings, CancellationToken? cancellationToken)
+        public void StartExecution(IEnumerable<TestCase> tests, JSTestSettings settings, CancellationToken? cancellationToken)
         {
             this.StartRuntimeManager(settings);
-
             this.runtimeManager.SendStartExecution(tests);
-
-            //this.executionComplete.Wait();
-            return this.runtimeManager.TestRunEvents;
         }
 
         public void Dispose()
         {
             this.runtimeManager.CleanProcessAsync(new CancellationToken()).Wait();
+            
         }
     }
 }

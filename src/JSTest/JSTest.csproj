@@ -10,6 +10,7 @@
     <PackageReference Include="Microsoft.TestPlatform.ObjectModel" Version="15.7.0-dev" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
     <PackageReference Include="Node.js.redist" Version="8.9.1" />
+    <PackageReference Include="System.Xml.XmlSerializer" Version="4.3.0" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.4'">

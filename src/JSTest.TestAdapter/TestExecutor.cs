@@ -2,18 +2,19 @@
 using JSTest.Exceptions;
 using JSTest.Interfaces;
 using JSTest.Settings;
+using JSTest.TestAdapter.SettingsProvider;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Diagnostics;
 using System.Threading;
 
-namespace JSTest.TestAdapter
+namespace JSTest.TestAdapter.SettingsProvider
 {
 
-    [ExtensionUri(Constants.ExecutorUri)]
+    [ExtensionUri(AdapterConstants.ExecutorUri)]
     class JavaScriptTestExecutor : ITestExecutor
     {
         private readonly TestRunner testRunner;
@@ -26,6 +27,8 @@ namespace JSTest.TestAdapter
             this.testRunner = new TestRunner();
             this.executionCompletion = new ManualResetEventSlim();
             this.cancellationTokenSource = new CancellationTokenSource();
+
+            this.SubscribeToEvents(this.testRunner.TestRunEvents);
         }
 
         public void Cancel()
@@ -37,13 +40,13 @@ namespace JSTest.TestAdapter
         public void RunTests(IEnumerable<TestCase> tests, IRunContext runContext, IFrameworkHandle frameworkHandle)
         {
             this.frameworkHandle = frameworkHandle;
-            var settings = new JSTestSettings();
 
-            ITestRunEvents testRunEvents;
+            var settingsProvider = runContext.RunSettings.GetSettings(AdapterConstants.SettingsName) as JavaScriptSettingsProvider;
+            var settings = settingsProvider != null ? settingsProvider.Settings : new JSTestSettings();
 
             try
             {
-                testRunEvents = this.testRunner.StartExecution(tests, settings, this.cancellationTokenSource.Token);
+                this.testRunner.StartExecution(tests, settings, this.cancellationTokenSource.Token);
             }
             catch (JSTestException e)
             {
@@ -51,39 +54,36 @@ namespace JSTest.TestAdapter
                 return;
             }
 
-            this.SubscribeAndWaitForCompletion(testRunEvents);
+            executionCompletion.Wait();
         }
 
         public void RunTests(IEnumerable<string> sources, IRunContext runContext, IFrameworkHandle frameworkHandle)
         {
             this.frameworkHandle = frameworkHandle;
-            var settings = new JSTestSettings();
 
-            settings.JSTestFramework = JSTestFramework.Mocha;
+            var settingsProvider = runContext.RunSettings.GetSettings(AdapterConstants.SettingsName) as JavaScriptSettingsProvider;
+            var settings = settingsProvider != null ? settingsProvider.Settings : new JSTestSettings();
 
             ITestRunEvents testRunEvents;
 
             try
             {
-                testRunEvents = this.testRunner.StartExecution(sources, settings, this.cancellationTokenSource.Token);
+                this.testRunner.StartExecution(sources, settings, this.cancellationTokenSource.Token);
             }
             catch (JSTestException e)
             {
                 frameworkHandle.SendMessage(TestMessageLevel.Error, e.ToString());
                 return;
             }
-
-            this.SubscribeAndWaitForCompletion(testRunEvents);
+            
         }
 
-        private void SubscribeAndWaitForCompletion(ITestRunEvents events)
+        private void SubscribeToEvents(ITestRunEvents testRunEvents)
         {
-            events.onTestCaseStart += this.onTestCaseStartHandler;
-            events.onTestCaseEnd += this.onTestCaseEndHandler;
-            events.onTestSessionEnd += this.onTestSessionEndHandler;
-            events.onTestMessageReceived += this.onTestMessageReceived;
-
-            this.executionCompletion.Wait();
+            testRunEvents.onTestCaseStart += this.onTestCaseStartHandler;
+            testRunEvents.onTestCaseEnd += this.onTestCaseEndHandler;
+            testRunEvents.onTestSessionEnd += this.onTestSessionEndHandler;
+            testRunEvents.onTestMessageReceived += this.onTestMessageReceived;
         }
 
         private void onTestMessageReceived(object sender, TestMessagePayload e)

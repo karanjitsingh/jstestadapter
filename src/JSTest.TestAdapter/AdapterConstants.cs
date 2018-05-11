@@ -4,10 +4,11 @@ using System.Text;
 
 namespace JSTest.TestAdapter
 {
-    internal static class Constants
+    public static class AdapterConstants
     {
 
         public const string ExecutorUri = "executor://JSTestAdapter";
+        public const string SettingsName = "JSTestAdapter";
 
         internal static class FileExtensions
         {

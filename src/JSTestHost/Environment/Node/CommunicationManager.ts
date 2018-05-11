@@ -15,41 +15,23 @@ export class CommunicationManager implements ICommunicationManager {
     private socketBuffer: Buffer;
 
     public onMessageReceived: IEvent<MessageReceivedEventArgs>;
-    private con: any;
 
     constructor(environment: IEnvironment) {
         this.socketBuffer = new Buffer(0);
-
-        this.con = console.log;
-
-        ['log', 'warn', 'error'].forEach((method) => {
-            // const oldMethod = console[method].bind(console);
-            // tslint:disable-next-line
-            console[method] = function() {
-                // oldMethod.apply(
-                //     console,
-                //     [new Date().toISOString()].concat(arguments)
-                // );
-                this.logMessage(method, arguments);
-            }.bind(this);
-        });
 
         this.onMessageReceived = environment.createEvent();
         process.stdin.on('data', this.stdinDataReceived);
     }
 
-    public sendMessage(message: Message, log: boolean = true) {
+    public sendMessage(message: Message) {
         let dataObject = JSON.stringify(message);
 
-        if (log) {
-            console.log('Message Send', message);
-        }
+        // console.log('Message Send', message);
 
         // Left pad with 7 bit encoded int length
         dataObject = this.intTo7BitEncodedInt(dataObject.length) + dataObject;
 
-        // this.con(dataObject);
-        const x = process.stdout.write(dataObject, 'binary');
+        process.stdout.write(dataObject, 'binary');
     }
 
     // tslint:disable-next-line
@@ -159,42 +141,5 @@ export class CommunicationManager implements ICommunicationManager {
             length = length >> 7;
         }
         return output;
-    }
-
-    // For some reason this is a false positive
-    // tslint:disable:no-unused-variable
-    private logMessage(method: string, args: Array<any>): void {
-        if (!args || !args.length) {
-            return;
-        }
-
-        args = Array.from(args);
-
-        let messageLevel = TestMessageLevel.Informational;
-
-        switch (method) {
-            case 'log':
-                messageLevel = TestMessageLevel.Informational;
-                break;
-            case 'warn':
-                messageLevel = TestMessageLevel.Warning;
-                break;
-            case 'error':
-                messageLevel = TestMessageLevel.Error;
-                break;
-        }
-
-        args.forEach((arg, i) => {
-            args[i] = JSON.stringify(arg);
-        });
-        
-        const messageString = args.join('\n');
-
-        const message = new Message(MessageType.TestMessage, <TestMessagePayload> {
-            Message: messageString,
-            MessageLevel: messageLevel
-        });
-
-        this.sendMessage(message, false);
     }
 }

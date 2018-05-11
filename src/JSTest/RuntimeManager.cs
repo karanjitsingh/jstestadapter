@@ -1,22 +1,22 @@
-﻿using JSTest.Settings;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel.Host;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
-using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using JSTest.Communication;
-using System.IO;
-using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions;
-using JSTest.JSRuntime;
-using JSTest.Communication.Payloads;
-
-namespace JSTest
+﻿namespace JSTest
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Text;
+    using System.Threading;
+    using System.Threading.Tasks;
+
+    using Microsoft.VisualStudio.TestPlatform.ObjectModel;
+    using Microsoft.VisualStudio.TestPlatform.ObjectModel.Host;
+    using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
+    using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions;
+    using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces;
+
+    using JSTest.Communication;
+    using JSTest.Communication.Payloads;
+    using JSTest.JSRuntime;
+    using JSTest.Settings;
+
     internal class TestRuntimeManager
     {
         private JSTestSettings settings;
@@ -24,6 +24,7 @@ namespace JSTest
         private readonly IMessageLogger messageLogger;
         private readonly JSProcess jsProcess;
         private readonly JsonDataSerializer dataSerializer;
+        private readonly TestRunEvents testRunEvents;
         private ManualResetEventSlim versionCheckComplete;
 
         protected int ErrorLength { get; set; } = 4096;
@@ -32,21 +33,19 @@ namespace JSTest
 
         public event EventHandler<HostProviderEventArgs> HostExited;
 
-        public TestRunEvents TestRunEvents { private set; get; }
 
-        public TestRuntimeManager(TestRunEvents testRunEvents, JsonDataSerializer dataSerializer, IProcessHelper processHelper, JSProcess process)
+        public TestRuntimeManager(JsonDataSerializer dataSerializer, IProcessHelper processHelper, JSProcess process)
         {
-            this.TestRunEvents = TestRunEvents;
             this.dataSerializer = dataSerializer;
             this.jsProcess = process;
             this.versionCheckComplete = new ManualResetEventSlim();
-            this.TestRunEvents = new TestRunEvents();
         }
 
-        public TestRuntimeManager(JSTestSettings settings)
-            : this(new TestRunEvents(), JsonDataSerializer.Instance, new ProcessHelper(), new JSProcess())
+        public TestRuntimeManager(JSTestSettings settings, TestRunEvents testRunEvents)
+            : this(JsonDataSerializer.Instance, new ProcessHelper(), new JSProcess())
         {
             this.settings = settings;
+            this.testRunEvents = testRunEvents;
         }
 
         private Action<object> ProcessExitReceived => (process) =>
@@ -233,27 +232,27 @@ namespace JSTest
 
                 case MessageType.TestCaseFound:
                     var testFoundPayload = this.dataSerializer.DeserializePayload<TestCaseFoundEventArgs>(message);
-                    this.TestRunEvents.InvokeTestCaseFound(this, testFoundPayload);
+                    this.testRunEvents.InvokeTestCaseFound(this, testFoundPayload);
                     break;
 
                 case MessageType.TestCaseStart:
                     var testStartPayload = this.dataSerializer.DeserializePayload<TestCaseStartEventArgs>(message);
-                    this.TestRunEvents.InvokeTestCaseStart(this, testStartPayload);
+                    this.testRunEvents.InvokeTestCaseStart(this, testStartPayload);
                     break;
 
                 case MessageType.TestCaseEnd:
                     var testEndPayload = this.dataSerializer.DeserializePayload<TestCaseEndEventArgs>(message);
-                    this.TestRunEvents.InvokeTestCaseEnd(this, testEndPayload);
+                    this.testRunEvents.InvokeTestCaseEnd(this, testEndPayload);
                     break;
 
                 case MessageType.ExecutionComplete:
                 case MessageType.DiscoveryComplete:
-                    this.TestRunEvents.InvokeTestSessionEnd(this);
+                    this.testRunEvents.InvokeTestSessionEnd(this);
                     break;
 
                 case MessageType.TestMessage:
                     var messagePayload = this.dataSerializer.DeserializePayload<TestMessagePayload>(message);
-                    this.TestRunEvents.InvokeMessageReceived(this, messagePayload);
+                    this.testRunEvents.InvokeMessageReceived(this, messagePayload);
                     break;
 
                 default:

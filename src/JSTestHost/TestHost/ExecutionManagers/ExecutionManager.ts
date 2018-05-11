@@ -113,11 +113,11 @@ export class ExecutionManager extends BaseExecutionManager {
             // TODO incomplete test results - display name etc are null
             const testResult: TestResult = {
                 TestCase: args.TestCase,
-                Attachments: attachments,               // TODO simply send attachments received from dc?
+                Attachments: attachments,
                 Outcome: args.Outcome,
                 ErrorMessage: null,
                 ErrorStackTrace: null,
-                DisplayName: null,
+                DisplayName: args.TestCase.DisplayName,
                 Messages: [],
                 ComputerName: null,
                 Duration: TimeSpan.MSToString(args.EndTime.getTime() - args.StartTime.getTime()),
