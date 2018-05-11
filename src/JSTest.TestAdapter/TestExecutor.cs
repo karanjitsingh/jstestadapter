@@ -1,4 +1,5 @@
 ﻿using JSTest.Communication.Payloads;
+using JSTest.Exceptions;
 using JSTest.Interfaces;
 using JSTest.Settings;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
@@ -11,6 +12,8 @@ using System.Threading;
 
 namespace JSTest.TestAdapter
 {
+
+    [ExtensionUri(Constants.ExecutorUri)]
     class JavaScriptTestExecutor : ITestExecutor
     {
         private readonly TestRunner testRunner;
@@ -36,8 +39,19 @@ namespace JSTest.TestAdapter
             this.frameworkHandle = frameworkHandle;
             var settings = new JSTestSettings();
 
-            var events = this.testRunner.StartExecution(tests, settings, this.cancellationTokenSource.Token);
-            this.SubscribeAndWaitForCompletion(events);
+            ITestRunEvents testRunEvents;
+
+            try
+            {
+                testRunEvents = this.testRunner.StartExecution(tests, settings, this.cancellationTokenSource.Token);
+            }
+            catch (JSTestException e)
+            {
+                frameworkHandle.SendMessage(TestMessageLevel.Error, e.ToString());
+                return;
+            }
+
+            this.SubscribeAndWaitForCompletion(testRunEvents);
         }
 
         public void RunTests(IEnumerable<string> sources, IRunContext runContext, IFrameworkHandle frameworkHandle)
@@ -45,8 +59,21 @@ namespace JSTest.TestAdapter
             this.frameworkHandle = frameworkHandle;
             var settings = new JSTestSettings();
 
-            var events = this.testRunner.StartExecution(sources, settings, this.cancellationTokenSource.Token);
-            this.SubscribeAndWaitForCompletion(events);
+            settings.JSTestFramework = JSTestFramework.Mocha;
+
+            ITestRunEvents testRunEvents;
+
+            try
+            {
+                testRunEvents = this.testRunner.StartExecution(sources, settings, this.cancellationTokenSource.Token);
+            }
+            catch (JSTestException e)
+            {
+                frameworkHandle.SendMessage(TestMessageLevel.Error, e.ToString());
+                return;
+            }
+
+            this.SubscribeAndWaitForCompletion(testRunEvents);
         }
 
         private void SubscribeAndWaitForCompletion(ITestRunEvents events)
@@ -71,7 +98,7 @@ namespace JSTest.TestAdapter
         {
             this.frameworkHandle.RecordStart(e.TestCase);
         }
-        
+
         private void onTestCaseEndHandler(object sender, TestCaseEndEventArgs e)
         {
             this.frameworkHandle.RecordResult(e.TestResult);

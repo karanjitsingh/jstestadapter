@@ -10,6 +10,7 @@ using System;
 using JSTest.Communication;
 using JSTest.Interfaces;
 using JSTest.RuntimeProviders;
+using JSTest.Exceptions;
 
 namespace JSTest
 {
@@ -30,6 +31,8 @@ namespace JSTest
 
             Task<bool> launchTask = null;
 
+            JSTestException exception = null;
+
             try
             {
                 launchTask = Task.Run(() => this.runtimeManager.LaunchProcessAsync(processInfo, new CancellationToken()));
@@ -37,16 +40,21 @@ namespace JSTest
             }
             catch (Exception e)
             {
-                EqtTrace.Error("TestRunner.StartExecution: Could not start javascript runtime.");
-                throw new Exception();
+                EqtTrace.Error(e);
+                exception = new JSTestException("JSTest.TestRunner.StartExecution: Could not start javascript runtime.", e);
             }
-
-            if (launchTask == null || launchTask.Status != TaskStatus.RanToCompletion || launchTask.Exception != null)
+            finally
             {
-                EqtTrace.Error("TestRunner.StartExecution: Could not start javascript runtime.");
-                throw new Exception();
+                if (exception == null && launchTask.Exception != null)
+                {
+                    exception = new JSTestException("JSTest.TestRunner.StartExecution: Could not start javascript runtime.", launchTask.Exception);
+                }
             }
 
+            if(exception != null)
+            {
+                throw exception;
+            }
         }
 
         public ITestRunEvents StartExecution(IEnumerable<string> sources, JSTestSettings settings, CancellationToken? cancellationToken)

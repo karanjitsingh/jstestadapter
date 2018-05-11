@@ -36,6 +36,22 @@ export class MessageSender {
         this.commManager.sendMessage(new Message(MessageType.TestCaseFound, testFoundPayload, MessageSender.protocolVersion));
     }
 
+    public sendTestCaseStart(testCase: TestCase) {
+        const testStartPayload: TestCaseStartEventArgs = {
+            TestCase: testCase
+        };
+
+        this.commManager.sendMessage(new Message(MessageType.TestCaseStart, testStartPayload, MessageSender.protocolVersion));
+    }
+
+    public sendTestCaseEnd(testResult: TestResult) {
+        const testEndPayload: TestCaseEndEventArgs = {
+            TestResult: testResult
+        };
+
+        this.commManager.sendMessage(new Message(MessageType.TestCaseEnd, testEndPayload, MessageSender.protocolVersion));
+    }
+    
     public sendExecutionComplete() {
         this.commManager.sendMessage(new Message(MessageType.ExecutionComplete, null, MessageSender.protocolVersion));
     }
@@ -50,22 +66,6 @@ export class MessageSender {
 
         const discoverCompleteMessage = new Message(MessageType.DiscoveryComplete, null, MessageSender.protocolVersion);
         this.commManager.sendMessage(discoverCompleteMessage);
-    }
-
-    public sendTestCaseStart(testCase: TestCase) {
-        const testStartPayload: TestCaseStartEventArgs = {
-            TestCase: testCase
-        };
-
-        this.commManager.sendMessage(new Message(MessageType.TestCaseFound, testStartPayload, MessageSender.protocolVersion));
-    }
-
-    public sendTestCaseEnd(testResult: TestResult) {
-        const testEndPayload: TestCaseEndEventArgs = {
-            TestResult: testResult
-        };
-
-        this.commManager.sendMessage(new Message(MessageType.TestCaseFound, testEndPayload, MessageSender.protocolVersion));
     }
 
 }

@@ -44,14 +44,12 @@ namespace JSTest.RuntimeProviders
 #endif
 
             processInfo.FileName = this.getNodeBinaryPath(environment.Architecture, environment.OperatingSystem, rootFolder);
-            processInfo.WorkingDirectory = rootFolder;
+            //processInfo.WorkingDirectory = rootFolder;
 
             var jstesthost = Path.Combine(rootFolder, "JSTestHost", "index.js");
 
-            var hostDebugEnabled = Environment.GetEnvironmentVariable("JSTEST_HOST_DEBUG");
+            var hostDebugEnabled = Environment.GetEnvironmentVariable("JSTEST_RUNNER_DEBUG");
             var debug = !string.IsNullOrEmpty(hostDebugEnabled) && hostDebugEnabled.Equals("1", StringComparison.Ordinal);
-
-            //debug = true;
 
             processInfo.EnvironmentVariables = new Dictionary<string, string>();
 

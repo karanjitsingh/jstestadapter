@@ -9,6 +9,8 @@ using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 using JSTest.Settings;
 using JSTest.Communication.Payloads;
 using System.Threading;
+using JSTest.Exceptions;
+using JSTest.Interfaces;
 
 namespace JSTest.TestAdapter
 {
@@ -32,15 +34,24 @@ namespace JSTest.TestAdapter
             this.discoverySink = discoverySink;
             this.messageLogger = logger;
 
-            //TestRunner.DiscoverTests
             var settings = new JSTestSettings();
             settings.Discovery = true;
 
-            var events =  this.testRunner.StartExecution(sources, settings, null);
+            ITestRunEvents testRunEvents;
 
-            events.onTestCaseFound += onTestCaseFoundHandler;
-            events.onTestSessionEnd += onTestSessionEndHandler;
-            events.onTestMessageReceived += onTestMessageReceived;
+            try
+            {
+                testRunEvents = this.testRunner.StartExecution(sources, settings, null);
+            }
+            catch(JSTestException e)
+            {
+                logger.SendMessage(TestMessageLevel.Error, e.ToString());
+                return;
+            }
+
+            testRunEvents.onTestCaseFound += onTestCaseFoundHandler;
+            testRunEvents.onTestSessionEnd += onTestSessionEndHandler;
+            testRunEvents.onTestMessageReceived += onTestMessageReceived;
 
             this.discoveryCompletion.Wait();
         }
