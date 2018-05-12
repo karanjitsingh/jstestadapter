@@ -1,21 +1,21 @@
 import { ITestFramework, TestSessionEventArgs, TestSpecEventArgs, TestFrameworks } from '../../ObjectModel/TestFramework';
-import { TestMessageLevel, TestResult, AttachmentSet } from '../../ObjectModel';
+import { TestMessageLevel, TestResult, AttachmentSet, JSTestSettings } from '../../ObjectModel';
 import { TestCase } from '../../ObjectModel/Common';
 import { IEnvironment } from '../../Environment/IEnvironment';
 import { TimeSpan } from '../../Utils/TimeSpan';
 import { MessageSender } from '../MessageSender';
-// import { CodeCoverage } from './CodeCoverage';
 import { BaseExecutionManager } from './BaseExecutionManager';
 import { TestFrameworkEventHandlers } from '../TestFrameworks/TestFrameworkEventHandlers';
 import { StartExecutionWithSourcesPayload, StartExecutionWithTestsPayload } from '../../ObjectModel/Payloads';
 
 export class ExecutionManager extends BaseExecutionManager {
-
+    private jsTestSettings: JSTestSettings;
     private testFramework: TestFrameworks;
 
-    constructor(environment: IEnvironment, messageSender: MessageSender, testFramework: TestFrameworks) {
-        super(environment, messageSender, testFramework);
-        this.testFramework = testFramework;
+    constructor(environment: IEnvironment, messageSender: MessageSender, jsTestSettings: JSTestSettings) {
+        super(environment, messageSender, jsTestSettings.JavaScriptTestFramework);
+        this.jsTestSettings = jsTestSettings;
+        this.testFramework = this.jsTestSettings.JavaScriptTestFramework;
         this.testSessionManager.onAllSessionsComplete.subscribe(this.executionComplete);
     }
 
@@ -36,48 +36,6 @@ export class ExecutionManager extends BaseExecutionManager {
      
         const sources = Object.keys(sourceMap);
         return this.startExecution(sources);
-    }
-
-    private startExecution(sources: Array<string>): Promise<void> {
-        sources.forEach(source => {
-            this.testSessionManager.addSession(source, () => {
-                const testFrameworkInstance = this.testFrameworkFactory.createTestFramework(this.testFramework);
-                this.testFrameworkEventHandlers.Subscribe(testFrameworkInstance);
-                testFrameworkInstance.startExecutionWithSource(source);
-            },
-            (e) => {
-                this.sessionError(source, e);
-            });
-        });
-
-        return this.getCompletetionPromise();
-    }
-    
-    private sessionError(source: string, err: Error) {
-        if (err) {
-            this.messageSender.sendMessage(err.stack ?
-                err.stack :
-                (err.constructor.name + ': ' + err.message + ' at ' + source),
-            TestMessageLevel.Error);
-        }
-
-        const currentSession = this.testSessionManager.getSessionEventArgs(source);
-
-        if (currentSession != null) {
-            currentSession.InProgress = false;
-            currentSession.EndTime = new Date();
-        } else {
-            // TODO ??
-        }
-
-        this.testSessionManager.setSessionComplete(currentSession);
-    }
-
-    private executionComplete = () => {
-        console.log('test session end trigger');
-
-        this.messageSender.sendExecutionComplete();
-        this.onComplete.raise(this, null);
     }
 
     protected testFrameworkEventHandlers: TestFrameworkEventHandlers = {
@@ -134,4 +92,45 @@ export class ExecutionManager extends BaseExecutionManager {
         }
     };
 
+    private startExecution(sources: Array<string>): Promise<void> {
+        sources.forEach(source => {
+            this.testSessionManager.addSession(source, () => {
+                const testFrameworkInstance = this.testFrameworkFactory.createTestFramework(this.testFramework);
+                this.testFrameworkEventHandlers.Subscribe(testFrameworkInstance);
+                testFrameworkInstance.startExecutionWithSource(source, this.jsTestSettings.TestFrameworkConfigJson);
+            },
+            (e) => {
+                this.sessionError(source, e);
+            });
+        });
+
+        return this.getCompletetionPromise();
+    }
+    
+    private sessionError(source: string, err: Error) {
+        if (err) {
+            this.messageSender.sendMessage(err.stack ?
+                err.stack :
+                (err.constructor.name + ': ' + err.message + ' at ' + source),
+            TestMessageLevel.Error);
+        }
+
+        const currentSession = this.testSessionManager.getSessionEventArgs(source);
+
+        if (currentSession != null) {
+            currentSession.InProgress = false;
+            currentSession.EndTime = new Date();
+        } else {
+            // TODO ??
+        }
+
+        this.testSessionManager.setSessionComplete(currentSession);
+    }
+
+    private executionComplete = () => {
+        console.log('test session end trigger');
+
+        this.messageSender.sendExecutionComplete();
+        this.onComplete.raise(this, null);
+    }
 }

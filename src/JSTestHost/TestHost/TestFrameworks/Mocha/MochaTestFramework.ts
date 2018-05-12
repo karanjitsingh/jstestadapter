@@ -35,16 +35,16 @@ export class MochaTestFramework extends BaseTestFramework {
         this.environmentType = envrionmentType;
 
         this.mochaLib = this.getMocha();
-        this.mocha = new this.mochaLib({
-            reporter: 'base'
-        });
+
     }
 
-    public startExecutionWithSource(source: string): void {
+    public startExecutionWithSource(source: string, options: JSON): void {
         this.source = source;
 
-        // A known issue with mocha that start event is called before we can subscribe
-        // this.mochaRunner.on('start', (args) => { this.handleReporterEvents(ReporterEvent.SessionStarted, args); });
+        // tslint:disable-next-line
+        options['reporter'] = 'base';
+        this.mocha = new this.mochaLib(options);
+
         this.handleReporterEvents(ReporterEvent.SessionStarted, null);
 
         this.mocha.addFile(source);
@@ -60,7 +60,7 @@ export class MochaTestFramework extends BaseTestFramework {
         // tslint:enable:no-empty
 
         this.discoveryMode = true;
-        this.startExecutionWithSource(source);
+        this.startExecutionWithSource(source, JSON.parse('{ }'));
     }
 
     protected skip(specObject: any) {

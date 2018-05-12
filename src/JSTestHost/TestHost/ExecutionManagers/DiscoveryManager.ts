@@ -4,15 +4,16 @@ import { MessageSender } from '../MessageSender';
 import { TestFrameworkEventHandlers } from '../TestFrameworks/TestFrameworkEventHandlers';
 import { BaseExecutionManager } from './BaseExecutionManager';
 import { StartDiscoveryPayload } from '../../ObjectModel/Payloads';
-import { TestMessageLevel } from '../../ObjectModel';
+import { TestMessageLevel, JSTestSettings } from '../../ObjectModel';
 
 export class DiscoveryManager extends BaseExecutionManager {
-
+    private jsTestSettings: JSTestSettings;
     private testFramework: TestFrameworks;
 
-    constructor(environment: IEnvironment, messageSender: MessageSender, testFramework: TestFrameworks) {
-        super(environment, messageSender, testFramework);
-        this.testFramework = testFramework;
+    constructor(environment: IEnvironment, messageSender: MessageSender, jsTestSettings: JSTestSettings) {
+        super(environment, messageSender, jsTestSettings.JavaScriptTestFramework);
+        this.jsTestSettings = jsTestSettings;
+        this.testFramework = this.jsTestSettings.JavaScriptTestFramework;
         this.testSessionManager.onAllSessionsComplete.subscribe(this.discoveryComplete);
     }
 
@@ -32,6 +33,24 @@ export class DiscoveryManager extends BaseExecutionManager {
 
         return this.getCompletetionPromise();
     }
+
+    protected testFrameworkEventHandlers: TestFrameworkEventHandlers = {
+        Subscribe: (framework: ITestFramework) => {
+            framework.testFrameworkEvents.onTestSessionEnd.subscribe(this.testFrameworkEventHandlers.TestSessionEnd);
+            framework.testFrameworkEvents.onTestCaseStart.subscribe(this.testFrameworkEventHandlers.TestCaseStart);
+        },
+
+        TestSessionEnd: (sender: object, args: TestSessionEventArgs) => {
+            console.log('test session end trigger');
+            this.testSessionManager.setSessionComplete(args);
+        },
+
+        TestCaseStart: (sender: object, args: TestSpecEventArgs) => {
+            console.log('adding test case to cache');
+            // this.testDiscoveryCache.addTest(args.TestCase);
+            this.messageSender.sendTestCaseFound(args.TestCase);
+        }
+    };
 
     private sessionError(source: string, err: Error) {
         if (err) {
@@ -60,22 +79,4 @@ export class DiscoveryManager extends BaseExecutionManager {
         this.messageSender.sendDiscoveryComplete();
         this.onComplete.raise(this, null);
     }
-
-    protected testFrameworkEventHandlers: TestFrameworkEventHandlers = {
-        Subscribe: (framework: ITestFramework) => {
-            framework.testFrameworkEvents.onTestSessionEnd.subscribe(this.testFrameworkEventHandlers.TestSessionEnd);
-            framework.testFrameworkEvents.onTestCaseStart.subscribe(this.testFrameworkEventHandlers.TestCaseStart);
-        },
-
-        TestSessionEnd: (sender: object, args: TestSessionEventArgs) => {
-            console.log('test session end trigger');
-            this.testSessionManager.setSessionComplete(args);
-        },
-
-        TestCaseStart: (sender: object, args: TestSpecEventArgs) => {
-            console.log('adding test case to cache');
-            // this.testDiscoveryCache.addTest(args.TestCase);
-            this.messageSender.sendTestCaseFound(args.TestCase);
-        }
-    };
 }

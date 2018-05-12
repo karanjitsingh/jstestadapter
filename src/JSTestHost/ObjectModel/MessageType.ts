@@ -8,6 +8,7 @@ export enum MessageType {
     ExecutionComplete = 'JSText.ExecutionComplete',
     TestRunRequest = 'JSTest.TestRunRequest',
     TestMessage = 'JSTest.TestMessage',
+    ConsoleMessage = 'JSTest.ConsoleMessage',
     StartTestExecutionWithSources = 'JSTest.StartWithSources',
     StartTestExecutionWithTests = 'JSTest.StartWithTests',
     StartDiscovery = 'JSTest.StartDiscovery'

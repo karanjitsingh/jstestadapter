@@ -24,6 +24,14 @@ export class Exception extends Error implements ISerializable  {
 
         super(exception + ': ' + message);
 
+        if (this.stack) {
+            const trace = this.stack.split('\n');
+            if (trace.length > 2) {
+                const remaitingTrace = trace.splice(2);
+                this.stack = [trace[0]].concat(remaitingTrace).join('\n');
+            }
+        }
+
         // https://github.com/Microsoft/TypeScript/wiki/FAQ#why-doesnt-extending-built-ins-like-error-array-and-map-work
         Object.setPrototypeOf(this, Exception.prototype);
     }

@@ -7,7 +7,7 @@ export interface ITestFramework {
     readonly environmentType: EnvironmentType;
     readonly testFrameworkEvents: ITestFrameworkEvents;
 
-    startExecutionWithSource(source: string): void;
-    startExecutionWithTests(source: string, tests: Map<string, TestCase>): void;
+    startExecutionWithSource(source: string, options: JSON): void;
+    startExecutionWithTests(source: string, tests: Map<string, TestCase>, options: JSON): void;
     startDiscovery(source: string): void;
 }

@@ -1,6 +1,5 @@
-import { Message, TestMessageLevel, MessageType } from '../../ObjectModel';
+import { Message } from '../../ObjectModel';
 import { IEvent } from '../../ObjectModel/Common';
-import { TestMessagePayload } from '../../ObjectModel/Payloads';
 import { ICommunicationManager, MessageReceivedEventArgs } from '../ICommunicationManager';
 import { IEnvironment } from '../IEnvironment';
 import * as wait from 'wait-for-stuff';

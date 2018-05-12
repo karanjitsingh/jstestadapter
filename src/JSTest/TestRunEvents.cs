@@ -15,9 +15,11 @@ namespace JSTest
         public event EventHandler<TestMessagePayload> onTestMessageReceived;
         public event EventHandler<EventArgs> onTestSessionEnd;
 
+        internal Boolean DisableInvoke = false;
+
         internal void InvokeTestCaseStart(object sender, TestCaseStartEventArgs args)
         {
-            if (this.onTestCaseStart != null)
+            if (!this.DisableInvoke && this.onTestCaseStart != null)
             {
                 this.onTestCaseStart.Invoke(sender, args);
             }
@@ -25,7 +27,7 @@ namespace JSTest
 
         internal void InvokeTestCaseEnd(object sender, TestCaseEndEventArgs args)
         {
-            if (this.onTestCaseEnd != null)
+            if (!this.DisableInvoke && this.onTestCaseEnd != null)
             {
                 this.onTestCaseEnd.Invoke(sender, args);
             }
@@ -33,7 +35,7 @@ namespace JSTest
 
         internal void InvokeTestCaseFound(object sender, TestCaseFoundEventArgs args)
         {
-            if (this.onTestCaseFound != null)
+            if (!this.DisableInvoke && this.onTestCaseFound != null)
             {
                 this.onTestCaseFound.Invoke(sender, args);
             }
@@ -41,7 +43,7 @@ namespace JSTest
 
         internal void InvokeMessageReceived(object sender, TestMessagePayload args)
         {
-            if (this.onTestMessageReceived != null)
+            if (!this.DisableInvoke && this.onTestMessageReceived != null)
             {
                 this.onTestMessageReceived.Invoke(sender, args);
             }
@@ -49,7 +51,7 @@ namespace JSTest
 
         internal void InvokeTestSessionEnd(object sender)
         {
-            if (this.onTestSessionEnd != null)
+            if (!this.DisableInvoke && this.onTestSessionEnd != null)
             {
                 this.onTestSessionEnd.Invoke(sender, null);
             }

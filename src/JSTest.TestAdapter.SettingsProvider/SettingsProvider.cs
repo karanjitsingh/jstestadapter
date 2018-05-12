@@ -38,11 +38,9 @@ namespace JSTest.TestAdapter
 
             if (reader.Read() && reader.Name.Equals(SettingsConstants.SettingsName))
             {
-                var xml = XDocument.Load(reader);
-                this.Settings = serializer.Deserialize(xml.CreateReader()) as JSTestSettings;
+                var x = serializer.Deserialize(reader);
+                this.Settings = x as JSTestSettings;
                 //var other = xml.Descendants().Where(attr => !attr.Name.ToString().Equals(SettingsConstants.RunSettingsXml.TestFrameworkOptions, StringComparison.OrdinalIgnoreCase));
-
-                this.Settings.TestFrameworkOptions = xml.Descendants(SettingsConstants.RunSettingsXml.TestFrameworkOptions).Descendants().ToDictionary(element => element.Name.ToString(), element => element.Value);
             }
         }
 

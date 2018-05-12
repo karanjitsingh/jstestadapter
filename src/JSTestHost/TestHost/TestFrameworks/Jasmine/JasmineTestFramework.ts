@@ -1,4 +1,4 @@
-import { FailedExpectation, ITestFrameworkEvents } from '../../../ObjectModel/TestFramework';
+import { FailedExpectation, ITestFrameworkEvents, ITestFramework } from '../../../ObjectModel/TestFramework';
 import { EnvironmentType, TestOutcome } from '../../../ObjectModel/Common';
 import { Exception, ExceptionType } from '../../../Exceptions';
 import { BaseTestFramework } from '../BaseTestFramework';
@@ -12,7 +12,7 @@ enum JasmineReporterEvent {
     SpecDone
 }
 
-export class JasmineTestFramework extends BaseTestFramework {
+export class JasmineTestFramework extends BaseTestFramework implements ITestFramework {
     public readonly executorUri: string = 'executor://JasmineTestAdapter/v1';
     public readonly environmentType: EnvironmentType;
 
@@ -46,10 +46,11 @@ export class JasmineTestFramework extends BaseTestFramework {
         this.initializeReporter();
     }
 
-    public startExecutionWithSource(source: string): void {        
+    public startExecutionWithSource(source: string, options: JSON): void {        
         this.source = source;
         this.overrideJasmineExecute(false);
         
+        console.warn('TestFrameworkConfigJson is not supported for jasmine.');
         this.jasmine.execute([source]);
     }
 
@@ -71,12 +72,15 @@ export class JasmineTestFramework extends BaseTestFramework {
             case JasmineReporterEvent.JasmineStarted:
                 this.handleSessionStarted();
                 break;
+
             case JasmineReporterEvent.JasmineDone:
                 this.handleSessionDone();
                 break;
+
             case JasmineReporterEvent.SuiteStarted:
                 this.handleSuiteStarted(args.description);
                 break;
+
             case JasmineReporterEvent.SuiteDone:
                 this.handleSuiteDone();
                 break;

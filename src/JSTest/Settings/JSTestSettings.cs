@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Text;
@@ -22,12 +23,49 @@ namespace JSTest.Settings
 
         #region JS Runner Specific Settings
         
+        [XmlIgnore]
         [DataMember]
         public JSTestFramework JavaScriptTestFramework { get; set; }
 
-        [XmlIgnore]
+        [XmlElement("TestFramework")]
+        public string JavaScriptTestFrameworkAsString
+        {
+            get
+            {
+                switch(this.JavaScriptTestFramework) {
+                    case JSTestFramework.Jasmine:
+                        return Constants.TestFrameworkStrings.Jasmine;
+
+                    case JSTestFramework.Mocha:
+                        return Constants.TestFrameworkStrings.Mocha;
+
+                    case JSTestFramework.Jest:
+                        return Constants.TestFrameworkStrings.Jest;
+                }
+
+                return string.Empty;
+            }
+            set
+            {
+                switch(value.ToLower())
+                {
+                    case Constants.TestFrameworkStrings.Jasmine:
+                        this.JavaScriptTestFramework = JSTestFramework.Jasmine;
+                        break;
+
+                    case Constants.TestFrameworkStrings.Mocha:
+                        this.JavaScriptTestFramework = JSTestFramework.Mocha;
+                        break;
+
+                    case Constants.TestFrameworkStrings.Jest:
+                        this.JavaScriptTestFramework = JSTestFramework.Jest;
+                        break;
+                }
+            }
+        }
+
         [DataMember]
-        public IDictionary<string, string> TestFrameworkOptions { get; set; }
+        public string TestFrameworkConfigJson { get; set; }
 
         #endregion
         

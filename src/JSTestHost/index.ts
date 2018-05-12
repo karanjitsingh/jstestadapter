@@ -9,8 +9,9 @@ environmentProvider.getEnvironment().then((env: IEnvironment) => {
         // tslint:disable-next-line
         new TestHost(env);
     } catch (err) {
-        console.error('JSTest ran into an internal error while executing:', err.stack);
+        console.error('JSTest ran into an internal error while executing: ' + err.message);
+        env.exit(1);
     }
 }, (err) => {
-    console.error('JSTest ran into an internal error while executing:', err.stack);
+    console.error('JSTest ran into an internal error while executing: ' + err.message);
 });

@@ -50,6 +50,7 @@ namespace JSTest.TestAdapter
             }
 
             this.discoveryCompletion.Wait();
+            this.testRunner.Dispose();
         }
 
         private void SubscribeToEvents(ITestRunEvents testRunEvents)

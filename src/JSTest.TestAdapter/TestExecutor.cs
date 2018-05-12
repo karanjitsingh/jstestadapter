@@ -55,6 +55,8 @@ namespace JSTest.TestAdapter.SettingsProvider
             }
 
             executionCompletion.Wait();
+            this.testRunner.Dispose();
+
         }
 
         public void RunTests(IEnumerable<string> sources, IRunContext runContext, IFrameworkHandle frameworkHandle)
@@ -63,8 +65,6 @@ namespace JSTest.TestAdapter.SettingsProvider
 
             var settingsProvider = runContext.RunSettings.GetSettings(AdapterConstants.SettingsName) as JavaScriptSettingsProvider;
             var settings = settingsProvider != null ? settingsProvider.Settings : new JSTestSettings();
-
-            ITestRunEvents testRunEvents;
 
             try
             {
@@ -75,7 +75,9 @@ namespace JSTest.TestAdapter.SettingsProvider
                 frameworkHandle.SendMessage(TestMessageLevel.Error, e.ToString());
                 return;
             }
-            
+
+            executionCompletion.Wait();
+            this.testRunner.Dispose();
         }
 
         private void SubscribeToEvents(ITestRunEvents testRunEvents)

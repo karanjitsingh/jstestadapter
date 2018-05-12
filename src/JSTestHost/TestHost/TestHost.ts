@@ -1,5 +1,5 @@
 // import { TestRunCriteriaWithSources, DiscoveryCriteria, TestRunCriteriaWithTests } from '../ObjectModel/TPPayloads';
-import { MessageType, TestRunSettings } from '../ObjectModel';
+import { MessageType, JSTestSettings } from '../ObjectModel';
 import { IEnvironment } from '../Environment/IEnvironment';
 import { ICommunicationManager, MessageReceivedEventArgs } from '../Environment/ICommunicationManager';
 import { JobQueue } from '../Utils/JobQueue';
@@ -13,7 +13,7 @@ export class TestHost {
     private readonly jobQueue: JobQueue;
     private readonly messageSender: MessageSender;
     
-    private testRunSettings: TestRunSettings;
+    private testRunSettings: JSTestSettings;
     private sessionEnded: boolean;
 
     constructor(environment: IEnvironment) {
@@ -26,7 +26,7 @@ export class TestHost {
         // if (this.testHostSettings.DataCollectionPort) {
         //     dcCommManager = environment.createCommunicationManager();
         // }
-        this.communicationManager = environment.createCommunicationManager();
+        this.communicationManager = environment.getCommunicationManager();
         this.messageSender = new MessageSender(this.communicationManager, dcCommManager);
 
         this.initializeCommunication();
@@ -36,7 +36,7 @@ export class TestHost {
         const message = this.communicationManager.receiveMessageSync();
 
         if (message.MessageType === MessageType.TestRunSettings && message.Version === MessageSender.protocolVersion) {
-            this.testRunSettings = new TestRunSettings(message.Payload);
+            this.testRunSettings = new JSTestSettings(message.Payload);
         } else {
             // log
         }
@@ -63,23 +63,23 @@ export class TestHost {
                 break;
 
             case MessageType.StartTestExecutionWithSources:
-                const executionManager = new ExecutionManager(this.environment, this.messageSender, this.testRunSettings.TestFramework);
-    
+                const executionManager = new ExecutionManager(this.environment, this.messageSender, this.testRunSettings);
                 const runWithSourcesPayload = <StartExecutionWithSourcesPayload>message.Payload;
+
                 this.jobQueue.queuePromise(executionManager.startTestRunWithSources(runWithSourcesPayload));
                 break;
 
             case MessageType.StartTestExecutionWithTests:
-                const executionManager2 = new ExecutionManager(this.environment, this.messageSender, this.testRunSettings.TestFramework);
-    
+                const executionManager2 = new ExecutionManager(this.environment, this.messageSender, this.testRunSettings);
                 const runWithTestsPayload = <StartExecutionWithTestsPayload>message.Payload;
+
                 this.jobQueue.queuePromise(executionManager2.startTestRunWithTests(runWithTestsPayload));
                 break;
 
             case MessageType.StartDiscovery:
-                const discoveryManager = new DiscoveryManager(this.environment, this.messageSender, this.testRunSettings.TestFramework);
-
+                const discoveryManager = new DiscoveryManager(this.environment, this.messageSender, this.testRunSettings);
                 const discoveryPayload = <StartDiscoveryPayload>message.Payload;
+
                 this.jobQueue.queuePromise(discoveryManager.discoverTests(discoveryPayload));
                 break;
 

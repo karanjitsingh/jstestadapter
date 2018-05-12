@@ -1,9 +1,8 @@
 
-import { EnvironmentType, IEvent } from '../../ObjectModel/Common';
+import { EnvironmentType, IEvent, IEventArgs } from '../../ObjectModel/Common';
 import { IEnvironment } from '../IEnvironment';
 import { ICommunicationManager } from '../ICommunicationManager';
 import { Exception, ExceptionType } from '../../Exceptions';
-import { IXmlParser } from '../IXmlParser';
 
 export class Environment implements IEnvironment {
     public readonly environmentType: EnvironmentType = EnvironmentType.Browser;
@@ -13,16 +12,15 @@ export class Environment implements IEnvironment {
         return;
     }
 
-    public createCommunicationManager(): ICommunicationManager {
+    public getCommunicationManager(): ICommunicationManager {
         throw new Exception('Not implemented', ExceptionType.NotImplementedException);
     }
 
-    public createEvent<T>(): IEvent<T> {
+    public createEvent<T extends IEventArgs>(): IEvent<T> {
         throw new Exception('Not implemented', ExceptionType.NotImplementedException);
     }
 
-    public getXmlParser(): IXmlParser {
+    public exit(exitCode: number) {
         throw new Exception('Not implemented', ExceptionType.NotImplementedException);
-        
     }
 }

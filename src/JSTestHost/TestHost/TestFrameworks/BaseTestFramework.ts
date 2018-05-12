@@ -1,6 +1,5 @@
-import { ITestFramework, TestSessionEventArgs, TestSuiteEventArgs, TestSpecEventArgs, FailedExpectation }
-from '../../ObjectModel/TestFramework';
-import { ITestFrameworkEvents } from '../../ObjectModel/TestFramework';
+import { ITestFramework, TestSessionEventArgs, TestSuiteEventArgs, TestSpecEventArgs,
+         FailedExpectation, ITestFrameworkEvents } from '../../ObjectModel/TestFramework';
 import { TestCase, TestOutcome, EnvironmentType } from '../../ObjectModel/Common';
 
 export abstract class BaseTestFramework implements ITestFramework {
@@ -22,14 +21,14 @@ export abstract class BaseTestFramework implements ITestFramework {
         this.suiteStack = [];
     }
     
-    public abstract startExecutionWithSource(source: string);
+    public abstract startExecutionWithSource(source: string, options: JSON);
     public abstract startDiscovery(source: string);
     
     protected abstract skip(specObject: any);
 
-    public startExecutionWithTests(source: string, testCollection: Map<string, TestCase>) {
+    public startExecutionWithTests(source: string, testCollection: Map<string, TestCase>, options: JSON) {
         this.testCollection = testCollection;
-        this.startExecutionWithSource(source);
+        this.startExecutionWithSource(source, options);
     }
 
     protected handleSessionStarted() {

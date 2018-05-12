@@ -11,13 +11,8 @@ namespace JSTest.Settings
     [JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
     public enum JSTestFramework
     {
-        [XmlEnum(Constants.TestFrameworkStrings.Jasmine)]
         Jasmine,
-
-        [XmlEnum(Constants.TestFrameworkStrings.Mocha)]
         Mocha,
-
-        [XmlEnum(Constants.TestFrameworkStrings.Jest)]
         Jest
     }
 }

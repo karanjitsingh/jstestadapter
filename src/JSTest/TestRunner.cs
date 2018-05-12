@@ -48,10 +48,16 @@ namespace JSTest
             try
             {
                 launchTask = Task.Run(() => this.runtimeManager.LaunchProcessAsync(processInfo, new CancellationToken()));
-                launchTask.Wait();
+                
+                if(!launchTask.Wait(3000))
+                {
+                    throw new TimeoutException("Process launch timeout.");
+                }
             }
             catch (Exception e)
             {
+                this.testRunEvents.DisableInvoke = true;
+
                 EqtTrace.Error(e);
                 exception = new JSTestException("JSTest.TestRunner.StartExecution: Could not start javascript runtime.", e);
             }
@@ -92,7 +98,6 @@ namespace JSTest
         public void Dispose()
         {
             this.runtimeManager.CleanProcessAsync(new CancellationToken()).Wait();
-            
         }
     }
 }

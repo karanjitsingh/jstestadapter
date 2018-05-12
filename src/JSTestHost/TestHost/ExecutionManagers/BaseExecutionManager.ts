@@ -3,7 +3,6 @@ import { MessageSender } from '../MessageSender';
 import { TestFrameworkFactory } from '../TestFrameworks/TestFrameworkFactory';
 import { IEvent, IEventArgs, EnvironmentType } from '../../ObjectModel/Common';
 import { Exception, ExceptionType } from '../../Exceptions';
-import { RunSettings } from '../RunSettings';
 import { TestFrameworkEventHandlers } from '../TestFrameworks/TestFrameworkEventHandlers';
 import { TestSessionManager } from './TestSessionManager';
 import { TestFrameworks } from '../../ObjectModel/TestFramework';
@@ -14,8 +13,6 @@ export abstract class BaseExecutionManager {
     protected readonly testFrameworkFactory: TestFrameworkFactory;
     protected readonly onComplete: IEvent<IEventArgs>;
     protected readonly testSessionManager: TestSessionManager;
-
-    protected runSettings: RunSettings;
 
     protected abstract testFrameworkEventHandlers: TestFrameworkEventHandlers;
     
@@ -30,10 +27,6 @@ export abstract class BaseExecutionManager {
         this.onComplete = environment.createEvent();
         this.testFrameworkFactory = new TestFrameworkFactory(this.environment);
         this.testSessionManager = new TestSessionManager(this.environment);
-    }
-
-    protected setRunSettingsFromXml(runSettingsXml: string) {
-        this.runSettings = new RunSettings(runSettingsXml, this.environment.getXmlParser());
     }
 
     protected getCompletetionPromise(): Promise<void> {

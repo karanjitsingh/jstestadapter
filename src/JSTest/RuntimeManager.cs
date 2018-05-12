@@ -16,23 +16,18 @@
     using JSTest.Communication.Payloads;
     using JSTest.JSRuntime;
     using JSTest.Settings;
+    using JSTest.Exceptions;
 
     internal class TestRuntimeManager
     {
         private JSTestSettings settings;
         private StringBuilder processStdError;
-        private readonly IMessageLogger messageLogger;
         private readonly JSProcess jsProcess;
         private readonly JsonDataSerializer dataSerializer;
         private readonly TestRunEvents testRunEvents;
         private ManualResetEventSlim versionCheckComplete;
 
         protected int ErrorLength { get; set; } = 4096;
-
-        public event EventHandler<HostProviderEventArgs> HostLaunched;
-
-        public event EventHandler<HostProviderEventArgs> HostExited;
-
 
         public TestRuntimeManager(JsonDataSerializer dataSerializer, IProcessHelper processHelper, JSProcess process)
         {
@@ -50,7 +45,12 @@
 
         private Action<object> ProcessExitReceived => (process) =>
         {
-            //TestHostManagerCallbacks.ExitCallBack(this.processHelper, process, this.testHostProcessStdError, this.OnHostExited);
+            //this.jsProcess.WaitForExit();
+
+            //this.testRunEvents.InvokeTestSessionEnd(this);
+
+            // It's possible error occured before version check complete
+            //versionCheckComplete.Set();
         };
 
         private Action<object, string> ProcessOutputReceived => (process, data) =>
@@ -173,7 +173,6 @@
 
         private void InitializeCommunication(CancellationToken cancellationToken)
         {
-
             if (jsProcess.IsAlive)
             {
                 // Start the message loop
@@ -221,7 +220,7 @@
 
                     if (version != Constants.MessageProtocolVersion)
                     {
-                        throw new Exception("");
+                        throw new JSTestException("Unsupported javascript runner version.");
                     }
                     else
                     {
@@ -253,6 +252,11 @@
                 case MessageType.TestMessage:
                     var messagePayload = this.dataSerializer.DeserializePayload<TestMessagePayload>(message);
                     this.testRunEvents.InvokeMessageReceived(this, messagePayload);
+                    break;
+
+                case MessageType.ConsoleMessage:
+                    var consolePayload = this.dataSerializer.DeserializePayload<TestMessagePayload>(message);
+                    this.testRunEvents.InvokeMessageReceived(this, consolePayload);
                     break;
 
                 default:

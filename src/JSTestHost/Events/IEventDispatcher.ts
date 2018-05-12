@@ -12,7 +12,6 @@ export abstract class BaseEventDispatcher implements IEventDispatcher {
     public abstract unsubscribe(eventId: string, callback: IEventHandler<IEventArgs>);
     public abstract raise(eventId: string, sender: object, args: IEventArgs);
 
-    private registerCount: number = 0;
     private eventList: {};
 
     constructor() {
@@ -21,9 +20,6 @@ export abstract class BaseEventDispatcher implements IEventDispatcher {
 
     public registerEvent(): string {
         let id = '';
-
-        this.registerCount++;
-        console.log(`total ${this.registerCount}`);
 
         // sometimes new Date().getTime() fails to generate a string
         while (id === '' || this.eventList[id]) {
