@@ -1,7 +1,7 @@
-import { Environment } from '../../../../src/JSTestHost/Environment/Node/Environment';
+import { Environment } from '../../../../src/JSTest.Runner/Environment/Node/Environment';
 import * as Assert from 'assert';
-import { IEventArgs } from '../../../../src/JSTestHost/ObjectModel/Common';
-import { Event } from '../../../../src/JSTestHost/Events/Event';
+import { IEventArgs } from '../../../../src/JSTest.Runner/ObjectModel/Common';
+import { Event } from '../../../../src/JSTest.Runner/Events/Event';
 
 describe('Node EventDispatcher suite', () => {
     it('Event subscribe, raise and unsubscribe', (done: any) => {

@@ -7,7 +7,7 @@ namespace JSTest
 {
     internal static class Constants
     {
-        public const int ClientConnectionTimeout = 60 * 1000;
+        public const int StandardWaitTimout = 5000;
         public const int MessageProtocolVersion = 1;
         public const int StreamBufferSize = 16384;
 

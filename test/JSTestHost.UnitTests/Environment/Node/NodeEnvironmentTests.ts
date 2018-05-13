@@ -1,9 +1,9 @@
-import { IEnvironment } from '../../../../src/JSTestHost/Environment/IEnvironment';
-import { Environment } from '../../../../src/JSTestHost/Environment/Node/Environment';
+import { IEnvironment } from '../../../../src/JSTest.Runner/Environment/IEnvironment';
+import { Environment } from '../../../../src/JSTest.Runner/Environment/Node/Environment';
 import * as Assert from 'assert';
-import { CommunicationManager } from '../../../../src/JSTestHost/Environment/Node/CommunicationManager';
-import { IEventArgs } from '../../../../src/JSTestHost/ObjectModel/Common';
-import { Event } from '../../../../src/JSTestHost/Events/Event';
+import { CommunicationManager } from '../../../../src/JSTest.Runner/Environment/Node/CommunicationManager';
+import { IEventArgs } from '../../../../src/JSTest.Runner/ObjectModel/Common';
+import { Event } from '../../../../src/JSTest.Runner/Events/Event';
 
 describe('NodeEnvironment Suite', () => {
     let env: IEnvironment;

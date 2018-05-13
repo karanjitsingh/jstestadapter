@@ -1,8 +1,8 @@
-import { Message, MessageType } from '../../../../src/JSTestHost/ObjectModel';
-import { CommunicationManager } from '../../../../src/JSTestHost/Environment/Node/CommunicationManager';
-import { IEnvironment } from '../../../../src/JSTestHost/Environment/IEnvironment';
-import { Environment } from '../../../../src/JSTestHost/Environment/Node/Environment';
-import { MessageReceivedEventArgs } from '../../../../src/JSTestHost/Environment/ICommunicationManager';
+import { Message, MessageType } from '../../../../src/JSTest.Runner/ObjectModel';
+import { CommunicationManager } from '../../../../src/JSTest.Runner/Environment/Node/CommunicationManager';
+import { IEnvironment } from '../../../../src/JSTest.Runner/Environment/IEnvironment';
+import { Environment } from '../../../../src/JSTest.Runner/Environment/Node/Environment';
+import { MessageReceivedEventArgs } from '../../../../src/JSTest.Runner/Environment/ICommunicationManager';
 import { Socket } from 'net';
 import { It, Mock, Times, MockBehavior, IMock } from 'typemoq';
 import * as Assert from 'assert';

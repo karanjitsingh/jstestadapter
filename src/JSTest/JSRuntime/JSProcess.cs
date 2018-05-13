@@ -39,12 +39,7 @@ namespace JSTest.JSRuntime
                 return this.process != null && !this.process.HasExited;
             }
         }
-
-        public void WaitForExit()
-        {
-            this.process.WaitForExit(3000);
-        }
-
+        
         public bool LaunchProcess(TestProcessStartInfo startInfo, Action<object, string> processErrorReceived, Action<object> processExitReceived)
         {
             var process = new Process();
@@ -95,6 +90,7 @@ namespace JSTest.JSRuntime
             if (this.IsAlive)
             {
                 this.process.Kill();
+                this.process.WaitForExit();
             }
         }
 

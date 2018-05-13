@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+        "target": "es5",
+        "module": "commonjs",
+        "rootDir": "./",
+        "outDir": "./bin/JSTest.Runner",
+        "sourceMap": true,
+        "lib": ["es2015", "dom"],
+        "baseUrl": "./",
+        "sourceRoot": "./",
+        "skipLibCheck": true
+    }
+}

@@ -9,7 +9,6 @@
     "istanbul-lib-coverage": "^1.2.0",
     "jasmine": "^3.1.0",
     "mocha": "^5.1.1",
-    "pixl-xml": "^1.0.13",
     "source-map-support": "^0.5.4",
     "wait-for-stuff": "^1.4.0"
   },
@@ -23,10 +22,10 @@
     "typescript": "^2.8.3"
   },
   "scripts": {
-    "lint": "tslint --project ./src/JSTestHost/tsconfig.json",
-    "compile": "./node_modules/.bin/tsc -p ./src/JSTestHost/tsconfig.json",
+    "lint": "tslint --project ./src/JSTest.Runner/tsconfig.json",
+    "compile": "./node_modules/.bin/tsc -p ./src/JSTest.Runner/tsconfig.json",
     "build": "npm run lint && npm run compile",
-    "test": "./node_modules/.bin/tsc -p ./test/JSTestHost.UnitTests/tsconfig.json"
+    "test": "./node_modules/.bin/tsc -p ./test/JSTest.Runner.UnitTests/tsconfig.json"
   },
   "repository": {
     "type": "git",

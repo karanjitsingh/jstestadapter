@@ -49,7 +49,7 @@ namespace JSTest
             {
                 launchTask = Task.Run(() => this.runtimeManager.LaunchProcessAsync(processInfo, new CancellationToken()));
                 
-                if(!launchTask.Wait(3000))
+                if(!launchTask.Wait(Constants.StandardWaitTimout))
                 {
                     throw new TimeoutException("Process launch timeout.");
                 }

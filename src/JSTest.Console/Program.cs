@@ -10,7 +10,7 @@ namespace JSTest.Console
         {
             var runner = new TestRunner();
 
-            runner.StartExecution(new string[] { @"D:\JSTestAdapter\test\JSTestHost.UnitTests\bin\test\JSTestHost.UnitTests\Environment\EnvironmentProviderTests.js" }, new JSTestSettings(), null);
+            runner.StartExecution(new string[] { @"D:\JSTestAdapter\test\JSTest.Runner.UnitTests\bin\test\JSTest.Runner.UnitTests\Environment\EnvironmentProviderTests.js" }, new JSTestSettings(), null);
 
             System.Console.WriteLine(runner != null);
             System.Console.ReadLine();

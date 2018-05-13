@@ -1,7 +1,7 @@
 import { Mock, IMock, Times, It } from 'typemoq';
-import { BaseEventDispatcher } from '../../../src/JSTestHost/Events/IEventDispatcher';
-import { IEventArgs, IEventHandler } from '../../../src/JSTestHost/ObjectModel/Common';
-import { Event } from '../../../src/JSTestHost/Events/Event';
+import { BaseEventDispatcher } from '../../../src/JSTest.Runner/Events/IEventDispatcher';
+import { IEventArgs, IEventHandler } from '../../../src/JSTest.Runner/ObjectModel/Common';
+import { Event } from '../../../src/JSTest.Runner/Events/Event';
 import * as Assert from 'assert';
 
 describe('Event Suite', () => {

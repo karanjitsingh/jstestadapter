@@ -40,13 +40,13 @@ namespace JSTest.RuntimeProviders
             string rootFolder = Path.GetDirectoryName(typeof(TestRunner).GetTypeInfo().Assembly.GetAssemblyLocation());
 
 #if DEBUG
-            rootFolder = @"D:\JSTestAdapter\src\JSTestHost\bin";
+            rootFolder = @"D:\JSTestAdapter\src\JSTest.Runner\bin";
 #endif
 
             processInfo.FileName = this.getNodeBinaryPath(environment.Architecture, environment.OperatingSystem, rootFolder);
             //processInfo.WorkingDirectory = rootFolder;
 
-            var jstesthost = Path.Combine(rootFolder, "JSTestHost", "index.js");
+            var jstesthost = Path.Combine(rootFolder, "JSTest.Runner", "index.js");
 
             var hostDebugEnabled = Environment.GetEnvironmentVariable("JSTEST_RUNNER_DEBUG");
             var debug = !string.IsNullOrEmpty(hostDebugEnabled) && hostDebugEnabled.Equals("1", StringComparison.Ordinal);
@@ -54,7 +54,7 @@ namespace JSTest.RuntimeProviders
             processInfo.EnvironmentVariables = new Dictionary<string, string>();
 
             // Maybe this is not required after setting working directory
-            processInfo.EnvironmentVariables.Add("NODE_PATH", Environment.GetEnvironmentVariable("NODE_PATH") + ";" + Path.Combine(rootFolder, "JSTestHost", "node_modules"));
+            processInfo.EnvironmentVariables.Add("NODE_PATH", Environment.GetEnvironmentVariable("NODE_PATH") + ";" + Path.Combine(rootFolder, "JSTest.Runner", "node_modules"));
 
             processInfo.EnvironmentVariables.Add("NODE_NO_WARNINGS", "1");
 

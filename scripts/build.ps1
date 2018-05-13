@@ -6,8 +6,8 @@ param(
 $ProjectDir = (Get-Item ([System.IO.Path]::GetDirectoryName($myInvocation.MyCommand.Definition))).Parent.FullName
 $PackageJSON = Join-Path $ProjectDir "package.json"
 $NodeBinaries = Join-Path $ProjectDir "packages\node.js.redist\8.9.1\tools\*"
-$TestHostBin = Join-Path $ProjectDir "src\JSTestHost\bin\"
-$TestHostDir = Join-Path $ProjectDir "src\JSTestHost\bin\JSTestHost"
+$TestHostBin = Join-Path $ProjectDir "src\JSTest.Runner\bin\"
+$TestHostDir = Join-Path $ProjectDir "src\JSTest.Runner\bin\JSTest.Runner"
 
 if($clean) {
     Write-Host "Cleaning folders.`n";
@@ -36,7 +36,7 @@ function CreateDirectory($dir)
 Write-Host "Killing node process.`n"
 Stop-Process -Force -Name "node" -ErrorAction SilentlyContinue
 
-Write-Host "Copying node binaries to JSTestHost bin."
+Write-Host "Copying node binaries to JSTest.Runner bin."
 Copy-Item -Path $NodeBinaries -Destination (Join-Path $TestHostBin "node\") -Recurse -force
 
 Write-Host "`nRunning npm install"

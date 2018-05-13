@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Microsoft.VisualStudio.TestPlatform.ObjectModel;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
@@ -22,7 +23,11 @@ namespace JSTest.Settings
         #endregion
 
         #region JS Runner Specific Settings
-        
+
+        [XmlIgnore]
+        [DataMember]
+        public DiagTracing DiagTracing { get; private set; }
+
         [XmlIgnore]
         [DataMember]
         public JSTestFramework JavaScriptTestFramework { get; set; }
@@ -32,7 +37,8 @@ namespace JSTest.Settings
         {
             get
             {
-                switch(this.JavaScriptTestFramework) {
+                switch (this.JavaScriptTestFramework)
+                {
                     case JSTestFramework.Jasmine:
                         return Constants.TestFrameworkStrings.Jasmine;
 
@@ -47,7 +53,7 @@ namespace JSTest.Settings
             }
             set
             {
-                switch(value.ToLower())
+                switch (value.ToLower())
                 {
                     case Constants.TestFrameworkStrings.Jasmine:
                         this.JavaScriptTestFramework = JSTestFramework.Jasmine;
@@ -68,13 +74,22 @@ namespace JSTest.Settings
         public string TestFrameworkConfigJson { get; set; }
 
         #endregion
-        
+
         public JSTestSettings()
         {
             this.Runtime = JavaScriptRuntime.NodeJS;
             this.JavaScriptTestFramework = JSTestFramework.Jasmine;
             this.Discovery = false;
             this.RunInParallel = true;
+            this.DiagTracing = new DiagTracing();
         }
+    }
+
+    public class DiagTracing
+    {
+        public bool IsErrorEnabled { get { return EqtTrace.IsErrorEnabled; } }
+        public bool IsInfoEnabled { get { return EqtTrace.IsInfoEnabled; } }
+        public bool IsWarningEnabled { get { return EqtTrace.IsWarningEnabled; } }
+        public bool IsVerboseEnabled { get { return EqtTrace.IsVerboseEnabled; } }
     }
 }
