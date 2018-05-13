@@ -15,10 +15,9 @@ namespace JSTest.Settings
         #region Adapter Specific Settings
 
         public JavaScriptRuntime Runtime { get; set; }
-
         public bool Discovery { get; set; }
-
         public bool RunInParallel { get; set; }
+        public bool IsDebugEnabled { get; set; }
 
         #endregion
 

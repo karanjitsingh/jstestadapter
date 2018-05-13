@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions;
 using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces;
+using System;
 using System.Diagnostics;
 
 namespace JSTest.RuntimeProviders
@@ -9,6 +10,9 @@ namespace JSTest.RuntimeProviders
     internal class RuntimeProviderFactory
     {
         private static RuntimeProviderFactory instance;
+        private IEnvironment environment;
+        public readonly bool IsRuntimeDebuggingEnabled;
+
         public static RuntimeProviderFactory Instance
         {
             get
@@ -24,22 +28,23 @@ namespace JSTest.RuntimeProviders
             }
         }
 
-        private IEnvironment environment;
-
-        private RuntimeProviderFactory()
-        {
-            this.environment = new PlatformEnvironment();
-        }
-
         public TestProcessStartInfo GetRuntimeProcessInfo(JSTestSettings settings)
         {
             switch(settings.Runtime)
             {
                 case JavaScriptRuntime.NodeJS:
-                    return NodeRuntimeProvider.Instance.GetRuntimeProcessInfo(settings, environment);
+                    return NodeRuntimeProvider.Instance.GetRuntimeProcessInfo(settings, environment, this.IsRuntimeDebuggingEnabled);
             }
 
             return null;
+        }
+
+
+        private RuntimeProviderFactory()
+        {
+            this.environment = new PlatformEnvironment();
+            var hostDebugEnabled = Environment.GetEnvironmentVariable("JSTEST_RUNNER_DEBUG");
+            this.IsRuntimeDebuggingEnabled = !string.IsNullOrEmpty(hostDebugEnabled) && hostDebugEnabled.Equals("1", StringComparison.Ordinal);
         }
     }
 }

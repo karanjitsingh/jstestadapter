@@ -18,6 +18,7 @@ namespace JSTest.RuntimeProviders
     class NodeRuntimeProvider : IRuntimeProvider
     {
         private static NodeRuntimeProvider instance;
+
         public static NodeRuntimeProvider Instance
         {
             get
@@ -33,7 +34,7 @@ namespace JSTest.RuntimeProviders
             }
         }
 
-        public TestProcessStartInfo GetRuntimeProcessInfo(JSTestSettings settings, IEnvironment environment)
+        public TestProcessStartInfo GetRuntimeProcessInfo(JSTestSettings settings, IEnvironment environment, bool isDebugEnabled)
         {
             var processInfo = new TestProcessStartInfo();
 
@@ -47,10 +48,6 @@ namespace JSTest.RuntimeProviders
             //processInfo.WorkingDirectory = rootFolder;
 
             var jstesthost = Path.Combine(rootFolder, "JSTest.Runner", "index.js");
-
-            var hostDebugEnabled = Environment.GetEnvironmentVariable("JSTEST_RUNNER_DEBUG");
-            var debug = !string.IsNullOrEmpty(hostDebugEnabled) && hostDebugEnabled.Equals("1", StringComparison.Ordinal);
-
             processInfo.EnvironmentVariables = new Dictionary<string, string>();
 
             // Maybe this is not required after setting working directory
@@ -60,7 +57,7 @@ namespace JSTest.RuntimeProviders
 
             processInfo.Arguments = string.Format(
                 " -r source-map-support/register {0} {1} {2}",
-                debug ? "--inspect-brk=9229" : "",
+                isDebugEnabled ? "--inspect-brk=9229" : "",
                 jstesthost,
                 $"--framework {settings.JavaScriptTestFramework}");
 
@@ -69,7 +66,7 @@ namespace JSTest.RuntimeProviders
 
         private NodeRuntimeProvider()
         {
-
+            
         }
 
         private string getNodeBinaryPath(PlatformArchitecture architecture, PlatformOperatingSystem os, string rootFolder)
