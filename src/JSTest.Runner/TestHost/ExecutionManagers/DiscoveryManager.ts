@@ -20,16 +20,14 @@ export class DiscoveryManager extends BaseExecutionManager {
     public discoverTests(request: StartDiscoveryPayload): Promise<void> {
         const sources = request.Sources;
         
-        sources.forEach(source => {
-            this.testSessionManager.addSession(source, () => {
-                const testFrameworkInstance = this.testFrameworkFactory.createTestFramework(this.testFramework);
-                this.testFrameworkEventHandlers.Subscribe(testFrameworkInstance);
-                testFrameworkInstance.startDiscovery(source);
-            },
-            (e) => {
-                this.sessionError(source, e);
+        const testFrameworkInstance = this.testFrameworkFactory.createTestFramework(this.testFramework);
+        if (testFrameworkInstance.canHandleMultipleSources) {
+            this.addSessionToSessionManager(sources);
+        } else {
+            sources.forEach(source => {
+                this.addSessionToSessionManager([source]);
             });
-        });
+        }
 
         return this.getCompletetionPromise();
     }
@@ -52,14 +50,26 @@ export class DiscoveryManager extends BaseExecutionManager {
         }
     };
 
-    private sessionError(source: string, err: Error) {
+    private addSessionToSessionManager(sources: Array<string>) {
+        this.testSessionManager.addSession(sources, () => {
+            const testFrameworkInstance = this.testFrameworkFactory.createTestFramework(this.testFramework);
+            testFrameworkInstance.initialize();
+            this.testFrameworkEventHandlers.Subscribe(testFrameworkInstance);
+            testFrameworkInstance.startDiscovery(sources);
+        },
+        (e) => {
+            this.sessionError(sources, e);
+        });
+    }
+
+    private sessionError(sources: Array<string>, err: Error) {
         if (err) {
             this.messageSender.sendMessage(err.stack ?
                 err.stack :
-                (err.constructor.name + ': ' + err.message + ' at ' + source), TestMessageLevel.Error);
+                (err.constructor.name + ': ' + err.message), TestMessageLevel.Error);
         }
 
-        const currentSession = this.testSessionManager.getSessionEventArgs(source);
+        const currentSession = this.testSessionManager.getSessionEventArgs(sources);
 
         if (currentSession != null) {
             currentSession.InProgress = false;

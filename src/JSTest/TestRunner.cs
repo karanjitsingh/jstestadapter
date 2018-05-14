@@ -9,8 +9,7 @@ namespace JSTest
     using System.Threading.Tasks;
 
     using Microsoft.VisualStudio.TestPlatform.ObjectModel;
-
-    using JSTest.Exceptions;
+    
     using JSTest.Interfaces;
     using JSTest.RuntimeProviders;
     using JSTest.Settings;
@@ -48,9 +47,9 @@ namespace JSTest
             try
             {
                 launchTask = Task.Run(() => this.runtimeManager.LaunchProcessAsync(processInfo, new CancellationToken()));
-                
-                if(!launchTask.Wait(RuntimeProviderFactory.Instance.IsRuntimeDebuggingEnabled
-                                    ? -1
+
+                if (!launchTask.Wait(RuntimeProviderFactory.Instance.IsRuntimeDebuggingEnabled
+                                    ? Constants.InfiniteTimout
                                     : Constants.StandardWaitTimout))
                 {
                     throw new TimeoutException("Process launch timeout.");
@@ -61,13 +60,14 @@ namespace JSTest
                 this.testRunEvents.DisableInvoke = true;
 
                 EqtTrace.Error(e);
-                exception = new JSTestException("JSTest.TestRunner.StartExecution: Could not start javascript runtime.", e);
+                exception = new JSTestException("JSTest.TestRunner.StartExecution: Could not start javascript runtime.");
             }
             finally
             {
                 if (exception == null && launchTask.Exception != null)
                 {
-                    exception = new JSTestException("JSTest.TestRunner.StartExecution: Could not start javascript runtime.", launchTask.Exception);
+                    EqtTrace.Error(launchTask.Exception);
+                    exception = new JSTestException("JSTest.TestRunner.StartExecution: Could not start javascript runtime.");
                 }
             }
 

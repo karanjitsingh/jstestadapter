@@ -15,6 +15,10 @@ enum JasmineReporterEvent {
 export class JasmineTestFramework extends BaseTestFramework implements ITestFramework {
     public readonly executorUri: string = 'executor://JasmineTestAdapter/v1';
     public readonly environmentType: EnvironmentType;
+    public readonly canHandleMultipleSources: boolean = false;
+    public readonly supportsJsonOptions: boolean = false;
+
+    protected sources: Array<string>;
 
     private jasmine: any;
     private skipCurrentSpec: boolean = false;
@@ -33,7 +37,9 @@ export class JasmineTestFramework extends BaseTestFramework implements ITestFram
         super(testFrameworkEvents);
         this.testFrameworkEvents = testFrameworkEvents;
         this.environmentType = environmentType;
-        
+    }
+
+    public initialize() {
         const jasmineLib = this.getJasmine();
         this.jasmine = new jasmineLib();
         
@@ -46,16 +52,15 @@ export class JasmineTestFramework extends BaseTestFramework implements ITestFram
         this.initializeReporter();
     }
 
-    public startExecutionWithSource(source: string, options: JSON): void {        
-        this.source = source;
+    public startExecutionWithSource(sources: Array<string>, options: JSON): void {        
+        this.sources = sources;
         this.overrideJasmineExecute(false);
         
-        console.warn('TestFrameworkConfigJson is not supported for jasmine.');
-        this.jasmine.execute([source]);
+        this.jasmine.execute([sources[0]]);
     }
 
-    public startDiscovery(source: string): void {
-        this.source = source;
+    public startDiscovery(sources: Array<string>): void {
+        this.sources = sources;
 
         // tslint:disable: no-empty
         this.jasmine.jasmine.getEnv().beforeAll = () => {};
@@ -64,7 +69,7 @@ export class JasmineTestFramework extends BaseTestFramework implements ITestFram
 
         this.overrideJasmineExecute(true);
 
-        this.jasmine.execute([source]);
+        this.jasmine.execute([sources[0]]);
     }
 
     private handleJasmineReporterEvents(reporterEvent: JasmineReporterEvent, args: any) {
@@ -78,7 +83,7 @@ export class JasmineTestFramework extends BaseTestFramework implements ITestFram
                 break;
 
             case JasmineReporterEvent.SuiteStarted:
-                this.handleSuiteStarted(args.description);
+                this.handleSuiteStarted(args.description, this.sources[0]);
                 break;
 
             case JasmineReporterEvent.SuiteDone:
@@ -86,7 +91,7 @@ export class JasmineTestFramework extends BaseTestFramework implements ITestFram
                 break;
 
             case JasmineReporterEvent.SpecStarted:
-                this.handleSpecStarted(args.fullName, args.description, null);
+                this.handleSpecStarted(args.fullName, args.description, this.sources[0], null);
                 break;
 
             case JasmineReporterEvent.SpecDone:
@@ -122,7 +127,7 @@ export class JasmineTestFramework extends BaseTestFramework implements ITestFram
         }
     }
 
-    protected skip() {
+    protected skipSpec() {
         this.skipCurrentSpec = true;
     }
     

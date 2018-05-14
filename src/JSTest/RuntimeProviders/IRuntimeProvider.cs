@@ -7,6 +7,6 @@
 
     internal interface IRuntimeProvider
     {
-        TestProcessStartInfo GetRuntimeProcessInfo(JSTestSettings settings, IEnvironment environment, bool debugEnabled);
+        TestProcessStartInfo GetRuntimeProcessInfo(IEnvironment environment, bool debugEnabled);
     }
 }

@@ -12,19 +12,23 @@ export class Environment implements IEnvironment {
     public readonly environmentType: EnvironmentType = EnvironmentType.NodeJS;
     public argv: Array<string>;
 
+    private communicationManager: ICommunicationManager;
     private eventDispatcher: IEventDispatcher;
 
     // tslint:disable-next-line
     private logger: BaseLogger;
 
     constructor() {
+        this.argv = <Array<string>>process.argv;
         this.eventDispatcher = new EventDispatcher();
         this.logger = new Logger(this.getCommunicationManager());
-        this.argv = <Array<string>>process.argv;
     }
 
     public getCommunicationManager(): ICommunicationManager {
-        return new CommunicationManager(this);
+        if (!this.communicationManager) {
+            this.communicationManager = new CommunicationManager(this, this.argv[2], Number(this.argv[3]));
+        }
+        return this.communicationManager;
     }
 
     public createEvent<T extends IEventArgs>(): IEvent<T> {

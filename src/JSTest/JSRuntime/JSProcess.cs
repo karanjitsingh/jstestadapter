@@ -4,7 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Net;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace JSTest.JSRuntime
 {
@@ -42,10 +44,12 @@ namespace JSTest.JSRuntime
         
         public bool LaunchProcess(TestProcessStartInfo startInfo, Action<object, string> processErrorReceived, Action<object> processExitReceived)
         {
+            var endpoint = this.InitializeChannel();
+
             var process = new Process();
             try
             {
-                this.InitializeStartInfo(process, startInfo);
+                this.InitializeStartInfo(process, startInfo, endpoint);
 
                 process.EnableRaisingEvents = true;
                 process.ErrorDataReceived += (sender, args) => processErrorReceived(sender as Process, args.Data);
@@ -80,7 +84,8 @@ namespace JSTest.JSRuntime
             }
 
             this.process = process;
-            this.InitializeChannel();
+
+            this.channel.WaitForClientConnection(-1);
 
             return process != null;
         }
@@ -94,11 +99,11 @@ namespace JSTest.JSRuntime
             }
         }
 
-        private void InitializeStartInfo(Process process, TestProcessStartInfo startInfo)
+        private void InitializeStartInfo(Process process, TestProcessStartInfo startInfo, IPEndPoint endPoint)
         {
             process.StartInfo.FileName = startInfo.FileName;
             process.StartInfo.WorkingDirectory = startInfo.WorkingDirectory;
-            process.StartInfo.Arguments = startInfo.Arguments;
+            process.StartInfo.Arguments = $"{startInfo.Arguments} {endPoint.Address} {endPoint.Port}";
 
             foreach(var entry in startInfo.EnvironmentVariables)
             {
@@ -118,9 +123,13 @@ namespace JSTest.JSRuntime
             process.StartInfo.RedirectStandardError = true;
         }
 
-        private void InitializeChannel()
+        private IPEndPoint InitializeChannel()
         {
-            this.channel = new CommunicationChannel(this.process.StandardInput.BaseStream, this.process.StandardOutput.BaseStream);
+            this.channel = new CommunicationChannel();
+            var endpoint = channel.HostServer();
+            Task.Run(() => channel.AcceptClientAsync());
+
+            return endpoint;
         }
     }
 }

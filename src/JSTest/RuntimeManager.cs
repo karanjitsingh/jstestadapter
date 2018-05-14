@@ -16,7 +16,6 @@
     using JSTest.Communication.Payloads;
     using JSTest.JSRuntime;
     using JSTest.Settings;
-    using JSTest.Exceptions;
 
     internal class TestRuntimeManager
     {
@@ -150,25 +149,19 @@
         public void SendStartExecution(IEnumerable<string> sources)
         {
             var payload = new StartExecutionWithSourcesPayload() { Sources = sources };
-            this.SendMessage(MessageType.StartTestExecutionWithSources, payload);
+            this.jsProcess.CommunicationChannel.SendMessage(MessageType.StartTestExecutionWithSources, payload);
         }
 
         public void SendStartExecution(IEnumerable<TestCase> tests)
         {
             var payload = new StartExecutionWithTestsPayload() { Tests = tests };
-            this.SendMessage(MessageType.StartTestExecutionWithTests, payload);
+            this.jsProcess.CommunicationChannel.SendMessage(MessageType.StartTestExecutionWithTests, payload);
         }
 
         public void SendStartDiscovery(IEnumerable<string> sources)
         {
             var payload = new StartDiscoveryPayload() { Sources = sources };
-            this.SendMessage(MessageType.StartDiscovery, payload);
-        }
-
-        private void SendMessage(string messageType, object payload)
-        {
-            var message = this.dataSerializer.SerializePayload(messageType, payload);
-            this.jsProcess.CommunicationChannel.Send(message);
+            this.jsProcess.CommunicationChannel.SendMessage(MessageType.StartDiscovery, payload);
         }
 
         private void InitializeCommunication(CancellationToken cancellationToken)
@@ -177,9 +170,7 @@
             {
                 // Start the message loop
                 Task.Run(() => { this.MessageLoopAsync(this.jsProcess.CommunicationChannel, cancellationToken); });
-
-                this.jsProcess.CommunicationChannel.MessageReceived += onMessageReceived;
-                this.SendMessage(MessageType.TestRunSettings, settings);
+                this.jsProcess.CommunicationChannel.SendMessage(MessageType.TestRunSettings, settings);
 
                 this.versionCheckComplete.Wait();
             }
@@ -194,7 +185,10 @@
             {
                 try
                 {
-                    channel.NotifyDataAvailable();
+                    var task = channel.ReceiveMessageAsync(cancellationToken);
+                    task.Wait();
+
+                    this.onMessageReceived(task.Result);
                 }
                 catch (Exception exception)
                 {
@@ -209,10 +203,8 @@
             return Task.FromResult(0);
         }
 
-        private void onMessageReceived(object sender, MessageReceivedEventArgs e)
+        private void onMessageReceived(Message message)
         {
-            var message = this.dataSerializer.DeserializeMessage(e.Data);
-
             switch(message.MessageType)
             {
                 case MessageType.VersionCheck:
@@ -260,7 +252,7 @@
                     break;
 
                 default:
-                    Console.Error.Write(e.Data);
+                    Console.Error.Write(message.Payload);
                     break;
             }
 

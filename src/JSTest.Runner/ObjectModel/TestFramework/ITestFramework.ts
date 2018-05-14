@@ -6,8 +6,11 @@ export interface ITestFramework {
     readonly executorUri: string;
     readonly environmentType: EnvironmentType;
     readonly testFrameworkEvents: ITestFrameworkEvents;
+    readonly canHandleMultipleSources: boolean;
+    readonly supportsJsonOptions: boolean;
 
-    startExecutionWithSource(source: string, options: JSON): void;
-    startExecutionWithTests(source: string, tests: Map<string, TestCase>, options: JSON): void;
-    startDiscovery(source: string): void;
+    initialize(): void;
+    startExecutionWithSource(sources: Array<string>, options: JSON): void;
+    startExecutionWithTests(sources: Array<string>, tests: Map<string, TestCase>, options: JSON): void;
+    startDiscovery(sources: Array<string>): void;
 }

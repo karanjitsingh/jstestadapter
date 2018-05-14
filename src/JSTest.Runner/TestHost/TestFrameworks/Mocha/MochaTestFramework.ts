@@ -15,6 +15,10 @@ enum ReporterEvent {
 export class MochaTestFramework extends BaseTestFramework {
     public readonly executorUri: string = 'executor://MochaTestAdapter/v1';
     public readonly environmentType: EnvironmentType;
+    public readonly canHandleMultipleSources: boolean = true;
+    public readonly supportsJsonOptions: boolean = true;
+
+    protected sources: Array<string>;
 
     private mochaLib: any;
     private mocha: Mocha;
@@ -33,13 +37,14 @@ export class MochaTestFramework extends BaseTestFramework {
     constructor(testFrameworkEvents: ITestFrameworkEvents, envrionmentType: EnvironmentType) {
         super(testFrameworkEvents);
         this.environmentType = envrionmentType;
-
-        this.mochaLib = this.getMocha();
-
     }
 
-    public startExecutionWithSource(source: string, options: JSON): void {
-        this.source = source;
+    public initialize() {
+        this.mochaLib = this.getMocha();
+    }
+
+    public startExecutionWithSource(sources: Array<string>, options: JSON): void {
+        this.sources = sources;
 
         // tslint:disable-next-line
         options['reporter'] = 'base';
@@ -47,11 +52,14 @@ export class MochaTestFramework extends BaseTestFramework {
 
         this.handleReporterEvents(ReporterEvent.SessionStarted, null);
 
-        this.mocha.addFile(source);
+        sources.forEach(source => {
+            this.mocha.addFile(source);
+        });
+
         this.initializeReporter(this.mocha.run());
     }
 
-    public startDiscovery(source: string): void {
+    public startDiscovery(sources: Array<string>): void {
         // tslint:disable:no-empty
         this.mochaLib.Suite.prototype.beforeAll = () => { };
         this.mochaLib.Suite.prototype.afterAll = () => { };
@@ -60,10 +68,10 @@ export class MochaTestFramework extends BaseTestFramework {
         // tslint:enable:no-empty
 
         this.discoveryMode = true;
-        this.startExecutionWithSource(source, JSON.parse('{ }'));
+        this.startExecutionWithSource(sources, JSON.parse('{ }'));
     }
 
-    protected skip(specObject: any) {
+    protected skipSpec(specObject: any) {
         specObject.pending = true;
     }
 
@@ -78,7 +86,7 @@ export class MochaTestFramework extends BaseTestFramework {
                 break;
 
             case ReporterEvent.SuiteStarted:
-                this.handleSuiteStarted(args.title);
+                this.handleSuiteStarted(args.title, args.file);
                 break;
 
             case ReporterEvent.SuiteDone:
@@ -89,7 +97,7 @@ export class MochaTestFramework extends BaseTestFramework {
                 if (this.discoveryMode) {
                     args.pending = true;
                 }
-                this.handleSpecStarted(args.fullTitle(), args.title, args);
+                this.handleSpecStarted(args.fullTitle(), args.title, args.file, args);
                 break;
 
             case ReporterEvent.SpecDone:

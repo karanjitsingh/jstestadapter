@@ -404,6 +404,12 @@ export class Md5 {
 
         return raw ? this._state : Md5._hex(this._state);
     }
+
+    public getGuid(): string {
+        const hash = this.end().toString();
+        const m = hash.match(/(.{8})(.{4})(.{4})(.{4})(.{12})/);
+        return `${m[1]}-${m[2]}-${m[3]}-${m[4]}-${m[5]}`;
+    }
 }
 
 if (Md5.hashStr('hello') !== '5d41402abc4b2a76b9719d911017c592') {

@@ -3,7 +3,7 @@ import { TestSessionEventArgs } from '../../ObjectModel/TestFramework';
 import { IEvent, IEventArgs } from '../../ObjectModel/Common';
 
 interface TestSession {
-    Source: string;
+    Sources: Array<string>;
     TestSessionEventArgs: TestSessionEventArgs;
     Job: () => void;
     ErrorCallback: (err: Error) => void;
@@ -26,8 +26,13 @@ export class TestSessionManager {
     }
 
     public setSessionComplete(args: TestSessionEventArgs) {
-        const testSession = this.testSessionBucket.get(args.Source);
+        const testSession = this.testSessionBucket.get(args.SessionId);
         testSession.TestSessionEventArgs = args;
+
+        this.continueNextSession(testSession);
+    }
+
+    private continueNextSession(testSession: TestSession) {
         if (!testSession.Complete) {
             this.sessionCompleteCount++;
 
@@ -38,25 +43,23 @@ export class TestSessionManager {
             }
         }
         testSession.Complete = true;
-
-        this.testSessionBucket.set(args.Source, testSession);
-
+        
         // Check for all session completion
         if (this.sessionCount === this.sessionCompleteCount) {
             this.onAllSessionsComplete.raise(this, {});
         }
     }
 
-    public addSession(source: string, job: () => void, errorCallback: (err: Error) => void) {
+    public addSession(sources: Array<string>, job: () => void, errorCallback: (err: Error) => void) {
         const testSession = <TestSession> {
-            Source: source,
+            Sources: sources,
             TestSessionEventArgs: null,
             Job: job,
             ErrorCallback: errorCallback,
             Complete: false
         };
 
-        this.testSessionBucket.set(source, testSession);
+        this.testSessionBucket.set(TestSessionEventArgs.GENERATE_SESSION_ID(sources), testSession);
         this.sessionCount++;
 
         if (this.sessionCount === 1) {
@@ -65,13 +68,25 @@ export class TestSessionManager {
     }
 
     public updateSessionEventArgs(args: TestSessionEventArgs) {
-        const testSession = this.testSessionBucket.get(args.Source);
+        const testSession = this.testSessionBucket.get(args.SessionId);
         testSession.TestSessionEventArgs = args;
-        this.testSessionBucket.set(args.Source, testSession);
+        this.testSessionBucket.set(args.SessionId, testSession);
     }
 
-    public getSessionEventArgs(source: string): TestSessionEventArgs {
-        return this.testSessionBucket.get(source).TestSessionEventArgs;
+    public getSessionEventArgs(sources: Array<string>): TestSessionEventArgs {
+        const sessionId = TestSessionEventArgs.GENERATE_SESSION_ID(sources);
+        return this.testSessionBucket.get(sessionId).TestSessionEventArgs;
+    }
+
+    private sessionError(testSession: TestSession, err: Error) {
+        if (testSession.TestSessionEventArgs != null) {
+            testSession.TestSessionEventArgs.InProgress = false;
+            testSession.TestSessionEventArgs.EndTime = new Date();
+        }
+
+        testSession.ErrorCallback(err);
+
+        this.continueNextSession(testSession);
     }
 
     private runSessionInDomain(testSession: TestSession) {
@@ -82,7 +97,7 @@ export class TestSessionManager {
         try {
             executionDomain.on('error', (err: Error) => {
                 // this.sessionComplete(source, null, err);
-                testSession.ErrorCallback(err);
+                this.sessionError(testSession, err);
             });
             executionDomain.run(() => {
                 // this.codecoverage.startCoverage(executeJob);
@@ -91,7 +106,7 @@ export class TestSessionManager {
         } catch (err) {
             console.error('domain did not catch the error. hmmmm');
             // this.sessionComplete(source, null, err);
-            testSession.ErrorCallback(err);
+            this.sessionError(testSession, err);
             // TODO log message
         }
     }

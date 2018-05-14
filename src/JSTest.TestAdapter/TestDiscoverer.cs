@@ -9,7 +9,6 @@ using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 using JSTest.Settings;
 using JSTest.Communication.Payloads;
 using System.Threading;
-using JSTest.Exceptions;
 using JSTest.Interfaces;
 
 namespace JSTest.TestAdapter

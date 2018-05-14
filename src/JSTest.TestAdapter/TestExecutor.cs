@@ -1,5 +1,4 @@
 ﻿using JSTest.Communication.Payloads;
-using JSTest.Exceptions;
 using JSTest.Interfaces;
 using JSTest.Settings;
 using JSTest.TestAdapter.SettingsProvider;

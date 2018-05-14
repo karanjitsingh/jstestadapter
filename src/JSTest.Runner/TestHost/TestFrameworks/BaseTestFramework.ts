@@ -5,9 +5,12 @@ import { TestCase, TestOutcome, EnvironmentType } from '../../ObjectModel/Common
 export abstract class BaseTestFramework implements ITestFramework {
     public abstract environmentType: EnvironmentType;
     public abstract executorUri: string;
-    public testFrameworkEvents: ITestFrameworkEvents;
+    public abstract canHandleMultipleSources: boolean;
+    public abstract supportsJsonOptions: boolean;
+
+    protected abstract sources: Array<string>;
     
-    protected source: string;
+    public testFrameworkEvents: ITestFrameworkEvents;
     
     private sessionEventArgs: TestSessionEventArgs;
     private suiteStack: Array<TestSuiteEventArgs>;
@@ -21,32 +24,19 @@ export abstract class BaseTestFramework implements ITestFramework {
         this.suiteStack = [];
     }
     
-    public abstract startExecutionWithSource(source: string, options: JSON);
-    public abstract startDiscovery(source: string);
+    public abstract startExecutionWithSource(sources: Array<string>, options: JSON);
+    public abstract startDiscovery(sources: Array<string>);
+    public abstract initialize();
     
-    protected abstract skip(specObject: any);
+    protected abstract skipSpec(specObject: any);
 
-    public startExecutionWithTests(source: string, testCollection: Map<string, TestCase>, options: JSON) {
+    public startExecutionWithTests(sources: Array<string>, testCollection: Map<string, TestCase>, options: JSON) {
         this.testCollection = testCollection;
-        this.startExecutionWithSource(source, options);
+        this.startExecutionWithSource([sources[0]], options);
     }
 
     protected handleSessionStarted() {
-        const start = new Date();
-
-        let id = '';
-        while (id === '') {
-            id = String(start.getTime());
-        }
-
-        this.sessionEventArgs = {
-            SessionId: id,
-            Source: this.source,
-            StartTime: start,
-            InProgress: true,
-            EndTime: null
-        };
-
+        this.sessionEventArgs = new TestSessionEventArgs(this.sources);
         this.testFrameworkEvents.onTestSessionStart.raise(this, this.sessionEventArgs);
     }
 
@@ -57,10 +47,10 @@ export abstract class BaseTestFramework implements ITestFramework {
         this.testFrameworkEvents.onTestSessionEnd.raise(this, this.sessionEventArgs);
     }
 
-    protected handleSuiteStarted(suiteName: string) {
+    protected handleSuiteStarted(suiteName: string, source: string) {
         const suiteEventArgs: TestSuiteEventArgs = {
             Name: suiteName,
-            Source: this.source,
+            Source: source,
             StartTime: new Date(),
             InProgress: true,
             EndTime: undefined
@@ -84,7 +74,7 @@ export abstract class BaseTestFramework implements ITestFramework {
         this.testFrameworkEvents.onTestSuiteEnd.raise(this, suiteEndEventArgs);
     }
 
-    protected handleSpecStarted(fullyQualifiedName: string, testCaseName: string, specObject: any) {
+    protected handleSpecStarted(fullyQualifiedName: string, testCaseName: string, sourceFile: string, specObject: any) {
         let executionCount = 1;
 
         if (this.testExecutionCount.has(fullyQualifiedName)) {
@@ -92,7 +82,7 @@ export abstract class BaseTestFramework implements ITestFramework {
         }
         this.testExecutionCount.set(fullyQualifiedName, executionCount);
 
-        const testCase = new TestCase(this.source, fullyQualifiedName + ' ' + executionCount, this.executorUri);
+        const testCase = new TestCase(sourceFile, fullyQualifiedName + ' ' + executionCount, this.executorUri);
         this.applyTestCaseFilter(testCase, specObject);
         
         testCase.DisplayName = testCaseName;
@@ -101,7 +91,7 @@ export abstract class BaseTestFramework implements ITestFramework {
             TestCase: testCase,
             FailedExpectations: [],
             Outcome: TestOutcome.None,
-            Source: this.source,
+            Source: sourceFile,
             StartTime: new Date(),
             InProgress: true,
             EndTime: null
@@ -123,7 +113,7 @@ export abstract class BaseTestFramework implements ITestFramework {
     private applyTestCaseFilter(testCase: TestCase, specObject: any) {
         if (this.testCollection) {
             if (!this.testCollection.has(testCase.Id)) {
-                this.skip(specObject);
+                this.skipSpec(specObject);
             }
         }
     }

@@ -29,11 +29,6 @@ export class TestCase {
             .appendStr(this.ExecutorUri)
             .appendStr(this.Source);
 
-        this.Id = this.toGUIDFormat(hash.end().toString());
-    }
-
-    private toGUIDFormat(hash: string): string {
-        const m = hash.match(/(.{8})(.{4})(.{4})(.{4})(.{12})/);
-        return `${m[1]}-${m[2]}-${m[3]}-${m[4]}-${m[5]}`;
+        this.Id = hash.getGuid();
     }
 }

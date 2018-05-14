@@ -5,7 +5,7 @@ import { ICommunicationManager, MessageReceivedEventArgs } from '../Environment/
 import { JobQueue } from '../Utils/JobQueue';
 import { MessageSender } from './MessageSender';
 import { ExecutionManager, DiscoveryManager } from './ExecutionManagers';
-import { StartExecutionWithSourcesPayload, StartExecutionWithTestsPayload, StartDiscoveryPayload } from 'ObjectModel/Payloads';
+import { StartExecutionWithSourcesPayload, StartExecutionWithTestsPayload, StartDiscoveryPayload } from '../ObjectModel/Payloads';
 
 export class TestHost {
     private readonly environment: IEnvironment;

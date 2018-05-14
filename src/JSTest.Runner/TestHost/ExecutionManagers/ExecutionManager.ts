@@ -59,7 +59,7 @@ export class ExecutionManager extends BaseExecutionManager {
         TestCaseStart: (sender: object, args: TestSpecEventArgs) => {
             console.log('adding test case to cache');
 
-            this.messageSender.sendTestCaseStart(args.TestCase);
+            this.messageSender.sendTestCaseStart(args.TestCase);    
 
         },
 
@@ -93,38 +93,38 @@ export class ExecutionManager extends BaseExecutionManager {
     };
 
     private startExecution(sources: Array<string>): Promise<void> {
-        sources.forEach(source => {
-            this.testSessionManager.addSession(source, () => {
-                const testFrameworkInstance = this.testFrameworkFactory.createTestFramework(this.testFramework);
-                this.testFrameworkEventHandlers.Subscribe(testFrameworkInstance);
-                testFrameworkInstance.startExecutionWithSource(source, this.jsTestSettings.TestFrameworkConfigJson);
-            },
-            (e) => {
-                this.sessionError(source, e);
-            });
-        });
+
+        const testFrameworkInstance = this.testFrameworkFactory.createTestFramework(this.testFramework);
+        if (testFrameworkInstance.canHandleMultipleSources) {
+            this.addSessionToSessionManager(sources);
+        } else {
+            sources.forEach((source => {
+                this.addSessionToSessionManager([source]);
+            }));
+        }
 
         return this.getCompletetionPromise();
     }
+
+    private addSessionToSessionManager(sources: Array<string>) {
+        this.testSessionManager.addSession(sources, () => {
+            const testFrameworkInstance = this.testFrameworkFactory.createTestFramework(this.testFramework);
+            testFrameworkInstance.initialize();
+            this.testFrameworkEventHandlers.Subscribe(testFrameworkInstance);
+            testFrameworkInstance.startExecutionWithSource(sources, this.jsTestSettings.TestFrameworkConfigJson);
+        },
+        (e) => {
+            this.sessionError(sources, e);
+        });
+    }
     
-    private sessionError(source: string, err: Error) {
+    private sessionError(sources: Array<string>, err: Error) {
         if (err) {
             this.messageSender.sendMessage(err.stack ?
                 err.stack :
-                (err.constructor.name + ': ' + err.message + ' at ' + source),
+                (err.constructor.name + ': ' + err.message),
             TestMessageLevel.Error);
         }
-
-        const currentSession = this.testSessionManager.getSessionEventArgs(source);
-
-        if (currentSession != null) {
-            currentSession.InProgress = false;
-            currentSession.EndTime = new Date();
-        } else {
-            // TODO ??
-        }
-
-        this.testSessionManager.setSessionComplete(currentSession);
     }
 
     private executionComplete = () => {

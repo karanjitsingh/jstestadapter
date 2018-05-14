@@ -2,8 +2,8 @@ import { Message } from '../../ObjectModel';
 import { IEvent } from '../../ObjectModel/Common';
 import { ICommunicationManager, MessageReceivedEventArgs } from '../ICommunicationManager';
 import { IEnvironment } from '../IEnvironment';
+import { Socket } from 'net';
 import * as wait from 'wait-for-stuff';
-// import { TestMessagePayload } from 'ObjectModel/TPPayloads';
 
 interface PacketData<T> {
     byteCount: number;
@@ -13,13 +13,19 @@ interface PacketData<T> {
 export class CommunicationManager implements ICommunicationManager {
     private socketBuffer: Buffer;
 
+    protected socket: Socket;
     public onMessageReceived: IEvent<MessageReceivedEventArgs>;
 
-    constructor(environment: IEnvironment) {
+    constructor(environment: IEnvironment, ip: string, port: number, socket?: Socket) {
+        this.socket = socket ? socket : new Socket();
         this.socketBuffer = new Buffer(0);
-
         this.onMessageReceived = environment.createEvent();
-        process.stdin.on('data', this.stdinDataReceived);
+        this.connectToServer(ip, port);
+        this.socket.on('data', this.onSocketDataReceived);
+    }
+
+    private connectToServer(ip: string, port: number, callback?: () => void) {
+        this.socket.connect(port, ip, callback);
     }
 
     public sendMessage(message: Message) {
@@ -30,7 +36,7 @@ export class CommunicationManager implements ICommunicationManager {
         // Left pad with 7 bit encoded int length
         dataObject = this.intTo7BitEncodedInt(dataObject.length) + dataObject;
 
-        process.stdout.write(dataObject, 'binary');
+        this.socket.write(dataObject, 'binary');
     }
 
     // tslint:disable-next-line
@@ -50,7 +56,7 @@ export class CommunicationManager implements ICommunicationManager {
         return message;
     }
 
-    private stdinDataReceived = (buffer: Buffer) => {
+    private onSocketDataReceived = (buffer: Buffer) => {
         this.socketBuffer = Buffer.concat([this.socketBuffer, buffer]);
         let messagePacket: PacketData<Message> = null;
 
@@ -133,7 +139,6 @@ export class CommunicationManager implements ICommunicationManager {
         while (length > 0) {
             byte = length % 128;                // will give the 7 least significant bits
             byte += length >= 128 ? 128 : 0;    // will set highest bit to 1 if more bits required
-
             output += String.fromCharCode(byte);
             
             // tslint:disable-next-line

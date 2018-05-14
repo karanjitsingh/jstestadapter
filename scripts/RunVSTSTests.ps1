@@ -11,7 +11,7 @@ if(!$runonly) {
 
 Write-Host "`nStarting Execution...`n"
 
-D:\vstest\artifacts\Debug\net451\win7-x64\vstest.console.exe --TestAdapterPath:D:\JSTestAdapter\src\JSTest.TestAdapter\bin\Debug\net451 `
+D:\vstest\artifacts\Debug\net451\win7-x64\vstest.console.exe --TestAdapterPath:D:\JSTestAdapter\src\JSTest.TestAdapter\bin\Debug\net451 --settings:.\RunSettings.xml `
 "D:/vsts-tasks/_build/Tasks/AndroidSigning/Tests/L0.js" `
 "D:/vsts-tasks/_build/Tasks/AppCenterDistribute/Tests/L0.js" `
 "D:/vsts-tasks/_build/Tasks/AppCenterTest/Tests/L0.js" `
