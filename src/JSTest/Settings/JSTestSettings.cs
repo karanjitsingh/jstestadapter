@@ -26,6 +26,11 @@ namespace JSTest.Settings
         [XmlIgnore]
         [DataMember]
         public DiagTracing DiagTracing { get; private set; }
+        /*
+         * TODO:
+         * maybe this should not be a part of jstestsettings
+         * should be a payload in itself
+         */
 
         [XmlIgnore]
         [DataMember]

@@ -12,11 +12,12 @@ class DebugLogger implements IDebugLogger {
 
     public log(message: string, moduleName: string) {
         this.debugMethod(message, moduleName);
+        // TODO FIX where is this log eventually saved?
     }
 }
 
 export class Logger extends BaseLogger {
-    constructor(commManager: ICommunicationManager) {        
+    constructor(commManager: ICommunicationManager) {
         super(commManager, new DebugLogger());
     }
 }

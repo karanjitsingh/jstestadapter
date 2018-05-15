@@ -9,25 +9,25 @@ export abstract class BaseTestFramework implements ITestFramework {
     public abstract supportsJsonOptions: boolean;
 
     protected abstract sources: Array<string>;
-    
+
     public testFrameworkEvents: ITestFrameworkEvents;
-    
+
     private sessionEventArgs: TestSessionEventArgs;
     private suiteStack: Array<TestSuiteEventArgs>;
     private activeSpec: TestSpecEventArgs;
     private testCollection: Map<string, TestCase>;
     private testExecutionCount: Map<string, number>;
-    
+
     constructor(testFrameworkEvents: ITestFrameworkEvents) {
         this.testFrameworkEvents = testFrameworkEvents;
         this.testExecutionCount = new Map();
         this.suiteStack = [];
     }
-    
+
     public abstract startExecutionWithSource(sources: Array<string>, options: JSON);
     public abstract startDiscovery(sources: Array<string>);
     public abstract initialize();
-    
+
     protected abstract skipSpec(specObject: any);
 
     public startExecutionWithTests(sources: Array<string>, testCollection: Map<string, TestCase>, options: JSON) {
@@ -84,7 +84,7 @@ export abstract class BaseTestFramework implements ITestFramework {
 
         const testCase = new TestCase(sourceFile, fullyQualifiedName + ' ' + executionCount, this.executorUri);
         this.applyTestCaseFilter(testCase, specObject);
-        
+
         testCase.DisplayName = testCaseName;
 
         this.activeSpec = <TestSpecEventArgs> {
@@ -101,7 +101,7 @@ export abstract class BaseTestFramework implements ITestFramework {
     }
 
     protected handleSpecDone(testOutcome: TestOutcome, failedExpectations: Array<FailedExpectation>) {
-        
+
         this.activeSpec.InProgress = false;
         this.activeSpec.EndTime = new Date();
         this.activeSpec.Outcome = testOutcome;
