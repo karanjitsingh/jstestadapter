@@ -6,7 +6,7 @@
         "sourceMap": true,
         "lib": ["es2015", "dom"],
         "baseUrl": "./",
-        "sourceRoot": "D:\\JavaScriptTestHost",
+        "sourceRoot": "D:\\JSTestAdapter",
         "skipLibCheck": true
     }
 }

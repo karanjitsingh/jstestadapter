@@ -69,11 +69,11 @@
             }
         };
 
-        public void errorReceivedCallback(StringBuilder testHostProcessStdError, string data)
+        public void errorReceivedCallback(StringBuilder testRunnerProcessStdError, string data)
         {
             if (!string.IsNullOrEmpty(data))
             {
-                testHostProcessStdError.Clear();
+                testRunnerProcessStdError.Clear();
 
                 // Log all standard error message because on too much data we ignore starting part.
                 // This is helpful in abnormal failure of testhost.
@@ -83,23 +83,23 @@
                 data += Environment.NewLine;
 
                 // if incoming data stream is huge empty entire testError stream, & limit data stream to MaxCapacity
-                if (data.Length > testHostProcessStdError.MaxCapacity)
+                if (data.Length > testRunnerProcessStdError.MaxCapacity)
                 {
-                    testHostProcessStdError.Clear();
-                    data = data.Substring(data.Length - testHostProcessStdError.MaxCapacity);
+                    testRunnerProcessStdError.Clear();
+                    data = data.Substring(data.Length - testRunnerProcessStdError.MaxCapacity);
                 }
 
                 // remove only what is required, from beginning of error stream
                 else
                 {
-                    int required = data.Length + testHostProcessStdError.Length - testHostProcessStdError.MaxCapacity;
+                    int required = data.Length + testRunnerProcessStdError.Length - testRunnerProcessStdError.MaxCapacity;
                     if (required > 0)
                     {
-                        testHostProcessStdError.Remove(0, required);
+                        testRunnerProcessStdError.Remove(0, required);
                     }
                 }
 
-                testHostProcessStdError.Append(data);
+                testRunnerProcessStdError.Append(data);
             }
         }
 

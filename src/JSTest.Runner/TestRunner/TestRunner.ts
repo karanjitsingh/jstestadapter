@@ -7,12 +7,12 @@ import { MessageSender } from './MessageSender';
 import { ExecutionManager, DiscoveryManager } from './ExecutionManagers';
 import { StartExecutionWithSourcesPayload, StartExecutionWithTestsPayload, StartDiscoveryPayload } from '../ObjectModel/Payloads';
 
-export class TestHost {
+export class TestRunner {
     private readonly environment: IEnvironment;
     private readonly communicationManager: ICommunicationManager;
     private readonly jobQueue: JobQueue;
     private readonly messageSender: MessageSender;
-    
+
     private testRunSettings: JSTestSettings;
     private sessionEnded: boolean;
 
@@ -21,7 +21,7 @@ export class TestHost {
         this.sessionEnded = false;
         this.jobQueue = new JobQueue();
         // this.testHostSettings = ArgumentProcessor.processArguments(this.environment.argv);
-        
+
         const dcCommManager: ICommunicationManager = null;
         // if (this.testHostSettings.DataCollectionPort) {
         //     dcCommManager = environment.createCommunicationManager();
@@ -57,7 +57,7 @@ export class TestHost {
         console.log('Message Received', message);
 
         switch (message.MessageType) {
-                
+
             case MessageType.VersionCheck:
                 this.messageSender.sendVersionCheck();
                 break;

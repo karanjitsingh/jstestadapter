@@ -47,7 +47,7 @@ namespace JSTest.RuntimeProviders
             processInfo.FileName = this.getNodeBinaryPath(environment.Architecture, environment.OperatingSystem, rootFolder);
             //processInfo.WorkingDirectory = rootFolder;
 
-            var jstesthost = Path.Combine(rootFolder, "JSTest.Runner", "index.js");
+            var jstestrunner = Path.Combine(rootFolder, "JSTest.Runner", "index.js");
             processInfo.EnvironmentVariables = new Dictionary<string, string>();
 
             // Maybe this is not required after setting working directory
@@ -58,14 +58,14 @@ namespace JSTest.RuntimeProviders
             processInfo.Arguments = string.Format(
                 " -r source-map-support/register {0} {1}",
                 isDebugEnabled ? "--inspect-brk=9229" : "",
-                jstesthost);
+                jstestrunner);
 
             return processInfo;
         }
 
         private NodeRuntimeProvider()
         {
-            
+
         }
 
         private string getNodeBinaryPath(PlatformArchitecture architecture, PlatformOperatingSystem os, string rootFolder)

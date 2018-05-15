@@ -30,12 +30,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/karanjitsingh/JavaScriptTestHost.git"
+    "url": "git+https://github.com/karanjitsingh/JSTestAdapter.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/karanjitsingh/JavaScriptTestHost/issues"
+    "url": "https://github.com/karanjitsingh/JSTestAdapter/issues"
   },
-  "homepage": "https://github.com/karanjitsingh/JavaScriptTestHost#readme"
+  "homepage": "https://github.com/karanjitsingh/JSTestAdapter#readme"
 }

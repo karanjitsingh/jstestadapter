@@ -1,6 +1,6 @@
 import { IEnvironment } from './Environment/IEnvironment';
 import { EnvironmentProvider } from './Environment/EnvironmentProvider';
-import { TestHost } from './TestHost/TestHost';
+import { TestRunner } from './TestRunner/TestRunner';
 import { Exception } from './Exceptions';
 
 const environmentProvider = new EnvironmentProvider();
@@ -8,7 +8,7 @@ const environmentProvider = new EnvironmentProvider();
 environmentProvider.getEnvironment().then((env: IEnvironment) => {
     try {
         // tslint:disable-next-line
-        new TestHost(env);
+        new TestRunner(env);
     } catch (err) {
         handleError(err);
         env.exit(1);
