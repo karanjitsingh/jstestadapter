@@ -1,4 +1,6 @@
 import { JestCallbacks } from './JestCallbacks';
+import { TestOutcome } from '../../../ObjectModel/Common';
+import { FailedExpectation } from '../../../ObjectModel/TestFramework';
 
 export class JestReporter {
     private static callbacks: JestCallbacks;
@@ -7,7 +9,7 @@ export class JestReporter {
         this.callbacks = callbacks;
     }
 
-    public onRunComplete = (contexts: Set<Context>, results: AggregatedResult) {
+    public onRunComplete = (contexts: Set<Context>, results: AggregatedResult) => {
         JestReporter.callbacks.handleSessionDone();
     }
 

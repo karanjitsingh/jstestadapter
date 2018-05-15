@@ -1,20 +1,11 @@
-import { FailedExpectation, ITestFrameworkEvents } from '../../../ObjectModel/TestFramework';
-import { EnvironmentType, TestOutcome } from '../../../ObjectModel/Common';
+import { ITestFrameworkEvents } from '../../../ObjectModel/TestFramework';
+import { EnvironmentType } from '../../../ObjectModel/Common';
 import { Exception, ExceptionType } from '../../../Exceptions';
 import { BaseTestFramework } from '../BaseTestFramework';
 import { JestReporter } from './JestReporter';
 import rewire from 'rewire';
 import * as path from 'path';
 import { JestCallbacks } from './JestCallbacks';
-
-enum ReporterEvent {
-    SessionStarted,
-    SessionDone,
-    SuiteStarted,
-    SuiteDone,
-    SpecStarted,
-    SpecDone
-}
 
 export class MochaTestFramework extends BaseTestFramework {
     public readonly executorUri: string = 'executor://MochaTestAdapter/v1';
@@ -27,7 +18,6 @@ export class MochaTestFramework extends BaseTestFramework {
     private jest: any;
     private jestArgv: any;
     private jestProjects: any;
-    private discoveryMode: boolean = false;
 
     private getJest() {
         switch (this.environmentType) {
@@ -70,14 +60,15 @@ export class MochaTestFramework extends BaseTestFramework {
     }
 
     public startExecutionWithSource(sources: Array<string>, options: JSON): void {
-        this.jest.runCLI(this.sources[0], options);
+        this.runJest(this.sources[0], options);
     }
 
     public startDiscovery(sources: Array<string>): void {
-        this.jest.runCLI(this.sources[0], null, true);
+        this.runJest(this.sources[0], null, true);
     }
 
     protected skipSpec(specObject: any) {
+        // TODO skipping specs
         specObject.pending = true;
     }
 
