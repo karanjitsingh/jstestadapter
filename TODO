@@ -2,3 +2,5 @@ TODO:
     chrome headless support?
     diag logger
     parallel execution
+    unit tests + tracing
+    vs integration
