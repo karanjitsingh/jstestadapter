@@ -10,7 +10,7 @@ if(!$runonly) {
 }
 
 $ProjectDir = (Get-Item ([System.IO.Path]::GetDirectoryName($myInvocation.MyCommand.Definition))).Parent.FullName
-$testFolder = Join-Path $ProjectDir "test\JSTestHost.UnitTests\bin\test"
+$testFolder = Join-Path $ProjectDir "test\JSTest.Runner.UnitTests\bin\test"
 
 $tests = Get-ChildItem -Path $testFolder -Recurse -Filter "*.js"
 
