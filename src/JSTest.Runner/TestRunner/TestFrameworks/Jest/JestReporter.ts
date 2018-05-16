@@ -9,39 +9,52 @@ export class JestReporter {
         this.callbacks = callbacks;
     }
 
-    public onRunComplete = (contexts: Set<Context>, results: AggregatedResult) => {
+    public onRunComplete = () => {
         JestReporter.callbacks.handleSessionDone();
     }
 
-    public onRunStart = (results: AggregatedResult, options: ReporterOnStartOptions) => {
-        JestReporter.callbacks.handleSessionStarted();
-        JestReporter.callbacks.handleSpecStarted(args.fullTitle(), args.title, args.file, args);
-        return;
-    }
+    public onTestResult = (test: any, aggregatedResults: any) => {
 
-    public onTestStart = (test: Test): Promise<void> => {
-        return;
-    }
+        let startTime = aggregatedResults.perfStats.start;
 
-    public onTestResult = (test: Test, testResult: TestResult, aggregatedResult: AggregatedResult) => {
-        let outcome: TestOutcome = TestOutcome.None;
-        const failedExpectations: Array<FailedExpectation> = [];
+        aggregatedResults.testResults.forEach(result => {
 
-        if (args.state === 'passed') {
-            outcome = TestOutcome.Passed;
-        } else if (args.state === 'failed') {
-            outcome = TestOutcome.Failed;
-            failedExpectations.push(<FailedExpectation> {
-                Message: args.err.message,
-                StackTrace: args.err.stack
-            });
-        }
+            let outcome: TestOutcome = TestOutcome.None;
+            const failedExpectations: Array<FailedExpectation> = [];
+    
+            if (result.status === 'passed') {
+                outcome = TestOutcome.Passed;
+            } else if (result.status === 'failed') {
+                outcome = TestOutcome.Failed;
+                
+                result.failureMessages.forEach(msg => {
+                    const message = msg.split('\n');
+                    const stack = message.splice(1);
 
-        if (args.pending === true) {
-            outcome = TestOutcome.Skipped;
-        }
+                    failedExpectations.push(<FailedExpectation> {
+                        Message: message,
+                        StackTrace: stack
+                    });
+                });
 
-        JestReporter.callbacks.handleSpecDone(outcome, failedExpectations);
-
+            } else if (result.status === 'pending') {
+                outcome = TestOutcome.Skipped;
+            }
+    
+            if (result.pending === true) {
+                outcome = TestOutcome.Skipped;
+            }
+    
+            JestReporter.callbacks.handleSpecResult(result.fullName,
+                                                    result.title,
+                                                    test.path,
+                                                    outcome,
+                                                    failedExpectations,
+                                                    new Date(startTime),
+                                                    new Date(startTime + result.duration));
+            
+            startTime += result.duration;
+        });
+        
     }
 }

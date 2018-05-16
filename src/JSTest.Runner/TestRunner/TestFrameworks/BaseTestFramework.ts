@@ -110,6 +110,36 @@ export abstract class BaseTestFramework implements ITestFramework {
         this.testFrameworkEvents.onTestCaseEnd.raise(this, this.activeSpec);
     }
 
+    protected handleSpecResult(fullyQualifiedName: string,
+                               testCaseName: string,
+                               sourceFile: string,
+                               testOutcome: TestOutcome,
+                               failedExpectations: Array<FailedExpectation>,
+                               startTime: Date,
+                               endTime: Date) {
+        let executionCount = 1;
+
+        if (this.testExecutionCount.has(fullyQualifiedName)) {
+            executionCount = this.testExecutionCount.get(fullyQualifiedName) + 1;
+        }
+        this.testExecutionCount.set(fullyQualifiedName, executionCount);
+
+        const testCase = new TestCase(sourceFile, fullyQualifiedName + ' ' + executionCount, this.executorUri);
+        testCase.DisplayName = testCaseName;
+
+        const specResult = <TestSpecEventArgs> {
+            TestCase: testCase,
+            FailedExpectations: [],
+            Outcome: testOutcome,
+            Source: sourceFile,
+            StartTime: startTime,
+            InProgress: false,
+            EndTime: endTime
+        };
+
+        this.testFrameworkEvents.onTestCaseEnd.raise(this, specResult);
+    }
+
     private applyTestCaseFilter(testCase: TestCase, specObject: any) {
         if (this.testCollection) {
             if (!this.testCollection.has(testCase.Id)) {

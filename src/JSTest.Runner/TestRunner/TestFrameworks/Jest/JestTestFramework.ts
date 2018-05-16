@@ -1,5 +1,5 @@
 import { ITestFrameworkEvents } from '../../../ObjectModel/TestFramework';
-import { EnvironmentType } from '../../../ObjectModel/Common';
+import { EnvironmentType, TestCase } from '../../../ObjectModel/Common';
 import { Exception, ExceptionType } from '../../../Exceptions';
 import { BaseTestFramework } from '../BaseTestFramework';
 import { JestReporter } from './JestReporter';
@@ -53,10 +53,13 @@ export class MochaTestFramework extends BaseTestFramework {
 
         JestReporter.INITIALIZE_REPORTER(<JestCallbacks> {
             handleSessionDone: this.handleSessionDone.bind(this),
-            handleSessionStarted: this.handleSessionStarted.bind(this),
-            handleSpecStarted: this.handleSpecStarted.bind(this),
-            handleSpecDone: this.handleSpecDone.bind(this)
+            handleSpecResult: this.handleSpecResult.bind(this)
         });
+    }
+
+    public startExecutionWithTests(sources: Array<string>, testCollection: Map<string, TestCase>, options: JSON) {
+        // this.testCollection = testCollection;
+        this.startExecutionWithSource([sources[0]], options);
     }
 
     public startExecutionWithSource(sources: Array<string>, options: JSON): void {
@@ -91,7 +94,9 @@ export class MochaTestFramework extends BaseTestFramework {
             jestArgv.testNamePattern = '^$a';
         }
 
-        jestArgv.reporters = [ path.resolve('./JestCustomReporter.js') ];
+        jestArgv.reporters = [ path.resolve('./JestReporter.js') ];
+
+        this.handleSessionStarted();
 
         this.jest.runCLI(jestArgv, this.jestProjects);
     }

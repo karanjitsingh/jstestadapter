@@ -83,6 +83,7 @@ export class ExecutionManager extends BaseExecutionManager {
                 EndTime: args.EndTime
             };
 
+            // TODO how to handle multiple failed expectations?
             if (args.FailedExpectations.length > 0) {
                 testResult.ErrorMessage = args.FailedExpectations[0].Message;
                 testResult.ErrorStackTrace = args.FailedExpectations[0]. StackTrace;
