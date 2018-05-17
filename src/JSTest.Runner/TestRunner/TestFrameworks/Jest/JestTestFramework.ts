@@ -2,12 +2,11 @@ import { ITestFrameworkEvents } from '../../../ObjectModel/TestFramework';
 import { EnvironmentType, TestCase } from '../../../ObjectModel/Common';
 import { Exception, ExceptionType } from '../../../Exceptions';
 import { BaseTestFramework } from '../BaseTestFramework';
-import { JestReporter } from './JestReporter';
-import rewire from 'rewire';
-import * as path from 'path';
 import { JestCallbacks } from './JestCallbacks';
+import * as rewire from 'rewire';
+import * as path from 'path';
 
-export class MochaTestFramework extends BaseTestFramework {
+export class JestTestFramework extends BaseTestFramework {
     public readonly executorUri: string = 'executor://MochaTestAdapter/v1';
     public readonly environmentType: EnvironmentType;
     public readonly canHandleMultipleSources: boolean = false;
@@ -18,6 +17,7 @@ export class MochaTestFramework extends BaseTestFramework {
     private jest: any;
     private jestArgv: any;
     private jestProjects: any;
+    private jestReporter: any;
 
     private getJest() {
         switch (this.environmentType) {
@@ -51,9 +51,13 @@ export class MochaTestFramework extends BaseTestFramework {
 
         this.jestProjects = jestCLI.__get__('getProjectListFromCLIArgs')(this.jestArgv);
 
-        JestReporter.INITIALIZE_REPORTER(<JestCallbacks> {
+        //tslint:disable:no-require-imports
+        this.jestReporter = require('./JestReporter');
+        this.jestReporter.INITIALIZE_REPORTER(<JestCallbacks> {
             handleSessionDone: this.handleSessionDone.bind(this),
-            handleSpecResult: this.handleSpecResult.bind(this)
+            handleSpecFound: this.handleSpecStarted.bind(this),
+            handleSpecResult: this.handleSpecResult.bind(this),
+            handleErrorMessage: this.reportErrorMessage.bind(this)
         });
     }
 
@@ -63,11 +67,14 @@ export class MochaTestFramework extends BaseTestFramework {
     }
 
     public startExecutionWithSource(sources: Array<string>, options: JSON): void {
-        this.runJest(this.sources[0], options);
+        this.sources = sources;
+        this.runJest(sources[0], options);
     }
 
     public startDiscovery(sources: Array<string>): void {
-        this.runJest(this.sources[0], null, true);
+        this.sources = sources;
+        this.jestReporter.discovery = true;
+        this.runJest(sources[0], null, true);
     }
 
     protected skipSpec(specObject: any) {
@@ -84,17 +91,18 @@ export class MochaTestFramework extends BaseTestFramework {
             });
         }
 
-        jestArgv.testPathPattern = ['*'];
-
-        // TODO should run config path be test files? or runconfig? run jest --config and check buildargv
-        jestArgv.$0 = path.dirname(runConfigPath);
-
         if (discovery) {
             // ^$a is a regex that will never match any string and force jest to skip all tests
             jestArgv.testNamePattern = '^$a';
         }
 
-        jestArgv.reporters = [ path.resolve('./JestReporter.js') ];
+        jestArgv.$0 = runConfigPath;
+        jestArgv.rootDir = path.dirname(runConfigPath);
+        jestArgv.config = runConfigPath;
+        jestArgv.reporters = [ require.resolve('./JestReporter.js') ];
+
+        // the property _ will be set as process.argv which in this case are for TestRunner not for jest
+        jestArgv._ = [];
 
         this.handleSessionStarted();
 

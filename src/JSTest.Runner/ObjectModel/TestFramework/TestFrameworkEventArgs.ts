@@ -42,3 +42,7 @@ export class TestSessionEventArgs implements BaseTestEventArgs {
         return hash.getGuid();
     }
 }
+
+export interface TestErrorMessageEventArgs {
+    Message: string;
+}

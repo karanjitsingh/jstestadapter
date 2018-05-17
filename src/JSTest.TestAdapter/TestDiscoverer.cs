@@ -13,6 +13,7 @@ using JSTest.Interfaces;
 
 namespace JSTest.TestAdapter
 {
+    [FileExtension(AdapterConstants.FileExtensions.JSON)]
     [FileExtension(AdapterConstants.FileExtensions.JavaScript)]
     [DefaultExecutorUri(AdapterConstants.ExecutorUri)]
     public class JavaScriptTestDiscoverer : ITestDiscoverer
@@ -34,8 +35,9 @@ namespace JSTest.TestAdapter
         {
             this.discoverySink = discoverySink;
             this.messageLogger = logger;
-
-            var settings = new JSTestSettings();
+            
+            var settingsProvider = discoveryContext.RunSettings.GetSettings(AdapterConstants.SettingsName) as JavaScriptSettingsProvider;
+            var settings = settingsProvider != null ? settingsProvider.Settings : new JSTestSettings();
             settings.Discovery = true;
 
             try

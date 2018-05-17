@@ -1,6 +1,13 @@
 import { ITestFramework, TestSessionEventArgs, TestSuiteEventArgs, TestSpecEventArgs,
-         FailedExpectation, ITestFrameworkEvents } from '../../ObjectModel/TestFramework';
+         FailedExpectation, ITestFrameworkEvents, TestErrorMessageEventArgs } from '../../ObjectModel/TestFramework';
 import { TestCase, TestOutcome, EnvironmentType } from '../../ObjectModel/Common';
+
+/*
+ * TODO:
+ * try catch all event handlers
+ * if this code breaks sometimes it might never be caught
+ * at least trace all errors in event handlers
+ */
 
 export abstract class BaseTestFramework implements ITestFramework {
     public abstract environmentType: EnvironmentType;
@@ -129,7 +136,7 @@ export abstract class BaseTestFramework implements ITestFramework {
 
         const specResult = <TestSpecEventArgs> {
             TestCase: testCase,
-            FailedExpectations: [],
+            FailedExpectations: failedExpectations,
             Outcome: testOutcome,
             Source: sourceFile,
             StartTime: startTime,
@@ -138,6 +145,12 @@ export abstract class BaseTestFramework implements ITestFramework {
         };
 
         this.testFrameworkEvents.onTestCaseEnd.raise(this, specResult);
+    }
+
+    protected reportErrorMessage(message: string) {
+        this.testFrameworkEvents.onErrorMessage.raise(this, <TestErrorMessageEventArgs> {
+            Message: message
+        });
     }
 
     private applyTestCaseFilter(testCase: TestCase, specObject: any) {

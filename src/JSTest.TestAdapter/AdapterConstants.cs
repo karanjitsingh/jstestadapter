@@ -13,6 +13,7 @@ namespace JSTest.TestAdapter
         internal static class FileExtensions
         {
             public const string JavaScript = ".js";
+            public const string JSON = ".json";
         }
     }
 }

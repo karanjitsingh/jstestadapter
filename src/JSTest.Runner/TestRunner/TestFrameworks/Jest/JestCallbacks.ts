@@ -3,7 +3,7 @@ import { TestOutcome } from '../../../ObjectModel/Common';
 
 export interface JestCallbacks {
     handleSessionDone();
-    
+    handleSpecFound(fullyQualifiedName: string, testCaseName: string, sourceFile: string);
     handleSpecResult(fullyQualifiedName: string,
         testCaseName: string,
         sourceFile: string,
@@ -11,4 +11,5 @@ export interface JestCallbacks {
         failedExpectations: Array<FailedExpectation>,
         startTime: Date,
         endTime: Date);
+    handleErrorMessage(message: string);
 }

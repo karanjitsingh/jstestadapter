@@ -1,4 +1,5 @@
-import { ITestFramework, TestSessionEventArgs, TestSpecEventArgs, TestFrameworks } from '../../ObjectModel/TestFramework';
+import { ITestFramework, TestSessionEventArgs, TestSpecEventArgs, TestFrameworks,
+         TestErrorMessageEventArgs } from '../../ObjectModel/TestFramework';
 import { IEnvironment } from '../../Environment/IEnvironment';
 import { MessageSender } from '../MessageSender';
 import { TestFrameworkEventHandlers } from '../TestFrameworks/TestFrameworkEventHandlers';
@@ -36,6 +37,7 @@ export class DiscoveryManager extends BaseExecutionManager {
         Subscribe: (framework: ITestFramework) => {
             framework.testFrameworkEvents.onTestSessionEnd.subscribe(this.testFrameworkEventHandlers.TestSessionEnd);
             framework.testFrameworkEvents.onTestCaseStart.subscribe(this.testFrameworkEventHandlers.TestCaseStart);
+            framework.testFrameworkEvents.onErrorMessage.subscribe(this.testFrameworkEventHandlers.TestErrorMessage);            
         },
 
         TestSessionEnd: (sender: object, args: TestSessionEventArgs) => {
@@ -47,6 +49,10 @@ export class DiscoveryManager extends BaseExecutionManager {
             console.log('adding test case to cache');
             // this.testDiscoveryCache.addTest(args.TestCase);
             this.messageSender.sendTestCaseFound(args.TestCase);
+        },
+
+        TestErrorMessage: (sender: object, args: TestErrorMessageEventArgs) => {
+            this.messageSender.sendMessage(args.Message, TestMessageLevel.Error);
         }
     };
 

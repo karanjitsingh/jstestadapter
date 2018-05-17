@@ -21,11 +21,6 @@ namespace JSTest.Communication
     public class CommunicationChannel 
     {
         /// <summary>
-        /// Time for which the client wait for executor/runner process to start, and host server
-        /// </summary>
-        private const int CONNECTIONRETRYTIMEOUT = 50 * 1000;
-
-        /// <summary>
         /// The server stream read timeout constant (in microseconds).
         /// </summary>
         private const int STREAMREADTIMEOUT = 1000 * 1000;
@@ -34,11 +29,6 @@ namespace JSTest.Communication
         /// TCP Listener to host TCP channel and listen
         /// </summary>
         private TcpListener tcpListener;
-
-        /// <summary>
-        /// TCP Client that can connect to a TCP listener
-        /// </summary>
-        private TcpClient tcpClient;
 
         /// <summary>
         /// Binary Writer to write to channel stream
@@ -59,11 +49,6 @@ namespace JSTest.Communication
         /// Event used to maintain client connection state
         /// </summary>
         private ManualResetEvent clientConnectedEvent = new ManualResetEvent(false);
-
-        /// <summary>
-        /// Event used to maintain client connection state
-        /// </summary>
-        private ManualResetEvent clientConnectionAcceptedEvent = new ManualResetEvent(false);
 
         /// <summary>
         /// Sync object for sending messages

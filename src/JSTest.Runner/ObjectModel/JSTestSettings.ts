@@ -31,10 +31,14 @@ export class JSTestSettings {
 
         this.DiagTracing = json.DiagTracing;
 
-        try {
-            this.TestFrameworkConfigJson = JSON.parse(json.TestFrameworkConfigJson);
-        } catch (e) {
-            throw new Exception('Invalid TestFrameworkConfigJson: ' + e.message, ExceptionType.InvalidJSONException);
-        } 
+        if (json.TestFrameworkConfigJson !== '') {
+            try {
+                this.TestFrameworkConfigJson = JSON.parse(json.TestFrameworkConfigJson);
+            } catch (e) {
+                throw new Exception('Invalid TestFrameworkConfigJson: ' + e.message, ExceptionType.InvalidJSONException);
+            }
+        } else {
+            this.TestFrameworkConfigJson = JSON.parse('{}');
+        }
     }
 }

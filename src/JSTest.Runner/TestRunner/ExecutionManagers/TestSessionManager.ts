@@ -104,7 +104,6 @@ export class TestSessionManager {
                 testSession.Job();
             });
         } catch (err) {
-            console.error('domain did not catch the error. hmmmm');
             // this.sessionComplete(source, null, err);
             this.sessionError(testSession, err);
             // TODO log message

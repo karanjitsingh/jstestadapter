@@ -4,6 +4,7 @@ import { JasmineTestFramework } from './Jasmine/JasmineTestFramework';
 import { IEnvironment } from '../../Environment/IEnvironment';
 import { MochaTestFramework } from './Mocha/MochaTestFramework';
 import { Exception, ExceptionType } from '../../Exceptions';
+import { JestTestFramework } from './Jest/JestTestFramework';
 
 // tslint:disable:no-stateless-class
 export class TestFrameworkFactory {
@@ -37,7 +38,8 @@ export class TestFrameworkFactory {
             onTestSuiteStart: this.environment.createEvent(),
             onTestSuiteEnd: this.environment.createEvent(),
             onTestSessionStart: this.environment.createEvent(),
-            onTestSessionEnd: this.environment.createEvent()
+            onTestSessionEnd: this.environment.createEvent(),
+            onErrorMessage: this.environment.createEvent()
         };
     }
 
@@ -47,6 +49,8 @@ export class TestFrameworkFactory {
                 return JasmineTestFramework;    
             case TestFrameworks.Mocha:
                 return MochaTestFramework;
+            case TestFrameworks.Jest:
+                return JestTestFramework;
             default:
                 return null;
         }
