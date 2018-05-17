@@ -12,8 +12,8 @@ describe('NodeEnvironment Suite', () => {
         env = new Environment();
     });
 
-    it('createCommunicationManager will return instance of communication manager', (done: any) => {
-        Assert.equal(env.createCommunicationManager() instanceof CommunicationManager, true);
+    it('getCommunicationManager will return instance of communication manager', (done: any) => {
+        Assert.equal(env.getCommunicationManager() instanceof CommunicationManager, true);
         done();
     });
 

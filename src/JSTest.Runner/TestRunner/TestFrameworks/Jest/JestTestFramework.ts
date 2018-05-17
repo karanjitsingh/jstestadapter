@@ -5,6 +5,7 @@ import { BaseTestFramework } from '../BaseTestFramework';
 import { JestCallbacks } from './JestCallbacks';
 import * as rewire from 'rewire';
 import * as path from 'path';
+import { Environment } from '../../../Environment/Node/Environment';
 
 export class JestTestFramework extends BaseTestFramework {
     public readonly executorUri: string = 'executor://MochaTestAdapter/v1';
@@ -45,8 +46,8 @@ export class JestTestFramework extends BaseTestFramework {
         this.jest = this.getJest();
 
         const jestCLI = rewire(path.join(path.dirname(require.resolve('jest-cli')), 'cli'));
-        this.jestArgv = jestCLI.__get__('buildArgv')();
 
+        this.jestArgv = jestCLI.__get__('buildArgv')();
         this.jestArgv.reporters = ['./JestReporter.js'];
 
         this.jestProjects = jestCLI.__get__('getProjectListFromCLIArgs')(this.jestArgv);
@@ -59,11 +60,14 @@ export class JestTestFramework extends BaseTestFramework {
             handleSpecResult: this.handleSpecResult.bind(this),
             handleErrorMessage: this.reportErrorMessage.bind(this)
         });
+
+        //tslint:disable:no-require-imports
+        // const jestSetup = require('./JestSetup');
+        // jestSetup.INITIALIZE(Environment.instance.reinitializeConsoleLogger);
     }
 
     public startExecutionWithTests(sources: Array<string>, testCollection: Map<string, TestCase>, options: JSON) {
-        // this.testCollection = testCollection;
-        this.startExecutionWithSource([sources[0]], options);
+        this.startExecutionWithSource(sources, options);
     }
 
     public startExecutionWithSource(sources: Array<string>, options: JSON): void {
@@ -78,8 +82,7 @@ export class JestTestFramework extends BaseTestFramework {
     }
 
     protected skipSpec(specObject: any) {
-        // TODO skipping specs
-        specObject.pending = true;
+        // Cannot skip at test case level in jest
     }
 
     private runJest(runConfigPath: string, configOverride: JSON, discovery: boolean = false) {
@@ -100,6 +103,12 @@ export class JestTestFramework extends BaseTestFramework {
         jestArgv.rootDir = path.dirname(runConfigPath);
         jestArgv.config = runConfigPath;
         jestArgv.reporters = [ require.resolve('./JestReporter.js') ];
+
+        if (jestArgv.setupFiles instanceof Array) {
+            jestArgv.setupFiles.unshift(require.resolve('./JestSetup'));
+        } else {
+            jestArgv.setupFiles = [ require.resolve('./JestSetup') ];
+        }
 
         // the property _ will be set as process.argv which in this case are for TestRunner not for jest
         jestArgv._ = [];

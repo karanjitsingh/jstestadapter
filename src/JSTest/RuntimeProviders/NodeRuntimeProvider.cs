@@ -53,7 +53,7 @@ namespace JSTest.RuntimeProviders
             // Maybe this is not required after setting working directory
             processInfo.EnvironmentVariables.Add("NODE_PATH", Environment.GetEnvironmentVariable("NODE_PATH") + ";" + Path.Combine(rootFolder, "JSTest.Runner", "node_modules"));
 
-            //processInfo.EnvironmentVariables.Add("NODE_NO_WARNINGS", "1");
+            processInfo.EnvironmentVariables.Add("NODE_NO_WARNINGS", "1");
 
             processInfo.Arguments = string.Format(
                 " -r source-map-support/register {0} {1}",

@@ -87,6 +87,10 @@ export class JasmineTestFramework extends BaseTestFramework implements ITestFram
                 break;
 
             case JasmineReporterEvent.SuiteDone:
+                if (args.failedExpectations.length > 0) {
+                    this.reportErrorMessage(`Error executing ${this.sources[0]}\n${args.failedExpectations[0].message}\n` +
+                                            args.failedExpectations[0].stack);
+                }
                 this.handleSuiteDone();
                 break;
 

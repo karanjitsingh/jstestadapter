@@ -10,19 +10,19 @@ export abstract class BaseLogger {
     constructor(commManager: ICommunicationManager, debugLogger: IDebugLogger) {
         this.commManager = commManager;
 
+        this.overrideGlobalConsole();
+        EqtTrace.initializeTracer(debugLogger);
+    }
+    
+    public overrideGlobalConsole() {
         ['log', 'warn', 'error'].forEach((method) => {
             // tslint:disable-next-line
             console[method] = function() {
                 this.logMessage(method, arguments);
             }.bind(this);
         });
-
-        // tslint:disable-next-line
-        // console.debug = this.debugTrace;
-
-        EqtTrace.initializeTracer(debugLogger);
     }
-    
+
     // tslint:disable-next-line
     private logMessage(method: string, args: Array<any>): void {
         if (!args || !args.length) {

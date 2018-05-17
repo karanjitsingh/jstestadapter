@@ -40,6 +40,8 @@ namespace JSTest.TestAdapter.SettingsProvider
         {
             this.frameworkHandle = frameworkHandle;
 
+            
+
             var settingsProvider = runContext.RunSettings.GetSettings(AdapterConstants.SettingsName) as JavaScriptSettingsProvider;
             var settings = settingsProvider != null ? settingsProvider.Settings : new JSTestSettings();
 

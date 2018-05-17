@@ -7,4 +7,6 @@ export interface IEnvironment {
     getCommunicationManager(): ICommunicationManager;
     createEvent<T extends IEventArgs>(): IEvent<T>;
     exit(exitCode: number);
+    setupGlobalLogger();
+    reinitializeConsoleLogger();
 }

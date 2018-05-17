@@ -15,13 +15,15 @@ export class Environment implements IEnvironment {
     private communicationManager: ICommunicationManager;
     private eventDispatcher: IEventDispatcher;
 
+    public static instance: IEnvironment;
+
     // tslint:disable-next-line
     private logger: BaseLogger;
 
     constructor() {
         this.argv = <Array<string>>process.argv;
         this.eventDispatcher = new EventDispatcher();
-        this.logger = new Logger(this.getCommunicationManager());
+        Environment.instance = this;
     }
 
     public getCommunicationManager(): ICommunicationManager {
@@ -29,6 +31,14 @@ export class Environment implements IEnvironment {
             this.communicationManager = new CommunicationManager(this, this.argv[2], Number(this.argv[3]));
         }
         return this.communicationManager;
+    }
+
+    public setupGlobalLogger() {
+        this.logger = new Logger(this.getCommunicationManager());
+    }
+
+    public reinitializeConsoleLogger() {
+        this.logger.overrideGlobalConsole();
     }
 
     public createEvent<T extends IEventArgs>(): IEvent<T> {
