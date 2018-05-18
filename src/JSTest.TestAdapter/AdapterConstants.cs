@@ -8,7 +8,6 @@ namespace JSTest.TestAdapter
     {
 
         public const string ExecutorUri = "executor://JSTestAdapter";
-        public const string SettingsName = "JSTestAdapter";
 
         internal static class FileExtensions
         {

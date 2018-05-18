@@ -34,7 +34,7 @@ namespace JSTest.TestAdapter
         {
             ValidateArg.NotNull(reader, "reader");
 
-            var serializer = new XmlSerializer(typeof(JSTestSettings), new XmlRootAttribute("JSTestAdapter"));
+            var serializer = new XmlSerializer(typeof(JSTestSettings), new XmlRootAttribute(SettingsConstants.SettingsName));
 
             if (reader.Read() && reader.Name.Equals(SettingsConstants.SettingsName))
             {

@@ -5,7 +5,6 @@ import { BaseTestFramework } from '../BaseTestFramework';
 import { JestCallbacks } from './JestCallbacks';
 import * as rewire from 'rewire';
 import * as path from 'path';
-import { Environment } from '../../../Environment/Node/Environment';
 
 export class JestTestFramework extends BaseTestFramework {
     public readonly executorUri: string = 'executor://MochaTestAdapter/v1';
@@ -104,11 +103,11 @@ export class JestTestFramework extends BaseTestFramework {
         jestArgv.config = runConfigPath;
         jestArgv.reporters = [ require.resolve('./JestReporter.js') ];
 
-        if (jestArgv.setupFiles instanceof Array) {
-            jestArgv.setupFiles.unshift(require.resolve('./JestSetup'));
-        } else {
-            jestArgv.setupFiles = [ require.resolve('./JestSetup') ];
-        }
+        // if (jestArgv.setupFiles instanceof Array) {
+        //     jestArgv.setupFiles.unshift(require.resolve('./JestSetup'));
+        // } else {
+        //     jestArgv.setupFiles = [ require.resolve('./JestSetup') ];
+        // }
 
         // the property _ will be set as process.argv which in this case are for TestRunner not for jest
         jestArgv._ = [];

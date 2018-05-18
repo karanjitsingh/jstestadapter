@@ -7,7 +7,5 @@ export interface MessageReceivedEventArgs extends IEventArgs {
 
 export interface ICommunicationManager {
     onMessageReceived: IEvent<MessageReceivedEventArgs>;
-
     sendMessage(message: Message);
-    receiveMessageSync(): Message;
 }

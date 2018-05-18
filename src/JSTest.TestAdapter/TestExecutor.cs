@@ -40,9 +40,7 @@ namespace JSTest.TestAdapter.SettingsProvider
         {
             this.frameworkHandle = frameworkHandle;
 
-            
-
-            var settingsProvider = runContext.RunSettings.GetSettings(AdapterConstants.SettingsName) as JavaScriptSettingsProvider;
+            var settingsProvider = runContext.RunSettings.GetSettings(SettingsConstants.SettingsName) as JavaScriptSettingsProvider;
             var settings = settingsProvider != null ? settingsProvider.Settings : new JSTestSettings();
 
             try
@@ -64,7 +62,7 @@ namespace JSTest.TestAdapter.SettingsProvider
         {
             this.frameworkHandle = frameworkHandle;
 
-            var settingsProvider = runContext.RunSettings.GetSettings(AdapterConstants.SettingsName) as JavaScriptSettingsProvider;
+            var settingsProvider = runContext.RunSettings.GetSettings(SettingsConstants.SettingsName) as JavaScriptSettingsProvider;
             var settings = settingsProvider != null ? settingsProvider.Settings : new JSTestSettings();
 
             try

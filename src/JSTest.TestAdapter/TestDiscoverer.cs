@@ -36,7 +36,7 @@ namespace JSTest.TestAdapter
             this.discoverySink = discoverySink;
             this.messageLogger = logger;
             
-            var settingsProvider = discoveryContext.RunSettings.GetSettings(AdapterConstants.SettingsName) as JavaScriptSettingsProvider;
+            var settingsProvider = discoveryContext.RunSettings.GetSettings(SettingsConstants.SettingsName) as JavaScriptSettingsProvider;
             var settings = settingsProvider != null ? settingsProvider.Settings : new JSTestSettings();
             settings.Discovery = true;
 

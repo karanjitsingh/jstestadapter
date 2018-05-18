@@ -29,15 +29,6 @@ export class TestRunner {
     }
 
     private initializeCommunication() {
-        const message = this.communicationManager.receiveMessageSync();
-
-        if (message.MessageType === MessageType.TestRunSettings && message.Version === MessageSender.protocolVersion) {
-            this.jsTestSettings = new JSTestSettings(message.Payload);
-        } else {
-            // log
-        }
-
-        this.messageSender.sendVersionCheck();
         this.communicationManager.onMessageReceived.subscribe(this.messageReceived);
         this.waitForSessionEnd();
     }
@@ -53,6 +44,16 @@ export class TestRunner {
         console.log('Message Received', message);
 
         switch (message.MessageType) {
+
+            case MessageType.TestRunSettings:
+                if (message.Version === MessageSender.protocolVersion) {
+                    this.jsTestSettings = new JSTestSettings(message.Payload);
+                } else {
+                    // log
+                }
+
+                this.messageSender.sendVersionCheck();
+                break;
 
             case MessageType.VersionCheck:
                 this.messageSender.sendVersionCheck();

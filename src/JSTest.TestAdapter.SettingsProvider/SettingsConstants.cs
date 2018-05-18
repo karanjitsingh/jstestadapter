@@ -6,7 +6,7 @@ namespace JSTest.TestAdapter
 {
     public static class SettingsConstants
     {
-        public const string SettingsName = "JSTestAdapter";
+        public const string SettingsName = "JSTest";
         
         public static class RunSettingsXml
         {
