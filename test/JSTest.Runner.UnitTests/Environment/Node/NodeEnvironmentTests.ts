@@ -1,19 +1,40 @@
-import { IEnvironment } from '../../../../src/JSTest.Runner/Environment/IEnvironment';
 import { Environment } from '../../../../src/JSTest.Runner/Environment/Node/Environment';
-import * as Assert from 'assert';
 import { CommunicationManager } from '../../../../src/JSTest.Runner/Environment/Node/CommunicationManager';
 import { IEventArgs } from '../../../../src/JSTest.Runner/ObjectModel/Common';
 import { Event } from '../../../../src/JSTest.Runner/Events/Event';
+import { Logger } from '../../../../src/JSTest.Runner/Environment/Node/Logger';
+import { Socket } from 'net';
+import * as Sinon from 'sinon';
+import * as Assert from 'assert';
+
+function stub() {
+    console.log(arguments);
+    return;
+}
 
 describe('NodeEnvironment Suite', () => {
-    let env: IEnvironment;
+    let env: Environment;
 
     before(() => {
         env = new Environment();
     });
 
-    it('getCommunicationManager will return instance of communication manager', (done: any) => {
-        Assert.equal(env.getCommunicationManager() instanceof CommunicationManager, true);
+    it('getCommunicationManager will return single instance of communication manager', (done: any) => {
+        const socket = Sinon.createStubInstance(Socket);
+
+        const comm = env.getCommunicationManager(socket);
+        const comm2 = env.getCommunicationManager();
+
+        Assert.equal(comm instanceof CommunicationManager, true,
+            'First call to getCommunicationManager should return instnace of communication manager.');
+        Assert.strictEqual(comm2, comm,
+            'Second call to getCommunicationManager should return same instance.');
+        done();
+    });
+
+    it('setupGlobalLogger will initialize logger', (done) => {
+        // env.setupGlobalLogger();
+        // // Assert.equal(logger.callCount, 1);
         done();
     });
 
@@ -36,6 +57,14 @@ describe('NodeEnvironment Suite', () => {
         event.raise(testSender, eventArgs);
 
     });
+
+    it('exit will call process.exit', (done) => {
+        const exit = Sinon.stub(process, 'exit');
+        env.exit(123);
+        Assert.equal(exit.calledOnce, true);
+        done();
+    });
+
 });
 
 interface TestableEventArgs extends IEventArgs {

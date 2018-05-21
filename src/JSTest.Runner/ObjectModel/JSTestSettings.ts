@@ -31,7 +31,7 @@ export class JSTestSettings {
 
         this.DiagTracing = json.DiagTracing;
 
-        if (json.TestFrameworkConfigJson !== '') {
+        if (json.TestFrameworkConfigJson !== null && json.TestFrameworkConfigJson !== '') {
             try {
                 this.TestFrameworkConfigJson = JSON.parse(json.TestFrameworkConfigJson);
             } catch (e) {

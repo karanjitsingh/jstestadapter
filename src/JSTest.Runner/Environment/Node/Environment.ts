@@ -7,17 +7,16 @@ import { EventDispatcher } from './EventDispatcher';
 import { Event } from '../../Events/Event';
 import { BaseLogger } from '../BaseLogger';
 import { Logger } from './Logger';
+import { Socket } from 'net';
 
 export class Environment implements IEnvironment {
     public readonly environmentType: EnvironmentType = EnvironmentType.NodeJS;
     public argv: Array<string>;
+    
+    public static instance: IEnvironment;
 
     private communicationManager: ICommunicationManager;
     private eventDispatcher: IEventDispatcher;
-
-    public static instance: IEnvironment;
-
-    // tslint:disable-next-line
     private logger: BaseLogger;
 
     constructor() {
@@ -26,15 +25,15 @@ export class Environment implements IEnvironment {
         Environment.instance = this;
     }
 
-    public getCommunicationManager(): ICommunicationManager {
+    public getCommunicationManager(socket?: Socket): ICommunicationManager {
         if (!this.communicationManager) {
-            this.communicationManager = new CommunicationManager(this, this.argv[2], Number(this.argv[3]));
+            this.communicationManager = new CommunicationManager(this, socket);
         }
         return this.communicationManager;
     }
 
     public setupGlobalLogger() {
-        this.logger = new Logger(this.getCommunicationManager());
+        this.logger = new Logger(this);
     }
 
     public reinitializeConsoleLogger() {

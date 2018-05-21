@@ -47,18 +47,21 @@ describe('Event Suite', () => {
 
         done();
     });
+});
 
+describe('BaseEventDispatcher suite', () => {
+    // Base event dispatcher test
     it('EventDispatcher will create unique event ids', (done: any) => {
         const eventidMap = new Map<string, number>();
         const eventDispatcher = new TestableEventDispatcher();
         
-        for (let i = 0; i < 1000; i++) {
+        for (let i = 0; i < 500; i++) {
             const id = eventDispatcher.registerEvent();
             eventidMap.set(id, 1);
             Assert.notEqual(eventDispatcher.registerEvent().match(/[0-9]+/), null);
         }
 
-        Assert.equal(1000, eventidMap.size);
+        Assert.equal(500, eventidMap.size);
         done();
     });
 });

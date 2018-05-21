@@ -7,7 +7,7 @@ import * as rewire from 'rewire';
 import * as path from 'path';
 
 export class JestTestFramework extends BaseTestFramework {
-    public readonly executorUri: string = 'executor://MochaTestAdapter/v1';
+    public readonly executorUri: string = 'executor://JestTestAdapter/v1';
     public readonly environmentType: EnvironmentType;
     public readonly canHandleMultipleSources: boolean = false;
     public readonly supportsJsonOptions: boolean = true;

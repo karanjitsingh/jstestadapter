@@ -2,6 +2,7 @@ import { BaseLogger } from '../BaseLogger';
 import { ICommunicationManager } from '../ICommunicationManager';
 import { IDebugLogger } from '../../ObjectModel/EqtTrace';
 import debug from 'debug';
+import { IEnvironment } from '../IEnvironment';
 
 class DebugLogger implements IDebugLogger {
     private debugMethod: (message: string, moduleName: string) => void;
@@ -17,7 +18,7 @@ class DebugLogger implements IDebugLogger {
 }
 
 export class Logger extends BaseLogger {
-    constructor(commManager: ICommunicationManager) {
-        super(commManager, new DebugLogger());
+    constructor(env: IEnvironment) {
+        super(env.getCommunicationManager(), new DebugLogger());
     }
 }

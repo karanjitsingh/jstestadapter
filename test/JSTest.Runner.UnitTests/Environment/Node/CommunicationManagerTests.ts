@@ -13,17 +13,13 @@ describe('Node/CommunicationManager Suite', () => {
 
     before(() => {
         mockSocket = Mock.ofType(Socket);
-        commManager = new CommunicationManager(new Environment(), '127.0.0.1', 1234, mockSocket.object);
+        commManager = new CommunicationManager(new Environment(), mockSocket.object);
     });
 
-    it('communicationManager will call socket.connect on initialize', (done: any) => {
+    it('connectToServer will call socket.connect', (done: any) => {
+        commManager.connectToServer('127.0.0.1', 1234);
         mockSocket.verify((x) => x.connect(It.isValue(1234), It.isValue('127.0.0.1'), It.isAny()), Times.once());
-        console.error('yo');
-        setTimeout(() => {
-            console.log('go');
-        }, 5000);
-        setTimeout(() => {done(); }, 3000);
-
+        done();
     });
 
     it('sendMessage will send message in correct format', (done: any) => {
@@ -31,7 +27,7 @@ describe('Node/CommunicationManager Suite', () => {
         mockSocket.verify((x) => x.write('O{"Version":2,"MessageType":"JSTest.ConsoleMessage","Payload":"console message"}', 'binary'),
                           Times.once());
         
-        setTimeout(() => {done(); }, 3000);
+        done();
     });
 
     it('Constructor will hook to socket\'s \'data\' event', (done: any) => {
@@ -43,7 +39,7 @@ describe('Node/CommunicationManager Suite', () => {
         const mockSocket = Mock.ofType(Socket);
         mockSocket.callBase = true;
 
-        const commManager = new CommunicationManager(new Environment(), '127.0.0.1', 1234, mockSocket.object);
+        const commManager = new CommunicationManager(new Environment(), mockSocket.object);
 
         commManager.onMessageReceived.subscribe((sender: Object, args: MessageReceivedEventArgs) => {
             Assert.equal(args.Message.MessageType, MessageType.ConsoleMessage);
@@ -58,7 +54,7 @@ describe('Node/CommunicationManager Suite', () => {
         const mockSocket = Mock.ofType(Socket);
         mockSocket.callBase = true;
 
-        const commManager = new CommunicationManager(new Environment(), '127.0.0.1', 1234, mockSocket.object);
+        const commManager = new CommunicationManager(new Environment(), mockSocket.object);
 
         commManager.onMessageReceived.subscribe((sender: Object, args: MessageReceivedEventArgs) => {
             Assert.equal(args.Message.MessageType, MessageType.ConsoleMessage);

@@ -7,7 +7,8 @@ describe('Exception Suite', () => {
         try {
             throw e;
         } catch (e) {
-            Assert.equal(ExceptionType[ExceptionType.InvalidArgumentsException] + ': some exception', e.message);
+            Assert.equal('some exception', e.message);
+            Assert.equal('InvalidArgumentsException', e.exceptionName);
         }
         done();
     });

@@ -30,6 +30,7 @@ export class TestRunner {
 
     private initializeCommunication() {
         this.communicationManager.onMessageReceived.subscribe(this.messageReceived);
+        this.communicationManager.connectToServer(this.environment.argv[2], Number(this.environment.argv[3]));
         this.waitForSessionEnd();
     }
 

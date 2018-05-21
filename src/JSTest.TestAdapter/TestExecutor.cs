@@ -39,7 +39,7 @@ namespace JSTest.TestAdapter.SettingsProvider
         public void RunTests(IEnumerable<TestCase> tests, IRunContext runContext, IFrameworkHandle frameworkHandle)
         {
             this.frameworkHandle = frameworkHandle;
-
+            
             var settingsProvider = runContext.RunSettings.GetSettings(SettingsConstants.SettingsName) as JavaScriptSettingsProvider;
             var settings = settingsProvider != null ? settingsProvider.Settings : new JSTestSettings();
 

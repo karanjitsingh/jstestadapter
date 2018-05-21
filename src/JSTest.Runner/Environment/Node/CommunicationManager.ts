@@ -15,15 +15,14 @@ export class CommunicationManager implements ICommunicationManager {
     protected socket: Socket;
     public onMessageReceived: IEvent<MessageReceivedEventArgs>;
 
-    constructor(environment: IEnvironment, ip: string, port: number, socket?: Socket) {
+    constructor(environment: IEnvironment, socket?: Socket) {
         this.socket = socket ? socket : new Socket();
         this.socketBuffer = new Buffer(0);
         this.onMessageReceived = environment.createEvent();
-        this.connectToServer(ip, port);
         this.socket.on('data', this.onSocketDataReceived);
     }
 
-    private connectToServer(ip: string, port: number, callback?: () => void) {
+    public connectToServer(ip: string, port: number, callback?: () => void) {
         this.socket.connect(port, ip, callback);
     }
 

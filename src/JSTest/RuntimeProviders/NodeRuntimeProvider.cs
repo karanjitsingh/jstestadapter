@@ -43,7 +43,6 @@ namespace JSTest.RuntimeProviders
 #if DEBUG
             rootFolder = @"D:\JSTestAdapter\src\JSTest.Runner\bin";
 #endif
-
             processInfo.FileName = this.getNodeBinaryPath(environment.Architecture, environment.OperatingSystem, rootFolder);
             //processInfo.WorkingDirectory = rootFolder;
 
