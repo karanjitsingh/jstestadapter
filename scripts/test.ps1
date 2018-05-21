@@ -2,11 +2,12 @@ param(
     [switch]$runonly,
     [switch]$discover,
     [switch]$parallel,
-    [switch]$log
+    [switch]$log,
+    [string]$test = ""
 )
 
 if(!$runonly) {
-    .\build.ps1
+    npm run test
 }
 
 $ProjectDir = (Get-Item ([System.IO.Path]::GetDirectoryName($myInvocation.MyCommand.Definition))).Parent.FullName
@@ -14,7 +15,7 @@ $testFolder = Join-Path $ProjectDir "test\JSTest.Runner.UnitTests\bin\test"
 
 $tests = Get-ChildItem -Path $testFolder -Recurse -Filter "*.js"
 
-$command = "D:\vstest\artifacts\Debug\net451\win7-x64\vstest.console.exe --TestAdapterPath:D:\JSTestAdapter\src\JSTest.TestAdapter\bin\Debug\net451 --Settings:.\RunSettings.xml"
+$command = "D:\vstest\artifacts\Debug\net451\win7-x64\vstest.console.exe --TestAdapterPath:D:\JSTestAdapter\src\JSTest.TestAdapter\bin\Debug\net451"
 if($log) {
     $command = "$command --diag:D:\logs\jstest.log"
 }
@@ -23,6 +24,9 @@ if($discover) {
 }
 if($parallel) {
     $command = "$command --parallel"
+}
+if($test -ne "") {
+    $command = "$command --tests:$test"
 }
 
 
@@ -41,6 +45,9 @@ foreach($path in $tests) {
         $command = $($command + " `"$($path.FullName)`"")
     }
 }
+
+$command = "$command -- JSTest.TestFramework=mocha"
+
 
 Write-Host "------------------------------------------------------------------------------------------------------------"
 Write-Host $command

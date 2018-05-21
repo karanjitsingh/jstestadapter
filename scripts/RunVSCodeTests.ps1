@@ -16,4 +16,3 @@ D:\vstest\artifacts\Debug\net451\win7-x64\vstest.console.exe --TestAdapterPath:D
 $(if($log) {"--diag:D:\logs\log.log"}) `
 $(if($discover) {"--listtests"}) `
 $(if($parallel) {"--parallel"})
-
