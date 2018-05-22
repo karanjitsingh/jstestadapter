@@ -9,7 +9,8 @@ enum ReporterEvent {
     SuiteStarted,
     SuiteDone,
     SpecStarted,
-    SpecDone
+    SpecDone,
+    SessionError
 }
 
 export class MochaTestFramework extends BaseTestFramework {
@@ -121,6 +122,11 @@ export class MochaTestFramework extends BaseTestFramework {
                 this.handleSpecDone(outcome, failedExpectations);
 
                 break;
+            
+                case ReporterEvent.SessionError:
+                    if (args.title === `"before all" hook` || args.title === `"after all" hook`) {
+                        this.reportErrorMessage(args.err.message, args.err.stack);
+                    }
         }
     }
 
@@ -132,5 +138,6 @@ export class MochaTestFramework extends BaseTestFramework {
         runner.on('test', (args) => { this.handleReporterEvents(ReporterEvent.SpecStarted, args); });
         runner.on('test end', (args) => { this.handleReporterEvents(ReporterEvent.SpecDone, args); });
         runner.on('end', (args) => { this.handleReporterEvents(ReporterEvent.SessionDone, args); });
+        runner.on('fail', (args) => { this.handleReporterEvents(ReporterEvent.SessionError, args); });
     }
 }

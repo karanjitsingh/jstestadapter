@@ -147,7 +147,9 @@ export abstract class BaseTestFramework implements ITestFramework {
         this.testFrameworkEvents.onTestCaseEnd.raise(this, specResult);
     }
 
-    protected reportErrorMessage(message: string) {
+    protected reportErrorMessage(errMessage: string, errStack: string) {
+        const message = `Error: ${errMessage}\n ${errStack}`;
+
         this.testFrameworkEvents.onErrorMessage.raise(this, <TestErrorMessageEventArgs> {
             Message: message
         });

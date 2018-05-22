@@ -12,9 +12,17 @@ export class TestFrameworkFactory {
     private readonly frameworkCache: {[supportedFramework: number]: (testFrameworkEvents: ITestFrameworkEvents,
                                                        environmentType: EnvironmentType) => void };
 
-    constructor(environment: IEnvironment) {
+    public static instance: TestFrameworkFactory;
+
+    private constructor(environment: IEnvironment) {
         this.environment = environment;
         this.frameworkCache = [];
+    }
+
+    public static INITIALIZE(environment: IEnvironment) {
+        if (!TestFrameworkFactory.instance) {
+            TestFrameworkFactory.instance = new TestFrameworkFactory(environment);
+        }
     }
     
     public createTestFramework(framework: TestFrameworks): ITestFramework {

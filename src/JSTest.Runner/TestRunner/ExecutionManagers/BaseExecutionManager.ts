@@ -1,8 +1,7 @@
 import { IEnvironment } from '../../Environment/IEnvironment';
 import { MessageSender } from '../MessageSender';
 import { TestFrameworkFactory } from '../TestFrameworks/TestFrameworkFactory';
-import { IEvent, IEventArgs, EnvironmentType } from '../../ObjectModel/Common';
-import { Exception, ExceptionType } from '../../Exceptions';
+import { IEvent, IEventArgs } from '../../ObjectModel/Common';
 import { TestFrameworkEventHandlers } from '../TestFrameworks/TestFrameworkEventHandlers';
 import { TestSessionManager } from './TestSessionManager';
 import { TestFrameworks } from '../../ObjectModel/TestFramework';
@@ -18,18 +17,13 @@ export abstract class BaseExecutionManager {
     
     constructor(environment: IEnvironment, messageSender: MessageSender, testFramework: TestFrameworks) {
         this.environment = environment;
-
-        if (this.environment.environmentType !== EnvironmentType.NodeJS) {
-            throw new Exception('Not implemented', ExceptionType.NotImplementedException);
-        }
-
         this.messageSender = messageSender;
         this.onComplete = environment.createEvent();
-        this.testFrameworkFactory = new TestFrameworkFactory(this.environment);
-        this.testSessionManager = new TestSessionManager(this.environment);
+        this.testFrameworkFactory = TestFrameworkFactory.instance;
+        this.testSessionManager = TestSessionManager.instance;
     }
 
-    protected getCompletetionPromise(): Promise<void> {
+    protected getCompletionPromise(): Promise<void> {
         return new Promise((resolve) => {
             this.onComplete.subscribe((sender: object, args: IEventArgs) => {
                 resolve();

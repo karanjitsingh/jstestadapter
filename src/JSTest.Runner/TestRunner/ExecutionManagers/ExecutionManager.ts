@@ -110,7 +110,7 @@ export class ExecutionManager extends BaseExecutionManager {
             }));
         }
 
-        return this.getCompletetionPromise();
+        return this.getCompletionPromise();
     }
 
     private addSessionToSessionManager(sources: Array<string>) {

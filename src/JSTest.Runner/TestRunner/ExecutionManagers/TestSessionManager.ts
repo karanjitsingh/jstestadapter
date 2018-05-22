@@ -17,12 +17,20 @@ export class TestSessionManager {
     private sessionCount: number;
     public onAllSessionsComplete: IEvent<IEventArgs>;
     
-    constructor(environment: IEnvironment) {
+    public static instance: TestSessionManager;
+    
+    private constructor(environment: IEnvironment) {
         this.sessionCount = 0;
         this.sessionCompleteCount = 0;
         this.onAllSessionsComplete = environment.createEvent();
         this.testSessionBucket = new Map();
         this.testSessionIterator = this.testSessionBucket.values();
+    }
+
+    public static INITIALIZE(environment: IEnvironment) {
+        if (!TestSessionManager.instance) {
+            TestSessionManager.instance = new TestSessionManager(environment);
+        }
     }
 
     public setSessionComplete(args: TestSessionEventArgs) {

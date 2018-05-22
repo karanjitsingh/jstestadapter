@@ -30,7 +30,7 @@ export class DiscoveryManager extends BaseExecutionManager {
             });
         }
 
-        return this.getCompletetionPromise();
+        return this.getCompletionPromise();
     }
 
     protected testFrameworkEventHandlers: TestFrameworkEventHandlers = {

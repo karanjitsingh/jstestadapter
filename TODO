@@ -5,3 +5,11 @@ TODO:
     vs integration
     tracing
     eqttrace + logger tests
+
+integration tests:
+    should report if error
+        before describe
+        in describe
+        in before
+        in it
+        

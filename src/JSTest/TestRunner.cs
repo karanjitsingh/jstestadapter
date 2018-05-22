@@ -99,7 +99,7 @@ namespace JSTest
 
         public void Dispose()
         {
-            this.runtimeManager.CleanProcessAsync(new CancellationToken()).Wait();
+            this.runtimeManager.CleanProcessAsync().Wait();
         }
     }
 }

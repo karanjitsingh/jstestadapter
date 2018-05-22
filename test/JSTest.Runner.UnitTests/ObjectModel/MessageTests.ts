@@ -25,7 +25,7 @@ describe('Message Suite', () => {
 
         const message = Message.FROM_JSON(JSON.parse(`
             {
-                "MessageType": "ProtocolCheck",
+                "MessageType": "ProtocolVersion",
                 "Payload": 1,
                 "Version": 1
             }

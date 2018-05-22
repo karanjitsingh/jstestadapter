@@ -16,6 +16,7 @@
     using JSTest.Communication.Payloads;
     using JSTest.JSRuntime;
     using JSTest.Settings;
+    using System.Diagnostics;
 
     internal class TestRuntimeManager
     {
@@ -66,6 +67,7 @@
             {
                 //messageLogger.SendMessage(TestMessageLevel.Error, errorString);
                 Console.Error.Write(errorString);
+                // clear waits
             }
         };
 
@@ -103,7 +105,7 @@
             }
         }
 
-        public Task CleanProcessAsync(CancellationToken cancellationToken)
+        public Task CleanProcessAsync()
         {
             try
             {

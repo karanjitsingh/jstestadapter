@@ -13,8 +13,6 @@ export class Environment implements IEnvironment {
     public readonly environmentType: EnvironmentType = EnvironmentType.NodeJS;
     public argv: Array<string>;
     
-    public static instance: IEnvironment;
-
     private communicationManager: ICommunicationManager;
     private eventDispatcher: IEventDispatcher;
     private logger: BaseLogger;
@@ -22,9 +20,8 @@ export class Environment implements IEnvironment {
     constructor() {
         this.argv = <Array<string>>process.argv;
         this.eventDispatcher = new EventDispatcher();
-        Environment.instance = this;
     }
-
+    
     public getCommunicationManager(socket?: Socket): ICommunicationManager {
         if (!this.communicationManager) {
             this.communicationManager = new CommunicationManager(this, socket);

@@ -1,5 +1,4 @@
 import { BaseLogger } from '../BaseLogger';
-import { ICommunicationManager } from '../ICommunicationManager';
 import { IDebugLogger } from '../../ObjectModel/EqtTrace';
 import debug from 'debug';
 import { IEnvironment } from '../IEnvironment';

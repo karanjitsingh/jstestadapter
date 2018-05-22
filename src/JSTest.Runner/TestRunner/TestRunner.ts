@@ -6,6 +6,8 @@ import { JobQueue } from '../Utils/JobQueue';
 import { MessageSender } from './MessageSender';
 import { ExecutionManager, DiscoveryManager } from './ExecutionManagers';
 import { StartExecutionWithSourcesPayload, StartExecutionWithTestsPayload, StartDiscoveryPayload } from '../ObjectModel/Payloads';
+import { TestFrameworkFactory } from './TestFrameworks/TestFrameworkFactory';
+import { TestSessionManager } from './ExecutionManagers/TestSessionManager';
 
 export class TestRunner {
     private readonly environment: IEnvironment;
@@ -61,6 +63,8 @@ export class TestRunner {
                 break;
 
             case MessageType.StartTestExecutionWithSources:
+                this.initializeSingletons();
+                
                 const executionManager = new ExecutionManager(this.environment, this.messageSender, this.jsTestSettings);
                 const runWithSourcesPayload = <StartExecutionWithSourcesPayload>message.Payload;
 
@@ -68,6 +72,8 @@ export class TestRunner {
                 break;
 
             case MessageType.StartTestExecutionWithTests:
+                this.initializeSingletons();
+                
                 const executionManager2 = new ExecutionManager(this.environment, this.messageSender, this.jsTestSettings);
                 const runWithTestsPayload = <StartExecutionWithTestsPayload>message.Payload;
 
@@ -75,6 +81,8 @@ export class TestRunner {
                 break;
 
             case MessageType.StartDiscovery:
+                this.initializeSingletons();
+
                 const discoveryManager = new DiscoveryManager(this.environment, this.messageSender, this.jsTestSettings);
                 const discoveryPayload = <StartDiscoveryPayload>message.Payload;
 
@@ -85,6 +93,11 @@ export class TestRunner {
             //     this.sessionEnded = true;
             //     process.exit(0);
         }
+    }
+
+    private initializeSingletons() {
+        TestFrameworkFactory.INITIALIZE(this.environment);
+        TestSessionManager.INITIALIZE(this.environment);
     }
 
 }
