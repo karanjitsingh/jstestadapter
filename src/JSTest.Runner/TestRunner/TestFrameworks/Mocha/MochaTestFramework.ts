@@ -130,6 +130,8 @@ export class MochaTestFramework extends BaseTestFramework {
                     if (match && testHooks.indexOf(match[1]) >= 0) {
                         switch (match[1]) {
                             case testHooks[0]:
+                                this.reportErrorMessage(args.err.message, args.err.stack);
+
                                 args.parent.tests.forEach(test => {
                                     this.handleSpecResult(test.fullTitle(),
                                                           test.title,

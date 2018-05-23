@@ -56,19 +56,7 @@ export class DiscoveryManager extends BaseExecutionManager {
         }
     };
 
-    private addSessionToSessionManager(sources: Array<string>) {
-        this.testSessionManager.addSession(sources, () => {
-            const testFrameworkInstance = this.testFrameworkFactory.createTestFramework(this.testFramework);
-            testFrameworkInstance.initialize();
-            this.testFrameworkEventHandlers.Subscribe(testFrameworkInstance);
-            testFrameworkInstance.startDiscovery(sources);
-        },
-        (e) => {
-            this.sessionError(sources, e);
-        });
-    }
-
-    private sessionError(sources: Array<string>, err: Error) {
+    protected sessionError(sources: Array<string>, err: Error) {
         if (err) {
             this.messageSender.sendMessage(err.stack ?
                 err.stack :
@@ -85,6 +73,18 @@ export class DiscoveryManager extends BaseExecutionManager {
         }
 
         this.testSessionManager.setSessionComplete(currentSession);
+    }
+
+    private addSessionToSessionManager(sources: Array<string>) {
+        this.testSessionManager.addSession(sources, () => {
+            const testFrameworkInstance = this.testFrameworkFactory.createTestFramework(this.testFramework);
+            testFrameworkInstance.initialize();
+            this.testFrameworkEventHandlers.Subscribe(testFrameworkInstance);
+            testFrameworkInstance.startDiscovery(sources);
+        },
+        (e) => {
+            this.sessionError(sources, e);
+        });
     }
 
     private discoveryComplete = () => {

@@ -1,21 +1,21 @@
 import { DiscoveryManager } from '../../../../src/JSTest.Runner/TestRunner/ExecutionManagers/';
 import { IEnvironment } from '../../../../src/JSTest.Runner/Environment/IEnvironment';
 import { MessageSender } from '../../../../src/JSTest.Runner/TestRunner/MessageSender';
-import { JSTestSettings } from '../../../../src/JSTest.Runner/ObjectModel';
+import { JSTestSettings, TestMessageLevel } from '../../../../src/JSTest.Runner/ObjectModel';
 import { TestFrameworkFactory } from '../../../../src/JSTest.Runner/TestRunner/TestFrameworks/TestFrameworkFactory';
 import { Environment } from '../../../../src/JSTest.Runner/Environment/Node/Environment';
 import { StartDiscoveryPayload } from '../../../../src/JSTest.Runner/ObjectModel/Payloads';
 import { TestSessionManager } from '../../../../src/JSTest.Runner/TestRunner/ExecutionManagers/TestSessionManager';
-import { Mock, IMock, Times, It } from 'typemoq';
-import { TestFrameworks, ITestFramework } from '../../../../src/JSTest.Runner/ObjectModel/TestFramework';
-import * as Assert from 'assert';
+import { TestFrameworks, ITestFramework, ITestFrameworkEvents, TestSessionEventArgs }
+from '../../../../src/JSTest.Runner/ObjectModel/TestFramework';
 import { EnvironmentType } from '../../../../src/JSTest.Runner/ObjectModel/Common';
-import { ICallContext } from 'typemoq/_all';
 import { TestFrameworkEventHandlers } from '../../../../src/JSTest.Runner/TestRunner/TestFrameworks/TestFrameworkEventHandlers';
-import { once } from 'cluster';
+import { Mock, IMock, Times, It } from 'typemoq';
+import * as Assert from 'assert';
+import { TestUtils } from '../../TestUtils';
 
 describe('DiscoveryManager Suite', () => {
-    let mockDM: IMock<DiscoveryManager>;
+    let mockDM: IMock<TestableDiscoveryManager>;
     let mockMessageSender: IMock<MessageSender>;
     let settings: JSTestSettings;
     let mockFactory: IMock<TestFrameworkFactory>;
@@ -23,48 +23,17 @@ describe('DiscoveryManager Suite', () => {
     let mockTestFramework: IMock<ITestFramework>;
     let mockEventHandlers: IMock<TestFrameworkEventHandlers>;
 
-    const sources = ['file 1', 'file 2'];
+    const sources = ['file 1', 'file 2', 'file 3'];
     const environment = new Environment();
 
     TestFrameworkFactory.INITIALIZE(environment);
     TestSessionManager.INITIALIZE(environment);
 
-    const validateSession = (sources, executeJob, errorCallback): boolean => {
-        mockFactory.reset();
-        mockEventHandlers.reset();
-        mockTestFramework.reset();
-        
-        mockFactory.setup((x) => x.createTestFramework(It.isAny())).returns(() => mockTestFramework.object);
-        
-        executeJob();
-        
-        mockFactory.verify((x) => x.createTestFramework(TestFrameworks.Jest), Times.once());
-        mockTestFramework.verify((x) => x.initialize(), Times.once());
-        mockTestFramework.verify((x) => x.startDiscovery(It.is((x) => arrayCompare(x, sources))), Times.once());
-        mockEventHandlers.verify((x) => x.Subscribe(It.is((x) => (Assert.deepEqual(x, mockTestFramework.object) || true ))), Times.once());
-
-        return true;
-    };
-
-    const arrayCompare = (x: Array<any>, y: Array<any>) => {
-        return JSON.stringify(x) === JSON.stringify(y);
-    };
-
-    beforeEach(() => {
+    before(() => {
         mockFactory = Mock.ofInstance(TestFrameworkFactory.instance);
         mockSessionManager = Mock.ofInstance(TestSessionManager.instance);
 
-        mockTestFramework = Mock.ofInstance(<ITestFramework> {
-            executorUri: '',
-            environmentType: EnvironmentType.NodeJS,
-            startExecutionWithSource: () => { return; },
-            startExecutionWithTests: () => { return; },
-            supportsJsonOptions: false,
-            canHandleMultipleSources: true,
-            initialize: () => { return; },
-            startDiscovery: () => { return; },
-            testFrameworkEvents: null
-        });
+        mockTestFramework = Mock.ofInstance(new TestableFramework(environment));
 
         mockEventHandlers = Mock.ofInstance(<TestFrameworkEventHandlers> {
             Subscribe: () => { return; },
@@ -85,30 +54,36 @@ describe('DiscoveryManager Suite', () => {
                                                               mockMessageSender.object,
                                                               settings,
                                                               mockEventHandlers.object));
-        mockDM.callBase = true;
+        mockDM.callBase = true;        
+    });
+
+    beforeEach(() => {
+        mockSessionManager.reset();
+        mockFactory.reset();
 
         mockSessionManager.setup((x) => x.addSession(It.isAny(), It.isAny(), It.isAny())).callback((...args: Array<any>) => {
             validateSession(args[0], args[1], args[2]);
         });
-
-        mockFactory.setup((x) => x.createTestFramework(It.isAny())).returns(() => <ITestFramework> { canHandleMultipleSources: true });
     });
 
     it('discoverTests will add single session for canHandleMultipleSources=true', (done) => {
-
+        mockFactory.setup((x) => x.createTestFramework(It.isAny())).returns(() => <ITestFramework> { canHandleMultipleSources: true });
+        
         Assert.equal(mockDM.object.discoverTests(<StartDiscoveryPayload>{
             Sources: sources
         }) instanceof Promise, true, 'Should return completion promise.');
 
         mockFactory.verify((x) => x.createTestFramework(TestFrameworks.Jest), Times.once());
         mockSessionManager.verify((x) => x.addSession(It.isAny(), It.isAny(), It.isAny()), Times.once());
-        mockSessionManager.verify((x) => x.addSession(It.is((x) => arrayCompare(x, sources)), It.isAny(), It.isAny()),
+        mockSessionManager.verify((x) => x.addSession(It.is((x) => TestUtils.assertDeepEqual(x, sources)), It.isAny(), It.isAny()),
                                   Times.once());
 
         done();
     });
 
     it('discoverTests will add multiple sessions for canHandleMultipleSources=false', (done) => {
+        mockFactory.setup((x) => x.createTestFramework(It.isAny())).returns(() => <ITestFramework> { canHandleMultipleSources: false });
+
         Assert.equal(mockDM.object.discoverTests(<StartDiscoveryPayload>{
             Sources: sources
         }) instanceof Promise, true, 'Should return completion promise.');
@@ -117,12 +92,60 @@ describe('DiscoveryManager Suite', () => {
         mockSessionManager.verify((x) => x.addSession(It.isAny(), It.isAny(), It.isAny()), Times.exactly(sources.length));
 
         sources.forEach(source => {
-            mockSessionManager.verify((x) => x.addSession(It.is((x) => arrayCompare(x, sources)), It.isAny(), It.isAny()),
+            mockSessionManager.verify((x) => x.addSession(It.is((x) => TestUtils.assertDeepEqual(x, [source])), It.isAny(), It.isAny()),
                                       Times.once());
         });
 
         done();
     });
+
+    it('testFrameworkEventHandlers will handle TestCaseStart, TestSessionEnd, TestErrorMessage', (done) => {
+        const testableDiscoveryManager = new TestableDiscoveryManager(new Environment(),
+                                                                      mockMessageSender.object,
+                                                                      settings);
+        
+        const eventHandlers = testableDiscoveryManager.getEventHandlers();
+
+        const sender = <any> { sender: 'this' };
+        const args = <any> { key: 'value', TestCase: 'test case', Message: 'message' };
+
+        eventHandlers.Subscribe(mockTestFramework.object);
+
+        mockTestFramework.object.testFrameworkEvents.onTestSessionEnd.raise(sender, args);
+        mockTestFramework.object.testFrameworkEvents.onTestCaseStart.raise(sender, args);
+        mockTestFramework.object.testFrameworkEvents.onErrorMessage.raise(sender, args);
+
+        mockSessionManager.verify((x) => x.setSessionComplete(It.is((x) => TestUtils.assertDeepEqual(x, args))), Times.once());
+        mockMessageSender.verify((x) => x.sendTestCaseFound(It.is((x) => x === args.TestCase)), Times.once());
+        mockMessageSender.verify((x) => x.sendMessage(It.is((x) => x === args.Message), It.is((x) => x === TestMessageLevel.Error)),
+                                 Times.once());
+
+        done();
+    });
+
+    function validateSession(sources: Array<string>, executeJob: () => void, errorCallback: (err: Error) => void) {
+        mockFactory.reset();
+        mockEventHandlers.reset();
+        mockTestFramework.reset();
+        mockDM.reset();
+        
+        mockFactory.setup((x) => x.createTestFramework(It.isAny())).returns(() => mockTestFramework.object);
+        
+        // Validate execute job
+        executeJob();
+        mockFactory.verify((x) => x.createTestFramework(TestFrameworks.Jest), Times.once());
+        mockTestFramework.verify((x) => x.initialize(), Times.once());
+        mockTestFramework.verify((x) => x.startDiscovery(It.is((x) => TestUtils.assertDeepEqual(x, sources))), Times.once());
+        mockEventHandlers.verify((x) => x.Subscribe(It.is((x) => TestUtils.assertDeepEqual(x, mockTestFramework.object))), Times.once());
+
+        const dummyError = new Error('dummy error');
+
+        // Validate error callback
+        errorCallback(dummyError);
+        mockDM.verify((x) => x.sessionError(It.is((x) => TestUtils.assertDeepEqual(x, sources)), It.is((x) => x === dummyError)),
+                      Times.once());
+
+    }
 });
 
 class TestableDiscoveryManager extends DiscoveryManager  {
@@ -130,8 +153,44 @@ class TestableDiscoveryManager extends DiscoveryManager  {
     constructor(environment: IEnvironment,
                 messageSender: MessageSender,
                 settings: JSTestSettings,
-                eventHandlers: TestFrameworkEventHandlers) {
+                eventHandlers?: TestFrameworkEventHandlers) {
         super(environment, messageSender, settings);
-        this.testFrameworkEventHandlers = eventHandlers;
+
+        if (eventHandlers) {
+            this.testFrameworkEventHandlers = eventHandlers;
+        }
+    }
+
+    // tslint:disable-next-line
+    public sessionError(sources: Array<string>, err: Error) {
+        super.sessionError(sources, err);
+    }
+
+    public getEventHandlers(): TestFrameworkEventHandlers {
+        return this.testFrameworkEventHandlers;
+    }
+}
+
+class TestableFramework implements ITestFramework {
+    public executorUri: string = '';
+    public environmentType: EnvironmentType = EnvironmentType.NodeJS;
+    public startExecutionWithSource = () => { return; };
+    public startExecutionWithTests = () => { return; };
+    public supportsJsonOptions: boolean = false;
+    public canHandleMultipleSources: boolean = true;
+    public initialize = () => { return; };
+    public startDiscovery = () => { return; };
+    public testFrameworkEvents: ITestFrameworkEvents;
+
+    constructor(env: IEnvironment) {
+        this.testFrameworkEvents = {
+            onErrorMessage: env.createEvent(),
+            onTestCaseEnd: env.createEvent(),
+            onTestCaseStart: env.createEvent(),
+            onTestSessionEnd: env.createEvent(),
+            onTestSessionStart: env.createEvent(),
+            onTestSuiteEnd: env.createEvent(),
+            onTestSuiteStart: env.createEvent()
+        };
     }
 }
