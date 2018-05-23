@@ -124,8 +124,33 @@ export class MochaTestFramework extends BaseTestFramework {
                 break;
             
                 case ReporterEvent.SessionError:
-                    if (args.title === `"before all" hook` || args.title === `"after all" hook`) {
-                        this.reportErrorMessage(args.err.message, args.err.stack);
+                    const match = args.title.match(/(\".*?\" hook).*/i);
+                    const testHooks = ['\"before all\" hook', '\"after all\" hook', '\"before each\" hook', '\"after each\" hook'];
+
+                    if (match && testHooks.indexOf(match[1]) >= 0) {
+                        switch (match[1]) {
+                            case testHooks[0]:
+                                args.parent.tests.forEach(test => {
+                                    this.handleSpecResult(test.fullTitle(),
+                                                          test.title,
+                                                          test.file,
+                                                          TestOutcome.Failed,
+                                                          [], new Date(), new Date());
+                                });
+                                break;
+                            
+                            case testHooks[2]:
+
+                                this.handleSpecDone(TestOutcome.Failed, [<FailedExpectation> {
+                                    Message: args.err.message,
+                                    StackTrace: args.err.stack
+                                }]);
+                                break;
+                            
+                            case testHooks[1]:
+                            case testHooks[3]:
+                                this.reportErrorMessage(args.err.message, args.err.stack);                    
+                        }
                     }
         }
     }
