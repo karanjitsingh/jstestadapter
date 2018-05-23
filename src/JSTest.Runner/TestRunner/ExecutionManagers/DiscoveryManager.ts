@@ -90,8 +90,6 @@ export class DiscoveryManager extends BaseExecutionManager {
     private discoveryComplete = () => {
         console.log('discovery complete');
 
-        // const remainingTests = this.testDiscoveryCache.cleanCache();
-        // this.messageSender.sendDiscoveryComplete(remainingTests);
         this.messageSender.sendDiscoveryComplete();
         this.onComplete.raise(this, null);
     }

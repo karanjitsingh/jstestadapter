@@ -13,6 +13,7 @@ import { TestFrameworkEventHandlers } from '../../../../src/JSTest.Runner/TestRu
 import { Mock, IMock, Times, It } from 'typemoq';
 import * as Assert from 'assert';
 import { TestUtils } from '../../TestUtils';
+import { Exception, ExceptionType } from '../../../../src/JSTest.Runner/Exceptions';
 
 describe('DiscoveryManager Suite', () => {
     let mockDM: IMock<TestableDiscoveryManager>;
@@ -32,6 +33,11 @@ describe('DiscoveryManager Suite', () => {
     before(() => {
         mockFactory = Mock.ofInstance(TestFrameworkFactory.instance);
         mockSessionManager = Mock.ofInstance(TestSessionManager.instance);
+        TestFrameworkFactory.instance = mockFactory.object;
+        TestSessionManager.instance = mockSessionManager.object;
+    });
+
+    beforeEach(() => {
 
         mockTestFramework = Mock.ofInstance(new TestableFramework(environment));
 
@@ -41,9 +47,6 @@ describe('DiscoveryManager Suite', () => {
             TestCaseStart: () => { return; },
             TestErrorMessage: () => { return; }
         });
-
-        TestFrameworkFactory.instance = mockFactory.object;
-        TestSessionManager.instance = mockSessionManager.object;
 
         settings = new JSTestSettings({
             JavaScriptTestFramework: 'jest',
@@ -55,20 +58,18 @@ describe('DiscoveryManager Suite', () => {
                                                               settings,
                                                               mockEventHandlers.object));
         mockDM.callBase = true;        
-    });
 
-    beforeEach(() => {
         mockSessionManager.reset();
         mockFactory.reset();
-
-        mockSessionManager.setup((x) => x.addSession(It.isAny(), It.isAny(), It.isAny())).callback((...args: Array<any>) => {
-            validateSession(args[0], args[1], args[2]);
-        });
     });
 
     it('discoverTests will add single session for canHandleMultipleSources=true', (done) => {
         mockFactory.setup((x) => x.createTestFramework(It.isAny())).returns(() => <ITestFramework> { canHandleMultipleSources: true });
         
+        mockSessionManager.setup((x) => x.addSession(It.isAny(), It.isAny(), It.isAny())).callback((...args: Array<any>) => {
+            validateSession(args[0], args[1], args[2]);
+        });
+
         Assert.equal(mockDM.object.discoverTests(<StartDiscoveryPayload>{
             Sources: sources
         }) instanceof Promise, true, 'Should return completion promise.');
@@ -83,6 +84,10 @@ describe('DiscoveryManager Suite', () => {
 
     it('discoverTests will add multiple sessions for canHandleMultipleSources=false', (done) => {
         mockFactory.setup((x) => x.createTestFramework(It.isAny())).returns(() => <ITestFramework> { canHandleMultipleSources: false });
+
+        mockSessionManager.setup((x) => x.addSession(It.isAny(), It.isAny(), It.isAny())).callback((...args: Array<any>) => {
+            validateSession(args[0], args[1], args[2]);
+        });
 
         Assert.equal(mockDM.object.discoverTests(<StartDiscoveryPayload>{
             Sources: sources
@@ -121,6 +126,30 @@ describe('DiscoveryManager Suite', () => {
                                  Times.once());
 
         done();
+    });
+
+    it('sessionError will send error message and call sessionComplete', (done) => {
+        const err = new Exception('session error', ExceptionType.UnknownException);
+        mockDM.object.sessionError(sources, err);
+        mockMessageSender.verify((x) => x.sendMessage(It.is((x) => x === err.stack), It.isAny()), Times.once());
+
+        err.stack = null;
+        mockDM.object.sessionError(sources, err);
+        mockMessageSender.verify((x) => x.sendMessage(It.is((x) => x === (err.constructor.name + ': ' + err.message)), It.isAny()),
+                                 Times.once());
+
+        done();
+    });
+
+    it('will eventually send discovery complete and resolve compleition promise', (done) => {
+        
+        mockFactory.setup((x) => x.createTestFramework(It.isAny())).returns(() => <ITestFramework> { canHandleMultipleSources: false });
+        mockDM.object.discoverTests(<StartDiscoveryPayload>{ Sources: sources }).then(() => {
+            done();
+        });
+
+        mockSessionManager.object.onAllSessionsComplete.raise(null, null);
+        mockMessageSender.verify((x) => x.sendDiscoveryComplete(), Times.once());
     });
 
     function validateSession(sources: Array<string>, executeJob: () => void, errorCallback: (err: Error) => void) {
