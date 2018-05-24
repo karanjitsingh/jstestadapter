@@ -3,7 +3,7 @@
         "target": "es5",
         "module": "commonjs",
         "rootDir": "./",
-        "outDir": "./bin/JSTest.Runner",
+        "outDir": "./bin/",
         "sourceMap": true,
         "lib": ["es2015", "dom"],
         "baseUrl": "./",

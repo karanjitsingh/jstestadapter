@@ -7,7 +7,7 @@ import * as rewire from 'rewire';
 import * as path from 'path';
 
 export class JestTestFramework extends BaseTestFramework {
-    public readonly executorUri: string = 'executor://JestTestAdapter/v1';
+    public readonly executorUri: string = 'executor://JSTestAdapter';
     public readonly environmentType: EnvironmentType;
     public readonly canHandleMultipleSources: boolean = false;
     public readonly supportsJsonOptions: boolean = true;
@@ -109,7 +109,7 @@ export class JestTestFramework extends BaseTestFramework {
         //     jestArgv.setupFiles = [ require.resolve('./JestSetup') ];
         // }
 
-        // the property _ will be set as process.argv which in this case are for TestRunner not for jest
+        // the property '_' will be set as process.argv which in this case are for TestRunner not for jest
         jestArgv._ = [];
 
         this.handleSessionStarted();

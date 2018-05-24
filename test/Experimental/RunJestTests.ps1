@@ -12,8 +12,7 @@ if(!$runonly) {
 Write-Host "`nStarting Execution...`n"
 
 D:\vstest\artifacts\Debug\net451\win7-x64\vstest.console.exe --TestAdapterPath:D:\JSTestAdapter\src\JSTest.TestAdapter\bin\Debug\net451 --Settings:.\RunSettings.jest.xml `
-"D:\testgen\package.json" `
+"D:\jesttest\package.json" --tests:"test case 3" `
 $(if($log) {"--diag:D:\logs\log.log"}) `
 $(if($discover) {"--listtests"}) `
 $(if($parallel) {"--parallel"})
-

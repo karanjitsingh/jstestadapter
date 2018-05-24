@@ -1,0 +1,7 @@
+<RunSettings>
+    <JSTest>
+        <Runtime>node</Runtime>
+        <TestFramework>jest</TestFramework>
+        <TestFrameworkConfigJson></TestFrameworkConfigJson>
+    </JSTest>
+</RunSettings>

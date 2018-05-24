@@ -1,0 +1,8 @@
+<RunSettings>
+    <JSTestAdapter>
+        <Runtime>node</Runtime>
+        <TestFramework>mocha</TestFramework>
+        <RunInParallel>true</RunInParallel>
+        <TestFrameworkConfigJson></TestFrameworkConfigJson>
+    </JSTestAdapter>
+</RunSettings>

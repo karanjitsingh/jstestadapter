@@ -1,0 +1,9 @@
+<RunSettings>
+    <JSTest>
+        <TestFramework>mocha</TestFramework>
+        <TestFrameworkConfigJson>{
+            "timeout": 60000,
+            "slow": 30000
+        }</TestFrameworkConfigJson>
+    </JSTest>
+</RunSettings>
