@@ -4,6 +4,7 @@
         "module": "commonjs",
         "rootDir": "./",
         "sourceMap": true,
+        "outDir": "./bin/Debug",
         "lib": ["es2015", "dom"],
         "baseUrl": "./",
         "sourceRoot": "./",

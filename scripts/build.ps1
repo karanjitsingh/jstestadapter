@@ -9,7 +9,7 @@ param(
 
 $ProjectDir = (Get-Item ([System.IO.Path]::GetDirectoryName($myInvocation.MyCommand.Definition))).Parent.FullName
 $PackageJSON = Join-Path $ProjectDir "package.json"
-$JSTestRunnerBin = Join-Path $ProjectDir "src\JSTest.Runner\bin\"
+$JSTestRunnerBin = Join-Path $ProjectDir "src\JSTest.Runner\bin\$configuration\"
 $JSTestAdapterBin = Join-Path $ProjectDir "src\JSTest.TestAdapter\bin\$configuration\"
 $Artifacts = Join-Path $ProjectDir "artifacts"
 $ProjectSolutionFile = (Join-Path $ProjectDir ".\JSTest.sln")
@@ -55,11 +55,24 @@ function Publish-Package {
 
 function Build-Project {
     Write-Host "`nStarting msbuild.`n"
-    dotnet msbuild $ProjectSolutionFile /p:Configuration=$configuration
-    
+    if($configuration -eq "Release") {
+        dotnet msbuild $ProjectSolutionFile /p:Configuration=$configuration /p:DebugSymbols=false /p:DebugType=None
+    }
+    else {
+        dotnet msbuild $ProjectSolutionFile /p:Configuration=$configuration
+    }
+
+    # Delete Unnecessary files produced in net451
+
+
     Write-Host "`nStarting typescript build."
     if(!$nolint) { npm run lint }
-    npm run compile
+    npm run build:$configuration
+
+    if($configuration -eq "Release") {
+        # Remove-Item -Recurse "$JSTestRunnerBin*.map"
+        Get-ChildItem -Recurse -Filter *.map | Remove-Item
+    }
 
 }
 
