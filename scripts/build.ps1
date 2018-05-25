@@ -25,7 +25,7 @@ function CreateDirectory($dir)
 function Build-Clean {
     Write-Host "Cleaning folders.`n";
 
-    Remove-Item $JSTestRunnerBin -Recurse -Force -ErrorAction SilentlyContinue
+    Remove-Item (Join-Path $ProjectDir "src\JSTest.Runner\bin\") -Recurse -Force -ErrorAction SilentlyContinue
     dotnet msbuild $ProjectSolutionFile /t:clean 
 }
 
@@ -41,10 +41,9 @@ function Publish-Package {
     
     Write-Host "`nPublishing to artifacts."
 
-    $RunnerPath = [IO.Path]::Combine($Artifacts, $configuration, $target, "JSTest.Runner")
+    $RunnerPath = [IO.Path]::Combine($Artifacts, $configuration, $target)
 
     CreateDirectory($Artifacts)
-    CreateDirectory($RunnerPath)
 
     # Copy dlls
     Copy-Item -Path $JSTestAdapterBin -Destination $Artifacts -Force -Recurse
@@ -53,13 +52,13 @@ function Publish-Package {
     Copy-Item -Path (Join-Path $JSTestRunnerBin "*") -Destination $RunnerPath -Force -Recurse
 }
 
-function Build-Project {
+function Build-Solution {
     Write-Host "`nStarting msbuild.`n"
     if($configuration -eq "Release") {
-        dotnet msbuild $ProjectSolutionFile /p:Configuration=$configuration /p:DebugSymbols=false /p:DebugType=None
+        dotnet msbuild $ProjectSolutionFile /p:"Configuration=$configuration;TargetFramework=$target" /p:DebugSymbols=false /p:DebugType=None
     }
     else {
-        dotnet msbuild $ProjectSolutionFile /p:Configuration=$configuration
+        dotnet msbuild $ProjectSolutionFile /p:"Configuration=$configuration;TargetFramework=$target"
     }
 
     # Delete Unnecessary files produced in net451
@@ -71,14 +70,15 @@ function Build-Project {
 
     if($configuration -eq "Release") {
         # Remove-Item -Recurse "$JSTestRunnerBin*.map"
-        Get-ChildItem -Recurse -Filter *.map | Remove-Item
+        Get-ChildItem -Path $JSTestRunnerBin -Recurse -Filter *.map | Remove-Item
     }
+
 
 }
 
 if($clean) { Build-Clean; exit }
 Restore-Package
-Build-Project
+Build-Solution
 Publish-Package
 
 # Write-Host "`nRunning npm install"

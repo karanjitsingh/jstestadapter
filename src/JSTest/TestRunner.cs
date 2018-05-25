@@ -35,9 +35,9 @@ namespace JSTest
             this.testRunEvents = new TestRunEvents();
         }
 
-        private void StartRuntimeManager(JSTestSettings settings)
+        private void StartRuntimeManager(JSTestSettings settings, IEnumerable<string> sources)
         {
-            var processInfo = RuntimeProviderFactory.Instance.GetRuntimeProcessInfo(settings);
+            var processInfo = RuntimeProviderFactory.Instance.GetRuntimeProcessInfo(settings, sources);
             this.runtimeManager = new TestRuntimeManager(settings, this.testRunEvents);
 
             Task<bool> launchTask = null;
@@ -79,7 +79,7 @@ namespace JSTest
 
         public void StartExecution(IEnumerable<string> sources, JSTestSettings settings, CancellationToken? cancellationToken)
         {
-            this.StartRuntimeManager(settings);
+            this.StartRuntimeManager(settings, sources);
 
             if (settings.Discovery)
             {
@@ -93,7 +93,17 @@ namespace JSTest
 
         public void StartExecution(IEnumerable<TestCase> tests, JSTestSettings settings, CancellationToken? cancellationToken)
         {
-            this.StartRuntimeManager(settings);
+            var list = new List<string>();
+
+            foreach(var test in tests)
+            {
+                if(!string.IsNullOrEmpty(test.CodeFilePath))
+                {
+                    list.Add(test.CodeFilePath);
+                }
+            }
+
+            this.StartRuntimeManager(settings, list);
             this.runtimeManager.SendStartExecution(tests);
         }
 

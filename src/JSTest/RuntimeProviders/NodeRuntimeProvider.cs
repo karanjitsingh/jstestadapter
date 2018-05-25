@@ -34,24 +34,23 @@ namespace JSTest.RuntimeProviders
             }
         }
 
-        public TestProcessStartInfo GetRuntimeProcessInfo(IEnvironment environment, bool isDebugEnabled)
+        public TestProcessStartInfo GetRuntimeProcessInfo(IEnvironment environment, bool isDebugEnabled, IEnumerable<string> sources)
         {
             var processInfo = new TestProcessStartInfo();
 
             string rootFolder = Path.GetDirectoryName(typeof(TestRunner).GetTypeInfo().Assembly.GetAssemblyLocation());
 
-#if DEBUG
-            rootFolder = @"D:\JSTestAdapter\src\JSTest.Runner\bin";
-#endif
             processInfo.FileName = "node";
             //processInfo.WorkingDirectory = rootFolder;
 
-            var jstestrunner = Path.Combine(rootFolder, "JSTest.Runner", "index.js");
+            var jstestrunner = Path.Combine(rootFolder, "index.js");
             processInfo.EnvironmentVariables = new Dictionary<string, string>();
 
-            // Maybe this is not required after setting working directory
-            processInfo.EnvironmentVariables.Add("NODE_PATH", Environment.GetEnvironmentVariable("NODE_PATH") + ";" + Path.Combine(rootFolder, "JSTest.Runner", "node_modules"));
+            
 
+            processInfo.EnvironmentVariables.Add("NODE_PATH", initNodePath(sources, rootFolder));
+
+            //processInfo.EnvironmentVariables.Add("NODE_DEBUG", "module");
             processInfo.EnvironmentVariables.Add("NODE_NO_WARNINGS", "1");
 
             processInfo.Arguments = string.Format(
@@ -60,6 +59,39 @@ namespace JSTest.RuntimeProviders
                 jstestrunner);
 
             return processInfo;
+        }
+
+        private string initNodePath(IEnumerable<string> sources, string root)
+        {
+            var node_path = Environment.GetEnvironmentVariable("NODE_PATH");
+            if(!string.IsNullOrEmpty(node_path))
+            {
+                node_path += ";";
+            }
+
+            node_path += Path.Combine(root, "node_modules");
+
+
+            HashSet<string> paths = new HashSet<string>();
+
+            //processInfo.EnvironmentVariables.Add("NODE_PATH", Environment.GetEnvironmentVariable("NODE_PATH") + ";" + Path.Combine(rootFolder, "node_modules"));
+            foreach(var src in sources)
+            {
+                var path = Path.GetDirectoryName(src);
+                
+                while(!String.IsNullOrEmpty(path) && !paths.Contains(path))
+                {
+                    var node_m = Path.Combine(path, "node_modules");
+                    if (Directory.Exists(node_m))
+                    {
+                        node_path += ";" + node_m;
+                    }
+                    paths.Add(path);
+                    path = Path.GetDirectoryName(src);
+                }
+            }
+
+            return node_path;
         }
 
         private NodeRuntimeProvider()

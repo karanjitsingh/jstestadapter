@@ -16,9 +16,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JSTest", "src\JSTest\JSTest
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JSTest.TestAdapter", "src\JSTest.TestAdapter\JSTest.TestAdapter.csproj", "{E057A47A-AE7F-482C-ADB3-FF5C44BD75A2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JSTest.Console", "src\JSTest.Console\JSTest.Console.csproj", "{3877ABAE-7388-4800-97D5-0383D1897B55}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JSTest.TestAdapter.SettingsProvider", "src\JSTest.TestAdapter.SettingsProvider\JSTest.TestAdapter.SettingsProvider.csproj", "{22F8196F-AC97-40FC-B44B-2448AC338356}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JSTest.TestAdapter.SettingsProvider", "src\JSTest.TestAdapter.SettingsProvider\JSTest.TestAdapter.SettingsProvider.csproj", "{22F8196F-AC97-40FC-B44B-2448AC338356}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -34,10 +32,6 @@ Global
 		{E057A47A-AE7F-482C-ADB3-FF5C44BD75A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E057A47A-AE7F-482C-ADB3-FF5C44BD75A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E057A47A-AE7F-482C-ADB3-FF5C44BD75A2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3877ABAE-7388-4800-97D5-0383D1897B55}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3877ABAE-7388-4800-97D5-0383D1897B55}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3877ABAE-7388-4800-97D5-0383D1897B55}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3877ABAE-7388-4800-97D5-0383D1897B55}.Release|Any CPU.Build.0 = Release|Any CPU
 		{22F8196F-AC97-40FC-B44B-2448AC338356}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{22F8196F-AC97-40FC-B44B-2448AC338356}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{22F8196F-AC97-40FC-B44B-2448AC338356}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -49,7 +43,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{832CF89A-268A-4E1B-BD5D-1F621877121F} = {A6078738-4435-4351-90B7-2CBAF778A023}
 		{E057A47A-AE7F-482C-ADB3-FF5C44BD75A2} = {A6078738-4435-4351-90B7-2CBAF778A023}
-		{3877ABAE-7388-4800-97D5-0383D1897B55} = {A6078738-4435-4351-90B7-2CBAF778A023}
 		{22F8196F-AC97-40FC-B44B-2448AC338356} = {A6078738-4435-4351-90B7-2CBAF778A023}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution

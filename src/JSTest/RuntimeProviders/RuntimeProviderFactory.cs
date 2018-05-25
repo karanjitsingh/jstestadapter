@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions;
 using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace JSTest.RuntimeProviders
@@ -28,12 +29,12 @@ namespace JSTest.RuntimeProviders
             }
         }
 
-        public TestProcessStartInfo GetRuntimeProcessInfo(JSTestSettings settings)
+        public TestProcessStartInfo GetRuntimeProcessInfo(JSTestSettings settings, IEnumerable<string> sources)
         {
             switch(settings.Runtime)
             {
                 case JavaScriptRuntime.NodeJS:
-                    return NodeRuntimeProvider.Instance.GetRuntimeProcessInfo(environment, this.IsRuntimeDebuggingEnabled);
+                    return NodeRuntimeProvider.Instance.GetRuntimeProcessInfo(environment, this.IsRuntimeDebuggingEnabled, sources);
             }
 
             return null;
