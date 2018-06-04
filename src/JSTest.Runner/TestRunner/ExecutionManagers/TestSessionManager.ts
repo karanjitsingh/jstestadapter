@@ -19,7 +19,7 @@ export class TestSessionManager {
     
     public static instance: TestSessionManager;
     
-    private constructor(environment: IEnvironment) {
+    protected constructor(environment: IEnvironment) {
         this.sessionCount = 0;
         this.sessionCompleteCount = 0;
         this.onAllSessionsComplete = environment.createEvent();

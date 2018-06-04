@@ -8,16 +8,17 @@ import { TestSessionManager } from '../../../../src/JSTest.Runner/TestRunner/Exe
 import { Event } from '../../../../src/JSTest.Runner/Events/Event';
 import { Mock } from 'typemoq';
 import * as Assert from 'assert';
+import { TestableBaseExecutionManager } from './Testable';
 
 describe('BaseExecutionManager Suite', () => {
-    let executionManager: TestableExecutionManager;
+    let executionManager: TestableBaseExecutionManager;
     const environment = new Environment();
 
     TestFrameworkFactory.INITIALIZE(environment);
     TestSessionManager.INITIALIZE(environment);
 
     before(() => {
-        executionManager = new TestableExecutionManager(environment);
+        executionManager = new TestableBaseExecutionManager(environment);
     });
 
     it('constructor will initialize onComplete, testFrameworkFactory and testSessionManager', (done) => {
@@ -46,35 +47,3 @@ describe('BaseExecutionManager Suite', () => {
         done();
     });
 });
-
-class TestableExecutionManager extends BaseExecutionManager {
-    protected testFrameworkEventHandlers: TestFrameworkEventHandlers;
-
-    constructor(environment: IEnvironment) {
-        super(environment, null, null);
-    }
-
-    public raiseCompletion() {
-        this.onComplete.raise(null, null);
-    }
-
-    public getPromise(): Promise<void> {
-        return super.getCompletionPromise();
-    }
-
-    public getSources(adapterSourceMap: { [key: string]: string[]; }): Array<string> {
-        return super.getSourcesFromAdapterSourceMap(adapterSourceMap);
-    }
-
-    public getOnCompleteEvent(): IEvent<IEventArgs> {
-        return this.onComplete;
-    }
-
-    public getTestFrameworkFactory(): TestFrameworkFactory {
-        return this.testFrameworkFactory;
-    }
-
-    public getTestSessionManager(): TestSessionManager {
-        return this.testSessionManager;
-    }
-}

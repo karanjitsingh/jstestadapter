@@ -99,7 +99,19 @@ export class ExecutionManager extends BaseExecutionManager {
         }
     };
 
-    private startExecution(sources: Array<string>): Promise<void> {
+    private addSessionToSessionManager(sources: Array<string>) {
+        this.testSessionManager.addSession(sources, () => {
+            const testFrameworkInstance = this.testFrameworkFactory.createTestFramework(this.testFramework);
+            testFrameworkInstance.initialize();
+            this.testFrameworkEventHandlers.Subscribe(testFrameworkInstance);
+            testFrameworkInstance.startExecutionWithSource(sources, this.jsTestSettings.TestFrameworkConfigJson);
+        },
+        (e) => {
+            this.sessionError(sources, e);
+        });
+    }
+    
+    protected startExecution(sources: Array<string>): Promise<void> {
 
         const testFrameworkInstance = this.testFrameworkFactory.createTestFramework(this.testFramework);
         if (testFrameworkInstance.canHandleMultipleSources) {
@@ -113,19 +125,7 @@ export class ExecutionManager extends BaseExecutionManager {
         return this.getCompletionPromise();
     }
 
-    private addSessionToSessionManager(sources: Array<string>) {
-        this.testSessionManager.addSession(sources, () => {
-            const testFrameworkInstance = this.testFrameworkFactory.createTestFramework(this.testFramework);
-            testFrameworkInstance.initialize();
-            this.testFrameworkEventHandlers.Subscribe(testFrameworkInstance);
-            testFrameworkInstance.startExecutionWithSource(sources, this.jsTestSettings.TestFrameworkConfigJson);
-        },
-        (e) => {
-            this.sessionError(sources, e);
-        });
-    }
-    
-    private sessionError(sources: Array<string>, err: Error) {
+    protected sessionError(sources: Array<string>, err: Error) {
         if (err) {
             this.messageSender.sendMessage(err.stack ?
                 err.stack :

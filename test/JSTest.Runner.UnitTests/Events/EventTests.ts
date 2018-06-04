@@ -54,14 +54,15 @@ describe('BaseEventDispatcher suite', () => {
     it('EventDispatcher will create unique event ids', (done: any) => {
         const eventidMap = new Map<string, number>();
         const eventDispatcher = new TestableEventDispatcher();
-        
-        for (let i = 0; i < 500; i++) {
+        const total = 100;
+
+        for (let i = 0; i < total; i++) {
             const id = eventDispatcher.registerEvent();
             eventidMap.set(id, 1);
             Assert.notEqual(eventDispatcher.registerEvent().match(/[0-9]+/), null);
         }
 
-        Assert.equal(500, eventidMap.size);
+        Assert.equal(total, eventidMap.size);
         done();
     });
 });

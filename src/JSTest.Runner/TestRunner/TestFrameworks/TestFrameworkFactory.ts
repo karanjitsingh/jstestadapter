@@ -14,7 +14,7 @@ export class TestFrameworkFactory {
 
     public static instance: TestFrameworkFactory;
 
-    private constructor(environment: IEnvironment) {
+    protected constructor(environment: IEnvironment) {
         this.environment = environment;
         this.frameworkCache = [];
     }
