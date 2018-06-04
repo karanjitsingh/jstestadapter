@@ -1,6 +1,7 @@
 import { IEnvironment } from '../../Environment/IEnvironment';
 import { TestSessionEventArgs } from '../../ObjectModel/TestFramework';
 import { IEvent, IEventArgs } from '../../ObjectModel/Common';
+import { SessionHash } from 'Utils/Hashing/SessionHash';
 
 interface TestSession {
     Sources: Array<string>;
@@ -40,24 +41,6 @@ export class TestSessionManager {
         this.continueNextSession(testSession);
     }
 
-    private continueNextSession(testSession: TestSession) {
-        if (!testSession.Complete) {
-            this.sessionCompleteCount++;
-
-            const nextSession = this.testSessionIterator.next();
-
-            if (!nextSession.done) {
-                this.runSessionInDomain(nextSession.value);
-            }
-        }
-        testSession.Complete = true;
-        
-        // Check for all session completion
-        if (this.sessionCount === this.sessionCompleteCount) {
-            this.onAllSessionsComplete.raise(this, {});
-        }
-    }
-
     public addSession(sources: Array<string>, job: () => void, errorCallback: (err: Error) => void) {
         const testSession = <TestSession> {
             Sources: sources,
@@ -67,12 +50,14 @@ export class TestSessionManager {
             Complete: false
         };
 
-        this.testSessionBucket.set(TestSessionEventArgs.GENERATE_SESSION_ID(sources), testSession);
+        this.testSessionBucket.set(SessionHash(sources), testSession);
         this.sessionCount++;
 
-        if (this.sessionCount === 1) {
-            this.runSessionInDomain(this.testSessionIterator.next().value);
-        }
+        // TODO should warn if same session id generate
+    }
+
+    public executeSessionJobs() {
+        this.runSessionInDomain(this.testSessionIterator.next().value);        
     }
 
     public updateSessionEventArgs(args: TestSessionEventArgs) {
@@ -82,7 +67,7 @@ export class TestSessionManager {
     }
 
     public getSessionEventArgs(sources: Array<string>): TestSessionEventArgs {
-        const sessionId = TestSessionEventArgs.GENERATE_SESSION_ID(sources);
+        const sessionId = SessionHash(sources);
         return this.testSessionBucket.get(sessionId).TestSessionEventArgs;
     }
 
@@ -115,6 +100,24 @@ export class TestSessionManager {
             // this.sessionComplete(source, null, err);
             this.sessionError(testSession, err);
             // TODO log message
+        }
+    }
+    
+    private continueNextSession(testSession: TestSession) {
+        if (!testSession.Complete) {
+            this.sessionCompleteCount++;
+
+            const nextSession = this.testSessionIterator.next();
+
+            if (!nextSession.done) {
+                this.runSessionInDomain(nextSession.value);
+            }
+        }
+        testSession.Complete = true;
+        
+        // Check for all session completion
+        if (this.sessionCount === this.sessionCompleteCount) {
+            this.onAllSessionsComplete.raise(this, {});
         }
     }
 }

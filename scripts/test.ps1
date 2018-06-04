@@ -33,7 +33,6 @@ if($test -ne "") {
 }
 
 
-
 if(!$runonly) {
     npm run test
 }

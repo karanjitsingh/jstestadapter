@@ -30,6 +30,8 @@ export class DiscoveryManager extends BaseExecutionManager {
             });
         }
 
+        this.testSessionManager.executeSessionJobs();
+
         return this.getCompletionPromise();
     }
 

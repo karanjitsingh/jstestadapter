@@ -28,19 +28,13 @@ export class TestSessionEventArgs implements BaseTestEventArgs {
     public InProgress: boolean;
     public EndTime: Date;
 
-    constructor(sources: Array<string>) {
+    constructor(sources: Array<string>, sessionId: string) {
         this.Sources = sources;
-        this.SessionId = TestSessionEventArgs.GENERATE_SESSION_ID(this.Sources);
+        this.SessionId = sessionId;
         this.StartTime =  new Date();
     }
 
-    public static GENERATE_SESSION_ID(sources: Array<string>): string {
-        const hash = new Md5();
-        sources.forEach(source => {
-            hash.appendStr(source);
-        });
-        return hash.getGuid();
-    }
+    public static 
 }
 
 export interface TestErrorMessageEventArgs {

@@ -122,6 +122,8 @@ export class ExecutionManager extends BaseExecutionManager {
             }));
         }
 
+        this.testSessionManager.executeSessionJobs();
+
         return this.getCompletionPromise();
     }
 
