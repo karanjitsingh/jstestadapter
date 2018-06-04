@@ -52,7 +52,7 @@ export class JasmineTestFramework extends BaseTestFramework implements ITestFram
         this.initializeReporter();
     }
 
-    public startExecutionWithSource(sources: Array<string>, options: JSON): void {        
+    public startExecutionWithSources(sources: Array<string>, options: JSON): void {        
         this.sources = sources;
         this.overrideJasmineExecute(false);
         

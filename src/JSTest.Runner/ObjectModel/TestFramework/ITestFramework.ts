@@ -10,7 +10,7 @@ export interface ITestFramework {
     readonly supportsJsonOptions: boolean;
 
     initialize(): void;
-    startExecutionWithSource(sources: Array<string>, options: JSON): void;
+    startExecutionWithSources(sources: Array<string>, options: JSON): void;
     startExecutionWithTests(sources: Array<string>, tests: Map<string, TestCase>, options: JSON): void;
     startDiscovery(sources: Array<string>): void;
 }

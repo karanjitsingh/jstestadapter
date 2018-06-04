@@ -1,20 +1,21 @@
 import { DiscoveryManager, ExecutionManager } from '../../../../src/JSTest.Runner/TestRunner/ExecutionManagers/';
 import { IEnvironment } from '../../../../src/JSTest.Runner/Environment/IEnvironment';
 import { MessageSender } from '../../../../src/JSTest.Runner/TestRunner/MessageSender';
-import { JSTestSettings, TestMessageLevel } from '../../../../src/JSTest.Runner/ObjectModel';
+import { JSTestSettings, TestMessageLevel, TestResult } from '../../../../src/JSTest.Runner/ObjectModel';
 import { TestFrameworkFactory } from '../../../../src/JSTest.Runner/TestRunner/TestFrameworks/TestFrameworkFactory';
 import { Environment } from '../../../../src/JSTest.Runner/Environment/Node/Environment';
 import { StartDiscoveryPayload } from '../../../../src/JSTest.Runner/ObjectModel/Payloads';
 import { TestSessionManager } from '../../../../src/JSTest.Runner/TestRunner/ExecutionManagers/TestSessionManager';
-import { TestFrameworks, ITestFramework, ITestFrameworkEvents, TestSessionEventArgs }
+import { TestFrameworks, ITestFramework, ITestFrameworkEvents, TestSessionEventArgs, TestSpecEventArgs }
 from '../../../../src/JSTest.Runner/ObjectModel/TestFramework';
-import { EnvironmentType } from '../../../../src/JSTest.Runner/ObjectModel/Common';
+import { EnvironmentType, TestOutcome } from '../../../../src/JSTest.Runner/ObjectModel/Common';
 import { TestFrameworkEventHandlers } from '../../../../src/JSTest.Runner/TestRunner/TestFrameworks/TestFrameworkEventHandlers';
 import { Mock, IMock, Times, It } from 'typemoq';
 import * as Assert from 'assert';
 import { TestUtils } from '../../TestUtils';
 import { Exception, ExceptionType } from '../../../../src/JSTest.Runner/Exceptions';
 import { TestableExecutionManager, TestableTestFrameworkFactory, TestableTestSessionManager, TestableFramework } from './Testable';
+import { TimeSpan } from '../../../../src/JSTest.Runner/Utils/TimeSpan';
 
 describe('ExecutionManager Suite', () => {
     let mockEM: IMock<TestableExecutionManager>;
@@ -51,7 +52,7 @@ describe('ExecutionManager Suite', () => {
 
         settings = new JSTestSettings({
             JavaScriptTestFramework: 'jest',
-            TestFrameworkConfigJson: '{}'
+            TestFrameworkConfigJson: '{"key": "value"}'
         });
         mockMessageSender = Mock.ofType(MessageSender);
         mockEM = Mock.ofInstance(new TestableExecutionManager(new Environment(),
@@ -101,7 +102,7 @@ describe('ExecutionManager Suite', () => {
         done();
     });
 
-    it('testFrameworkEventHandlers will handle TestCaseStart, TestSessionEnd, TestErrorMessage', (done) => {
+    it('testFrameworkEventHandlers will handle TestSessionStart/End, TestCaseStart/End, TestErrorMessage', (done) => {
         const testableDiscoveryManager = new TestableExecutionManager(new Environment(),
                                                                       mockMessageSender.object,
                                                                       settings);
@@ -111,17 +112,59 @@ describe('ExecutionManager Suite', () => {
         const sender = <any> { sender: 'this' };
         const args = <any> { key: 'value', TestCase: 'test case', Message: 'message' };
 
+        const startTime = new Date();
+        const endTime = new Date(startTime.getTime() + 1000);
+
+        const testSpecEventArgs: TestSpecEventArgs = {
+            Source: null,
+            InProgress: false,
+            TestCase: <any> { DisplayName: 'name' },
+            Outcome: TestOutcome.Passed,
+            StartTime: startTime,
+            EndTime: endTime,
+            FailedExpectations: [{
+                Message: 'msg a',
+                StackTrace: 'stack a'
+            },
+            {
+                Message: 'msg b',
+                StackTrace: 'stack v'
+            }]
+        }
+
+        const testResult: TestResult = {
+            TestCase: testSpecEventArgs.TestCase,
+            Attachments: [],
+            Outcome: testSpecEventArgs.Outcome,
+            ErrorMessage: testSpecEventArgs.FailedExpectations[0].Message,
+            ErrorStackTrace: testSpecEventArgs.FailedExpectations[0].StackTrace,
+            DisplayName: testSpecEventArgs.TestCase.DisplayName,
+            Messages: [],
+            ComputerName: null,
+            Duration: TimeSpan.MSToString(testSpecEventArgs.EndTime.getTime() - testSpecEventArgs.StartTime.getTime()),
+            StartTime: testSpecEventArgs.StartTime,
+            EndTime: testSpecEventArgs.EndTime
+        };
+
         eventHandlers.Subscribe(mockTestFramework.object);
 
-        mockTestFramework.object.testFrameworkEvents.onTestSessionEnd.raise(sender, args);
-        mockTestFramework.object.testFrameworkEvents.onTestCaseStart.raise(sender, args);
-        mockTestFramework.object.testFrameworkEvents.onErrorMessage.raise(sender, args);
+        mockTestFramework.object.testFrameworkEvents.onTestSessionStart.raise(sender, args);
+        mockSessionManager.verify((x) => x.updateSessionEventArgs(It.is((x) => TestUtils.assertDeepEqual(x, args))), Times.once());
 
-        mockSessionManager.verify((x) => x.setSessionComplete(It.is((x) => TestUtils.assertDeepEqual(x, args))), Times.once());
-        mockMessageSender.verify((x) => x.sendTestCaseFound(It.is((x) => x === args.TestCase)), Times.once());
+        mockTestFramework.object.testFrameworkEvents.onTestCaseStart.raise(sender, args);
+        mockMessageSender.verify((x) => x.sendTestCaseStart(It.is((x) => x === args.TestCase)), Times.once());
+
+        mockTestFramework.object.testFrameworkEvents.onTestCaseEnd.raise(sender, testSpecEventArgs);
+        mockMessageSender.verify((x) => x.sendTestCaseEnd(It.is((x) => TestUtils.assertDeepEqual(x, testResult))), Times.once());
+
+        mockTestFramework.object.testFrameworkEvents.onErrorMessage.raise(sender, args);
         mockMessageSender.verify((x) => x.sendMessage(It.is((x) => x === args.Message), It.is((x) => x === TestMessageLevel.Error)),
                                  Times.once());
 
+        mockTestFramework.object.testFrameworkEvents.onTestSessionEnd.raise(sender, args);
+        mockSessionManager.verify((x) => x.setSessionComplete(It.is((x) => TestUtils.assertDeepEqual(x, args))), Times.once());
+        
+        
         done();
     });
 
@@ -138,7 +181,7 @@ describe('ExecutionManager Suite', () => {
         done();
     });
 
-    it('will eventually send discovery complete and resolve compleition promise', (done) => {
+    it('will eventually send execution complete and resolve compleition promise', (done) => {
         
         mockFactory.setup((x) => x.createTestFramework(It.isAny())).returns(() => <ITestFramework> { canHandleMultipleSources: false });
         mockEM.object.startExec(sources).then(() => {
@@ -146,7 +189,7 @@ describe('ExecutionManager Suite', () => {
         });
 
         mockSessionManager.object.onAllSessionsComplete.raise(null, null);
-        mockMessageSender.verify((x) => x.sendDiscoveryComplete(), Times.once());
+        mockMessageSender.verify((x) => x.sendExecutionComplete(), Times.once());
     });
 
     function validateSession(sources: Array<string>, executeJob: () => void, errorCallback: (err: Error) => void) {
@@ -161,7 +204,7 @@ describe('ExecutionManager Suite', () => {
         executeJob();
         mockFactory.verify((x) => x.createTestFramework(TestFrameworks.Jest), Times.once());
         mockTestFramework.verify((x) => x.initialize(), Times.once());
-        mockTestFramework.verify((x) => x.startDiscovery(It.is((x) => TestUtils.assertDeepEqual(x, sources))), Times.once());
+        mockTestFramework.verify((x) => x.startExecutionWithSources(It.is((x) => TestUtils.assertDeepEqual(x, sources)), It.is((x) => TestUtils.assertDeepEqual(x, settings.TestFrameworkConfigJson))), Times.once());
         mockEventHandlers.verify((x) => x.Subscribe(It.is((x) => TestUtils.assertDeepEqual(x, mockTestFramework.object))), Times.once());
 
         const dummyError = new Error('dummy error');

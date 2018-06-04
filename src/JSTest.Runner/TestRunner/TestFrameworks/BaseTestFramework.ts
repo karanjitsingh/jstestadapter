@@ -31,7 +31,7 @@ export abstract class BaseTestFramework implements ITestFramework {
         this.suiteStack = [];
     }
 
-    public abstract startExecutionWithSource(sources: Array<string>, options: JSON);
+    public abstract startExecutionWithSources(sources: Array<string>, options: JSON);
     public abstract startDiscovery(sources: Array<string>);
     public abstract initialize();
 
@@ -39,7 +39,7 @@ export abstract class BaseTestFramework implements ITestFramework {
 
     public startExecutionWithTests(sources: Array<string>, testCollection: Map<string, TestCase>, options: JSON) {
         this.testCollection = testCollection;
-        this.startExecutionWithSource([sources[0]], options);
+        this.startExecutionWithSources([sources[0]], options);
     }
 
     protected handleSessionStarted() {

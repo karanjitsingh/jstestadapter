@@ -88,7 +88,7 @@ export class ExecutionManager extends BaseExecutionManager {
             // TODO how to handle multiple failed expectations?
             if (args.FailedExpectations.length > 0) {
                 testResult.ErrorMessage = args.FailedExpectations[0].Message;
-                testResult.ErrorStackTrace = args.FailedExpectations[0]. StackTrace;
+                testResult.ErrorStackTrace = args.FailedExpectations[0].StackTrace;
             }
 
             this.messageSender.sendTestCaseEnd(testResult);
@@ -104,7 +104,7 @@ export class ExecutionManager extends BaseExecutionManager {
             const testFrameworkInstance = this.testFrameworkFactory.createTestFramework(this.testFramework);
             testFrameworkInstance.initialize();
             this.testFrameworkEventHandlers.Subscribe(testFrameworkInstance);
-            testFrameworkInstance.startExecutionWithSource(sources, this.jsTestSettings.TestFrameworkConfigJson);
+            testFrameworkInstance.startExecutionWithSources(sources, this.jsTestSettings.TestFrameworkConfigJson);
         },
         (e) => {
             this.sessionError(sources, e);

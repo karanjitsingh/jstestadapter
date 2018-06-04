@@ -66,10 +66,10 @@ export class JestTestFramework extends BaseTestFramework {
     }
 
     public startExecutionWithTests(sources: Array<string>, testCollection: Map<string, TestCase>, options: JSON) {
-        this.startExecutionWithSource(sources, options);
+        this.startExecutionWithSources(sources, options);
     }
 
-    public startExecutionWithSource(sources: Array<string>, options: JSON): void {
+    public startExecutionWithSources(sources: Array<string>, options: JSON): void {
         this.sources = sources;
         this.runJest(sources[0], options);
     }

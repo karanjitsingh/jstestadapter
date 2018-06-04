@@ -44,7 +44,7 @@ export class MochaTestFramework extends BaseTestFramework {
         this.mochaLib = this.getMocha();
     }
 
-    public startExecutionWithSource(sources: Array<string>, options: JSON): void {
+    public startExecutionWithSources(sources: Array<string>, options: JSON): void {
         this.sources = sources;
 
         // tslint:disable-next-line
@@ -69,7 +69,7 @@ export class MochaTestFramework extends BaseTestFramework {
         // tslint:enable:no-empty
 
         this.discoveryMode = true;
-        this.startExecutionWithSource(sources, JSON.parse('{ }'));
+        this.startExecutionWithSources(sources, JSON.parse('{ }'));
     }
 
     protected skipSpec(specObject: any) {

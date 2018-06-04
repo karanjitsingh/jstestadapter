@@ -39,7 +39,7 @@ export class TestableExecutionManager extends ExecutionManager  {
 export class TestableFramework implements ITestFramework {
     public executorUri: string = '';
     public environmentType: EnvironmentType = EnvironmentType.NodeJS;
-    public startExecutionWithSource = () => { return; };
+    public startExecutionWithSources = () => { return; };
     public startExecutionWithTests = () => { return; };
     public supportsJsonOptions: boolean = false;
     public canHandleMultipleSources: boolean = true;
@@ -82,7 +82,6 @@ export class TestableDiscoveryManager extends DiscoveryManager  {
         return this.testFrameworkEventHandlers;
     }
 }
-
 
 export class TestableBaseExecutionManager extends BaseExecutionManager {
     protected testFrameworkEventHandlers: TestFrameworkEventHandlers;
