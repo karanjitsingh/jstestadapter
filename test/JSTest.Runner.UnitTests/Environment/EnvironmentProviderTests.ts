@@ -1,9 +1,19 @@
 import { EnvironmentType } from '../../../src/JSTest.Runner/ObjectModel/Common';
 import { EnvironmentProvider } from '../../../src/JSTest.Runner/Environment/EnvironmentProvider';
-import { Environment as NodeEnvironment } from '../../../src/JSTest.Runner/Environment/Node/Environment';
-import { Environment as BrowserEnvironment } from '../../../src/JSTest.Runner/Environment/Browser/Environment';
-import { IEnvironment } from '../../../src/JSTest.Runner/Environment/IEnvironment';
 import * as Assert from 'assert';
+
+class TestableEnvironmentProvider extends EnvironmentProvider {
+    private browser: boolean;
+
+    constructor(isBrowser: boolean) {
+        super();
+        this.browser = isBrowser;
+    }
+
+    protected isBrowser() : boolean {
+        return this.browser;
+    }
+}
 
 describe('EnvironmentProvider Suite', () => {
 
@@ -36,16 +46,3 @@ describe('EnvironmentProvider Suite', () => {
         });
     });
 });
-
-class TestableEnvironmentProvider extends EnvironmentProvider {
-    private browser: boolean;
-
-    constructor(isBrowser: boolean) {
-        super();
-        this.browser = isBrowser;
-    }
-
-    protected isBrowser() : boolean {
-        return this.browser;
-    }
-}

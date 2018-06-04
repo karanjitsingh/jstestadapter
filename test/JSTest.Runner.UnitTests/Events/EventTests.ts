@@ -4,6 +4,18 @@ import { IEventArgs, IEventHandler } from '../../../src/JSTest.Runner/ObjectMode
 import { Event } from '../../../src/JSTest.Runner/Events/Event';
 import * as Assert from 'assert';
 
+class TestableEventDispatcher extends BaseEventDispatcher {
+    public subscribe(eventId: string, callback: IEventHandler<IEventArgs>) {
+        return;
+    }
+    public unsubscribe(eventId: string, callback: IEventHandler<IEventArgs>) {
+        return;
+    }
+    public raise(eventId: string, sender: object, args: IEventArgs) {
+        return;
+    }
+}
+
 describe('Event Suite', () => {
     let mockEventDispatcher: IMock<BaseEventDispatcher>;
 
@@ -12,7 +24,6 @@ describe('Event Suite', () => {
     });
 
     it('Event constructor will call eventDispatcher.register', (done: any) => {
-        const event = new Event<IEventArgs>(mockEventDispatcher.object);
         mockEventDispatcher.verify((x) => x.registerEvent(), Times.once());
         done();
     });
@@ -66,15 +77,3 @@ describe('BaseEventDispatcher suite', () => {
         done();
     });
 });
-
-class TestableEventDispatcher extends BaseEventDispatcher {
-    public subscribe(eventId: string, callback: IEventHandler<IEventArgs>) {
-        return;
-    }
-    public unsubscribe(eventId: string, callback: IEventHandler<IEventArgs>) {
-        return;
-    }
-    public raise(eventId: string, sender: object, args: IEventArgs) {
-        return;
-    }
-}

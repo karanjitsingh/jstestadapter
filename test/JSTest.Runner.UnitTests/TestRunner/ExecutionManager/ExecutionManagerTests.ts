@@ -1,14 +1,11 @@
-import { DiscoveryManager, ExecutionManager } from '../../../../src/JSTest.Runner/TestRunner/ExecutionManagers/';
-import { IEnvironment } from '../../../../src/JSTest.Runner/Environment/IEnvironment';
 import { MessageSender } from '../../../../src/JSTest.Runner/TestRunner/MessageSender';
 import { JSTestSettings, TestMessageLevel, TestResult } from '../../../../src/JSTest.Runner/ObjectModel';
 import { TestFrameworkFactory } from '../../../../src/JSTest.Runner/TestRunner/TestFrameworks/TestFrameworkFactory';
 import { Environment } from '../../../../src/JSTest.Runner/Environment/Node/Environment';
-import { StartDiscoveryPayload } from '../../../../src/JSTest.Runner/ObjectModel/Payloads';
 import { TestSessionManager } from '../../../../src/JSTest.Runner/TestRunner/ExecutionManagers/TestSessionManager';
-import { TestFrameworks, ITestFramework, ITestFrameworkEvents, TestSessionEventArgs, TestSpecEventArgs }
+import { TestFrameworks, ITestFramework, TestSpecEventArgs }
 from '../../../../src/JSTest.Runner/ObjectModel/TestFramework';
-import { EnvironmentType, TestOutcome } from '../../../../src/JSTest.Runner/ObjectModel/Common';
+import { TestOutcome } from '../../../../src/JSTest.Runner/ObjectModel/Common';
 import { TestFrameworkEventHandlers } from '../../../../src/JSTest.Runner/TestRunner/TestFrameworks/TestFrameworkEventHandlers';
 import { Mock, IMock, Times, It } from 'typemoq';
 import * as Assert from 'assert';
@@ -130,7 +127,7 @@ describe('ExecutionManager Suite', () => {
                 Message: 'msg b',
                 StackTrace: 'stack v'
             }]
-        }
+        };
 
         const testResult: TestResult = {
             TestCase: testSpecEventArgs.TestCase,
@@ -163,7 +160,6 @@ describe('ExecutionManager Suite', () => {
 
         mockTestFramework.object.testFrameworkEvents.onTestSessionEnd.raise(sender, args);
         mockSessionManager.verify((x) => x.setSessionComplete(It.is((x) => TestUtils.assertDeepEqual(x, args))), Times.once());
-        
         
         done();
     });
@@ -204,7 +200,10 @@ describe('ExecutionManager Suite', () => {
         executeJob();
         mockFactory.verify((x) => x.createTestFramework(TestFrameworks.Jest), Times.once());
         mockTestFramework.verify((x) => x.initialize(), Times.once());
-        mockTestFramework.verify((x) => x.startExecutionWithSources(It.is((x) => TestUtils.assertDeepEqual(x, sources)), It.is((x) => TestUtils.assertDeepEqual(x, settings.TestFrameworkConfigJson))), Times.once());
+        mockTestFramework.verify((x) => x.startExecutionWithSources(
+            It.is((x) => TestUtils.assertDeepEqual(x, sources)),
+            It.is((x) => TestUtils.assertDeepEqual(x, settings.TestFrameworkConfigJson))
+        ), Times.once());
         mockEventHandlers.verify((x) => x.Subscribe(It.is((x) => TestUtils.assertDeepEqual(x, mockTestFramework.object))), Times.once());
 
         const dummyError = new Error('dummy error');

@@ -1,12 +1,7 @@
-import { BaseExecutionManager } from '../../../../src/JSTest.Runner/TestRunner/ExecutionManagers/BaseExecutionManager';
-import { TestFrameworkEventHandlers } from '../../../../src/JSTest.Runner/TestRunner/TestFrameworks/TestFrameworkEventHandlers';
-import { IEnvironment } from '../../../../src/JSTest.Runner/Environment/IEnvironment';
 import { Environment } from '../../../../src/JSTest.Runner/Environment/Node/Environment';
-import { IEvent, IEventArgs } from '../../../../src/JSTest.Runner/ObjectModel/Common';
 import { TestFrameworkFactory } from '../../../../src/JSTest.Runner/TestRunner/TestFrameworks/TestFrameworkFactory';
 import { TestSessionManager } from '../../../../src/JSTest.Runner/TestRunner/ExecutionManagers/TestSessionManager';
 import { Event } from '../../../../src/JSTest.Runner/Events/Event';
-import { Mock } from 'typemoq';
 import * as Assert from 'assert';
 import { TestableBaseExecutionManager } from './Testable';
 

@@ -1,6 +1,5 @@
 import { TestCase, TestOutcome, IEventArgs } from '../Common';
 import { FailedExpectation } from '.';
-import { Md5 } from '../../Utils/Hashing/MD5';
 
 interface BaseTestEventArgs extends IEventArgs {
     StartTime: Date;
@@ -34,7 +33,6 @@ export class TestSessionEventArgs implements BaseTestEventArgs {
         this.StartTime =  new Date();
     }
 
-    public static 
 }
 
 export interface TestErrorMessageEventArgs {

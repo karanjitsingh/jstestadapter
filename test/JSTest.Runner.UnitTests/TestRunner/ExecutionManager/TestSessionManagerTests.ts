@@ -1,8 +1,6 @@
-import { TestSessionManager } from "../../../../src/JSTest.Runner/TestRunner/ExecutionManagers/TestSessionManager";
-import { Environment } from "../../../../src/JSTest.Runner/Environment/Node/Environment";
+import { TestSessionManager } from '../../../../src/JSTest.Runner/TestRunner/ExecutionManagers/TestSessionManager';
+import { Environment } from '../../../../src/JSTest.Runner/Environment/Node/Environment';
 import * as Assert from 'assert';
-import { TestUtils } from "TestUtils";
-import { TestSessionEventArgs } from "../../../../src/JSTest.Runner/ObjectModel/TestFramework";
 
 describe('TestSessionManager Sutie', () => {
     let testSessionManager: TestSessionManager;
@@ -25,9 +23,9 @@ describe('TestSessionManager Sutie', () => {
                 jobMap[id] = 1;
                 console.error('yes' + id);
             };
-        }
+        };
 
-        const errorCallback = (err: Error) => {};
+        const errorCallback = (err: Error) => { return; };
 
         testSessionManager.addSession(['file 1', 'file 2'], getJob('1'), errorCallback);
         testSessionManager.addSession(['file 3', 'file 4'], getJob('2'), errorCallback);
@@ -36,7 +34,7 @@ describe('TestSessionManager Sutie', () => {
         
         testSessionManager.onAllSessionsComplete.subscribe(() => {
             Assert.deepEqual(jobMap, {
-                "1": 1
+                '1': 1
                 // "2": 1
             });
 
@@ -44,4 +42,4 @@ describe('TestSessionManager Sutie', () => {
         });
 
     });
-})
+});

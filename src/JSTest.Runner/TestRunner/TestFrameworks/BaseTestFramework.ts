@@ -1,7 +1,7 @@
 import { ITestFramework, TestSessionEventArgs, TestSuiteEventArgs, TestSpecEventArgs,
          FailedExpectation, ITestFrameworkEvents, TestErrorMessageEventArgs } from '../../ObjectModel/TestFramework';
 import { TestCase, TestOutcome, EnvironmentType } from '../../ObjectModel/Common';
-import { SessionHash } from 'Utils/Hashing/SessionHash';
+import { SessionHash } from '../../Utils/Hashing/SessionHash';
 
 /*
  * TODO:

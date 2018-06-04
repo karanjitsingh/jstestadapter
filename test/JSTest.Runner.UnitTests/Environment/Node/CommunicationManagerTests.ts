@@ -1,10 +1,9 @@
 import { Message, MessageType } from '../../../../src/JSTest.Runner/ObjectModel';
 import { CommunicationManager } from '../../../../src/JSTest.Runner/Environment/Node/CommunicationManager';
-import { IEnvironment } from '../../../../src/JSTest.Runner/Environment/IEnvironment';
 import { Environment } from '../../../../src/JSTest.Runner/Environment/Node/Environment';
 import { MessageReceivedEventArgs } from '../../../../src/JSTest.Runner/Environment/ICommunicationManager';
 import { Socket } from 'net';
-import { It, Mock, Times, MockBehavior, IMock } from 'typemoq';
+import { It, Mock, Times, IMock } from 'typemoq';
 import * as Assert from 'assert';
 
 describe('Node/CommunicationManager Suite', () => {

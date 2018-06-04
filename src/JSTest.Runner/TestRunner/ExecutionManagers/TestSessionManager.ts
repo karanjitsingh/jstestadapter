@@ -1,7 +1,7 @@
 import { IEnvironment } from '../../Environment/IEnvironment';
 import { TestSessionEventArgs } from '../../ObjectModel/TestFramework';
 import { IEvent, IEventArgs } from '../../ObjectModel/Common';
-import { SessionHash } from 'Utils/Hashing/SessionHash';
+import { SessionHash } from '../../Utils/Hashing/SessionHash';
 
 interface TestSession {
     Sources: Array<string>;

@@ -1,14 +1,10 @@
-import { DiscoveryManager } from '../../../../src/JSTest.Runner/TestRunner/ExecutionManagers/';
-import { IEnvironment } from '../../../../src/JSTest.Runner/Environment/IEnvironment';
 import { MessageSender } from '../../../../src/JSTest.Runner/TestRunner/MessageSender';
 import { JSTestSettings, TestMessageLevel } from '../../../../src/JSTest.Runner/ObjectModel';
 import { TestFrameworkFactory } from '../../../../src/JSTest.Runner/TestRunner/TestFrameworks/TestFrameworkFactory';
 import { Environment } from '../../../../src/JSTest.Runner/Environment/Node/Environment';
 import { StartDiscoveryPayload } from '../../../../src/JSTest.Runner/ObjectModel/Payloads';
 import { TestSessionManager } from '../../../../src/JSTest.Runner/TestRunner/ExecutionManagers/TestSessionManager';
-import { TestFrameworks, ITestFramework, ITestFrameworkEvents, TestSessionEventArgs }
-from '../../../../src/JSTest.Runner/ObjectModel/TestFramework';
-import { EnvironmentType } from '../../../../src/JSTest.Runner/ObjectModel/Common';
+import { TestFrameworks, ITestFramework } from '../../../../src/JSTest.Runner/ObjectModel/TestFramework';
 import { TestFrameworkEventHandlers } from '../../../../src/JSTest.Runner/TestRunner/TestFrameworks/TestFrameworkEventHandlers';
 import { Mock, IMock, Times, It } from 'typemoq';
 import * as Assert from 'assert';

@@ -2,14 +2,20 @@ import { Environment } from '../../../../src/JSTest.Runner/Environment/Node/Envi
 import { CommunicationManager } from '../../../../src/JSTest.Runner/Environment/Node/CommunicationManager';
 import { IEventArgs } from '../../../../src/JSTest.Runner/ObjectModel/Common';
 import { Event } from '../../../../src/JSTest.Runner/Events/Event';
-import { Logger } from '../../../../src/JSTest.Runner/Environment/Node/Logger';
 import { Socket } from 'net';
 import * as Sinon from 'sinon';
 import * as Assert from 'assert';
 
-function stub() {
-    console.log(arguments);
-    return;
+interface TestableEventArgs extends IEventArgs {
+    arg: string;
+}
+
+class TestableSender {
+    public property: string;
+
+    constructor(property: string) {
+        this.property = property;
+    }
 }
 
 describe('NodeEnvironment Suite', () => {
@@ -66,15 +72,3 @@ describe('NodeEnvironment Suite', () => {
     });
 
 });
-
-interface TestableEventArgs extends IEventArgs {
-    arg: string;
-}
-
-class TestableSender {
-    public property: string;
-
-    constructor(property: string) {
-        this.property = property;
-    }
-}
