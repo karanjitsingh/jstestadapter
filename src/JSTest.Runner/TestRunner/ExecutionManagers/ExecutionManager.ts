@@ -12,12 +12,14 @@ import { StartExecutionWithSourcesPayload, StartExecutionWithTestsPayload } from
 export class ExecutionManager extends BaseExecutionManager {
     private jsTestSettings: JSTestSettings;
     private testFramework: TestFrameworks;
+    private testCollection: Map<string, TestCase>;
 
     constructor(environment: IEnvironment, messageSender: MessageSender, jsTestSettings: JSTestSettings) {
         super(environment, messageSender, jsTestSettings.JavaScriptTestFramework);
         this.jsTestSettings = jsTestSettings;
         this.testFramework = this.jsTestSettings.JavaScriptTestFramework;
         this.testSessionManager.onAllSessionsComplete.subscribe(this.executionComplete);
+        this.testCollection = null;
     }
 
     public startTestRunWithSources(request: StartExecutionWithSourcesPayload): Promise<void> {
@@ -26,10 +28,11 @@ export class ExecutionManager extends BaseExecutionManager {
     }
 
     public startTestRunWithTests(request: StartExecutionWithTestsPayload): Promise<void> {
-        
         const sourceMap = {};
+        this.testCollection = new Map<string, TestCase>();
 
         request.Tests.forEach((test: TestCase) => {
+            this.testCollection.set(test.Id, test);
             if (!sourceMap.hasOwnProperty(test.Source)) {
                 sourceMap[test.Source] = 1;
             }
@@ -98,21 +101,8 @@ export class ExecutionManager extends BaseExecutionManager {
             this.messageSender.sendMessage(args.Message, TestMessageLevel.Error);
         }
     };
-
-    private addSessionToSessionManager(sources: Array<string>) {
-        this.testSessionManager.addSession(sources, () => {
-            const testFrameworkInstance = this.testFrameworkFactory.createTestFramework(this.testFramework);
-            testFrameworkInstance.initialize();
-            this.testFrameworkEventHandlers.Subscribe(testFrameworkInstance);
-            testFrameworkInstance.startExecutionWithSources(sources, this.jsTestSettings.TestFrameworkConfigJson);
-        },
-        (e) => {
-            this.sessionError(sources, e);
-        });
-    }
     
     protected startExecution(sources: Array<string>): Promise<void> {
-
         const testFrameworkInstance = this.testFrameworkFactory.createTestFramework(this.testFramework);
         if (testFrameworkInstance.canHandleMultipleSources) {
             this.addSessionToSessionManager(sources);
@@ -134,6 +124,22 @@ export class ExecutionManager extends BaseExecutionManager {
                 (err.constructor.name + ': ' + err.message),
             TestMessageLevel.Error);
         }
+    }
+
+    private addSessionToSessionManager(sources: Array<string>) {
+        this.testSessionManager.addSession(sources, () => {
+            const testFrameworkInstance = this.testFrameworkFactory.createTestFramework(this.testFramework);
+            testFrameworkInstance.initialize();
+            this.testFrameworkEventHandlers.Subscribe(testFrameworkInstance);
+            if (this.testCollection) {
+                testFrameworkInstance.startExecutionWithTests(sources, this.testCollection, this.jsTestSettings.TestFrameworkConfigJson);
+            } else {
+                testFrameworkInstance.startExecutionWithSources(sources, this.jsTestSettings.TestFrameworkConfigJson);
+            }
+        },
+        (e) => {
+            this.sessionError(sources, e);
+        });
     }
 
     private executionComplete = () => {

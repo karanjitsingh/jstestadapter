@@ -89,8 +89,6 @@ export abstract class BaseTestFramework implements ITestFramework {
     }
 
     protected handleSpecStarted(fullyQualifiedName: string, testCaseName: string, sourceFile: string, specObject: any) {
-        console.log(fullyQualifiedName);
- 
         const testCase = this.getTestCase(testCaseName, fullyQualifiedName, sourceFile);
         this.applyTestCaseFilter(testCase, specObject);
         
@@ -110,6 +108,7 @@ export abstract class BaseTestFramework implements ITestFramework {
     }
 
     protected handleSpecDone(testOutcome: TestOutcome, failedExpectations: Array<FailedExpectation>) {
+
         this.activeSpec.InProgress = false;
         this.activeSpec.EndTime = new Date();
         this.activeSpec.Outcome = testOutcome;
@@ -163,7 +162,6 @@ export abstract class BaseTestFramework implements ITestFramework {
 
     private applyTestCaseFilter(testCase: TestCase, specObject: any) {
         if (this.testCollection) {
-            console.error(this.testCollection);
             if (!this.testCollection.has(testCase.Id)) {
                 this.skipSpec(specObject);
             }
