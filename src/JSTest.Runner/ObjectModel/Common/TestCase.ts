@@ -13,7 +13,7 @@ export class TestCase {
     public LineNumber: number;
     public Properties: Array<JSON>;
 
-    constructor(source: string, fullyQualifiedName: string, executorUri: string, localIdentifier?: string) {
+    constructor(source: string, fullyQualifiedName: string, executorUri: string) {
 
         this.FullyQualifiedName = fullyQualifiedName;
         this.Source = source;

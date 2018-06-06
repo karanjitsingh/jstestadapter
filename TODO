@@ -1,10 +1,9 @@
 TODO:
-    chrome headless support?
-    diag logger
-    parallel execution
-    vs integration
+    run with tests
     tracing
+    diag logger
     eqttrace + logger tests
+    parallel execution
 
 integration tests:
     should report if error

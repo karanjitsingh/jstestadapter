@@ -39,7 +39,7 @@ export abstract class BaseTestFramework implements ITestFramework {
 
     public startExecutionWithTests(sources: Array<string>, testCollection: Map<string, TestCase>, options: JSON) {
         this.testCollection = testCollection;
-        this.startExecutionWithSources([sources[0]], options);
+        this.startExecutionWithSources(sources, options);
     }
 
     protected handleSessionStarted() {
@@ -89,17 +89,12 @@ export abstract class BaseTestFramework implements ITestFramework {
     }
 
     protected handleSpecStarted(fullyQualifiedName: string, testCaseName: string, sourceFile: string, specObject: any) {
-        let executionCount = 1;
-
-        if (this.testExecutionCount.has(fullyQualifiedName)) {
-            executionCount = this.testExecutionCount.get(fullyQualifiedName) + 1;
-        }
-        this.testExecutionCount.set(fullyQualifiedName, executionCount);
-
-        const testCase = new TestCase(sourceFile, fullyQualifiedName + ' ' + executionCount, Constants.executorURI);
+        console.log(fullyQualifiedName);
+ 
+        const testCase = this.getTestCase(testCaseName, fullyQualifiedName, sourceFile);
         this.applyTestCaseFilter(testCase, specObject);
-
-        testCase.DisplayName = testCaseName;
+        
+        // should check if spec was already active and not ended
 
         this.activeSpec = <TestSpecEventArgs> {
             TestCase: testCase,
@@ -115,7 +110,6 @@ export abstract class BaseTestFramework implements ITestFramework {
     }
 
     protected handleSpecDone(testOutcome: TestOutcome, failedExpectations: Array<FailedExpectation>) {
-
         this.activeSpec.InProgress = false;
         this.activeSpec.EndTime = new Date();
         this.activeSpec.Outcome = testOutcome;
@@ -131,18 +125,9 @@ export abstract class BaseTestFramework implements ITestFramework {
                                failedExpectations: Array<FailedExpectation>,
                                startTime: Date,
                                endTime: Date) {
-        let executionCount = 1;
-
-        if (this.testExecutionCount.has(fullyQualifiedName)) {
-            executionCount = this.testExecutionCount.get(fullyQualifiedName) + 1;
-        }
-        this.testExecutionCount.set(fullyQualifiedName, executionCount);
-
-        const testCase = new TestCase(sourceFile, fullyQualifiedName + ' ' + executionCount, Constants.executorURI);
-        testCase.DisplayName = testCaseName;
-
+        
         const specResult = <TestSpecEventArgs> {
-            TestCase: testCase,
+            TestCase: this.getTestCase(testCaseName, fullyQualifiedName, sourceFile),
             FailedExpectations: failedExpectations,
             Outcome: testOutcome,
             Source: sourceFile,
@@ -162,8 +147,23 @@ export abstract class BaseTestFramework implements ITestFramework {
         });
     }
 
+    private getTestCase(testCaseName: string, fqn: string, source: string): TestCase {
+        let executionCount = 1;
+
+        if (this.testExecutionCount.has(fqn)) {
+            executionCount = this.testExecutionCount.get(fqn) + 1;
+        }
+        this.testExecutionCount.set(fqn, executionCount);
+
+        const testCase = new TestCase(source, fqn + ' ' + executionCount, Constants.executorURI);
+        testCase.DisplayName = testCaseName;
+
+        return testCase;
+    }
+
     private applyTestCaseFilter(testCase: TestCase, specObject: any) {
         if (this.testCollection) {
+            console.error(this.testCollection);
             if (!this.testCollection.has(testCase.Id)) {
                 this.skipSpec(specObject);
             }
