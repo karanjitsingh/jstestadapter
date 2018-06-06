@@ -7,7 +7,7 @@ namespace JSTest.TestAdapter
     public static class AdapterConstants
     {
 
-        public const string ExecutorUri = "executor://JSTestAdapter";
+        public const string ExecutorUri = "executor://JSTestAdapter/v1";
 
         internal static class FileExtensions
         {

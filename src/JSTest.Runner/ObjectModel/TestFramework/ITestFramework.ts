@@ -3,7 +3,6 @@ import { ITestFrameworkEvents } from './ITestFrameworkEvents';
 import { TestCase } from '../Common';
 
 export interface ITestFramework {
-    readonly executorUri: string;
     readonly environmentType: EnvironmentType;
     readonly testFrameworkEvents: ITestFrameworkEvents;
     readonly canHandleMultipleSources: boolean;

@@ -29,7 +29,7 @@ export class TestFrameworkFactory {
         if (this.environment.environmentType === EnvironmentType.NodeJS) {
             // Check cache otherwise populate it
             if (!this.frameworkCache[framework]) {
-                this.frameworkCache[framework] = this.dynamiclyLoadConstructor(framework);
+                this.frameworkCache[framework] = this.getFrameworkConstructor(framework);
             }
             return new this.frameworkCache[framework](this.createFrameworkEvents(), this.environment.environmentType);
 
@@ -51,7 +51,7 @@ export class TestFrameworkFactory {
         };
     }
 
-    private dynamiclyLoadConstructor(framework: TestFrameworks) : any {
+    private getFrameworkConstructor(framework: TestFrameworks) : any {
         switch (framework) {
             case TestFrameworks.Jasmine:
                 return JasmineTestFramework;    

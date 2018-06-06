@@ -2,6 +2,7 @@ import { ITestFramework, TestSessionEventArgs, TestSuiteEventArgs, TestSpecEvent
          FailedExpectation, ITestFrameworkEvents, TestErrorMessageEventArgs } from '../../ObjectModel/TestFramework';
 import { TestCase, TestOutcome, EnvironmentType } from '../../ObjectModel/Common';
 import { SessionHash } from '../../Utils/Hashing/SessionHash';
+import { Constants } from '../../Constants';
 
 /*
  * TODO:
@@ -11,14 +12,12 @@ import { SessionHash } from '../../Utils/Hashing/SessionHash';
  */
 
 export abstract class BaseTestFramework implements ITestFramework {
-    public abstract environmentType: EnvironmentType;
-    public abstract executorUri: string;
-    public abstract canHandleMultipleSources: boolean;
-    public abstract supportsJsonOptions: boolean;
+    public readonly abstract environmentType: EnvironmentType;
+    public readonly abstract canHandleMultipleSources: boolean;
+    public readonly abstract supportsJsonOptions: boolean;
+    public readonly testFrameworkEvents: ITestFrameworkEvents;
 
     protected abstract sources: Array<string>;
-
-    public testFrameworkEvents: ITestFrameworkEvents;
 
     private sessionEventArgs: TestSessionEventArgs;
     private suiteStack: Array<TestSuiteEventArgs>;
@@ -70,6 +69,13 @@ export abstract class BaseTestFramework implements ITestFramework {
     }
 
     protected handleSuiteDone() {
+
+        /*
+         * Extra handle suite done should not trigger event raise
+         * Some frameworks throw an extra suite done event for the
+         * root suite even though it does not correspond to a start event
+         */
+
         if (!this.suiteStack.length) {
             return;
         }
@@ -90,7 +96,7 @@ export abstract class BaseTestFramework implements ITestFramework {
         }
         this.testExecutionCount.set(fullyQualifiedName, executionCount);
 
-        const testCase = new TestCase(sourceFile, fullyQualifiedName + ' ' + executionCount, this.executorUri);
+        const testCase = new TestCase(sourceFile, fullyQualifiedName + ' ' + executionCount, Constants.executorURI);
         this.applyTestCaseFilter(testCase, specObject);
 
         testCase.DisplayName = testCaseName;
@@ -132,7 +138,7 @@ export abstract class BaseTestFramework implements ITestFramework {
         }
         this.testExecutionCount.set(fullyQualifiedName, executionCount);
 
-        const testCase = new TestCase(sourceFile, fullyQualifiedName + ' ' + executionCount, this.executorUri);
+        const testCase = new TestCase(sourceFile, fullyQualifiedName + ' ' + executionCount, Constants.executorURI);
         testCase.DisplayName = testCaseName;
 
         const specResult = <TestSpecEventArgs> {
@@ -148,7 +154,7 @@ export abstract class BaseTestFramework implements ITestFramework {
         this.testFrameworkEvents.onTestCaseEnd.raise(this, specResult);
     }
 
-    protected reportErrorMessage(errMessage: string, errStack: string) {
+    protected handleErrorMessage(errMessage: string, errStack: string) {
         const message = `Error: ${errMessage}\n ${errStack}`;
 
         this.testFrameworkEvents.onErrorMessage.raise(this, <TestErrorMessageEventArgs> {

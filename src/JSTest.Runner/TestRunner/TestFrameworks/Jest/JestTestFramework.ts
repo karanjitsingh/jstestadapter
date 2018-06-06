@@ -7,7 +7,6 @@ import * as rewire from 'rewire';
 import * as path from 'path';
 
 export class JestTestFramework extends BaseTestFramework {
-    public readonly executorUri: string = 'executor://JSTestAdapter';
     public readonly environmentType: EnvironmentType;
     public readonly canHandleMultipleSources: boolean = false;
     public readonly supportsJsonOptions: boolean = true;
@@ -57,7 +56,7 @@ export class JestTestFramework extends BaseTestFramework {
             handleSessionDone: this.handleSessionDone.bind(this),
             handleSpecFound: this.handleSpecStarted.bind(this),
             handleSpecResult: this.handleSpecResult.bind(this),
-            handleErrorMessage: this.reportErrorMessage.bind(this)
+            handleErrorMessage: this.handleErrorMessage.bind(this)
         });
 
         //tslint:disable:no-require-imports

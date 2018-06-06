@@ -13,7 +13,6 @@ enum JasmineReporterEvent {
 }
 
 export class JasmineTestFramework extends BaseTestFramework implements ITestFramework {
-    public readonly executorUri: string = 'executor://JasmineTestAdapter/v1';
     public readonly environmentType: EnvironmentType;
     public readonly canHandleMultipleSources: boolean = false;
     public readonly supportsJsonOptions: boolean = false;
@@ -35,7 +34,6 @@ export class JasmineTestFramework extends BaseTestFramework implements ITestFram
 
     constructor(testFrameworkEvents: ITestFrameworkEvents, environmentType: EnvironmentType) {
         super(testFrameworkEvents);
-        this.testFrameworkEvents = testFrameworkEvents;
         this.environmentType = environmentType;
     }
 
@@ -88,7 +86,7 @@ export class JasmineTestFramework extends BaseTestFramework implements ITestFram
 
             case JasmineReporterEvent.SuiteDone:
                 if (args.failedExpectations.length > 0) {
-                    this.reportErrorMessage(args.failedExpectations[0].message, args.failedExpectations[0].stack);
+                    this.handleErrorMessage(args.failedExpectations[0].message, args.failedExpectations[0].stack);
                 }
                 this.handleSuiteDone();
                 break;

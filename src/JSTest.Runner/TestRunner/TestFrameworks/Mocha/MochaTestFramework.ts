@@ -14,7 +14,6 @@ enum ReporterEvent {
 }
 
 export class MochaTestFramework extends BaseTestFramework {
-    public readonly executorUri: string = 'executor://MochaTestAdapter/v1';
     public readonly environmentType: EnvironmentType;
     public readonly canHandleMultipleSources: boolean = true;
     public readonly supportsJsonOptions: boolean = true;
@@ -130,7 +129,7 @@ export class MochaTestFramework extends BaseTestFramework {
                     if (match && testHooks.indexOf(match[1]) >= 0) {
                         switch (match[1]) {
                             case testHooks[0]:
-                                this.reportErrorMessage(args.err.message, args.err.stack);
+                                this.handleErrorMessage(args.err.message, args.err.stack);
 
                                 args.parent.tests.forEach(test => {
                                     this.handleSpecResult(test.fullTitle(),
@@ -151,7 +150,7 @@ export class MochaTestFramework extends BaseTestFramework {
                             
                             case testHooks[1]:
                             case testHooks[3]:
-                                this.reportErrorMessage(args.err.message, args.err.stack);                    
+                                this.handleErrorMessage(args.err.message, args.err.stack);                    
                         }
                     }
         }
