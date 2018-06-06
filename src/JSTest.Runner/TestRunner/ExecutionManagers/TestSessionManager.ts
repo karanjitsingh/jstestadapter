@@ -38,6 +38,8 @@ export class TestSessionManager {
         const testSession = this.testSessionBucket.get(args.SessionId);
         testSession.TestSessionEventArgs = args;
 
+        console.log(args.SessionId);
+
         this.continueNextSession(testSession);
     }
 
@@ -63,7 +65,6 @@ export class TestSessionManager {
     public updateSessionEventArgs(args: TestSessionEventArgs) {
         const testSession = this.testSessionBucket.get(args.SessionId);
         testSession.TestSessionEventArgs = args;
-        this.testSessionBucket.set(args.SessionId, testSession);
     }
 
     public getSessionEventArgs(sources: Array<string>): TestSessionEventArgs {
