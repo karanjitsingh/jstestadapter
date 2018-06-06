@@ -31,6 +31,7 @@ export class TestSessionEventArgs implements BaseTestEventArgs {
         this.Sources = sources;
         this.SessionId = sessionId;
         this.StartTime =  new Date();
+        this.InProgress = true;
     }
 
 }

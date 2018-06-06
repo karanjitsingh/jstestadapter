@@ -7,7 +7,7 @@ import { MessageSender } from '../../../../src/JSTest.Runner/TestRunner/MessageS
 import { JSTestSettings } from '../../../../src/JSTest.Runner/ObjectModel';
 import { BaseExecutionManager } from '../../../../src/JSTest.Runner/TestRunner/ExecutionManagers/BaseExecutionManager';
 import { TestFrameworkFactory } from '../../../../src/JSTest.Runner/TestRunner/TestFrameworks/TestFrameworkFactory';
-import { TestSessionManager } from '../../../../src/JSTest.Runner/TestRunner/ExecutionManagers/TestSessionManager';
+import { TestSessionManager, TestSession } from '../../../../src/JSTest.Runner/TestRunner/ExecutionManagers/TestSessionManager';
 
 export class TestableExecutionManager extends ExecutionManager  {
 
@@ -118,6 +118,10 @@ export class TestableBaseExecutionManager extends BaseExecutionManager {
 export class TestableTestSessionManager extends TestSessionManager {
     constructor(env: IEnvironment) {
         super(env);
+    }
+
+    public runSession(testSession: TestSession) {
+        return this.runSessionInDomain(testSession);
     }
 }
 

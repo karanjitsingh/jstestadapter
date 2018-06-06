@@ -24,7 +24,8 @@ describe('Event Suite', () => {
     });
 
     it('Event constructor will call eventDispatcher.register', (done: any) => {
-        const event = new Event<IEventArgs>(mockEventDispatcher.object);
+        // tslint:disable:no-unused-expression
+        new Event<IEventArgs>(mockEventDispatcher.object);
         mockEventDispatcher.verify((x) => x.registerEvent(), Times.once());
         done();
     });

@@ -3,7 +3,7 @@ import { TestSessionEventArgs } from '../../ObjectModel/TestFramework';
 import { IEvent, IEventArgs } from '../../ObjectModel/Common';
 import { SessionHash } from '../../Utils/Hashing/SessionHash';
 
-interface TestSession {
+export interface TestSession {
     Sources: Array<string>;
     TestSessionEventArgs: TestSessionEventArgs;
     Job: () => void;
@@ -38,8 +38,6 @@ export class TestSessionManager {
         const testSession = this.testSessionBucket.get(args.SessionId);
         testSession.TestSessionEventArgs = args;
 
-        console.log(args.SessionId);
-
         this.continueNextSession(testSession);
     }
 
@@ -58,7 +56,7 @@ export class TestSessionManager {
         // TODO should warn if same session id generate
     }
 
-    public executeSessionJobs() {
+    public executeJobs() {
         this.runSessionInDomain(this.testSessionIterator.next().value);        
     }
 
@@ -72,6 +70,27 @@ export class TestSessionManager {
         return this.testSessionBucket.get(sessionId).TestSessionEventArgs;
     }
 
+    protected runSessionInDomain(testSession: TestSession) {
+        // tslint:disable-next-line:no-require-imports
+        const domain = require('domain');
+
+        const executionDomain = domain.create();
+        try {
+            executionDomain.on('error', (err: Error) => {
+                this.sessionError(testSession, err);
+            });
+            executionDomain.run(() => {
+                // this.codecoverage.startCoverage(executeJob);
+                testSession.Job();
+            });
+        } catch (err) {
+            this.sessionError(testSession, err);
+            // TODO log message
+        }
+
+        return executionDomain;
+    }
+
     private sessionError(testSession: TestSession, err: Error) {
         if (testSession.TestSessionEventArgs != null) {
             testSession.TestSessionEventArgs.InProgress = false;
@@ -81,27 +100,6 @@ export class TestSessionManager {
         testSession.ErrorCallback(err);
 
         this.continueNextSession(testSession);
-    }
-
-    private runSessionInDomain(testSession: TestSession) {
-        // tslint:disable-next-line:no-require-imports
-        const domain = require('domain');
-
-        const executionDomain = domain.create();
-        try {
-            executionDomain.on('error', (err: Error) => {
-                // this.sessionComplete(source, null, err);
-                this.sessionError(testSession, err);
-            });
-            executionDomain.run(() => {
-                // this.codecoverage.startCoverage(executeJob);
-                testSession.Job();
-            });
-        } catch (err) {
-            // this.sessionComplete(source, null, err);
-            this.sessionError(testSession, err);
-            // TODO log message
-        }
     }
     
     private continueNextSession(testSession: TestSession) {

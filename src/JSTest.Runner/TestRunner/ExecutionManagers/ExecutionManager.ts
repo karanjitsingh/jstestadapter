@@ -122,7 +122,7 @@ export class ExecutionManager extends BaseExecutionManager {
             }));
         }
 
-        this.testSessionManager.executeSessionJobs();
+        this.testSessionManager.executeJobs();
 
         return this.getCompletionPromise();
     }
