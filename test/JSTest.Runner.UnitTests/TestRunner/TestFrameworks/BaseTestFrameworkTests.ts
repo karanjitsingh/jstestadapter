@@ -38,26 +38,35 @@ class TestableBaseTestFramework extends BaseTestFramework {
         return;
     }
 
-    public getEventHandlers = (ctx?: any) => {
-        const context = ctx || this;
-        
-        return {
-            sessionStarted: this.handleSessionStarted.bind(context),
-            sessionDone: this.handleSessionDone.bind(context),
-            suiteStarted: this.handleSuiteStarted.bind(context),
-            suiteDone: this.handleSuiteDone.bind(context),
-            specStarted: this.handleSpecStarted.bind(context),
-            specDone: this.handleSpecDone.bind(context),
-            specResult: this.handleSpecDone.bind(context),
-            errorMessage: this.handleErrorMessage.bind(context)
-        };
+    public sessionStarted(...args: Array<any>) {
+        this.handleSessionStarted.apply(this, arguments);
+    }
+    public sessionDone(...args: Array<any>) {
+        this.handleSessionDone.apply(this, arguments);
+    }
+    public suiteStarted(...args: Array<any>) {
+        this.handleSuiteStarted.apply(this, arguments);
+    }
+    public suiteDone(...args: Array<any>) {
+        this.handleSuiteDone.apply(this, arguments);
+    }
+    public specStarted(...args: Array<any>) {
+        this.handleSpecStarted.apply(this, arguments);
+    }
+    public specDone(...args: Array<any>) {
+        this.handleSpecDone.apply(this, arguments);
+    }
+    public specResult(...args: Array<any>) {
+        this.handleSpecDone.apply(this, arguments);
+    }
+    public errorMessage(...args: Array<any>) {
+        this.handleErrorMessage.apply(this, arguments);
     }
 }
 
 describe('BaseTestFramework suite', () => {
     let testFrameworkEvents: ITestFrameworkEvents;
     let baseTestFramework: TestableBaseTestFramework;
-    let eventHandlers;
     const env = new Environment();
     const sources = ['file 1', 'file 2'];
 
@@ -73,7 +82,6 @@ describe('BaseTestFramework suite', () => {
         };
 
         baseTestFramework = new TestableBaseTestFramework(testFrameworkEvents, env.environmentType, sources);
-        eventHandlers = baseTestFramework.getEventHandlers();
         
     });
 
@@ -95,8 +103,8 @@ describe('BaseTestFramework suite', () => {
             done();
         });
         
-        eventHandlers.sessionStarted();
-        eventHandlers.sessionDone();
+        baseTestFramework.sessionStarted();
+        baseTestFramework.sessionDone();
     });
 
     it('handleSuiteStarted/Done will raise onTestSuiteStart/End', (done) => {
@@ -117,8 +125,8 @@ describe('BaseTestFramework suite', () => {
             done();
         });
         
-        eventHandlers.suiteStarted('suite', 'source');
-        eventHandlers.suiteDone();        
+        baseTestFramework.suiteStarted('suite', 'source');
+        baseTestFramework.suiteDone();        
     });
 
     it('handleSuiteDone will not raise onTestSuiteStart if there is no corresponding suite', (done) => {
@@ -127,7 +135,7 @@ describe('BaseTestFramework suite', () => {
             Assert.fail('Should not have raised onTestSuiteEnd');
         });
 
-        eventHandlers.suiteDone();
+        baseTestFramework.suiteDone();
         
         done();
     });
@@ -156,8 +164,8 @@ describe('BaseTestFramework suite', () => {
             done();
         });
         
-        eventHandlers.specStarted('fqn', 'testcase', 'source', null);
-        eventHandlers.specDone(TestOutcome.Passed, ['expectation']);
+        baseTestFramework.specStarted('fqn', 'testcase', 'source', null);
+        baseTestFramework.specDone(TestOutcome.Passed, ['expectation']);
     });
 
     it('handleSpecStarted will handle duplicate FQNs', (done) => {
@@ -167,9 +175,9 @@ describe('BaseTestFramework suite', () => {
             Assert.equal(args.TestCase.FullyQualifiedName, 'fqn ' + i);
         });
 
-        eventHandlers.specStarted('fqn', 'testcase', 'source', null);
-        eventHandlers.specStarted('fqn', 'testcase', 'source', null);
-        eventHandlers.specStarted('fqn', 'testcase', 'source', null);
+        baseTestFramework.specStarted('fqn', 'testcase', 'source', null);
+        baseTestFramework.specStarted('fqn', 'testcase', 'source', null);
+        baseTestFramework.specStarted('fqn', 'testcase', 'source', null);
         
         done();
     });
@@ -184,12 +192,11 @@ describe('BaseTestFramework suite', () => {
         mockFramework.callBase = true;
 
         baseTestFramework = mockFramework.object;
-
-        eventHandlers = mockFramework.object.getEventHandlers(mockFramework.object);
-
+        
         baseTestFramework.startExecutionWithTests(['file 1', 'file 2'], testCaseMap, <any> 'json');
-        eventHandlers.specStarted('fqn', 'testcase', 'source', 'no skip');
-        eventHandlers.specStarted('fqn', 'testcase', 'source', 'skip');
+        
+        baseTestFramework.specStarted('fqn', 'testcase', 'source', 'no skip');
+        baseTestFramework.specStarted('fqn', 'testcase', 'source', 'skip');
 
         mockFramework.verify((x) => x.startExecutionWithSources(
             It.is((x) => TestUtils.assertDeepEqual(x, ['file 1', 'file 2'])),
