@@ -9,14 +9,11 @@ import { JestTestFramework } from './Jest/JestTestFramework';
 // tslint:disable:no-stateless-class
 export class TestFrameworkFactory {
     private readonly environment: IEnvironment;
-    private readonly frameworkCache: {[supportedFramework: number]: (testFrameworkEvents: ITestFrameworkEvents,
-                                                       environmentType: EnvironmentType) => void };
 
     public static instance: TestFrameworkFactory;
 
     protected constructor(environment: IEnvironment) {
         this.environment = environment;
-        this.frameworkCache = [];
     }
 
     public static INITIALIZE(environment: IEnvironment) {
@@ -24,14 +21,10 @@ export class TestFrameworkFactory {
             TestFrameworkFactory.instance = new TestFrameworkFactory(environment);
         }
     }
-    
+
     public createTestFramework(framework: TestFrameworks): ITestFramework {
         if (this.environment.environmentType === EnvironmentType.NodeJS) {
-            // Check cache otherwise populate it
-            if (!this.frameworkCache[framework]) {
-                this.frameworkCache[framework] = this.getFrameworkConstructor(framework);
-            }
-            return new this.frameworkCache[framework](this.createFrameworkEvents(), this.environment.environmentType);
+            return new (this.getFrameworkConstructor(framework))(this.createFrameworkEvents(), this.environment.environmentType);
 
         } else if (this.environment.environmentType === EnvironmentType.Browser) {
             throw new Exception('TestFrameworkFactory.getTestFramework(): Not implemented for browser',
@@ -54,7 +47,7 @@ export class TestFrameworkFactory {
     private getFrameworkConstructor(framework: TestFrameworks) : any {
         switch (framework) {
             case TestFrameworks.Jasmine:
-                return JasmineTestFramework;    
+                return JasmineTestFramework;
             case TestFrameworks.Mocha:
                 return MochaTestFramework;
             case TestFrameworks.Jest:

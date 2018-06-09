@@ -6,7 +6,7 @@ import { Environment } from '../../../../src/JSTest.Runner/Environment/Node/Envi
 import { SessionHash } from '../../../../src/JSTest.Runner/Utils/Hashing/SessionHash';
 import { Constants } from '../../../../src/JSTest.Runner/Constants';
 import { TestUtils } from '../../TestUtils';
-import { Mock, It, Times, MockBehavior } from 'typemoq';
+import { Mock, It, Times } from 'typemoq';
 import * as Assert from 'assert';
 
 class TestableBaseTestFramework extends BaseTestFramework {
