@@ -26,7 +26,8 @@
     "build:Release": "./node_modules/.bin/tsc -p ./src/JSTest.Runner/tsconfig.json --outDir ./src/JSTest.Runner/bin/Release",
     "build": "npm run build:Debug",
     "test": "./node_modules/.bin/tsc -p ./test/JSTest.Runner.UnitTests/tsconfig.json",
-    "lint:test": "tslint --project ./test/JSTest.Runner.UnitTests/tsconfig.json"
+    "lint:test": "tslint --project ./test/JSTest.Runner.UnitTests/tsconfig.json",
+    "test:mocha": "npm run test && ./node_modules/.bin/mocha -r source-map-support/register ./test/JSTest.Runner.UnitTests/bin/test/**/*Tests.js"
   },
   "repository": {
     "type": "git",

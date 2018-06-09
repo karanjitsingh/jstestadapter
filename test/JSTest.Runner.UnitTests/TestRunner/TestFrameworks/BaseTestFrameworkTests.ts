@@ -6,7 +6,7 @@ import { Environment } from '../../../../src/JSTest.Runner/Environment/Node/Envi
 import { SessionHash } from '../../../../src/JSTest.Runner/Utils/Hashing/SessionHash';
 import { Constants } from '../../../../src/JSTest.Runner/Constants';
 import { TestUtils } from '../../TestUtils';
-import { Mock, It, Times } from 'typemoq';
+import { Mock, It, Times, MockBehavior } from 'typemoq';
 import * as Assert from 'assert';
 
 class TestableBaseTestFramework extends BaseTestFramework {
@@ -82,12 +82,11 @@ describe('BaseTestFramework suite', () => {
         };
 
         baseTestFramework = new TestableBaseTestFramework(testFrameworkEvents, env.environmentType, sources);
-        
     });
 
     it('handleSessionStarted/Done will raise onTestSessionStart/End', (done) => {
         let sessionEventArgs: TestSessionEventArgs;
-        
+
         testFrameworkEvents.onTestSessionStart.subscribe((sender: object, args: TestSessionEventArgs) => {
             Assert.deepEqual(args.Sources, sources);
             Assert.deepEqual(args.SessionId, SessionHash(sources));
@@ -102,14 +101,14 @@ describe('BaseTestFramework suite', () => {
             Assert.equal(args.EndTime instanceof Date, true);
             done();
         });
-        
+
         baseTestFramework.sessionStarted();
         baseTestFramework.sessionDone();
     });
 
     it('handleSuiteStarted/Done will raise onTestSuiteStart/End', (done) => {
         let suiteEventArgs: TestSuiteEventArgs;
-        
+
         testFrameworkEvents.onTestSuiteStart.subscribe((sender: object, args: TestSuiteEventArgs) => {
             Assert.deepEqual(args.Name, 'suite');
             Assert.deepEqual(args.Source, 'source');
@@ -124,9 +123,9 @@ describe('BaseTestFramework suite', () => {
             Assert.equal(args.EndTime instanceof Date, true);
             done();
         });
-        
+
         baseTestFramework.suiteStarted('suite', 'source');
-        baseTestFramework.suiteDone();        
+        baseTestFramework.suiteDone();
     });
 
     it('handleSuiteDone will not raise onTestSuiteStart if there is no corresponding suite', (done) => {
@@ -136,7 +135,7 @@ describe('BaseTestFramework suite', () => {
         });
 
         baseTestFramework.suiteDone();
-        
+
         done();
     });
 
@@ -163,7 +162,7 @@ describe('BaseTestFramework suite', () => {
             Assert.deepEqual(args, specArgs);
             done();
         });
-        
+
         baseTestFramework.specStarted('fqn', 'testcase', 'source', null);
         baseTestFramework.specDone(TestOutcome.Passed, ['expectation']);
     });
@@ -178,33 +177,50 @@ describe('BaseTestFramework suite', () => {
         baseTestFramework.specStarted('fqn', 'testcase', 'source', null);
         baseTestFramework.specStarted('fqn', 'testcase', 'source', null);
         baseTestFramework.specStarted('fqn', 'testcase', 'source', null);
-        
+
         done();
     });
 
     it('startExecutionWithTests will filter test cases', (done) => {
         const testCaseMap = new Map<string, TestCase>();
         const testcase = new TestCase('file 1', 'fqn 1', 'uri');
-        
+
+        testCaseMap.set(testcase.Id, testcase);
+
+        baseTestFramework.startExecutionWithTests(['file 1', 'file 2'], testCaseMap, <any> 'json');
+
+        const mockFramework = Mock.ofInstance(baseTestFramework);
+        mockFramework.callBase = true;
+
+        baseTestFramework = mockFramework.object;
+
+        baseTestFramework.specStarted('fqn', 'testcase', 'source', 'no skip');
+        baseTestFramework.specStarted('fqn', 'testcase', 'source', 'skip');
+
+        mockFramework.verify((x) => x.skipSpec(
+            It.is((x) => x === <any> 'skip')
+        ), Times.once());
+
+        done();
+    });
+
+    it('startExecutionWithTests will eventually call startExecutionWithSources', (done) => {
+        const testCaseMap = new Map<string, TestCase>();
+        const testcase = new TestCase('file 1', 'fqn 1', 'uri');
+
         testCaseMap.set(testcase.Id, testcase);
 
         const mockFramework = Mock.ofInstance(baseTestFramework);
         mockFramework.callBase = true;
 
         baseTestFramework = mockFramework.object;
-        
+
         baseTestFramework.startExecutionWithTests(['file 1', 'file 2'], testCaseMap, <any> 'json');
-        
-        baseTestFramework.specStarted('fqn', 'testcase', 'source', 'no skip');
-        baseTestFramework.specStarted('fqn', 'testcase', 'source', 'skip');
 
         mockFramework.verify((x) => x.startExecutionWithSources(
             It.is((x) => TestUtils.assertDeepEqual(x, ['file 1', 'file 2'])),
             It.is((x) => x === <any>'json')
         ), Times.once());
-        
-        mockFramework.verify((x) => x.skipSpec(
-            It.is((x) => x === <any> 'skip')
-        ), Times.once());
+        done();
     });
 });

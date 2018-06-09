@@ -91,7 +91,7 @@ export abstract class BaseTestFramework implements ITestFramework {
     protected handleSpecStarted(fullyQualifiedName: string, testCaseName: string, sourceFile: string, specObject: any) {
         const testCase = this.getTestCase(testCaseName, fullyQualifiedName, sourceFile);
         this.applyTestCaseFilter(testCase, specObject);
-        
+
         // should check if spec was already active and not ended
 
         this.activeSpec = <TestSpecEventArgs> {
@@ -124,7 +124,7 @@ export abstract class BaseTestFramework implements ITestFramework {
                                failedExpectations: Array<FailedExpectation>,
                                startTime: Date,
                                endTime: Date) {
-        
+
         const specResult = <TestSpecEventArgs> {
             TestCase: this.getTestCase(testCaseName, fullyQualifiedName, sourceFile),
             FailedExpectations: failedExpectations,

@@ -37,7 +37,7 @@ export class ExecutionManager extends BaseExecutionManager {
                 sourceMap[test.Source] = 1;
             }
         });
-     
+
         const sources = Object.keys(sourceMap);
         return this.startExecution(sources);
     }
@@ -52,25 +52,18 @@ export class ExecutionManager extends BaseExecutionManager {
         },
 
         TestSessionStart: (sender: object, args: TestSessionEventArgs) => {
-            console.log('test session start trigger');
             this.testSessionManager.updateSessionEventArgs(args);
         },
 
         TestSessionEnd: (sender: object, args: TestSessionEventArgs) => {
-            console.log('test session end trigger');
             this.testSessionManager.setSessionComplete(args);
         },
 
         TestCaseStart: (sender: object, args: TestSpecEventArgs) => {
-            console.log('adding test case to cache');
-
-            this.messageSender.sendTestCaseStart(args.TestCase);    
-
+            this.messageSender.sendTestCaseStart(args.TestCase);
         },
 
         TestCaseEnd: (sender: object, args: TestSpecEventArgs) => {
-            console.log('adding test result to cache');
-
             const attachments: Array<AttachmentSet> = [];
 
             // TODO incomplete test results - display name etc are null
@@ -101,7 +94,7 @@ export class ExecutionManager extends BaseExecutionManager {
             this.messageSender.sendMessage(args.Message, TestMessageLevel.Error);
         }
     };
-    
+
     protected startExecution(sources: Array<string>): Promise<void> {
         const testFrameworkInstance = this.testFrameworkFactory.createTestFramework(this.testFramework);
         if (testFrameworkInstance.canHandleMultipleSources) {
@@ -143,8 +136,6 @@ export class ExecutionManager extends BaseExecutionManager {
     }
 
     private executionComplete = () => {
-        console.log('test session end trigger');
-
         this.messageSender.sendExecutionComplete();
         this.onComplete.raise(this, null);
     }

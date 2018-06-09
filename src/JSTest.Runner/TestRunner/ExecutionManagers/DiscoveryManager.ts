@@ -20,7 +20,7 @@ export class DiscoveryManager extends BaseExecutionManager {
 
     public discoverTests(request: StartDiscoveryPayload): Promise<void> {
         const sources = request.Sources;
-        
+
         const testFrameworkInstance = this.testFrameworkFactory.createTestFramework(this.testFramework);
         if (testFrameworkInstance.canHandleMultipleSources) {
             this.addSessionToSessionManager(sources);
@@ -39,16 +39,14 @@ export class DiscoveryManager extends BaseExecutionManager {
         Subscribe: (framework: ITestFramework) => {
             framework.testFrameworkEvents.onTestSessionEnd.subscribe(this.testFrameworkEventHandlers.TestSessionEnd);
             framework.testFrameworkEvents.onTestCaseStart.subscribe(this.testFrameworkEventHandlers.TestCaseStart);
-            framework.testFrameworkEvents.onErrorMessage.subscribe(this.testFrameworkEventHandlers.TestErrorMessage);            
+            framework.testFrameworkEvents.onErrorMessage.subscribe(this.testFrameworkEventHandlers.TestErrorMessage);
         },
 
         TestSessionEnd: (sender: object, args: TestSessionEventArgs) => {
-            console.log('test session end trigger');
             this.testSessionManager.setSessionComplete(args);
         },
 
         TestCaseStart: (sender: object, args: TestSpecEventArgs) => {
-            console.log('adding test case to cache');
             // this.testDiscoveryCache.addTest(args.TestCase);
             this.messageSender.sendTestCaseFound(args.TestCase);
         },
@@ -90,8 +88,6 @@ export class DiscoveryManager extends BaseExecutionManager {
     }
 
     private discoveryComplete = () => {
-        console.log('discovery complete');
-
         this.messageSender.sendDiscoveryComplete();
         this.onComplete.raise(this, null);
     }
