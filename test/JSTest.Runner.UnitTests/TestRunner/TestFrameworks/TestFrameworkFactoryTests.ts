@@ -6,7 +6,6 @@ import { Event } from '../../../../src/JSTest.Runner/Events/Event';
 import { JasmineTestFramework } from '../../../../src/JSTest.Runner/TestRunner/TestFrameworks/Jasmine/JasmineTestFramework';
 import { MochaTestFramework } from '../../../../src/JSTest.Runner/TestRunner/TestFrameworks/Mocha/MochaTestFramework';
 import { JestTestFramework } from '../../../../src/JSTest.Runner/TestRunner/TestFrameworks/Jest/JestTestFramework';
-import { IEnvironment } from '../../../../src/JSTest.Runner/Environment/IEnvironment';
 
 describe('TestFrameworkFactory Suite', () => {
     let testFrameworkFactory: TestFrameworkFactory;

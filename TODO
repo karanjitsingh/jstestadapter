@@ -1,5 +1,4 @@
 TODO:
-    update execution manager tests
     tracing
     diag logger
     eqttrace + logger tests
@@ -11,4 +10,3 @@ integration tests:
         in describe
         in before
         in it
-        

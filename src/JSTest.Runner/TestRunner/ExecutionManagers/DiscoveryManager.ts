@@ -4,7 +4,6 @@ import { IEnvironment } from '../../Environment/IEnvironment';
 import { MessageSender } from '../MessageSender';
 import { TestFrameworkEventHandlers } from '../TestFrameworks/TestFrameworkEventHandlers';
 import { BaseExecutionManager } from './BaseExecutionManager';
-import { StartDiscoveryPayload } from '../../ObjectModel/Payloads';
 import { TestMessageLevel, JSTestSettings } from '../../ObjectModel';
 
 export class DiscoveryManager extends BaseExecutionManager {

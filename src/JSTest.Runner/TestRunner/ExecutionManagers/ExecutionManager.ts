@@ -7,7 +7,6 @@ import { TimeSpan } from '../../Utils/TimeSpan';
 import { MessageSender } from '../MessageSender';
 import { BaseExecutionManager } from './BaseExecutionManager';
 import { TestFrameworkEventHandlers } from '../TestFrameworks/TestFrameworkEventHandlers';
-import { StartExecutionWithSourcesPayload, StartExecutionWithTestsPayload } from '../../ObjectModel/Payloads';
 
 export class ExecutionManager extends BaseExecutionManager {
     private jsTestSettings: JSTestSettings;

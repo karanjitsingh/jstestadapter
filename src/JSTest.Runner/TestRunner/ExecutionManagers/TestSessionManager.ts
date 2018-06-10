@@ -1,5 +1,5 @@
 import { IEnvironment } from '../../Environment/IEnvironment';
-import { TestSessionEventArgs, ITestFramework } from '../../ObjectModel/TestFramework';
+import { TestSessionEventArgs } from '../../ObjectModel/TestFramework';
 import { IEvent, IEventArgs } from '../../ObjectModel/Common';
 import { SessionHash } from '../../Utils/Hashing/SessionHash';
 

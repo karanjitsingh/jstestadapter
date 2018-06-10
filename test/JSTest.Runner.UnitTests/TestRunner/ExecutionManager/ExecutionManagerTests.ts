@@ -13,7 +13,6 @@ import { TestUtils } from '../../TestUtils';
 import { Exception, ExceptionType } from '../../../../src/JSTest.Runner/Exceptions';
 import { TestableExecutionManager, TestableTestFrameworkFactory, TestableTestSessionManager, TestableFramework } from './Testable';
 import { TimeSpan } from '../../../../src/JSTest.Runner/Utils/TimeSpan';
-import { StartExecutionWithSourcesPayload } from '../../../../src/JSTest.Runner/ObjectModel/Payloads';
 
 describe('ExecutionManager Suite', () => {
     let mockEM: IMock<TestableExecutionManager>;

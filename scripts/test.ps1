@@ -34,7 +34,7 @@ if($test -ne "") {
 
 
 if(!$runonly) {
-    npm run test
+    npm run build:test
 }
 
 Write-Host "Test files:"
