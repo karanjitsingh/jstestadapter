@@ -7,6 +7,7 @@ import { ExecutionManager, DiscoveryManager } from './ExecutionManagers';
 import { StartExecutionWithSourcesPayload, StartExecutionWithTestsPayload, StartDiscoveryPayload } from '../ObjectModel/Payloads';
 import { TestFrameworkFactory } from './TestFrameworks/TestFrameworkFactory';
 import { TestSessionManager } from './ExecutionManagers/TestSessionManager';
+import { Constants } from '../Constants';
 
 export class TestRunner {
     private readonly environment: IEnvironment;
@@ -22,9 +23,8 @@ export class TestRunner {
         this.sessionEnded = false;
         this.jobQueue = new JobQueue();
 
-        const dcCommManager: ICommunicationManager = null;
         this.communicationManager = environment.getCommunicationManager();
-        this.messageSender = new MessageSender(this.communicationManager, dcCommManager);
+        this.messageSender = new MessageSender(this.communicationManager);
 
         this.initializeCommunication();
     }
@@ -46,7 +46,7 @@ export class TestRunner {
         switch (message.MessageType) {
 
             case MessageType.TestRunSettings:
-                if (message.Version === MessageSender.protocolVersion) {
+                if (message.Version === Constants.messageProtocolVersion) {
                     this.jsTestSettings = new JSTestSettings(message.Payload);
                 } else {
                     // log
