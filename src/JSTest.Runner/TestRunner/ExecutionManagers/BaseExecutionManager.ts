@@ -4,7 +4,7 @@ import { TestFrameworkFactory } from '../TestFrameworks/TestFrameworkFactory';
 import { IEvent, IEventArgs } from '../../ObjectModel/Common';
 import { TestFrameworkEventHandlers } from '../TestFrameworks/TestFrameworkEventHandlers';
 import { TestSessionManager } from './TestSessionManager';
-import { TestFrameworks } from '../../ObjectModel/TestFramework';
+import { TestFrameworks, ITestFramework } from '../../ObjectModel/TestFramework';
 
 export abstract class BaseExecutionManager {
     protected readonly environment: IEnvironment;
@@ -14,7 +14,7 @@ export abstract class BaseExecutionManager {
     protected readonly testSessionManager: TestSessionManager;
 
     protected abstract testFrameworkEventHandlers: TestFrameworkEventHandlers;
-    
+
     constructor(environment: IEnvironment, messageSender: MessageSender, testFramework: TestFrameworks) {
         this.environment = environment;
         this.messageSender = messageSender;
@@ -38,7 +38,14 @@ export abstract class BaseExecutionManager {
         keys.forEach(key => {
             sourceList = sourceList.concat(adapterSourceMap[key]);
         });
-        
+
         return sourceList;
+    }
+
+    protected createTestFramework(framework: TestFrameworks): ITestFramework {
+        const testFrameworkInstance = this.testFrameworkFactory.createTestFramework(framework);
+        testFrameworkInstance.initialize();
+        this.testFrameworkEventHandlers.Subscribe(testFrameworkInstance);
+        return testFrameworkInstance;
     }
 }

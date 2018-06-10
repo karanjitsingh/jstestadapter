@@ -43,8 +43,6 @@ export class TestRunner {
 
     private messageReceived = (sender: object, args: MessageReceivedEventArgs) => {
         const message = args.Message;
-        console.log('Message Received', message);
-
         switch (message.MessageType) {
 
             case MessageType.TestRunSettings:
@@ -63,20 +61,20 @@ export class TestRunner {
 
             case MessageType.StartTestExecutionWithSources:
                 this.initializeSingletons();
-                
+
                 const executionManager = new ExecutionManager(this.environment, this.messageSender, this.jsTestSettings);
                 const runWithSourcesPayload = <StartExecutionWithSourcesPayload>message.Payload;
 
-                this.jobQueue.queuePromise(executionManager.startTestRunWithSources(runWithSourcesPayload));
+                this.jobQueue.queuePromise(executionManager.startTestRunWithSources(runWithSourcesPayload.Sources));
                 break;
 
             case MessageType.StartTestExecutionWithTests:
                 this.initializeSingletons();
-                
+
                 const executionManager2 = new ExecutionManager(this.environment, this.messageSender, this.jsTestSettings);
                 const runWithTestsPayload = <StartExecutionWithTestsPayload>message.Payload;
 
-                this.jobQueue.queuePromise(executionManager2.startTestRunWithTests(runWithTestsPayload));
+                this.jobQueue.queuePromise(executionManager2.startTestRunWithTests(runWithTestsPayload.Tests));
                 break;
 
             case MessageType.StartDiscovery:
@@ -85,7 +83,7 @@ export class TestRunner {
                 const discoveryManager = new DiscoveryManager(this.environment, this.messageSender, this.jsTestSettings);
                 const discoveryPayload = <StartDiscoveryPayload>message.Payload;
 
-                this.jobQueue.queuePromise(discoveryManager.discoverTests(discoveryPayload));
+                this.jobQueue.queuePromise(discoveryManager.discoverTests(discoveryPayload.Sources));
                 break;
 
             // case MessageType.SessionEnd:

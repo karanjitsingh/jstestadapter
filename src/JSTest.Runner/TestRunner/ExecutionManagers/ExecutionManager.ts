@@ -22,16 +22,26 @@ export class ExecutionManager extends BaseExecutionManager {
         this.testCollection = null;
     }
 
-    public startTestRunWithSources(request: StartExecutionWithSourcesPayload): Promise<void> {
-        const sources = request.Sources;
-        return this.startExecution(sources);
+    public startTestRunWithSources(sources: Array<string>): Promise<void> {
+        const testFrameworkInstance = this.testFrameworkFactory.createTestFramework(this.testFramework);
+        if (testFrameworkInstance.canHandleMultipleSources) {
+            this.addSessionToSessionManager(sources);
+        } else {
+            sources.forEach((source => {
+                this.addSessionToSessionManager([source]);
+            }));
+        }
+
+        this.testSessionManager.executeJobs();
+
+        return this.getCompletionPromise();
     }
 
-    public startTestRunWithTests(request: StartExecutionWithTestsPayload): Promise<void> {
+    public startTestRunWithTests(tests: Array<TestCase>): Promise<void> {
         const sourceMap = {};
         this.testCollection = new Map<string, TestCase>();
 
-        request.Tests.forEach((test: TestCase) => {
+        tests.forEach((test: TestCase) => {
             this.testCollection.set(test.Id, test);
             if (!sourceMap.hasOwnProperty(test.Source)) {
                 sourceMap[test.Source] = 1;
@@ -39,7 +49,7 @@ export class ExecutionManager extends BaseExecutionManager {
         });
 
         const sources = Object.keys(sourceMap);
-        return this.startExecution(sources);
+        return this.startTestRunWithSources(sources);
     }
 
     protected testFrameworkEventHandlers: TestFrameworkEventHandlers = {
@@ -95,21 +105,6 @@ export class ExecutionManager extends BaseExecutionManager {
         }
     };
 
-    protected startExecution(sources: Array<string>): Promise<void> {
-        const testFrameworkInstance = this.testFrameworkFactory.createTestFramework(this.testFramework);
-        if (testFrameworkInstance.canHandleMultipleSources) {
-            this.addSessionToSessionManager(sources);
-        } else {
-            sources.forEach((source => {
-                this.addSessionToSessionManager([source]);
-            }));
-        }
-
-        this.testSessionManager.executeJobs();
-
-        return this.getCompletionPromise();
-    }
-
     protected sessionError(sources: Array<string>, err: Error) {
         if (err) {
             this.messageSender.sendMessage(err.stack ?
@@ -121,13 +116,11 @@ export class ExecutionManager extends BaseExecutionManager {
 
     private addSessionToSessionManager(sources: Array<string>) {
         this.testSessionManager.addSession(sources, () => {
-            const testFrameworkInstance = this.testFrameworkFactory.createTestFramework(this.testFramework);
-            testFrameworkInstance.initialize();
-            this.testFrameworkEventHandlers.Subscribe(testFrameworkInstance);
+            const framework = this.createTestFramework(this.testFramework);
             if (this.testCollection) {
-                testFrameworkInstance.startExecutionWithTests(sources, this.testCollection, this.jsTestSettings.TestFrameworkConfigJson);
+                framework.startExecutionWithTests(sources, this.testCollection, this.jsTestSettings.TestFrameworkConfigJson);
             } else {
-                testFrameworkInstance.startExecutionWithSources(sources, this.jsTestSettings.TestFrameworkConfigJson);
+                framework.startExecutionWithSources(sources, this.jsTestSettings.TestFrameworkConfigJson);
             }
         },
         (e) => {

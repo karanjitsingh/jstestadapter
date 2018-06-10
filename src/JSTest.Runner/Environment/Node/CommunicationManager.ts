@@ -29,8 +29,6 @@ export class CommunicationManager implements ICommunicationManager {
     public sendMessage(message: Message) {
         let dataObject = JSON.stringify(message);
 
-        // console.log('Message Send', message);
-
         // Left pad with 7 bit encoded int length
         dataObject = this.intTo7BitEncodedInt(dataObject.length) + dataObject;
 
@@ -121,7 +119,7 @@ export class CommunicationManager implements ICommunicationManager {
             byte = length % 128;                // will give the 7 least significant bits
             byte += length >= 128 ? 128 : 0;    // will set highest bit to 1 if more bits required
             output += String.fromCharCode(byte);
-            
+
             // tslint:disable-next-line
             length = length >> 7;
         }

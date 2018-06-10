@@ -9,33 +9,6 @@ import { BaseExecutionManager } from '../../../../src/JSTest.Runner/TestRunner/E
 import { TestFrameworkFactory } from '../../../../src/JSTest.Runner/TestRunner/TestFrameworks/TestFrameworkFactory';
 import { TestSessionManager, TestSession } from '../../../../src/JSTest.Runner/TestRunner/ExecutionManagers/TestSessionManager';
 
-export class TestableExecutionManager extends ExecutionManager  {
-
-    constructor(environment: IEnvironment,
-                messageSender: MessageSender,
-                settings: JSTestSettings,
-                eventHandlers?: TestFrameworkEventHandlers) {
-        super(environment, messageSender, settings);
-
-        if (eventHandlers) {
-            this.testFrameworkEventHandlers = eventHandlers;
-        }
-    }
-
-    // tslint:disable-next-line
-    public sessionError(sources: Array<string>, err: Error) {
-        super.sessionError(sources, err);
-    }
-
-    public getEventHandlers(): TestFrameworkEventHandlers {
-        return this.testFrameworkEventHandlers;
-    }
-
-    public startExec(sources: Array<string>) {
-        return super.startExecution(sources);
-    }
-}
-
 export class TestableFramework implements ITestFramework {
     public executorUri: string = '';
     public environmentType: EnvironmentType = EnvironmentType.NodeJS;
@@ -61,6 +34,29 @@ export class TestableFramework implements ITestFramework {
 }
 
 export class TestableDiscoveryManager extends DiscoveryManager  {
+
+    constructor(environment: IEnvironment,
+                messageSender: MessageSender,
+                settings: JSTestSettings,
+                eventHandlers?: TestFrameworkEventHandlers) {
+        super(environment, messageSender, settings);
+
+        if (eventHandlers) {
+            this.testFrameworkEventHandlers = eventHandlers;
+        }
+    }
+
+    // tslint:disable-next-line
+    public sessionError(sources: Array<string>, err: Error) {
+        super.sessionError(sources, err);
+    }
+
+    public getEventHandlers(): TestFrameworkEventHandlers {
+        return this.testFrameworkEventHandlers;
+    }
+}
+
+export class TestableExecutionManager extends ExecutionManager  {
 
     constructor(environment: IEnvironment,
                 messageSender: MessageSender,

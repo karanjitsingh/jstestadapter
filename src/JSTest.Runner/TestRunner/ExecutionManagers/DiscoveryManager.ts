@@ -18,9 +18,7 @@ export class DiscoveryManager extends BaseExecutionManager {
         this.testSessionManager.onAllSessionsComplete.subscribe(this.discoveryComplete);
     }
 
-    public discoverTests(request: StartDiscoveryPayload): Promise<void> {
-        const sources = request.Sources;
-
+    public discoverTests(sources: Array<string>): Promise<void> {
         const testFrameworkInstance = this.testFrameworkFactory.createTestFramework(this.testFramework);
         if (testFrameworkInstance.canHandleMultipleSources) {
             this.addSessionToSessionManager(sources);
@@ -77,10 +75,8 @@ export class DiscoveryManager extends BaseExecutionManager {
 
     private addSessionToSessionManager(sources: Array<string>) {
         this.testSessionManager.addSession(sources, () => {
-            const testFrameworkInstance = this.testFrameworkFactory.createTestFramework(this.testFramework);
-            testFrameworkInstance.initialize();
-            this.testFrameworkEventHandlers.Subscribe(testFrameworkInstance);
-            testFrameworkInstance.startDiscovery(sources);
+            const framework = this.createTestFramework(this.testFramework);
+            framework.startDiscovery(sources);
         },
         (e) => {
             this.sessionError(sources, e);

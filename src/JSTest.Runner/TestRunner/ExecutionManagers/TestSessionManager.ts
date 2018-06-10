@@ -1,5 +1,5 @@
 import { IEnvironment } from '../../Environment/IEnvironment';
-import { TestSessionEventArgs } from '../../ObjectModel/TestFramework';
+import { TestSessionEventArgs, ITestFramework } from '../../ObjectModel/TestFramework';
 import { IEvent, IEventArgs } from '../../ObjectModel/Common';
 import { SessionHash } from '../../Utils/Hashing/SessionHash';
 
@@ -17,9 +17,9 @@ export class TestSessionManager {
     private sessionCompleteCount: number;
     private sessionCount: number;
     public onAllSessionsComplete: IEvent<IEventArgs>;
-    
+
     public static instance: TestSessionManager;
-    
+
     protected constructor(environment: IEnvironment) {
         this.sessionCount = 0;
         this.sessionCompleteCount = 0;
@@ -57,7 +57,7 @@ export class TestSessionManager {
     }
 
     public executeJobs() {
-        this.runSessionInDomain(this.testSessionIterator.next().value);        
+        this.runSessionInDomain(this.testSessionIterator.next().value);
     }
 
     public updateSessionEventArgs(args: TestSessionEventArgs) {
@@ -101,7 +101,7 @@ export class TestSessionManager {
 
         this.continueNextSession(testSession);
     }
-    
+
     private continueNextSession(testSession: TestSession) {
         if (!testSession.Complete) {
             this.sessionCompleteCount++;
@@ -113,7 +113,7 @@ export class TestSessionManager {
             }
         }
         testSession.Complete = true;
-        
+
         // Check for all session completion
         if (this.sessionCount === this.sessionCompleteCount) {
             this.onAllSessionsComplete.raise(this, {});

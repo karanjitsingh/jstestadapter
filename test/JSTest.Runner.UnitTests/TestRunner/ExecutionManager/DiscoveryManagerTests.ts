@@ -54,7 +54,7 @@ describe('DiscoveryManager Suite', () => {
                                                               mockMessageSender.object,
                                                               settings,
                                                               mockEventHandlers.object));
-        mockDM.callBase = true;        
+        mockDM.callBase = true;
 
         mockSessionManager.reset();
         mockFactory.reset();
@@ -62,14 +62,12 @@ describe('DiscoveryManager Suite', () => {
 
     it('discoverTests will add single session for canHandleMultipleSources=true', (done) => {
         mockFactory.setup((x) => x.createTestFramework(It.isAny())).returns(() => <ITestFramework> { canHandleMultipleSources: true });
-        
+
         mockSessionManager.setup((x) => x.addSession(It.isAny(), It.isAny(), It.isAny())).callback((...args: Array<any>) => {
             validateSession(args[0], args[1], args[2]);
         });
 
-        Assert.equal(mockDM.object.discoverTests(<StartDiscoveryPayload>{
-            Sources: sources
-        }) instanceof Promise, true, 'Should return completion promise.');
+        Assert.equal(mockDM.object.discoverTests(sources) instanceof Promise, true, 'Should return completion promise.');
 
         mockFactory.verify((x) => x.createTestFramework(TestFrameworks.Jest), Times.once());
         mockSessionManager.verify((x) => x.addSession(It.isAny(), It.isAny(), It.isAny()), Times.once());
@@ -86,9 +84,7 @@ describe('DiscoveryManager Suite', () => {
             validateSession(args[0], args[1], args[2]);
         });
 
-        Assert.equal(mockDM.object.discoverTests(<StartDiscoveryPayload>{
-            Sources: sources
-        }) instanceof Promise, true, 'Should return completion promise.');
+        Assert.equal(mockDM.object.discoverTests(sources) instanceof Promise, true, 'Should return completion promise.');
 
         mockFactory.verify((x) => x.createTestFramework(TestFrameworks.Jest), Times.once());
         mockSessionManager.verify((x) => x.addSession(It.isAny(), It.isAny(), It.isAny()), Times.exactly(sources.length));
@@ -105,7 +101,7 @@ describe('DiscoveryManager Suite', () => {
         const testableDiscoveryManager = new TestableDiscoveryManager(new Environment(),
                                                                       mockMessageSender.object,
                                                                       settings);
-        
+
         const eventHandlers = testableDiscoveryManager.getEventHandlers();
 
         const sender = <any> { sender: 'this' };
@@ -139,9 +135,9 @@ describe('DiscoveryManager Suite', () => {
     });
 
     it('will eventually send discovery complete and resolve compleition promise', (done) => {
-        
+
         mockFactory.setup((x) => x.createTestFramework(It.isAny())).returns(() => <ITestFramework> { canHandleMultipleSources: false });
-        mockDM.object.discoverTests(<StartDiscoveryPayload>{ Sources: sources }).then(() => {
+        mockDM.object.discoverTests(sources).then(() => {
             done();
         });
 
@@ -154,9 +150,9 @@ describe('DiscoveryManager Suite', () => {
         mockEventHandlers.reset();
         mockTestFramework.reset();
         mockDM.reset();
-        
+
         mockFactory.setup((x) => x.createTestFramework(It.isAny())).returns(() => mockTestFramework.object);
-        
+
         // Validate execute job
         executeJob();
         mockFactory.verify((x) => x.createTestFramework(TestFrameworks.Jest), Times.once());
