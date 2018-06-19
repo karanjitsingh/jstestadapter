@@ -62,8 +62,7 @@ export class JobQueue {
 
     private jobFinished(err?: Error) {
         if (err) {
-            // log error
-            console.error(err);
+            // console.error(err);
         }
 
         const job = this.jobQueue.pop();

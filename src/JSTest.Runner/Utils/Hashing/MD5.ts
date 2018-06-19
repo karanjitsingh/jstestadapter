@@ -411,7 +411,3 @@ export class Md5 {
         return `${m[1]}-${m[2]}-${m[3]}-${m[4]}-${m[5]}`;
     }
 }
-
-if (Md5.hashStr('hello') !== '5d41402abc4b2a76b9719d911017c592') {
-    console.error('Md5 self test failed.');
-}
