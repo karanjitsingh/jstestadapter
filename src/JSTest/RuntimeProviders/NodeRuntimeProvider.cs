@@ -98,41 +98,6 @@ namespace JSTest.RuntimeProviders
         {
 
         }
-
-        //private string getNodeBinaryPath(PlatformArchitecture architecture, PlatformOperatingSystem os, string rootFolder)
-        //{
-        //    string platformString = string.Empty;
-        //    string archSuffix = string.Empty;
-        //    string executableString = string.Empty;
-
-
-        //    if (architecture == PlatformArchitecture.X64)
-        //    {
-        //        archSuffix = "x64";
-        //    }
-        //    else if (architecture == PlatformArchitecture.X86)
-        //    {
-        //        archSuffix = "x86";
-        //    }
-
-        //    if (os == PlatformOperatingSystem.Windows)
-        //    {
-        //        platformString = "win";
-        //        executableString = "node.exe";
-        //    }
-        //    else if (os == PlatformOperatingSystem.Unix)
-        //    {
-        //        platformString = "linux";
-        //        executableString = "node";
-        //    }
-
-        //    Debug.Assert(!string.IsNullOrEmpty(platformString));
-        //    Debug.Assert(!string.IsNullOrEmpty(archSuffix));
-        //    Debug.Assert(!string.IsNullOrEmpty(executableString));
-
-        //    return String.Format(Path.Combine(rootFolder, "node", $"{platformString}-{archSuffix}", executableString));
-        //}
-
     }
 }
 
