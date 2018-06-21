@@ -1,7 +1,9 @@
 TODO:
-    tracing
-    diag logger
-    eqttrace + logger tests
+    fix discovery code
+    adapter side tests
+    remove extra logging
+    
+    debug logging
     parallel execution
 
 integration tests:
