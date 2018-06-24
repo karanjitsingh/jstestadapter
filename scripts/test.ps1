@@ -18,7 +18,7 @@ if((Test-Path $vstest) -ne 'True') {
     exit;
 }
 
-$command = "$vstest --TestAdapterPath:$(Join-Path $ProjectDir "artifacts\Debug\net451")"
+$command = "& '$vstest' --TestAdapterPath:$(Join-Path $ProjectDir "artifacts\Debug\net451")"
 if($log) {
     $command = "$command --diag:D:\logs\jstest.log"
 }
