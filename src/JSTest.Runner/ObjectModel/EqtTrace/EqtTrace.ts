@@ -10,7 +10,7 @@ export namespace EqtTrace {
         }
     };
 
-    export const initializeTracer = (debugLogger: IDebugLogger) => {
+    export const initialize = (debugLogger: IDebugLogger) => {
         if (debugLogger) {
             debuggerInitialized = true;
             logger = debugLogger;

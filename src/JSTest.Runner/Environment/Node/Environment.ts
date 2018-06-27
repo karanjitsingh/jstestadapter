@@ -5,9 +5,9 @@ import { ICommunicationManager } from '../ICommunicationManager';
 import { IEventDispatcher } from '../../Events/IEventDispatcher';
 import { EventDispatcher } from './EventDispatcher';
 import { Event } from '../../Events/Event';
-import { BaseLogger } from '../BaseLogger';
-import { Logger } from './Logger';
+import { DebugLogger } from './DebugLogger';
 import { Socket } from 'net';
+import { EqtTrace } from '../../ObjectModel/EqtTrace';
 
 export class Environment implements IEnvironment {
     public readonly environmentType: EnvironmentType = EnvironmentType.NodeJS;
@@ -15,11 +15,12 @@ export class Environment implements IEnvironment {
     
     private communicationManager: ICommunicationManager;
     private eventDispatcher: IEventDispatcher;
-    private logger: BaseLogger;
 
     constructor() {
         this.argv = <Array<string>>process.argv;
         this.eventDispatcher = new EventDispatcher();
+
+        EqtTrace.initialize(new DebugLogger());
     }
     
     public getCommunicationManager(socket?: Socket): ICommunicationManager {
@@ -27,14 +28,6 @@ export class Environment implements IEnvironment {
             this.communicationManager = new CommunicationManager(this, socket);
         }
         return this.communicationManager;
-    }
-
-    public setupGlobalLogger() {
-        this.logger = new Logger(this);
-    }
-
-    public reinitializeConsoleLogger() {
-        this.logger.overrideGlobalConsole();
     }
 
     public createEvent<T extends IEventArgs>(): IEvent<T> {

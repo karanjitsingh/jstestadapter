@@ -7,7 +7,6 @@ const environmentProvider = new EnvironmentProvider();
 
 environmentProvider.getEnvironment().then((env: IEnvironment) => {
     try {
-        env.setupGlobalLogger();
         // tslint:disable-next-line
         new TestRunner(env);
     } catch (err) {

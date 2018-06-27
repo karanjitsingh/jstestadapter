@@ -2,8 +2,10 @@ TODO:
     fix discovery code
     adapter side tests
     remove extra logging
-    
     debug logging
+    jest console logs
+
+    
     parallel execution
 
 integration tests:
