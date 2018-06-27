@@ -4,7 +4,7 @@ param(
     [switch]$parallel,
     [switch]$log,
     [string]$test = "",
-    [string]$vstest = "C:\Program Files (x86)\Microsoft Visual Studio\Preview\Enterprise\Common7\IDE\Extensions\TestPlatform\vstest.console.exe"
+    [string]$vstest = "D:\vstest\artifacts\Debug\net451\win7-x64\vstest.console.exe"
 )
 
 

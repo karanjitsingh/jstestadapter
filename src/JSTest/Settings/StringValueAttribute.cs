@@ -6,7 +6,7 @@ using System.Xml.Serialization;
 
 namespace JSTest.Settings
 {
-    public class StringValueAttribute : XmlEnumAttribute
+    internal class StringValueAttribute : XmlEnumAttribute
     {
         public string Value { get; private set; }
 

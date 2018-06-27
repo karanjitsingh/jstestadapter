@@ -8,7 +8,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace JSTest.JSRuntime
+namespace JSTest
 {
     internal class JSProcess
     {
@@ -126,7 +126,7 @@ namespace JSTest.JSRuntime
         private IPEndPoint InitializeChannel()
         {
             this.channel = new CommunicationChannel();
-            var endpoint = channel.HostServer();
+            var endpoint = channel.HostServer(new IPEndPoint(IPAddress.Loopback, 0));
             Task.Run(() => channel.AcceptClientAsync());
 
             return endpoint;

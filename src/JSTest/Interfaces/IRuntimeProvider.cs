@@ -8,6 +8,6 @@
 
     internal interface IRuntimeProvider
     {
-        TestProcessStartInfo GetRuntimeProcessInfo(IEnvironment environment, bool debugEnabled, IEnumerable<string> sources);
+        TestProcessStartInfo GetRuntimeProcessInfo(bool debugEnabled, IEnumerable<string> sources);
     }
 }

@@ -1,9 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>netstandard1.4;net451</TargetFrameworks>
     <DefineConstants Condition="'$(TargetFramework)' == 'netstandard1.4'">NETSTANDARD14</DefineConstants>
     <DefineConstants Condition="'$(TargetFramework)' == 'net451'">NET451</DefineConstants>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\..\scripts\key.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>

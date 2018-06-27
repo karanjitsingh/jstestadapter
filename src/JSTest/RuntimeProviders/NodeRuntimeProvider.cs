@@ -4,18 +4,15 @@
 namespace JSTest.RuntimeProviders
 {
     using System;
-    using System.Diagnostics;
     using System.IO;
     using System.Reflection;
 
     using Microsoft.VisualStudio.TestPlatform.ObjectModel;
     using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions;
-    using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces;
 
-    using JSTest.Settings;
     using System.Collections.Generic;
 
-    class NodeRuntimeProvider : IRuntimeProvider
+    internal class NodeRuntimeProvider : IRuntimeProvider
     {
         private static NodeRuntimeProvider instance;
 
@@ -34,7 +31,7 @@ namespace JSTest.RuntimeProviders
             }
         }
 
-        public TestProcessStartInfo GetRuntimeProcessInfo(IEnvironment environment, bool isDebugEnabled, IEnumerable<string> sources)
+        public TestProcessStartInfo GetRuntimeProcessInfo(bool isDebugEnabled, IEnumerable<string> sources)
         {
             var processInfo = new TestProcessStartInfo();
 
@@ -71,11 +68,9 @@ namespace JSTest.RuntimeProviders
 
             node_path += Path.Combine(root, "node_modules");
 
-
             HashSet<string> paths = new HashSet<string>();
 
-            //processInfo.EnvironmentVariables.Add("NODE_PATH", Environment.GetEnvironmentVariable("NODE_PATH") + ";" + Path.Combine(rootFolder, "node_modules"));
-            foreach(var src in sources)
+            foreach (var src in sources)
             {
                 var path = Path.GetDirectoryName(src);
                 

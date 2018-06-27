@@ -4,7 +4,7 @@ using System.Text;
 
 namespace JSTest.Communication
 {
-    public class MessageReceivedEventArgs : EventArgs
+    internal class MessageReceivedEventArgs : EventArgs
     {
         /// <summary>
         /// Gets or sets the data contained in message frame.

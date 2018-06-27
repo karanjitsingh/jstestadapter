@@ -18,7 +18,7 @@ namespace JSTest.Communication
     /// <summary>
     /// A communication channel using a length prefix packet frame for communication.
     /// </summary>
-    public class CommunicationChannel 
+    internal class CommunicationChannel 
     {
         /// <summary>
         /// The server stream read timeout constant (in microseconds).
@@ -78,9 +78,9 @@ namespace JSTest.Communication
         /// </summary>
         /// <param name="endpoint">End point where server is hosted</param>
         /// <returns>Port of the listener</returns>
-        public IPEndPoint HostServer()
+        public IPEndPoint HostServer(IPEndPoint endpoint)
         {
-            this.tcpListener = new TcpListener(new IPEndPoint(IPAddress.Loopback, 0));
+            this.tcpListener = new TcpListener(endpoint);
             this.tcpListener.Start();
             EqtTrace.Info("Listening on Endpoint : {0}", (IPEndPoint)this.tcpListener.LocalEndpoint);
 

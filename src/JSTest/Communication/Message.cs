@@ -3,7 +3,7 @@
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
 
-    public class Message
+    internal class Message
     {
         /// <summary>
         /// Gets or sets the message type.

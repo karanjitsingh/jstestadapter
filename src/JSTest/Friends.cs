@@ -1,0 +1,9 @@
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+using System.Runtime.CompilerServices;
+
+#region Test Assemblies
+
+[assembly: InternalsVisibleTo("JSTest.UnitTests, PublicKey=00240000048000009400000006020000002400005253413100040000010001002567857b60fdd6d705529ffb7dab7bc297633f044394e859b18bb798639b4b978334d66b12a174046da82e961779937ca889706932b21080374c72091f66c8afa79fc578369bd64d56ba8d43c660136c432238dd7d562dedd56e25e1cb61cff95b0e67020b953463e5863d5846bdac9aaff5c4fc6bc8a7ea8f6f65cb2cc8d7a7")]
+#endregion

@@ -14,7 +14,6 @@
 
     using JSTest.Communication;
     using JSTest.Communication.Payloads;
-    using JSTest.JSRuntime;
     using JSTest.Settings;
     using System.Diagnostics;
 

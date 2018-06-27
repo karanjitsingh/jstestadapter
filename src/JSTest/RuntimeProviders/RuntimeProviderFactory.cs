@@ -12,7 +12,14 @@ namespace JSTest.RuntimeProviders
     {
         private static RuntimeProviderFactory instance;
         private IEnvironment environment;
-        public readonly bool IsRuntimeDebuggingEnabled;
+        public bool IsRuntimeDebuggingEnabled {
+            get
+            {
+                this.environment = new PlatformEnvironment();
+                var hostDebugEnabled = Environment.GetEnvironmentVariable("JSTEST_RUNNER_DEBUG");
+                return !string.IsNullOrEmpty(hostDebugEnabled) && hostDebugEnabled.Equals("1", StringComparison.Ordinal);
+            }
+        }
 
         public static RuntimeProviderFactory Instance
         {
@@ -34,18 +41,15 @@ namespace JSTest.RuntimeProviders
             switch(settings.Runtime)
             {
                 case JavaScriptRuntime.NodeJS:
-                    return NodeRuntimeProvider.Instance.GetRuntimeProcessInfo(environment, this.IsRuntimeDebuggingEnabled, sources);
+                    return NodeRuntimeProvider.Instance.GetRuntimeProcessInfo(this.IsRuntimeDebuggingEnabled, sources);
             }
 
             return null;
         }
 
-
         private RuntimeProviderFactory()
         {
-            this.environment = new PlatformEnvironment();
-            var hostDebugEnabled = Environment.GetEnvironmentVariable("JSTEST_RUNNER_DEBUG");
-            this.IsRuntimeDebuggingEnabled = !string.IsNullOrEmpty(hostDebugEnabled) && hostDebugEnabled.Equals("1", StringComparison.Ordinal);
+
         }
     }
 }
