@@ -6,7 +6,7 @@ param(
 )
 
 if(!$runonly) {
-    .\build.ps1
+    ..\..\scripts\build.ps1
 }
 
 Write-Host "`nStarting Execution...`n"

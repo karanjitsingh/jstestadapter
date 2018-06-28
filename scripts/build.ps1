@@ -7,12 +7,9 @@ param(
     [string] $target="net451"
 )
 
-$ProjectDir = (Get-Item ([System.IO.Path]::GetDirectoryName($myInvocation.MyCommand.Definition))).Parent.FullName
-$PackageJSON = Join-Path $ProjectDir "package.json"
-$JSTestRunnerBin = Join-Path $ProjectDir "src\JSTest.Runner\bin\$configuration\"
-$JSTestAdapterBin = Join-Path $ProjectDir "src\JSTest.TestAdapter\bin\$configuration\"
-$Artifacts = Join-Path $ProjectDir "artifacts"
-$ProjectSolutionFile = (Join-Path $ProjectDir ".\JSTest.sln")
+$base = "$([System.IO.Path]::GetDirectoryName($myInvocation.MyCommand.Definition))\base.ps1"
+
+. $base
 
 function CreateDirectory($dir)
 {

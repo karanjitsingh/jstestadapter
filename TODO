@@ -1,10 +1,11 @@
 TODO:
+    fix jest --tests option
+    acceptance tests
     fix discovery code
-    adapter side tests
-    remove extra logging
-    debug logging
-    jest console logs
 
+    adapter side tests
+    debug logging
+    jest console logs / trx logger
     
     parallel execution
 

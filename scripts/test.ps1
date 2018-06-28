@@ -8,10 +8,9 @@ param(
 )
 
 
-$ProjectDir = (Get-Item ([System.IO.Path]::GetDirectoryName($myInvocation.MyCommand.Definition))).Parent.FullName
-$testFolder = Join-Path $ProjectDir "test\JSTest.Runner.UnitTests\bin\test"
+. .\base.ps1
 
-$tests = Get-ChildItem -Path $testFolder -Recurse -Filter "*.js"
+$tests = Get-ChildItem -Path $TestFolder -Recurse -Filter "*.js"
 
 if((Test-Path $vstest) -ne 'True') {
     Write-Host "vstest path '$vstest' is not valid";
@@ -20,7 +19,7 @@ if((Test-Path $vstest) -ne 'True') {
 
 $vstest = "& '$vstest'"
 
-$command = "$vstest --TestAdapterPath:$(Join-Path $ProjectDir "artifacts\Debug\net451")"
+$command = "$vstest --TestAdapterPath:$FullCLRAdapter"
 if($log) {
     $command = "$command --diag:D:\logs\jstest.log"
 }
