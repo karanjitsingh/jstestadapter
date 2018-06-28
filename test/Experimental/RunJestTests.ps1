@@ -14,7 +14,7 @@ if(!$runonly) {
 Write-Host "`nStarting Execution...`n"
 
 D:\vstest\artifacts\Debug\net451\win7-x64\vstest.console.exe --TestAdapterPath:$FullCLRAdapter --Settings:.\RunSettings.jest.xml `
-"D:\jesttest\package.json" --tests:"test case 3" `
+"D:\jesttest\package.json"`
 $(if($log) {"--diag:D:\logs\log.log"}) `
 $(if($discover) {"--listtests"}) `
 $(if($parallel) {"--parallel"})

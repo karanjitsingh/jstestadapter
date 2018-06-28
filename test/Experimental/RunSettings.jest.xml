@@ -2,6 +2,8 @@
     <JSTest>
         <Runtime>node</Runtime>
         <TestFramework>jest</TestFramework>
-        <TestFrameworkConfigJson></TestFrameworkConfigJson>
+        <TestFrameworkConfigJson>{
+    "collectCoverage": true
+  }</TestFrameworkConfigJson>
     </JSTest>
 </RunSettings>
