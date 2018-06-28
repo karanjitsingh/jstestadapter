@@ -2,7 +2,6 @@
   "name": "jstest",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
   "dependencies": {
     "debug": "^3.1.0",
     "rewire": "^4.0.1",
@@ -38,5 +37,9 @@
   "bugs": {
     "url": "https://github.com/karanjitsingh/JSTestAdapter/issues"
   },
-  "homepage": "https://github.com/karanjitsingh/JSTestAdapter#readme"
+  "homepage": "https://github.com/karanjitsingh/JSTestAdapter#readme",
+  "files": [
+    "../../../README.md",
+    "*"
+  ]
 }

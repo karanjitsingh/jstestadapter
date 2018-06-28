@@ -47,6 +47,12 @@ function Publish-Package {
 
     # Copy JSTestRunner
     Copy-Item -Path (Join-Path $JSTestRunnerBin "*") -Destination $RunnerPath -Force -Recurse
+
+    # Since PrivateAssets attribute is not working in the PackageReference tag in csproj, we have to delete devDependancies manually
+    $files = "cs", "de", "es", "fr", "it", "ja", "ko", "pl", "pt-BR", "ru", "tr", "zh-Hans", "zh-Hant", "Microsoft*", "System*"
+    Foreach($file in $files) {
+        Remove-Item (Join-Path $FullCLRAdapter $file) -Recurse -Force -ErrorAction SilentlyContinue
+    }
 }
 
 function Build-Solution {
