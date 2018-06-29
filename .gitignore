@@ -132,3 +132,4 @@ src/package/sign/sign.nuget.targets
 scripts/*
 !scripts/*.ps1
 !scripts/*.sh
+!scripts/key.snk

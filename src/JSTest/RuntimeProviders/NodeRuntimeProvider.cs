@@ -82,7 +82,7 @@ namespace JSTest.RuntimeProviders
                         node_path += ";" + node_m;
                     }
                     paths.Add(path);
-                    path = Path.GetDirectoryName(src);
+                    path = Path.GetDirectoryName(path);
                 }
             }
 

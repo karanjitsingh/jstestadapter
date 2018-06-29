@@ -39,6 +39,7 @@ function Publish-Package {
     Write-Host "`nPublishing to artifacts."
 
     $RunnerPath = [IO.Path]::Combine($Artifacts, $configuration, $target)
+    $ConfigurationPath = Join-Path $Artifacts $configuration
 
     CreateDirectory($Artifacts)
 
@@ -48,11 +49,18 @@ function Publish-Package {
     # Copy JSTestRunner
     Copy-Item -Path (Join-Path $JSTestRunnerBin "*") -Destination $RunnerPath -Force -Recurse
 
+    # Copy Package.json
+    Copy-Item -Path (Join-Path $ProjectDir "package.json") -Destination $RunnerPath -Force
+
     # Since PrivateAssets attribute is not working in the PackageReference tag in csproj, we have to delete devDependancies manually
     $files = "cs", "de", "es", "fr", "it", "ja", "ko", "pl", "pt-BR", "ru", "tr", "zh-Hans", "zh-Hant", "Microsoft*", "System*"
     Foreach($file in $files) {
-        Remove-Item (Join-Path $FullCLRAdapter $file) -Recurse -Force -ErrorAction SilentlyContinue
+        Remove-Item (Join-Path $RunnerPath $file) -Recurse -Force -ErrorAction SilentlyContinue
     }
+
+    Push-Location $ConfigurationPath
+    npm pack $RunnerPath
+    Pop-Location 
 }
 
 function Build-Solution {
