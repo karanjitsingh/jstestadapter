@@ -118,7 +118,7 @@ export class JestTestFramework extends BaseTestFramework {
         // }
         const src = [];
         sources.forEach((source, i) => {
-            src.push(source.replace(/\\/g, '/', ));  //  Cannot run specific test files in jest unless path separator is '/'
+            src.push(source.replace(/\\/g, '/'));  //  Cannot run specific test files in jest unless path separator is '/'
         });
 
         // the property '_' will be set as process.argv which in this case are for TestRunner not for jest

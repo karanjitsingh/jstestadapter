@@ -27,7 +27,7 @@ namespace JSTest.UnitTests.Communication
             classWithSelfReferencingLoop.InfiniteRefernce.InfiniteRefernce = classWithSelfReferencingLoop;
 
             // This line should not throw exception
-            this.jsonDataSerializer.SerializePayload("dummy", classWithSelfReferencingLoop);
+            this.jsonDataSerializer.SerializePayload("dummy", classWithSelfReferencingLoop, 1);
         }
 
         [TestMethod]
@@ -37,10 +37,11 @@ namespace JSTest.UnitTests.Communication
             classWithSelfReferencingLoop = new ClassWithSelfReferencingLoop(classWithSelfReferencingLoop);
             classWithSelfReferencingLoop.InfiniteRefernce.InfiniteRefernce = classWithSelfReferencingLoop;
 
-            var json = this.jsonDataSerializer.SerializePayload("dummy", classWithSelfReferencingLoop);
+            var json = this.jsonDataSerializer.SerializePayload("dummy", classWithSelfReferencingLoop, 1);
+
 
             // This line should deserialize properly
-            var result = this.jsonDataSerializer.Deserialize<ClassWithSelfReferencingLoop>(json, 1);
+            var result = this.jsonDataSerializer.DeserializePayload<ClassWithSelfReferencingLoop>(new Message(MessageType.ConsoleMessage, json));
 
             Assert.AreEqual(typeof(ClassWithSelfReferencingLoop), result.GetType());
             Assert.IsNull(result.InfiniteRefernce);
