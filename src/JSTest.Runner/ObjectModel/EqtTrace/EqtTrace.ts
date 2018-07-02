@@ -4,9 +4,9 @@ export namespace EqtTrace {
     let logger: IDebugLogger;
     let loggerInitialized: boolean = false;
     
-    const writeLog = (prefix: string, moduleName: string, message: string) => {
+    const writeLog = (prefix: string, message: string) => {
         if (loggerInitialized) {
-            logger.log(moduleName, `${prefix}: ${message}`);
+            logger.log(`${prefix}: ${message}`);
         }
     };
 
@@ -17,19 +17,19 @@ export namespace EqtTrace {
         }
     };
 
-    export const error = (moduleName: string, message: string) => {
-        writeLog('Error', moduleName, message);
+    export const error = (message: string) => {
+        writeLog('Error', message);
     };
     
-    export const info = (moduleName: string, message: string) => {
-        writeLog('Informational', moduleName, message);
+    export const info = (message: string) => {
+        writeLog('Informational', message);
     };
     
-    export const warn = (moduleName: string, message: string) => {
-        writeLog('Warning', moduleName, message);
+    export const warn = (message: string) => {
+        writeLog('Warning', message);
     };
 
-    export const verbose = (moduleName: string, message: string) => {
-        writeLog('Verbose', moduleName, message);
+    export const verbose = (message: string) => {
+        writeLog('Verbose', message);
     };
 }

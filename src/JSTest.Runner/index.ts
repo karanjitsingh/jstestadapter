@@ -2,25 +2,12 @@ import { IEnvironment } from './Environment/IEnvironment';
 import { EnvironmentProvider } from './Environment/EnvironmentProvider';
 import { TestRunner } from './TestRunner/TestRunner';
 import { Exception } from './Exceptions';
-import { CLIArgs, EqtTraceOptions } from 'TestRunner/CLIArgs';
-
-const environmentProvider = new EnvironmentProvider();
-
-environmentProvider.getEnvironment().then((env: IEnvironment) => {
-    try {
-        // tslint:disable-next-line
-        new TestRunner(env);
-    } catch (err) {
-        handleError(err);
-        env.exit(1);
-    }
-}, (err) => {
-    handleError(err);
-});
+import { CLIArgs, EqtTraceOptions } from './TestRunner/CLIArgs';
+import { EqtTrace } from './ObjectModel/EqtTrace';
 
 function processCLIArgs(env: IEnvironment): CLIArgs {
 
-    let debugEnabled = false;
+    let debugEnabled = true;
 
     for (let i = 4; i < env.argv.length; i++) {
         if (env.argv[i].startsWith('--')) {
@@ -56,3 +43,19 @@ function handleError(err: any) {
         console.error(`JSTest Runner ran into an internal error: ${err.message}`);
     }
 }
+
+const environmentProvider = new EnvironmentProvider();
+
+environmentProvider.getEnvironment().then((env: IEnvironment) => {
+    try {
+        EqtTrace.info('environment started');
+
+        // tslint:disable-next-line
+        new TestRunner(env, processCLIArgs(env));
+    } catch (err) {
+        handleError(err);
+        env.exit(1);
+    }
+}, (err) => {
+    handleError(err);
+});

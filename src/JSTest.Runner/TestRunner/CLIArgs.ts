@@ -1,6 +1,6 @@
 export interface CLIArgs {
-    ip: string,
-    port: number,
+    ip: string;
+    port: number;
     eqtTraceOptions: EqtTraceOptions;
 }
 
