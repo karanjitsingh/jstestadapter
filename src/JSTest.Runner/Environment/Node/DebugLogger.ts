@@ -1,5 +1,6 @@
 import { IDebugLogger } from '../../ObjectModel/EqtTrace';
 import debug from 'debug';
+import fs from 'fs';
 
 export class DebugLogger implements IDebugLogger {
     private debugMethod: (message: string, moduleName: string) => void;

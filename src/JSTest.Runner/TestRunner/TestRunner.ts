@@ -8,20 +8,23 @@ import { StartExecutionWithSourcesPayload, StartExecutionWithTestsPayload, Start
 import { TestFrameworkFactory } from './TestFrameworks/TestFrameworkFactory';
 import { TestSessionManager } from './ExecutionManagers/TestSessionManager';
 import { Constants } from '../Constants';
+import { CLIArgs } from './CLIArgs';
 
 export class TestRunner {
     private readonly environment: IEnvironment;
     private readonly communicationManager: ICommunicationManager;
     private readonly jobQueue: JobQueue;
     private readonly messageSender: MessageSender;
+    private readonly cliArgs: CLIArgs;
 
     private jsTestSettings: JSTestSettings;
     private sessionEnded: boolean;
 
-    constructor(environment: IEnvironment) {
+    constructor(environment: IEnvironment, args: CLIArgs) {
         this.environment = environment;
         this.sessionEnded = false;
         this.jobQueue = new JobQueue();
+        this.cliArgs = args;
 
         this.communicationManager = environment.getCommunicationManager();
         this.messageSender = new MessageSender(this.communicationManager);
@@ -31,7 +34,7 @@ export class TestRunner {
 
     private initializeCommunication() {
         this.communicationManager.onMessageReceived.subscribe(this.messageReceived);
-        this.communicationManager.connectToServer(this.environment.argv[2], Number(this.environment.argv[3]));
+        this.communicationManager.connectToServer(this.cliArgs.ip, this.cliArgs.port);
         this.waitForSessionEnd();
     }
 

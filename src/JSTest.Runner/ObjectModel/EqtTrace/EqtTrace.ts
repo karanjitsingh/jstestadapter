@@ -2,17 +2,17 @@ import { IDebugLogger } from './IDebugLogger';
 
 export namespace EqtTrace {
     let logger: IDebugLogger;
-    let debuggerInitialized: boolean = false;
+    let loggerInitialized: boolean = false;
     
     const writeLog = (prefix: string, moduleName: string, message: string) => {
-        if (debuggerInitialized) {
+        if (loggerInitialized) {
             logger.log(moduleName, `${prefix}: ${message}`);
         }
     };
 
     export const initialize = (debugLogger: IDebugLogger) => {
         if (debugLogger) {
-            debuggerInitialized = true;
+            loggerInitialized = true;
             logger = debugLogger;
         }
     };
