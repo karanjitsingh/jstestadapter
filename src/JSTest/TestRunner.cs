@@ -37,8 +37,6 @@ namespace JSTest
 
         private void StartRuntimeManager(JSTestSettings settings, IEnumerable<string> sources)
         {
-            Debugger.Launch();
-
             var processInfo = RuntimeProviderFactory.Instance.GetRuntimeProcessInfo(settings, sources);
             this.runtimeManager = new TestRuntimeManager(settings, this.testRunEvents);
 
