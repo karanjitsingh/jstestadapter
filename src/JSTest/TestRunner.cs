@@ -33,12 +33,16 @@ namespace JSTest
         {
             this.executionComplete = new ManualResetEventSlim(false);
             this.testRunEvents = new TestRunEvents();
+
+            var hostDebug = Environment.GetEnvironmentVariable("JSTEST_HOST_DEBUG");
+
+            if (!string.IsNullOrEmpty(hostDebug) && hostDebug == "1") {
+                Debugger.Launch();
+            }
         }
 
         private void StartRuntimeManager(JSTestSettings settings, IEnumerable<string> sources)
         {
-            Debugger.Launch();
-
             var processInfo = RuntimeProviderFactory.Instance.GetRuntimeProcessInfo(settings, sources);
             this.runtimeManager = new TestRuntimeManager(settings, this.testRunEvents);
 

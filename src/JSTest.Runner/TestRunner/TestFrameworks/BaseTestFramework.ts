@@ -125,8 +125,10 @@ export abstract class BaseTestFramework implements ITestFramework {
                                startTime: Date,
                                endTime: Date) {
 
+        const testCase = this.getTestCase(testCaseName, fullyQualifiedName, sourceFile);
+
         const specResult = <TestSpecEventArgs> {
-            TestCase: this.getTestCase(testCaseName, fullyQualifiedName, sourceFile),
+            TestCase: testCase,
             FailedExpectations: failedExpectations,
             Outcome: testOutcome,
             Source: sourceFile,

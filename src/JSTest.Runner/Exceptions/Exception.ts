@@ -6,6 +6,7 @@ export enum ExceptionType {
     InvalidMessageException,
     InvalidJSONException,
     NotImplementedException,
+    TestFrameworkError,
     UnSupportedTestFramework,
     UnknownException
 }

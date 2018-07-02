@@ -21,10 +21,12 @@
     {
         private JSTestSettings settings;
         private StringBuilder processStdError;
+        private ManualResetEventSlim versionCheckComplete;
+        private bool runtimeCanExit = false;
+
         private readonly JSProcess jsProcess;
         private readonly JsonDataSerializer dataSerializer;
         private readonly TestRunEvents testRunEvents;
-        private ManualResetEventSlim versionCheckComplete;
 
         protected int ErrorLength { get; set; } = 4096;
 
@@ -50,11 +52,16 @@
 
             // It's possible error occured before version check complete
             //versionCheckComplete.Set();
+            if (!runtimeCanExit)
+            {
+                this.testRunEvents.InvokeTestSessionEnd(this);
+                throw new JSTestException("JavaScript runtime quit unexpectedly.");
+            }
         };
 
         private Action<object, string> ProcessOutputReceived => (process, data) =>
         {
-
+            Console.Error.Write(data);
         };
 
         private Action<object, string> ProcessErrorReceived => (process, data) =>
@@ -240,6 +247,7 @@
                 case MessageType.ExecutionComplete:
                 case MessageType.DiscoveryComplete:
                     this.testRunEvents.InvokeTestSessionEnd(this);
+                    runtimeCanExit = true;
                     break;
 
                 case MessageType.TestMessage:

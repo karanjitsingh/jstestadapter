@@ -5,6 +5,7 @@ import { IEvent, IEventArgs } from '../../ObjectModel/Common';
 import { TestFrameworkEventHandlers } from '../TestFrameworks/TestFrameworkEventHandlers';
 import { TestSessionManager } from './TestSessionManager';
 import { TestFrameworks, ITestFramework } from '../../ObjectModel/TestFramework';
+import { Exception, ExceptionType } from '../../Exceptions';
 
 export abstract class BaseExecutionManager {
     protected readonly environment: IEnvironment;
@@ -44,7 +45,12 @@ export abstract class BaseExecutionManager {
 
     protected createTestFramework(framework: TestFrameworks): ITestFramework {
         const testFrameworkInstance = this.testFrameworkFactory.createTestFramework(framework);
-        testFrameworkInstance.initialize();
+        try {
+            testFrameworkInstance.initialize();
+        } catch (e) {
+            // log e
+            throw new Exception('Error initializing test framework.', ExceptionType.TestFrameworkError);
+        }
         this.testFrameworkEventHandlers.Subscribe(testFrameworkInstance);
         return testFrameworkInstance;
     }

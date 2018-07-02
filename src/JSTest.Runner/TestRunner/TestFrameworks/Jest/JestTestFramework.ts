@@ -65,27 +65,36 @@ export class JestTestFramework extends BaseTestFramework {
     }
 
     public startExecutionWithTests(sources: Array<string>, testCollection: Map<string, TestCase>, options: JSON) {
-        this.startExecutionWithSources(sources, options);
+        let runConfigPath;
+        try {
+            // tslint:disable-next-line:no-string-literal
+            runConfigPath = testCollection.entries().next().value[1].Properties[0]['Value'];
+        } catch (e) {
+            throw new Exception('TestCase object does not contain jestConfigPath in Properties', ExceptionType.TestFrameworkError);
+        }
+        this.sources = sources;
+        this.runJest(runConfigPath, null, sources);
     }
 
     public startExecutionWithSources(sources: Array<string>, options: JSON): void {
         this.sources = sources;
-        this.runJest(sources[0], options);
+        this.runJest(sources[0], null, null);
     }
 
     public startDiscovery(sources: Array<string>): void {
         this.sources = sources;
         this.jestReporter.discovery = true;
-        this.runJest(sources[0], null, true);
+        this.runJest(sources[0], null, null, true);
     }
 
     protected skipSpec(specObject: any) {
         // Cannot skip at test case level in jest
     }
 
-    private runJest(runConfigPath: string, configOverride: JSON, discovery: boolean = false) {
+    private runJest(runConfigPath: string, configOverride: JSON, sources: Array<string>, discovery: boolean = false) {
         const jestArgv = this.jestArgv;
-
+        sources = sources || [];
+        
         if (configOverride instanceof Object) {
             Object.keys(configOverride).forEach(key => {
                 jestArgv[key] = configOverride[key];
@@ -98,8 +107,8 @@ export class JestTestFramework extends BaseTestFramework {
         }
 
         jestArgv.$0 = runConfigPath;
-        jestArgv.rootDir = path.dirname(runConfigPath);
         jestArgv.config = runConfigPath;
+        jestArgv.rootDir = path.dirname(runConfigPath);
         jestArgv.reporters = [ require.resolve('./JestReporter.js') ];
 
         // if (jestArgv.setupFiles instanceof Array) {
@@ -107,9 +116,13 @@ export class JestTestFramework extends BaseTestFramework {
         // } else {
         //     jestArgv.setupFiles = [ require.resolve('./JestSetup') ];
         // }
+        const src = [];
+        sources.forEach((source, i) => {
+            src.push(source.replace('\\', '/'));  //  Cannot run specific test files in jest unless path separator is '/'
+        });
 
         // the property '_' will be set as process.argv which in this case are for TestRunner not for jest
-        jestArgv._ = [];
+        jestArgv._ = src;
 
         this.handleSessionStarted();
 

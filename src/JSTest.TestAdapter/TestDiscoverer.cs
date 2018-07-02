@@ -22,6 +22,8 @@ namespace JSTest.TestAdapter
         private ITestCaseDiscoverySink discoverySink;
         private IMessageLogger messageLogger;
         private ManualResetEventSlim discoveryCompletion;
+        private JSTestSettings settings;
+        private IEnumerable<string> sources;
 
         public JavaScriptTestDiscoverer()
         {
@@ -35,10 +37,12 @@ namespace JSTest.TestAdapter
         {
             this.discoverySink = discoverySink;
             this.messageLogger = logger;
+            this.sources = sources;
 
             var settingsProvider = discoveryContext.RunSettings.GetSettings(SettingsConstants.SettingsName) as JavaScriptSettingsProvider;
-            var settings = settingsProvider != null ? settingsProvider.Settings : new JSTestSettings();
-            settings.Discovery = true;
+            this.settings = settingsProvider != null ? settingsProvider.Settings : new JSTestSettings();
+
+            this.settings.Discovery = true;
 
             try
             {
@@ -71,6 +75,15 @@ namespace JSTest.TestAdapter
 
         private void onTestCaseFoundHandler(object sender, TestCaseFoundEventArgs e)
         {
+            if (this.settings.JavaScriptTestFramework == JSTestFramework.Jest) {
+                string package = "";
+                using (IEnumerator<string> enumer = sources.GetEnumerator())
+                {
+                    enumer.MoveNext();
+                    package = enumer.Current;
+                }
+                e.TestCase.SetPropertyValue(TestProperty.Register("jestConfigPath", "jestConfigPath", typeof(string), typeof(JSTest.TestRunner)), package);
+            }
             this.discoverySink.SendTestCase(e.TestCase);
         }
 
