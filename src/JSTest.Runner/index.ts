@@ -2,12 +2,12 @@ import { IEnvironment } from './Environment/IEnvironment';
 import { EnvironmentProvider } from './Environment/EnvironmentProvider';
 import { TestRunner } from './TestRunner/TestRunner';
 import { Exception } from './Exceptions';
-import { CLIArgs, EqtTraceOptions } from './TestRunner/CLIArgs';
+import { CLIArgs } from './TestRunner/CLIArgs';
 import { EqtTrace } from './ObjectModel/EqtTrace';
 
 function processCLIArgs(env: IEnvironment): CLIArgs {
 
-    let debugEnabled = true;
+    let debugEnabled = false;
 
     for (let i = 4; i < env.argv.length; i++) {
         if (env.argv[i].startsWith('--')) {
@@ -26,12 +26,7 @@ function processCLIArgs(env: IEnvironment): CLIArgs {
     return <CLIArgs> {
         ip: env.argv[2],
         port: Number(env.argv[3]),
-        eqtTraceOptions: <EqtTraceOptions> {
-            isErrorEnabled: debugEnabled,
-            isInfoEnabled: debugEnabled,
-            isVerboseEnabled: debugEnabled,
-            isWarningEnabled: debugEnabled
-        }
+        traceEnabled: debugEnabled
     };
 }
 
@@ -47,11 +42,17 @@ function handleError(err: any) {
 const environmentProvider = new EnvironmentProvider();
 
 environmentProvider.getEnvironment().then((env: IEnvironment) => {
+    const cliArgs = processCLIArgs(env);
+
     try {
+        if (cliArgs.traceEnabled) {
+            EqtTrace.initialize(env.getDebugLogger());
+        }
+        
         EqtTrace.info('environment started');
 
         // tslint:disable-next-line
-        new TestRunner(env, processCLIArgs(env));
+        new TestRunner(env, cliArgs);
     } catch (err) {
         handleError(err);
         env.exit(1);

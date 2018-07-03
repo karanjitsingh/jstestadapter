@@ -7,7 +7,7 @@ import { EventDispatcher } from './EventDispatcher';
 import { Event } from '../../Events/Event';
 import { DebugLogger } from './DebugLogger';
 import { Socket } from 'net';
-import { EqtTrace } from '../../ObjectModel/EqtTrace';
+import { IDebugLogger } from '../../ObjectModel/EqtTrace';
 
 export class Environment implements IEnvironment {
     public readonly environmentType: EnvironmentType = EnvironmentType.NodeJS;
@@ -15,12 +15,18 @@ export class Environment implements IEnvironment {
     
     private communicationManager: ICommunicationManager;
     private eventDispatcher: IEventDispatcher;
+    private debugLogger: IDebugLogger;
 
     constructor() {
         this.argv = <Array<string>>process.argv;
         this.eventDispatcher = new EventDispatcher();
+    }
 
-        EqtTrace.initialize(new DebugLogger());
+    public getDebugLogger(): IDebugLogger {
+        if (!this.debugLogger) {
+            this.debugLogger = new DebugLogger();
+        }
+        return this.debugLogger;
     }
     
     public getCommunicationManager(socket?: Socket): ICommunicationManager {
