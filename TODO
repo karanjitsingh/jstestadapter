@@ -8,6 +8,14 @@ TODO:
     
     parallel execution
 
+    fix waits after exception
+
+    handle error message
+        - check if stack and error message are same
+        
+
+    global tmieout
+
 integration tests:
     should report if error
         before describe

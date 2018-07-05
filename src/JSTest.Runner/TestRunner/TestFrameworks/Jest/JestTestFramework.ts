@@ -127,6 +127,11 @@ export class JestTestFramework extends BaseTestFramework {
 
         this.handleSessionStarted();
 
-        this.jest.runCLI(jestArgv, this.jestProjects);
+        this.jest.runCLI(jestArgv, this.jestProjects).then(() => {
+            this.handleSessionDone();
+        }, (err) => {
+            this.handleErrorMessage(err.message, err.stack);
+            this.handleSessionDone();
+        });
     }
 }

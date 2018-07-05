@@ -24,6 +24,7 @@ export abstract class BaseTestFramework implements ITestFramework {
     private activeSpec: TestSpecEventArgs;
     private testCollection: Map<string, TestCase>;
     private testExecutionCount: Map<string, number>;
+    private sessionActive: boolean;
 
     constructor(testFrameworkEvents: ITestFrameworkEvents) {
         this.testFrameworkEvents = testFrameworkEvents;
@@ -45,13 +46,18 @@ export abstract class BaseTestFramework implements ITestFramework {
     protected handleSessionStarted() {
         this.sessionEventArgs = new TestSessionEventArgs(this.sources, SessionHash(this.sources));
         this.testFrameworkEvents.onTestSessionStart.raise(this, this.sessionEventArgs);
+
+        this.sessionActive = true;
     }
 
     protected handleSessionDone() {
-        this.sessionEventArgs.EndTime = new Date();
-        this.sessionEventArgs.InProgress = false;
+        if (this.sessionActive) {
+            this.sessionEventArgs.EndTime = new Date();
+            this.sessionEventArgs.InProgress = false;
 
-        this.testFrameworkEvents.onTestSessionEnd.raise(this, this.sessionEventArgs);
+            this.testFrameworkEvents.onTestSessionEnd.raise(this, this.sessionEventArgs);
+            this.sessionActive = false;
+        }
     }
 
     protected handleSuiteStarted(suiteName: string, source: string) {
@@ -141,7 +147,12 @@ export abstract class BaseTestFramework implements ITestFramework {
     }
 
     protected handleErrorMessage(errMessage: string, errStack: string) {
-        const message = `Error: ${errMessage}\n ${errStack}`;
+        let message;
+        if (errMessage === errStack || !errStack) {
+            message = errMessage;
+        } else {
+            message = `${errMessage}\n ${errStack}`;
+        }
 
         this.testFrameworkEvents.onErrorMessage.raise(this, <TestErrorMessageEventArgs> {
             Message: message
