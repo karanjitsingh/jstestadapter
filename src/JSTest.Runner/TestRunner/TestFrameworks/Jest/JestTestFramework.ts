@@ -22,8 +22,8 @@ export class JestTestFramework extends BaseTestFramework {
         switch (this.environmentType) {
             case EnvironmentType.NodeJS:
                 // tslint:disable-next-line
-                // TODO trace require.resolve('mocha');
-                return rewire('jest-cli');
+                // tslint:disable-next-line:no-require-imports
+                return require('jest');
             default:
                 throw new Exception('Not implemented.', ExceptionType.NotImplementedException);
                 /*
@@ -43,7 +43,8 @@ export class JestTestFramework extends BaseTestFramework {
     public initialize() {
         this.jest = this.getJest();
 
-        const jestCLI = rewire(path.join(path.dirname(require.resolve('jest-cli')), 'cli'));
+        const jestjs = require.resolve('jest');
+        const jestCLI = rewire(path.join(path.dirname(path.dirname(jestjs)), 'node_modules', 'jest-cli', 'build', 'cli'));
 
         this.jestArgv = jestCLI.__get__('buildArgv')();
         this.jestArgv.reporters = ['./JestReporter.js'];
