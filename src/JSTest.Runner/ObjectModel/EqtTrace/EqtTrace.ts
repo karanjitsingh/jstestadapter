@@ -6,7 +6,10 @@ export namespace EqtTrace {
     
     const writeLog = (prefix: string, message: string) => {
         if (loggerInitialized) {
-            logger.log(`${prefix}: ${message}`);
+            const date = new Date();
+            const dateStamp = `${date.getFullYear()}/${date.getMonth()}/${date.getDate()}`;
+            const timeStamp = `${date.getHours()}:${date.getMinutes()}.${date.getMilliseconds()}`;
+            logger.log(`${prefix}: ${logger.processPid}, ${dateStamp}, ${timeStamp}, ${message}`);
         }
     };
 

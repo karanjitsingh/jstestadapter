@@ -42,6 +42,8 @@ namespace JSTest
             }
         }
         
+        public bool EnableDebugLogs { get; set; }
+
         public bool LaunchProcess(TestProcessStartInfo startInfo, Action<object, string> processErrorReceived, Action<object> processExitReceived)
         {
             var endpoint = this.InitializeChannel();
@@ -103,7 +105,11 @@ namespace JSTest
         {
             process.StartInfo.FileName = startInfo.FileName;
             process.StartInfo.WorkingDirectory = startInfo.WorkingDirectory;
-            process.StartInfo.Arguments = $"{startInfo.Arguments} {endPoint.Address} {endPoint.Port}";
+            process.StartInfo.Arguments = string.Format("{0} {1} {2} {3}",
+                                                        startInfo.Arguments,
+                                                        endPoint.Address,
+                                                        endPoint.Port,
+                                                        this.EnableDebugLogs ? "--diag" : "");
 
             foreach(var entry in startInfo.EnvironmentVariables)
             {

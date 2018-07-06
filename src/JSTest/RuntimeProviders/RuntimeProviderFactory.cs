@@ -41,7 +41,7 @@ namespace JSTest.RuntimeProviders
             switch(settings.Runtime)
             {
                 case JavaScriptRuntime.NodeJS:
-                    return NodeRuntimeProvider.Instance.GetRuntimeProcessInfo(this.IsRuntimeDebuggingEnabled, settings.DebugLogs, sources);
+                    return NodeRuntimeProvider.Instance.GetRuntimeProcessInfo(this.IsRuntimeDebuggingEnabled, sources);
             }
 
             return null;

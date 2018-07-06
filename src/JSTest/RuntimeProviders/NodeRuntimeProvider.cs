@@ -31,7 +31,7 @@ namespace JSTest.RuntimeProviders
             }
         }
 
-        public TestProcessStartInfo GetRuntimeProcessInfo(bool isDebugEnabled, bool enableDebugLogs, IEnumerable<string> sources)
+        public TestProcessStartInfo GetRuntimeProcessInfo(bool isDebugEnabled, IEnumerable<string> sources)
         {
             var processInfo = new TestProcessStartInfo();
 
@@ -51,10 +51,9 @@ namespace JSTest.RuntimeProviders
             processInfo.EnvironmentVariables.Add("NODE_NO_WARNINGS", "1");
 
             processInfo.Arguments = string.Format(
-                " -r source-map-support/register {0} {1} {2}",
+                " -r source-map-support/register {0} {1}",
                 isDebugEnabled ? "--inspect-brk=9229" : "",
-                jstestrunner,
-                enableDebugLogs ? "--debug" : "");
+                jstestrunner);
 
             return processInfo;
         }

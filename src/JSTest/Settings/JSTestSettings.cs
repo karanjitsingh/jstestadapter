@@ -76,6 +76,7 @@ namespace JSTest.Settings
             this.JavaScriptTestFramework = JSTestFramework.Jasmine;
             this.Discovery = false;
             this.RunInParallel = true;
+            this.DebugLogs = false;
         }
     }
 }

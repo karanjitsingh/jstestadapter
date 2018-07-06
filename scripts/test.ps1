@@ -19,7 +19,7 @@ if((Test-Path $vstest) -ne 'True') {
 
 $vstest = "& '$vstest'"
 
-$command = "$vstest --TestAdapterPath:$FullCLRAdapter"
+$command = "$vstest --TestAdapterPath:$FullCLRAdapter --inisolation"
 if($log) {
     $command = "$command --diag:D:\logs\jstest.log"
 }
@@ -54,7 +54,7 @@ foreach($path in $tests) {
     }
 }
 
-$command = "$command -- JSTest.TestFramework=mocha JSTest.DebugLogs"
+$command = "$command -- JSTest.TestFramework=mocha JSTest.DebugLogs=true"
 
 
 Write-Host "------------------------------------------------------------------------------------------------------------"

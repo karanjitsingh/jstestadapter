@@ -22,7 +22,7 @@
         public void GetRuntimeProcessInfoWillReturnProcessInfoWithCorrectProperties()
         {
             var sources = new string[] { "source1", "source2", "source3" };
-            var startInfo = this.runtimeProvider.GetRuntimeProcessInfo(false, false, sources);
+            var startInfo = this.runtimeProvider.GetRuntimeProcessInfo(false, sources);
             var arguments = Regex.Match(startInfo.Arguments, " -r source-map-support/register   (.*)");
 
             Assert.IsTrue(arguments.Groups[0].Value.EndsWith("index.js"));
