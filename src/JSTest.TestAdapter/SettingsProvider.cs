@@ -14,12 +14,12 @@ using System.Reflection;
 
 namespace JSTest.TestAdapter
 {
-    [SettingsName(SettingsConstants.SettingsName)]
+    [SettingsName(AdapterConstants.SettingsName)]
     public class JavaScriptSettingsProvider : ISettingsProvider
     {
         protected readonly XmlSerializer serializer;
 
-        public const string Name = SettingsConstants.SettingsName;
+        public const string Name = AdapterConstants.SettingsName;
 
         // Locally remmember settings
         public JSTestSettings Settings { get; private set; }
@@ -34,13 +34,13 @@ namespace JSTest.TestAdapter
         {
             ValidateArg.NotNull(reader, "reader");
 
-            var serializer = new XmlSerializer(typeof(JSTestSettings), new XmlRootAttribute(SettingsConstants.SettingsName));
+            var serializer = new XmlSerializer(typeof(JSTestSettings), new XmlRootAttribute(AdapterConstants.SettingsName));
 
-            if (reader.Read() && reader.Name.Equals(SettingsConstants.SettingsName))
+            if (reader.Read() && reader.Name.Equals(AdapterConstants.SettingsName))
             {
                 var x = serializer.Deserialize(reader);
                 this.Settings = x as JSTestSettings;
-                //var other = xml.Descendants().Where(attr => !attr.Name.ToString().Equals(SettingsConstants.RunSettingsXml.TestFrameworkOptions, StringComparison.OrdinalIgnoreCase));
+                //var other = xml.Descendants().Where(attr => !attr.Name.ToString().Equals(AdapterConstants.RunSettingsXml.TestFrameworkOptions, StringComparison.OrdinalIgnoreCase));
             }
         }
 

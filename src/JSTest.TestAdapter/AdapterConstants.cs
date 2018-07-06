@@ -8,7 +8,12 @@ namespace JSTest.TestAdapter
     {
 
         public const string ExecutorUri = "executor://JSTestAdapter/v1";
+        public const string SettingsName = "JSTest";
 
+        public static class RunSettingsXml
+        {
+            public const string TestFrameworkOptions = "TestFrameworkOptions";
+        }
         internal static class FileExtensions
         {
             public const string JavaScript = ".js";
