@@ -17,20 +17,11 @@ namespace JSTest.Settings
         public JavaScriptRuntime Runtime { get; set; }
         public bool Discovery { get; set; }
         public bool RunInParallel { get; set; }
-        public bool IsDebugEnabled { get; set; }
+        public bool DebugLogs { get; set; }
 
         #endregion
 
         #region JS Runner Specific Settings
-
-        [XmlIgnore]
-        [DataMember]
-        public DiagTracing DiagTracing { get; private set; }
-        /*
-         * TODO:
-         * maybe this should not be a part of jstestsettings
-         * should be a payload in itself
-         */
 
         [XmlIgnore]
         [DataMember]
@@ -85,15 +76,6 @@ namespace JSTest.Settings
             this.JavaScriptTestFramework = JSTestFramework.Jasmine;
             this.Discovery = false;
             this.RunInParallel = true;
-            this.DiagTracing = new DiagTracing();
         }
-    }
-
-    public class DiagTracing
-    {
-        public bool IsErrorEnabled { get { return EqtTrace.IsErrorEnabled; } }
-        public bool IsInfoEnabled { get { return EqtTrace.IsInfoEnabled; } }
-        public bool IsWarningEnabled { get { return EqtTrace.IsWarningEnabled; } }
-        public bool IsVerboseEnabled { get { return EqtTrace.IsVerboseEnabled; } }
     }
 }

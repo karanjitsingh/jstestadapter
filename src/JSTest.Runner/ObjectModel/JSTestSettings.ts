@@ -1,18 +1,10 @@
 import { TestFrameworks } from './TestFramework';
 import { Exception, ExceptionType } from '../Exceptions';
 
-interface DiagTracing {
-    IsErrorEnabled: boolean;
-    IsInfoEnabled: boolean;
-    IsWarningEnabled: boolean;
-    IsVerboseEnabled: boolean;
-}
-
 export class JSTestSettings {
     // tslint:disable:variable-name
     public JavaScriptTestFramework: TestFrameworks;
     public TestFrameworkConfigJson: JSON;
-    public DiagTracing: DiagTracing;
 
     constructor(json: any) {
         this.JavaScriptTestFramework = -1;
@@ -28,8 +20,6 @@ export class JSTestSettings {
             throw new Exception(`'${json.JavaScriptTestFramework}' is not a valid supported test framework.`,
                                 ExceptionType.UnSupportedTestFramework);
         }
-
-        this.DiagTracing = json.DiagTracing;
 
         if (json.TestFrameworkConfigJson !== null && json.TestFrameworkConfigJson !== '') {
             try {

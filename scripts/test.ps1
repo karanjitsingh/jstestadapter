@@ -54,7 +54,7 @@ foreach($path in $tests) {
     }
 }
 
-$command = "$command -- JSTest.TestFramework=mocha"
+$command = "$command -- JSTest.TestFramework=mocha JSTest.DebugLogs"
 
 
 Write-Host "------------------------------------------------------------------------------------------------------------"
