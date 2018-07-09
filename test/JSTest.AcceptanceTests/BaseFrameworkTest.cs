@@ -13,8 +13,9 @@ namespace JSTest.AcceptanceTests
     [TestClass]
     public abstract class BaseFrameworkTest
     {
-        protected readonly string testRepoPath = "test-repo";
+        protected readonly string testRepoPath;
         protected readonly string jstestPackage;
+        protected readonly string vstestPath;
 
         public BaseFrameworkTest()
         {
@@ -23,7 +24,7 @@ namespace JSTest.AcceptanceTests
                 testRepoPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
             } while (Directory.Exists(testRepoPath));
 
-            // ...\JSTestAdapter\test\JSTest.AcceptanceTests\bin\Debug
+            // This dll resides in folder: ...\JSTestAdapter\test\JSTest.AcceptanceTests\bin\Debug
             var projectFolder = Directory.GetParent(Assembly.GetExecutingAssembly().Location).Parent.Parent.Parent.Parent.FullName;
 
 #if DEBUG
@@ -35,6 +36,12 @@ namespace JSTest.AcceptanceTests
             var packages = Directory.EnumerateFiles(jstestPackageFolder, "*.tgz", SearchOption.TopDirectoryOnly);
 
             this.jstestPackage = packages.Last();
+
+            this.vstestPath = Path.Combine(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName), "vstest.console.exe");
+            if(!File.Exists(this.vstestPath))
+            {
+                throw new Exception($"Could not find {this.vstestPath}");
+            }
         }
 
         private void PrintOutputToConsole(DataReceivedEventArgs data, bool error = false)
@@ -72,13 +79,49 @@ namespace JSTest.AcceptanceTests
             process.BeginOutputReadLine();
 
             process.WaitForExit();
-
-            //while (!process.StandardOutput.EndOfStream || !process.StandardError.EndOfStream) { }
         }
 
-        protected void RunVSTest(IEnumerable<string> files, IDictionary<string, string> runConfig)
-        { 
+        protected ExecutionOutput RunVSTest(IEnumerable<string> files, IDictionary<string, string> runConfig)
+        {
+            var process = new Process();
+            var startInfo = new ProcessStartInfo();
 
+            startInfo.WindowStyle = ProcessWindowStyle.Hidden;
+            startInfo.FileName = this.vstestPath;
+            startInfo.Arguments = this.BuildVSTestArgs(files, runConfig);
+            startInfo.RedirectStandardError = true;
+            startInfo.RedirectStandardOutput = true;
+
+            process.StartInfo = startInfo;
+
+            Console.Write($"{startInfo.FileName} {startInfo.Arguments}");
+
+            process.Start();
+            process.WaitForExit();
+
+            return new ExecutionOutput(process);
+        }
+
+        private string BuildVSTestArgs(IEnumerable<string> files, IDictionary<string, string> runConfig)
+        {
+            var args = $"--Inisolation --TestAdapterPath:{Path.Combine(testRepoPath, "node_modules", "jstestadapter")}";
+
+            foreach (var file in files)
+            {
+                args += $" {file}";
+            }
+
+            if (runConfig.Count > 0)
+            {
+                args += " --";
+            }
+
+            foreach (var entry in runConfig)
+            {
+                args += $"JSTest.{entry.Key}={entry.Value}";
+            }
+
+            return args;
         }
 
         [TestInitialize]

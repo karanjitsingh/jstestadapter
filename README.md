@@ -19,9 +19,43 @@ path/to/vstest.console.exe --Inisolation --TestAdapterPath:./node_modules/jstest
 path/to/vstest.console.exe --Inisolation --TestAdapterPath:./node_modules/jstestadapter/ path/to/package.json -- JSTest.TestFramework=Jest
 ```
 
+
+
 Due to a current bug in vstest the switch `--Inisolation` is required to run JSTestAdapter.
 
-#### TODO
+### RunSettings Configuration
+
+Option |  Usage  | Default
+------ | ------- | --------
+TestFramework | One of the following test frameworks for execution: Jasmine/Mocha/Jest | Jasmine
+DebugLogs | Enable debug logs for JavaScript test runner | false
+TestFrameworkConfigJson | Override test framework configurations (Specific to the testframework) in json format | {} 
+
+##### RunSettings can be provided through the the vstest cli itself:
+```bash
+    vstest.console.exe --Isolation --TestAdapterPath:<path> <files> -- JSTest.DebugLogs=true JSTest.TestFramework=mocha
+```
+
+##### Using RunSettings xml defined for vstest:
+```bash
+    vstest.console.exe --Isolation --Settings:RunSettings.xml --TestAdapterPath:<path> <files>
+```
+With RunSettings.xml:
+```xml
+<RunSettings>
+    <JSTest>
+        <TestFramework>mocha</TestFramework>
+        <TestFrameworkConfigJson>{
+            "timeout": 60000,
+            "slow": 30000
+        }</TestFrameworkConfigJson>
+        <DebugLogs>true</DebugLogs>
+    </JSTest>
+</RunSettings>
+```
+
+
+### TODO
 - [ ] Release branches
 - [ ] Discovery improvements
 - [ ] More Unit Tests
