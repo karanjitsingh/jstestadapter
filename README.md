@@ -31,12 +31,12 @@ TestFramework | One of the following test frameworks for execution: Jasmine/Moch
 DebugLogs | Enable debug logs for JavaScript test runner | false
 TestFrameworkConfigJson | Override test framework configurations (Specific to the testframework) in json format | {} 
 
-##### RunSettings can be provided through the the vstest cli itself:
+#### RunSettings can be provided through the the vstest cli itself:
 ```bash
     vstest.console.exe --Isolation --TestAdapterPath:<path> <files> -- JSTest.DebugLogs=true JSTest.TestFramework=mocha
 ```
 
-##### Using RunSettings xml defined for vstest:
+#### Using RunSettings xml defined for vstest:
 ```bash
     vstest.console.exe --Isolation --Settings:RunSettings.xml --TestAdapterPath:<path> <files>
 ```
