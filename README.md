@@ -1,1 +1,1 @@
-# js-test-execution-host
+# JSTestAdapter

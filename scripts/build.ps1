@@ -21,7 +21,8 @@ function CreateDirectory($dir)
 
 function Build-Clean {
     Write-Host "Cleaning folders.`n";
-
+    
+    Remove-Item (Join-Path $ProjectDir "artifacts\*") -Recurse -Force -ErrorAction SilentlyContinue
     Remove-Item (Join-Path $ProjectDir "src\JSTest.Runner\bin\") -Recurse -Force -ErrorAction SilentlyContinue
     dotnet msbuild $ProjectSolutionFile /t:clean 
 }
@@ -49,8 +50,10 @@ function Publish-Package {
     # Copy JSTestRunner
     Copy-Item -Path (Join-Path $JSTestRunnerBin "*") -Destination $RunnerPath -Force -Recurse
 
-    # Copy Package.json
+    # Copy Package.json & README.md
     Copy-Item -Path (Join-Path $ProjectDir "package.json") -Destination $RunnerPath -Force
+    Copy-Item -Path (Join-Path $ProjectDir "README.md") -Destination $RunnerPath -Force
+
 
     # Since PrivateAssets attribute is not working in the PackageReference tag in csproj, we have to delete devDependancies manually
     $files = "cs", "de", "es", "fr", "it", "ja", "ko", "pl", "pt-BR", "ru", "tr", "zh-Hans", "zh-Hant", "Microsoft*", "System*"

@@ -1,17 +1,8 @@
 TODO:
     acceptance tests
-    fix discovery code
+    discovery improvements
     adapter side tests
     tracing
-    
-    parallel execution
-
-    fix waits after exception
-
-    handle error message
-        - check if stack and error message are same
-        
-
     global tmieout
 
 integration tests:
@@ -20,3 +11,8 @@ integration tests:
         in describe
         in before
         in it
+    test from packages
+    test for frameworks
+        jest
+        mocha
+        jasmine

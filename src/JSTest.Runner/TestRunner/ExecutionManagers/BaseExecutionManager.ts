@@ -49,7 +49,7 @@ export abstract class BaseExecutionManager {
             testFrameworkInstance.initialize();
         } catch (e) {
             // log e
-            throw new Exception('Error initializing test framework.', ExceptionType.TestFrameworkError);
+            throw new Exception('Error initializing test framework: ' + e.message, ExceptionType.TestFrameworkError);
         }
         this.testFrameworkEventHandlers.Subscribe(testFrameworkInstance);
         return testFrameworkInstance;

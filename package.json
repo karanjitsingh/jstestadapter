@@ -1,7 +1,11 @@
 {
-  "name": "jstest",
-  "version": "1.0.0",
+  "name": "jstestadapter",
+  "version": "0.9.0",
   "description": "",
+  "bundledDependencies": [
+    "rewire",
+    "source-map-support"
+  ],
   "dependencies": {
     "rewire": "^4.0.1",
     "source-map-support": "^0.5.4"
@@ -38,7 +42,7 @@
   },
   "homepage": "https://github.com/karanjitsingh/JSTestAdapter#readme",
   "files": [
-    "../../../README.md",
+    "./README.md",
     "*"
   ]
 }
