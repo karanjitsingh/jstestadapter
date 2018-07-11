@@ -11,10 +11,10 @@ namespace JSTest.AcceptanceTests
 {
 
     [TestClass]
-    public class MochaFramework : BaseFrameworkTest
+    public class JestFramework : BaseFrameworkTest
     {
 
-        public MochaFramework() : base()
+        public JestFramework() : base()
         {
         }
 
@@ -22,7 +22,7 @@ namespace JSTest.AcceptanceTests
         [ClassInitialize]
         public static void ClassInitialize(TestContext context)
         {
-            MochaFramework.InitializeBase("mocha", "Mocha", "Mocha");
+            MochaFramework.InitializeBase("jest", "Jest", "Jest");
         }
 
     }

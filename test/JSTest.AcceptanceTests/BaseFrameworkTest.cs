@@ -13,10 +13,17 @@ namespace JSTest.AcceptanceTests
     [TestClass]
     public abstract class BaseFrameworkTest
     {
-        protected static string testRepoPath { get; private set; }
-        protected static string jstestPackage { get; private set; }
-        protected static string vstestPath { get; private set; }
-        protected static string testExecutionDirectory { get; private set; }
+        #region Static Variables
+
+        private static string testRepoPath;
+        private static string jstestPackage;
+        private static string vstestPath;
+        private static string testExecutionDirectory;
+        private static string frameworkName;
+        private static string frameworkPackage;
+        private static string frameworkItemFolder;
+
+        #endregion
 
         #region Constructor
 
@@ -80,7 +87,7 @@ namespace JSTest.AcceptanceTests
 
         protected static void CopyRepoItems(string testFrameworkName)
         {
-            var testFrameworkItems = Path.Combine(MochaFramework.testExecutionDirectory, testFrameworkName);
+            var testFrameworkItems = Path.Combine(BaseFrameworkTest.testExecutionDirectory, testFrameworkName);
 
             if (!Directory.Exists(testFrameworkItems))
             {
@@ -90,18 +97,23 @@ namespace JSTest.AcceptanceTests
             //Create Directories
             foreach (string dirPath in Directory.GetDirectories(testFrameworkItems, "*",
                 SearchOption.AllDirectories))
-                Directory.CreateDirectory(dirPath.Replace(testFrameworkItems, MochaFramework.testRepoPath));
+                Directory.CreateDirectory(dirPath.Replace(testFrameworkItems, BaseFrameworkTest.testRepoPath));
 
             //Copy all the files
             foreach (string newPath in Directory.GetFiles(testFrameworkItems, "*.*",
                 SearchOption.AllDirectories))
-                File.Copy(newPath, newPath.Replace(testFrameworkItems, MochaFramework.testRepoPath), true);
+                File.Copy(newPath, newPath.Replace(testFrameworkItems, BaseFrameworkTest.testRepoPath), true);
         }
 
-        protected static void InitializeBase()
+        protected static void InitializeBase(string package, string frameworkName, string itemFolder)
         {
             BaseFrameworkTest.InitializePaths();
             BaseFrameworkTest.InitializeTempFolder();
+            BaseFrameworkTest.InstallNpmPackage(package);
+            BaseFrameworkTest.CopyRepoItems(itemFolder);
+            BaseFrameworkTest.frameworkPackage = package;
+            BaseFrameworkTest.frameworkName = frameworkName;
+            BaseFrameworkTest.frameworkItemFolder = itemFolder;
         }
 
         #endregion
@@ -193,13 +205,78 @@ namespace JSTest.AcceptanceTests
         }
 
         [TestMethod]
-        public abstract void TestDiscovery();
+        public void TestDiscovery()
+        {
+            var files = Directory.EnumerateFiles(BaseFrameworkTest.testRepoPath);
+            files.Where((file) => file.EndsWith(".js"));
+
+            var cliOptions = new Dictionary<string, string>
+            {
+                { "listtests", "" }
+            };
+            var runConfig = new Dictionary<string, string>()
+            {
+                { "TestFramework", BaseFrameworkTest.frameworkName }
+            };
+
+            var output = this.RunTests(files, cliOptions, runConfig);
+            var expectedOutput = new List<string> { "test case a1", "test case a2", "test case b1", "test case b2" };
+
+            this.ValidateOutput(output, expectedOutput);
+        }
 
         [TestMethod]
-        public abstract void TestExecution();
+        public void TestExecution()
+        {
+            var files = Directory.EnumerateFiles(BaseFrameworkTest.testRepoPath);
+            files.Where((file) => file.EndsWith(".js"));
+
+            var cliOptions = new Dictionary<string, string>();
+            var runConfig = new Dictionary<string, string>()
+            {
+                { "TestFramework", BaseFrameworkTest.frameworkName }
+            };
+
+            var output = this.RunTests(files, cliOptions, runConfig);
+            var expectedStdOut = new List<string> { "Passed   test case a1", "Failed   test case a2", "Passed   test case b1", "Failed   test case a2" };
+
+            this.ValidateOutput(output, expectedStdOut, false);
+        }
 
         #endregion
 
+        #region Validations
+
+        private void ValidateOutput(ExecutionOutput output, IEnumerable<string> expectedStdOut, bool failOnStdErr = true)
+        {
+            if (!string.IsNullOrEmpty(output.StdErr.Trim().ToString()) && failOnStdErr)
+            {
+                Assert.Fail("StandardError for execution should have been empty");
+            }
+
+            var stdout = output.StdOut;
+
+            foreach (var str in expectedStdOut)
+            {
+                Assert.IsTrue(stdout.Contains(str), "Actual StdOut did not match the expected StdOut");
+            }
+        }
+
+        private void ValidateOutput(ExecutionOutput output, IEnumerable<string> expectedStdOut, IEnumerable<string> expectedStdErr)
+        {
+            var stderr = output.StdErr;
+
+            foreach (var str in expectedStdErr)
+            {
+                Assert.IsTrue(stderr.Contains(str), "Actual StdErr did not match the StdErr");
+            }
+
+
+            this.ValidateOutput(output, expectedStdOut, false);
+
+        }
+
+        #endregion
     }
 }
  

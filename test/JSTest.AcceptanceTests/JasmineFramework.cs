@@ -11,10 +11,10 @@ namespace JSTest.AcceptanceTests
 {
 
     [TestClass]
-    public class MochaFramework : BaseFrameworkTest
+    public class JasmineFramework : BaseFrameworkTest
     {
 
-        public MochaFramework() : base()
+        public JasmineFramework() : base()
         {
         }
 
@@ -22,7 +22,7 @@ namespace JSTest.AcceptanceTests
         [ClassInitialize]
         public static void ClassInitialize(TestContext context)
         {
-            MochaFramework.InitializeBase("mocha", "Mocha", "Mocha");
+            MochaFramework.InitializeBase("jasmine", "Jasmine", "Jasmine");
         }
 
     }

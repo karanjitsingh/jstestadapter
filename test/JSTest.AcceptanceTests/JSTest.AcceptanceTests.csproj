@@ -50,6 +50,8 @@
   <ItemGroup>
     <Compile Include="BaseFrameworkTest.cs" />
     <Compile Include="ExecutionOutput.cs" />
+    <Compile Include="JestFramework.cs" />
+    <Compile Include="JasmineFramework.cs" />
     <Compile Include="MochaFramework.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
