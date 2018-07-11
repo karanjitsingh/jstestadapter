@@ -53,17 +53,3 @@ With RunSettings.xml:
     </JSTest>
 </RunSettings>
 ```
-
-
-### TODO
-- [ ] Release branches
-- [ ] Discovery improvements
-- [ ] More Unit Tests
-- [ ] Trace Statements
-- [ ] Acceptance Tests:
-    - [ ] Should report if error
-        - [ ] Before `describe`
-        - [ ] In `describe`
-        - [ ] In `before`
-        - [ ] In `it`
-    - [ ] For each supported framework
