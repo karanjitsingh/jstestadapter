@@ -33,12 +33,12 @@ TestFrameworkConfigJson | Override test framework configurations (Specific to th
 
 #### RunSettings can be provided through the the vstest cli itself:
 ```bash
-    vstest.console.exe --Isolation --TestAdapterPath:<path> <files> -- JSTest.DebugLogs=true JSTest.TestFramework=mocha
+vstest.console.exe --Isolation --TestAdapterPath:<path> <files> -- JSTest.DebugLogs=true JSTest.TestFramework=mocha
 ```
 
 #### Using RunSettings xml defined for vstest:
 ```bash
-    vstest.console.exe --Isolation --Settings:RunSettings.xml --TestAdapterPath:<path> <files>
+vstest.console.exe --Isolation --Settings:RunSettings.xml --TestAdapterPath:<path> <files>
 ```
 With RunSettings.xml:
 ```xml

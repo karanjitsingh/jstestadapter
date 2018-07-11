@@ -1,9 +1,9 @@
 ﻿const assert = require('assert');
-describe('suite a', () => {
-    it('test 1', () => {
+describe('suite 1', () => {
+    it('test case a1', () => {
 
     });
-    it('test 2', () => {
+    it('test case a2', () => {
         assert.fail('failure');
     });
 })

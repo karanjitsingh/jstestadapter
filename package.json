@@ -1,6 +1,6 @@
 {
   "name": "jstestadapter",
-  "version": "0.10.1",
+  "version": "0.9.1",
   "description": "",
   "bundledDependencies": [
     "rewire",
@@ -15,7 +15,7 @@
     "@types/mocha": "^5.2.0",
     "@types/node": "^9.6.22",
     "@types/sinon": "^4.3.3",
-    "mocha": "^5.1.1",
+    "mocha": "^5.2.0",
     "sinon": "^5.0.7",
     "tslint": "^5.9.1",
     "tslint-microsoft-contrib": "^5.0.3",
@@ -36,7 +36,7 @@
     "url": "git+https://github.com/karanjitsingh/JSTestAdapter.git"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/karanjitsingh/JSTestAdapter/issues"
   },
