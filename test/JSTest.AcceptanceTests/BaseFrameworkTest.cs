@@ -25,6 +25,12 @@ namespace JSTest.AcceptanceTests
 
         #endregion
 
+        #region Protected Variables
+
+        protected abstract string ContainerExtension { get; }
+
+        #endregion
+
         #region Constructor
 
         public BaseFrameworkTest()
@@ -41,7 +47,7 @@ namespace JSTest.AcceptanceTests
             var startInfo = new ProcessStartInfo();
             
             startInfo.UseShellExecute = false;
-            startInfo.WindowStyle = ProcessWindowStyle.Hidden;
+            startInfo.WindowStyle = ProcessWindowStyle.Normal;
             startInfo.FileName = BaseFrameworkTest.vstestPath;
             startInfo.Arguments = this.BuildVSTestArgs(files, cliOptions, runConfig);
             startInfo.RedirectStandardError = true;
@@ -51,10 +57,7 @@ namespace JSTest.AcceptanceTests
             process.StartInfo.UseShellExecute = false;
 
             Console.Write($"{startInfo.FileName} {startInfo.Arguments}");
-
-            process.Start();
-            process.WaitForExit(20000);
-
+            
             return new ExecutionOutput(process);
         }
 
@@ -122,7 +125,7 @@ namespace JSTest.AcceptanceTests
 
         private string BuildVSTestArgs(IEnumerable<string> files, IDictionary<string, string> cliOptions, IDictionary<string, string> runConfig)
         {
-            var args = $"--Inisolation --TestAdapterPath:{Path.Combine(testRepoPath, "node_modules", "jstestadapter")}";
+            var args = $"--Inisolation --TestAdapterPath:{Path.Combine(BaseFrameworkTest.testRepoPath, "node_modules", "jstestadapter")}";
 
             foreach(var entry in cliOptions)
             {
@@ -199,7 +202,7 @@ namespace JSTest.AcceptanceTests
         #region TestMethods
 
         [ClassCleanup]
-        public void Cleanup()
+        public static void Cleanup()
         {
             Directory.Delete(BaseFrameworkTest.testRepoPath, true);
         }
@@ -208,7 +211,7 @@ namespace JSTest.AcceptanceTests
         public void TestDiscovery()
         {
             var files = Directory.EnumerateFiles(BaseFrameworkTest.testRepoPath);
-            files.Where((file) => file.EndsWith(".js"));
+            files.Where((file) => file.EndsWith(this.ContainerExtension));
 
             var cliOptions = new Dictionary<string, string>
             {
@@ -228,8 +231,7 @@ namespace JSTest.AcceptanceTests
         [TestMethod]
         public void TestExecution()
         {
-            var files = Directory.EnumerateFiles(BaseFrameworkTest.testRepoPath);
-            files.Where((file) => file.EndsWith(".js"));
+            var files = Directory.EnumerateFiles(BaseFrameworkTest.testRepoPath).Where((file) => file.EndsWith(this.ContainerExtension));
 
             var cliOptions = new Dictionary<string, string>();
             var runConfig = new Dictionary<string, string>()
@@ -249,6 +251,11 @@ namespace JSTest.AcceptanceTests
 
         private void ValidateOutput(ExecutionOutput output, IEnumerable<string> expectedStdOut, bool failOnStdErr = true)
         {
+            if(output.ProcessTimeout)
+            {
+                Assert.Fail("Process timed out");
+            }
+
             if (!string.IsNullOrEmpty(output.StdErr.Trim().ToString()) && failOnStdErr)
             {
                 Assert.Fail("StandardError for execution should have been empty");
@@ -260,10 +267,14 @@ namespace JSTest.AcceptanceTests
             {
                 Assert.IsTrue(stdout.Contains(str), "Actual StdOut did not match the expected StdOut");
             }
+
+            Console.Write(stdout);
         }
 
         private void ValidateOutput(ExecutionOutput output, IEnumerable<string> expectedStdOut, IEnumerable<string> expectedStdErr)
         {
+            this.ValidateOutput(output, expectedStdOut, false);
+
             var stderr = output.StdErr;
 
             foreach (var str in expectedStdErr)
@@ -271,9 +282,7 @@ namespace JSTest.AcceptanceTests
                 Assert.IsTrue(stderr.Contains(str), "Actual StdErr did not match the StdErr");
             }
 
-
-            this.ValidateOutput(output, expectedStdOut, false);
-
+            Console.Error.Write(stderr);
         }
 
         #endregion

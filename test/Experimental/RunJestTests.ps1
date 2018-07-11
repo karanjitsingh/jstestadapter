@@ -13,8 +13,9 @@ if(!$runonly) {
 
 Write-Host "`nStarting Execution...`n"
 
-D:\vstest\artifacts\Debug\net451\win7-x64\vstest.console.exe --TestAdapterPath:$FullCLRAdapter --Settings:.\RunSettings.jest.xml `
-"D:\vso\Tests\Web\tesla\package.json" `
+D:\vstest\vstest\artifacts\Debug\net451\win7-x64\vstest.console.exe --Inisolation --TestAdapterPath:C:\Users\karsin\AppData\Local\Temp\4c169762-bd5b-4bc3-b965-b5c69c272df1\node_modules\jstestadapter `
+"C:\Users\karsin\AppData\Local\Temp\4c169762-bd5b-4bc3-b965-b5c69c272df1\package-lock.json" `
 $(if($log) {"--diag:D:\logs\log.log"}) `
 $(if($discover) {"--listtests"}) `
-$(if($parallel) {"--parallel"})
+$(if($parallel) {"--parallel"}) `
+-- JSTest.TestFramework=Jest

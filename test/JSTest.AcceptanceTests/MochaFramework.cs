@@ -14,6 +14,14 @@ namespace JSTest.AcceptanceTests
     public class MochaFramework : BaseFrameworkTest
     {
 
+        protected override string ContainerExtension
+        {
+            get
+            {
+                return ".js";
+            }
+        }
+
         public MochaFramework() : base()
         {
         }

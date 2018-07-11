@@ -14,6 +14,14 @@ namespace JSTest.AcceptanceTests
     public class JasmineFramework : BaseFrameworkTest
     {
 
+        protected override string ContainerExtension
+        {
+            get
+            {
+                return ".js";
+            }
+        }
+
         public JasmineFramework() : base()
         {
         }
@@ -22,7 +30,7 @@ namespace JSTest.AcceptanceTests
         [ClassInitialize]
         public static void ClassInitialize(TestContext context)
         {
-            MochaFramework.InitializeBase("jasmine", "Jasmine", "Jasmine");
+            JasmineFramework.InitializeBase("jasmine", "Jasmine", "Jasmine");
         }
 
     }

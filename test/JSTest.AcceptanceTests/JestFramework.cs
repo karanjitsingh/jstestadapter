@@ -13,6 +13,13 @@ namespace JSTest.AcceptanceTests
     [TestClass]
     public class JestFramework : BaseFrameworkTest
     {
+        protected override string ContainerExtension
+        {
+            get
+            {
+                return "package.json";
+            }
+        }
 
         public JestFramework() : base()
         {
@@ -22,7 +29,7 @@ namespace JSTest.AcceptanceTests
         [ClassInitialize]
         public static void ClassInitialize(TestContext context)
         {
-            MochaFramework.InitializeBase("jest", "Jest", "Jest");
+            JestFramework.InitializeBase("jest", "Jest", "Jest");
         }
 
     }

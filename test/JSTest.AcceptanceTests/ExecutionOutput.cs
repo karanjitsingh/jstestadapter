@@ -12,38 +12,40 @@ namespace JSTest.AcceptanceTests
     {
         private StreamReader stdOut;
         private StreamReader stdErr;
-        private string stdOutString = null;
-        private string stdErrString = null;
+        private bool waitTimeout = false;
+
+        public bool ProcessTimeout
+        {
+            get
+            {
+                return waitTimeout;
+            }
+        }
 
         public string StdOut
         {
             get
             {
-                if(stdOutString == null)
-                {
-                    stdOutString = stdOut.ReadToEnd();
-                    Console.Write(stdOutString);
-                }
-                return stdOutString;
+                return stdOut.ReadToEnd();
             }
         }
 
         public string StdErr {
             get
             {
-                if (stdErrString == null)
-                {
-                    stdErrString = stdErr.ReadToEnd();
-                    Console.Error.Write(stdErrString);
-                }
-                return stdErrString;
+                return stdErr.ReadToEnd();
             }
         }
 
         public ExecutionOutput(Process process)
         {
+            process.Start();
+
             this.stdOut = process.StandardOutput;
             this.stdErr = process.StandardError;
+
+
+            this.waitTimeout = !process.WaitForExit(1200000);
         }
     }
 }
