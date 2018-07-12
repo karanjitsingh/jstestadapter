@@ -148,7 +148,7 @@ export class JasmineTestFramework extends BaseTestFramework implements ITestFram
         // tslint:disable-next-line                
         const getExecutor = function (fullyQualifiedName: string, testCaseName: string) { 
             this.skipCurrentSpec = false;
-            this.handleSpecStarted(this.sources[0], fullyQualifiedName, testCaseName);  // Will eventually call skip if skip is required
+            this.handleSpecStarted(fullyQualifiedName, testCaseName, this.sources[0]);  // Will eventually call skip if skip is required
             if (discovery || this.skipCurrentSpec === true) {
                 return skipSpecHandle;
             } else {

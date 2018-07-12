@@ -7,6 +7,9 @@ using System.Linq;
 using System.Diagnostics;
 using System.Collections;
 using System.Collections.Generic;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
 
 namespace JSTest.AcceptanceTests
 {
@@ -177,10 +180,13 @@ namespace JSTest.AcceptanceTests
 #else
             var config = "Release";
 #endif
-            var jstestPackageFolder = Path.Combine(projectFolder, "artifacts", config);
-            var packages = Directory.EnumerateFiles(jstestPackageFolder, "*.tgz", SearchOption.TopDirectoryOnly);
 
-            BaseFrameworkTest.jstestPackage = packages.First();
+            var jstestPackageFolder = Path.Combine(projectFolder, "artifacts", config);
+
+            var packageVersion= JObject.Parse(File.ReadAllText(Path.Combine(projectFolder, "package.json")))["version"];
+            var package = Directory.EnumerateFiles(jstestPackageFolder, $"jstestadapter-{packageVersion}.tgz", SearchOption.TopDirectoryOnly);
+
+            BaseFrameworkTest.jstestPackage = package.First();
             BaseFrameworkTest.vstestPath = Path.Combine(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName), "vstest.console.exe");
 
             if (!File.Exists(BaseFrameworkTest.vstestPath))
