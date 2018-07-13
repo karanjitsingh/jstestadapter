@@ -1,3 +1,5 @@
+import { EqtTrace } from '../ObjectModel/EqtTrace';
+
 interface Job {
     Action: () => void;
     Promise: Promise<any>;
@@ -16,6 +18,8 @@ export class JobQueue {
     }
 
     public queueJob(action: () => void, callback?: (e?: Error) => void) {
+        EqtTrace.info('JobQueue: Job queued.');
+
         this.jobQueue.push(<Job> {
             Action: action,
             Callback: callback
@@ -27,6 +31,8 @@ export class JobQueue {
     }
 
     public queuePromise(promise: Promise<any>, callback?: (e?: Error) => void) {
+        EqtTrace.info('JobQueue: Promise queued.');
+
         this.jobQueue.push(<Job> {
             Promise: promise,
             Callback: callback
@@ -62,7 +68,8 @@ export class JobQueue {
 
     private jobFinished(err?: Error) {
         if (err) {
-            // console.error(err);
+            console.error(err);
+            EqtTrace.error(`JobQueue: Error occured while executing job.`, err);        
         }
 
         const job = this.jobQueue.pop();
@@ -74,6 +81,8 @@ export class JobQueue {
     }
 
     private async executeJob() {
+        EqtTrace.info('JobQueue: Executing job.');
+
         const job = this.jobQueue[0];
         if (job.Action) {
             job.Action();

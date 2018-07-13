@@ -2,11 +2,11 @@
 - [x] Release branches
 - [ ] Discovery improvements
 - [ ] More Unit Tests
-- [ ] Trace Statements
+- [x] Trace Statements
 - [ ] Acceptance Tests:
     - [ ] Should report if error
         - [ ] Before `describe`
         - [ ] In `describe`
         - [ ] In `before`
         - [ ] In `it`
-    - [ ] For each supported framework
+    - [x] For each supported framework

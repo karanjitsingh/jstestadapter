@@ -3,6 +3,7 @@ import { ITestFramework, TestSessionEventArgs, TestSuiteEventArgs, TestSpecEvent
 import { TestCase, TestOutcome, EnvironmentType } from '../../ObjectModel/Common';
 import { SessionHash } from '../../Utils/Hashing/SessionHash';
 import { Constants } from '../../Constants';
+import { EqtTrace } from '../../ObjectModel/EqtTrace';
 
 /*
  * TODO:
@@ -44,6 +45,8 @@ export abstract class BaseTestFramework implements ITestFramework {
     }
 
     protected handleSessionStarted() {
+        EqtTrace.info(`BaseTestFramework: Test session started`);
+
         this.sessionEventArgs = new TestSessionEventArgs(this.sources, SessionHash(this.sources));
         this.testFrameworkEvents.onTestSessionStart.raise(this, this.sessionEventArgs);
 
@@ -51,12 +54,17 @@ export abstract class BaseTestFramework implements ITestFramework {
     }
 
     protected handleSessionDone() {
+        
         if (this.sessionActive) {
             this.sessionEventArgs.EndTime = new Date();
             this.sessionEventArgs.InProgress = false;
 
             this.testFrameworkEvents.onTestSessionEnd.raise(this, this.sessionEventArgs);
             this.sessionActive = false;
+
+            EqtTrace.info(`BaseTestFramework: Test session done ${JSON.stringify(this.sessionEventArgs)}`);
+        } else {
+            EqtTrace.info(`BaseTestFramework: Test session done received without active session.`);
         }
     }
 
@@ -69,8 +77,9 @@ export abstract class BaseTestFramework implements ITestFramework {
             EndTime: undefined
         };
 
-        this.suiteStack.push(suiteEventArgs);
+        EqtTrace.info(`BaseTestFramework: Test suite started ${JSON.stringify(suiteEventArgs)}`);
 
+        this.suiteStack.push(suiteEventArgs);
         this.testFrameworkEvents.onTestSuiteStart.raise(this, suiteEventArgs);
     }
 
@@ -91,6 +100,8 @@ export abstract class BaseTestFramework implements ITestFramework {
         suiteEndEventArgs.InProgress = false;
         suiteEndEventArgs.EndTime = new Date();
 
+        EqtTrace.info(`BaseTestFramework: Test suite done ${JSON.stringify(suiteEndEventArgs)}`);
+
         this.testFrameworkEvents.onTestSuiteEnd.raise(this, suiteEndEventArgs);
     }
 
@@ -110,6 +121,8 @@ export abstract class BaseTestFramework implements ITestFramework {
             EndTime: null
         };
 
+        EqtTrace.info(`BaseTestFramework: Test case started ${JSON.stringify(this.activeSpec)}`);
+
         this.testFrameworkEvents.onTestCaseStart.raise(this, this.activeSpec);
     }
 
@@ -119,6 +132,8 @@ export abstract class BaseTestFramework implements ITestFramework {
         this.activeSpec.EndTime = new Date();
         this.activeSpec.Outcome = testOutcome;
         this.activeSpec.FailedExpectations = failedExpectations;
+
+        EqtTrace.info(`BaseTestFramework: Test case done ${JSON.stringify(this.activeSpec)}`);
 
         this.testFrameworkEvents.onTestCaseEnd.raise(this, this.activeSpec);
     }
@@ -143,6 +158,8 @@ export abstract class BaseTestFramework implements ITestFramework {
             EndTime: endTime
         };
 
+        EqtTrace.info(`BaseTestFramework: Test result received ${JSON.stringify(specResult)}`);
+
         this.testFrameworkEvents.onTestCaseEnd.raise(this, specResult);
     }
 
@@ -153,6 +170,8 @@ export abstract class BaseTestFramework implements ITestFramework {
         } else {
             message = `${errMessage}\n ${errStack}`;
         }
+
+        EqtTrace.warn(`BaseTestFramework: Error message was received from test framework: ${message}`);
 
         this.testFrameworkEvents.onErrorMessage.raise(this, <TestErrorMessageEventArgs> {
             Message: message
@@ -176,6 +195,7 @@ export abstract class BaseTestFramework implements ITestFramework {
     private applyTestCaseFilter(testCase: TestCase, specObject: any) {
         if (this.testCollection) {
             if (!this.testCollection.has(testCase.Id)) {
+                EqtTrace.info(`BaseTestFramework: Skipping test case ${JSON.stringify(testCase)}`);
                 this.skipSpec(specObject);
             }
         }

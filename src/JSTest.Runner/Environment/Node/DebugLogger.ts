@@ -24,6 +24,6 @@ export class DebugLogger implements IDebugLogger {
     }
 
     public log(message: string) {
-        this.logFileStream.write(message);
+        this.logFileStream.write(message + '\n');
     }
 }

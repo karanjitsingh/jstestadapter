@@ -20,8 +20,12 @@ export namespace EqtTrace {
         }
     };
 
-    export const error = (message: string) => {
-        writeLog('Error', message);
+    export const error = (message: string, error: Error) => {
+        if (error !== null) {
+            writeLog('Error', `${message} Error: ${error.message}, Stack: ${error.stack}`);
+        } else {
+            writeLog('Error', message);
+        }
     };
     
     export const info = (message: string) => {

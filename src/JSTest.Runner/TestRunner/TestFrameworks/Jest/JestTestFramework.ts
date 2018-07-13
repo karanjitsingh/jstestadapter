@@ -5,6 +5,7 @@ import { BaseTestFramework } from '../BaseTestFramework';
 import { JestCallbacks } from './JestCallbacks';
 import * as rewire from 'rewire';
 import * as path from 'path';
+import { EqtTrace } from '../../../ObjectModel/EqtTrace';
 
 export class JestTestFramework extends BaseTestFramework {
     public readonly environmentType: EnvironmentType;
@@ -41,6 +42,8 @@ export class JestTestFramework extends BaseTestFramework {
     }
 
     public initialize() {
+        EqtTrace.info('JestTestFramework: initializing jest');
+
         this.jest = this.getJest();
 
         const jestjs = require.resolve('jest');
@@ -78,6 +81,8 @@ export class JestTestFramework extends BaseTestFramework {
     }
 
     public startExecutionWithSources(sources: Array<string>, options: JSON): void {
+        EqtTrace.info(`JestTestFramework: starting with options: ${JSON.stringify(options)}`);
+
         this.sources = sources;
         this.runJest(sources[0], null, null);
     }
@@ -124,6 +129,8 @@ export class JestTestFramework extends BaseTestFramework {
 
         // the property '_' will be set as process.argv which in this case are for TestRunner not for jest
         jestArgv._ = src;
+
+        EqtTrace.info(`JestTestFramework: JestArgv: ${JSON.stringify(jestArgv)}`);
 
         this.handleSessionStarted();
 

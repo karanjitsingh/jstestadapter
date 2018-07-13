@@ -2,6 +2,7 @@ import { FailedExpectation, ITestFrameworkEvents } from '../../../ObjectModel/Te
 import { EnvironmentType, TestOutcome } from '../../../ObjectModel/Common';
 import { Exception, ExceptionType } from '../../../Exceptions';
 import { BaseTestFramework } from '../BaseTestFramework';
+import { EqtTrace } from '../../../ObjectModel/EqtTrace';
 
 enum ReporterEvent {
     SessionStarted,
@@ -40,10 +41,13 @@ export class MochaTestFramework extends BaseTestFramework {
     }
 
     public initialize() {
+        EqtTrace.info('MochaTestFramework: initializing mocha');
         this.mochaLib = this.getMocha();
     }
 
     public startExecutionWithSources(sources: Array<string>, options: JSON): void {
+        EqtTrace.info(`MochaTestFramework: starting with options: ${JSON.stringify(options)}`);
+
         this.sources = sources;
 
         // tslint:disable-next-line
@@ -123,6 +127,8 @@ export class MochaTestFramework extends BaseTestFramework {
                 break;
             
                 case ReporterEvent.SessionError:
+                    EqtTrace.warn(`MochaTestFramework: Mocha session error: ${args.title}`);
+
                     const match = args.title.match(/(\".*?\" hook).*/i);
                     const testHooks = ['\"before all\" hook', '\"after all\" hook', '\"before each\" hook', '\"after each\" hook'];
 
@@ -157,6 +163,8 @@ export class MochaTestFramework extends BaseTestFramework {
     }
 
     private initializeReporter(runner: any) {
+        EqtTrace.info('MochaTestFramework: initializing mocha reporter');
+
         runner.setMaxListeners(20);
 
         runner.on('suite', (args) => { this.handleReporterEvents(ReporterEvent.SuiteStarted, args); });

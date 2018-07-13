@@ -3,6 +3,7 @@ import { IEvent } from '../../ObjectModel/Common';
 import { ICommunicationManager, MessageReceivedEventArgs } from '../ICommunicationManager';
 import { IEnvironment } from '../IEnvironment';
 import { Socket } from 'net';
+import { EqtTrace } from '../../ObjectModel/EqtTrace';
 
 interface PacketData<T> {
     byteCount: number;
@@ -23,6 +24,7 @@ export class CommunicationManager implements ICommunicationManager {
     }
 
     public connectToServer(ip: string, port: number, callback?: () => void) {
+        EqtTrace.info(`CommunicationManager: Connecting to socket: ${ip}:${port}.`);
         this.socket.connect(port, ip, callback);
     }
 
@@ -31,7 +33,7 @@ export class CommunicationManager implements ICommunicationManager {
 
         // Left pad with 7 bit encoded int length
         dataObject = this.intTo7BitEncodedInt(dataObject.length) + dataObject;
-
+        EqtTrace.info(`CommunicationManager: Sending message: ${dataObject}.`);
         this.socket.write(dataObject, 'binary');
     }
 
@@ -39,11 +41,15 @@ export class CommunicationManager implements ICommunicationManager {
         this.socketBuffer = Buffer.concat([this.socketBuffer, buffer]);
         let messagePacket: PacketData<Message> = null;
 
+        EqtTrace.info(`CommunicationManager: Socket data received.`);
+
         do {
             if (messagePacket != null) {
                 this.socketBuffer = this.socketBuffer.slice(messagePacket.byteCount, this.socketBuffer.length);
 
                 if (messagePacket.dataObject != null) {
+                    EqtTrace.info(`CommunicationManager: Message received: ${JSON.stringify(messagePacket)}.`);
+
                     this.onMessageReceived.raise(this, <MessageReceivedEventArgs> {
                         Message: messagePacket.dataObject
                     });
@@ -72,7 +78,7 @@ export class CommunicationManager implements ICommunicationManager {
                     const messageJson = JSON.parse(rawMessage);
                     messagePacket.dataObject = Message.FROM_JSON(messageJson);
                 } catch (e) {
-                    // log problem
+                    EqtTrace.error(`CommunicationManager: tryReadMessage:`, e);
                     messagePacket.dataObject = null;
                 }
 

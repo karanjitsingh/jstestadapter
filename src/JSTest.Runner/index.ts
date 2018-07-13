@@ -49,14 +49,16 @@ environmentProvider.getEnvironment().then((env: IEnvironment) => {
             EqtTrace.initialize(env.getDebugLogger());
         }
         
-        EqtTrace.info('environment started');
+        EqtTrace.info(`Index: Environment started for ${env.environmentType} with process arguments ${env.argv}.` );
 
         // tslint:disable-next-line
         new TestRunner(env, cliArgs);
     } catch (err) {
         handleError(err);
+        EqtTrace.error(`Error in test runner`, err);
         env.exit(1);
     }
 }, (err) => {
+    EqtTrace.error(`Index: Promise rejection for environmentProvider.getEnvironment.`, err);
     handleError(err);
 });

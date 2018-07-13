@@ -9,6 +9,7 @@ import { TestFrameworkFactory } from './TestFrameworks/TestFrameworkFactory';
 import { TestSessionManager } from './ExecutionManagers/TestSessionManager';
 import { Constants } from '../Constants';
 import { CLIArgs } from './CLIArgs';
+import { EqtTrace } from '../ObjectModel/EqtTrace';
 
 export class TestRunner {
     private readonly environment: IEnvironment;
@@ -41,7 +42,10 @@ export class TestRunner {
     private waitForSessionEnd() {
         if (!this.sessionEnded) {
             setTimeout(this.waitForSessionEnd.bind(this), 1000);
+            return;
         }
+
+        EqtTrace.info('TestRunner: completed session wait.');
     }
 
     private messageReceived = (sender: object, args: MessageReceivedEventArgs) => {
@@ -52,7 +56,8 @@ export class TestRunner {
                 if (message.Version === Constants.messageProtocolVersion) {
                     this.jsTestSettings = new JSTestSettings(message.Payload);
                 } else {
-                    // log
+                    EqtTrace.error(`TestRunner: Message protocol version mismatch, version is` + 
+                                   ` ${Constants.messageProtocolVersion}, provided was ${message.Version}`, null);            
                 }
 
                 this.messageSender.sendVersionCheck();
@@ -63,6 +68,7 @@ export class TestRunner {
                 break;
 
             case MessageType.StartTestExecutionWithSources:
+                EqtTrace.info('TestRunner: Starting execution with sources');
                 this.initializeSingletons();
 
                 const executionManager = new ExecutionManager(this.environment, this.messageSender, this.jsTestSettings);
@@ -72,6 +78,7 @@ export class TestRunner {
                 break;
 
             case MessageType.StartTestExecutionWithTests:
+                EqtTrace.info('TestRunner: Starting execution with tests');
                 this.initializeSingletons();
 
                 const executionManager2 = new ExecutionManager(this.environment, this.messageSender, this.jsTestSettings);
@@ -81,6 +88,7 @@ export class TestRunner {
                 break;
 
             case MessageType.StartDiscovery:
+                EqtTrace.info('TestRunner: Starting discovery');
                 this.initializeSingletons();
 
                 const discoveryManager = new DiscoveryManager(this.environment, this.messageSender, this.jsTestSettings);

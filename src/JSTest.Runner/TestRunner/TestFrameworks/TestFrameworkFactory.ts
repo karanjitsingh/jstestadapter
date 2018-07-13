@@ -5,6 +5,7 @@ import { IEnvironment } from '../../Environment/IEnvironment';
 import { MochaTestFramework } from './Mocha/MochaTestFramework';
 import { Exception, ExceptionType } from '../../Exceptions';
 import { JestTestFramework } from './Jest/JestTestFramework';
+import { EqtTrace } from '../../ObjectModel/EqtTrace';
 
 // tslint:disable:no-stateless-class
 export class TestFrameworkFactory {
@@ -18,14 +19,15 @@ export class TestFrameworkFactory {
 
     public static INITIALIZE(environment: IEnvironment) {
         if (!TestFrameworkFactory.instance) {
+            EqtTrace.info(`TestFrameworkFactory: initializing test framework factory`);        
             TestFrameworkFactory.instance = new TestFrameworkFactory(environment);
         }
     }
 
     public createTestFramework(framework: TestFrameworks): ITestFramework {
         if (this.environment.environmentType === EnvironmentType.NodeJS) {
+            EqtTrace.info(`TestFrameworkFactory: Creating test framework ${framework}.`);        
             return new (this.getFrameworkConstructor(framework))(this.createFrameworkEvents(), this.environment.environmentType);
-
         } else if (this.environment.environmentType === EnvironmentType.Browser) {
             throw new Exception('TestFrameworkFactory.getTestFramework(): Not implemented for browser',
                                 ExceptionType.NotImplementedException);

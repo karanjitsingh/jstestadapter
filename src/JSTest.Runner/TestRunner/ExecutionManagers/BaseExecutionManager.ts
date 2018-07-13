@@ -6,6 +6,7 @@ import { TestFrameworkEventHandlers } from '../TestFrameworks/TestFrameworkEvent
 import { TestSessionManager } from './TestSessionManager';
 import { TestFrameworks, ITestFramework } from '../../ObjectModel/TestFramework';
 import { Exception, ExceptionType } from '../../Exceptions';
+import { EqtTrace } from '../../ObjectModel/EqtTrace';
 
 export abstract class BaseExecutionManager {
     protected readonly environment: IEnvironment;
@@ -48,7 +49,7 @@ export abstract class BaseExecutionManager {
         try {
             testFrameworkInstance.initialize();
         } catch (e) {
-            // log e
+            EqtTrace.error(`BaseExecutionManager: error initializing test framework`, e);
             throw new Exception('Error initializing test framework: ' + e.message, ExceptionType.TestFrameworkError);
         }
         this.testFrameworkEventHandlers.Subscribe(testFrameworkInstance);

@@ -2,6 +2,7 @@ import { IEnvironment } from '../../Environment/IEnvironment';
 import { TestSessionEventArgs } from '../../ObjectModel/TestFramework';
 import { IEvent, IEventArgs } from '../../ObjectModel/Common';
 import { SessionHash } from '../../Utils/Hashing/SessionHash';
+import { EqtTrace } from '../../ObjectModel/EqtTrace';
 
 export interface TestSession {
     Sources: Array<string>;
@@ -30,6 +31,7 @@ export class TestSessionManager {
 
     public static INITIALIZE(environment: IEnvironment) {
         if (!TestSessionManager.instance) {
+            EqtTrace.info(`TestSessionManager: initializing`);
             TestSessionManager.instance = new TestSessionManager(environment);
         }
     }
@@ -37,6 +39,8 @@ export class TestSessionManager {
     public setSessionComplete(args: TestSessionEventArgs) {
         const testSession = this.testSessionBucket.get(args.SessionId);
         testSession.TestSessionEventArgs = args;
+
+        EqtTrace.info(`TestSessionManager: Session ${args.SessionId} completed.`);
 
         this.continueNextSession(testSession);
     }
@@ -50,7 +54,15 @@ export class TestSessionManager {
             Complete: false
         };
 
-        this.testSessionBucket.set(SessionHash(sources), testSession);
+        const sessionID = SessionHash(sources);
+
+        EqtTrace.info(`TestSessionManager: Added session with sources ${JSON.stringify(sources)}: Session ID: ${sessionID}`);
+
+        if (this.testSessionBucket.has(sessionID)) {
+            EqtTrace.warn('TestSessionManager: Test session collision');
+        }
+
+        this.testSessionBucket.set(sessionID, testSession);
         this.sessionCount++;
 
         // TODO should warn if same session id generate
@@ -77,15 +89,17 @@ export class TestSessionManager {
         const executionDomain = domain.create();
         try {
             executionDomain.on('error', (err: Error) => {
+                EqtTrace.error('TestSessionManager: Error event received from domain', err);
                 this.sessionError(testSession, err);
             });
             executionDomain.run(() => {
+                EqtTrace.info(`TestSessionManager: Executing session in domain`);
                 // this.codecoverage.startCoverage(executeJob);
                 testSession.Job();
             });
         } catch (err) {
+            EqtTrace.error('TestSessionManager: error running in domain', err);
             this.sessionError(testSession, err);
-            // TODO log message
         }
 
         return executionDomain;
@@ -95,6 +109,9 @@ export class TestSessionManager {
         if (testSession.TestSessionEventArgs != null) {
             testSession.TestSessionEventArgs.InProgress = false;
             testSession.TestSessionEventArgs.EndTime = new Date();
+            EqtTrace.error(`TestSessionManager: Session ${testSession.TestSessionEventArgs.SessionId}`, err);
+        } else {
+            EqtTrace.error(`TestSessionManager: Session with undefined id`, err);
         }
 
         testSession.ErrorCallback(err);
