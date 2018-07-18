@@ -4,9 +4,10 @@ param(
     [switch]$parallel,
     [switch]$log,
     [string]$test = "",
-    [string]$vstest = "D:\vstest\vstest\artifacts\Debug\net451\win7-x64\vstest.console.exe"
+    [string]$vstest = "D:\vstest\vstest\artifacts\Debug\net451\win7-x64\vstest.console.exe",
+    [ValidateSet("Debug", "Release")]
+    [string] $configuration="Debug"
 )
-
 
 . .\base.ps1
 
@@ -19,7 +20,9 @@ if((Test-Path $vstest) -ne 'True') {
 
 $vstest = "& '$vstest'"
 
-$command = "$vstest --TestAdapterPath:$FullCLRAdapter --inisolation"
+$AdapterPath = Join-Path $ProjectDir "artifacts\$configuration\net451"
+
+$command = "$vstest --TestAdapterPath:$AdapterPath --inisolation"
 if($log) {
     $command = "$command --diag:D:\logs\jstest.log"
 }

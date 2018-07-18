@@ -7,7 +7,6 @@
     "source-map-support"
   ],
   "dependencies": {
-    "jasmine": "^3.1.0",
     "rewire": "^4.0.1",
     "source-map-support": "^0.5.4"
   },
