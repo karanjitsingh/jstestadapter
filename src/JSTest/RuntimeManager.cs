@@ -63,7 +63,7 @@
 
         private Action<object, string> ProcessOutputReceived => (process, data) =>
         {
-            Console.Error.Write(data);
+            Console.Write(data);
         };
 
         private Action<object, string> ProcessErrorReceived => (process, data) =>
@@ -74,7 +74,7 @@
             if (!string.IsNullOrEmpty(errorString))
             {
                 //messageLogger.SendMessage(TestMessageLevel.Error, errorString);
-                Console.Error.Write(errorString);
+                Console.Write(errorString);
                 // clear waits
             }
         };
@@ -263,7 +263,7 @@
                     break;
 
                 default:
-                    Console.Error.Write(message.Payload);
+                    Console.Write(message.Payload);
                     break;
             }
 
