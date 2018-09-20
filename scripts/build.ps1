@@ -90,7 +90,7 @@ function Build-Solution {
 
 }
 
-if($clean) { Build-Clean; exit }
+if($clean) { Build-Clean; }
 Restore-Package
 Build-Solution
 Publish-Package
