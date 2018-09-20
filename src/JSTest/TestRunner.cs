@@ -7,27 +7,19 @@ namespace JSTest
     using System.Diagnostics;
     using System.Threading;
     using System.Threading.Tasks;
-
-    using Microsoft.VisualStudio.TestPlatform.ObjectModel;
-    
     using JSTest.Interfaces;
     using JSTest.RuntimeProviders;
     using JSTest.Settings;
+    using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 
 
-    public class TestRunner: IDisposable
+    public class TestRunner : IDisposable
     {
         private TestRuntimeManager runtimeManager;
         private readonly ManualResetEventSlim executionComplete;
         private readonly TestRunEvents testRunEvents;
 
-        public ITestRunEvents TestRunEvents
-        {
-            get
-            {
-                return this.testRunEvents;
-            }
-        }
+        public ITestRunEvents TestRunEvents => this.testRunEvents;
 
         public TestRunner()
         {
@@ -36,7 +28,8 @@ namespace JSTest
 
             var hostDebug = Environment.GetEnvironmentVariable("JSTEST_HOST_DEBUG");
 
-            if (!string.IsNullOrEmpty(hostDebug) && hostDebug == "1") {
+            if (!string.IsNullOrEmpty(hostDebug) && hostDebug == "1")
+            {
                 Debugger.Launch();
             }
         }
@@ -53,7 +46,6 @@ namespace JSTest
             try
             {
                 launchTask = Task.Run(() => this.runtimeManager.LaunchProcessAsync(processInfo, new CancellationToken()));
-
                 if (!launchTask.Wait(RuntimeProviderFactory.Instance.IsRuntimeDebuggingEnabled
                                     ? Constants.InfiniteTimout
                                     : Constants.StandardWaitTimout))
@@ -61,23 +53,23 @@ namespace JSTest
                     throw new TimeoutException("Process launch timeout.");
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
                 this.testRunEvents.DisableInvoke = true;
 
-                EqtTrace.Error(e);
-                exception = new JSTestException("JSTest.TestRunner.StartExecution: Could not start javascript runtime.");
+                EqtTrace.Error(ex);
+                exception = new JSTestException($"JSTest.TestRunner.StartExecution: Could not start javascript runtime : {ex}");
             }
             finally
             {
                 if (exception == null && launchTask.Exception != null)
                 {
                     EqtTrace.Error(launchTask.Exception);
-                    exception = new JSTestException("JSTest.TestRunner.StartExecution: Could not start javascript runtime.");
+                    exception = new JSTestException($"JSTest.TestRunner.StartExecution: Could not start javascript runtime. {launchTask.Exception}");
                 }
             }
 
-            if(exception != null)
+            if (exception != null)
             {
                 throw exception;
             }
@@ -92,7 +84,7 @@ namespace JSTest
                 this.runtimeManager.SendStartDiscovery(sources);
             }
             else
-            { 
+            {
                 this.runtimeManager.SendStartExecution(sources);
             }
         }
@@ -101,9 +93,9 @@ namespace JSTest
         {
             var list = new List<string>();
 
-            foreach(var test in tests)
+            foreach (var test in tests)
             {
-                if(!string.IsNullOrEmpty(test.Source))
+                if (!string.IsNullOrEmpty(test.Source))
                 {
                     list.Add(test.Source);
                 }

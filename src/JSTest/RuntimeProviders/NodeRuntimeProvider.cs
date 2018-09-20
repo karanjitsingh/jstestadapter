@@ -4,64 +4,58 @@
 namespace JSTest.RuntimeProviders
 {
     using System;
+    using System.Collections.Generic;
+    using System.Globalization;
     using System.IO;
     using System.Reflection;
 
     using Microsoft.VisualStudio.TestPlatform.ObjectModel;
     using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions;
 
-    using System.Collections.Generic;
-
     internal class NodeRuntimeProvider : IRuntimeProvider
     {
-        private static NodeRuntimeProvider instance;
+        public static NodeRuntimeProvider Instance { get; } = new NodeRuntimeProvider();
 
-        public static NodeRuntimeProvider Instance
-        {
-            get
-            {
-                if (NodeRuntimeProvider.instance != null)
-                {
-                    return NodeRuntimeProvider.instance;
-                }
-                else
-                {
-                    return NodeRuntimeProvider.instance = new NodeRuntimeProvider();
-                }
-            }
-        }
-
-        public TestProcessStartInfo GetRuntimeProcessInfo(bool isDebugEnabled, IEnumerable<string> sources)
+        public TestProcessStartInfo GetRuntimeProcessInfo(string nodePath, bool isDebugEnabled, IEnumerable<string> sources)
         {
             var processInfo = new TestProcessStartInfo();
-
             string rootFolder = Path.GetDirectoryName(typeof(TestRunner).GetTypeInfo().Assembly.GetAssemblyLocation());
+            if (!string.IsNullOrWhiteSpace(nodePath))
+            {
+                processInfo.FileName = nodePath;
 
-            processInfo.FileName = "node";
-            //processInfo.WorkingDirectory = rootFolder;
+                if (!string.Equals(Path.GetFileName(nodePath).ToLowerInvariant(), "node.exe", StringComparison.OrdinalIgnoreCase))
+                {
+                    throw new InvalidDataException($"NodePath specified in the run settings {nodePath} doesnot point to node.exe");
+                }
+
+                if (!File.Exists(nodePath))
+                {
+                    throw new InvalidDataException($"NodePath specified in the run settings {nodePath} doesnot exist");
+                }
+            }
+            else
+            {
+                processInfo.FileName = "node.exe";
+            }
 
             var jstestrunner = Path.Combine(rootFolder, "index.js");
-            processInfo.EnvironmentVariables = new Dictionary<string, string>();
+            processInfo.EnvironmentVariables = new Dictionary<string, string>
+            {
+                { "NODE_PATH", InitNodePath(sources, rootFolder) },
+                { "NODE_NO_WARNINGS", "1" }
+            };
 
-            
-
-            processInfo.EnvironmentVariables.Add("NODE_PATH", initNodePath(sources, rootFolder));
-
-            //processInfo.EnvironmentVariables.Add("NODE_DEBUG", "module");
-            processInfo.EnvironmentVariables.Add("NODE_NO_WARNINGS", "1");
-
-            processInfo.Arguments = string.Format(
-                " -r source-map-support/register {0} {1}",
-                isDebugEnabled ? "--inspect-brk=9229" : "",
-                jstestrunner);
+            processInfo.Arguments = string.Format(CultureInfo.InvariantCulture,
+                " -r source-map-support/register {0} {1}", isDebugEnabled ? "--inspect-brk=9229" : "", jstestrunner);
 
             return processInfo;
         }
 
-        private string initNodePath(IEnumerable<string> sources, string root)
+        private string InitNodePath(IEnumerable<string> sources, string root)
         {
             var node_path = Environment.GetEnvironmentVariable("NODE_PATH");
-            if(!string.IsNullOrEmpty(node_path))
+            if (!string.IsNullOrEmpty(node_path))
             {
                 node_path += ";";
             }
@@ -69,12 +63,11 @@ namespace JSTest.RuntimeProviders
             node_path += Path.Combine(root, "node_modules");
 
             HashSet<string> paths = new HashSet<string>();
-
             foreach (var src in sources)
             {
                 var path = Path.GetDirectoryName(src);
-                
-                while(!String.IsNullOrEmpty(path) && !paths.Contains(path))
+
+                while (!string.IsNullOrEmpty(path) && !paths.Contains(path))
                 {
                     var node_m = Path.Combine(path, "node_modules");
                     if (Directory.Exists(node_m))

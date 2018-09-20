@@ -13,9 +13,9 @@ using JSTest.Interfaces;
 
 namespace JSTest.TestAdapter
 {
-    [FileExtension(AdapterConstants.FileExtensions.JSON)]
-    [FileExtension(AdapterConstants.FileExtensions.JavaScript)]
-    [DefaultExecutorUri(AdapterConstants.ExecutorUri)]
+    [FileExtension(JSTestAdapterConstants.FileExtensions.JSON)]
+    [FileExtension(JSTestAdapterConstants.FileExtensions.JavaScript)]
+    [DefaultExecutorUri(JSTestAdapterConstants.ExecutorUri)]
     public class JavaScriptTestDiscoverer : ITestDiscoverer
     {
         private readonly TestRunner testRunner;
@@ -39,7 +39,7 @@ namespace JSTest.TestAdapter
             this.messageLogger = logger;
             this.sources = sources;
 
-            var settingsProvider = discoveryContext.RunSettings.GetSettings(AdapterConstants.SettingsName) as JavaScriptSettingsProvider;
+            var settingsProvider = discoveryContext.RunSettings.GetSettings(JSTestAdapterConstants.SettingsName) as JavaScriptSettingsProvider;
             this.settings = settingsProvider != null ? settingsProvider.Settings : new JSTestSettings();
 
             this.settings.Discovery = true;

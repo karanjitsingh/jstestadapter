@@ -13,7 +13,7 @@ using System.Threading;
 namespace JSTest.TestAdapter.SettingsProvider
 {
 
-    [ExtensionUri(AdapterConstants.ExecutorUri)]
+    [ExtensionUri(JSTestAdapterConstants.ExecutorUri)]
     class JavaScriptTestExecutor : ITestExecutor
     {
         private readonly TestRunner testRunner;
@@ -40,7 +40,7 @@ namespace JSTest.TestAdapter.SettingsProvider
         {
             this.frameworkHandle = frameworkHandle;
             
-            var settingsProvider = runContext.RunSettings.GetSettings(AdapterConstants.SettingsName) as JavaScriptSettingsProvider;
+            var settingsProvider = runContext.RunSettings.GetSettings(JSTestAdapterConstants.SettingsName) as JavaScriptSettingsProvider;
             var settings = settingsProvider != null ? settingsProvider.Settings : new JSTestSettings();
 
             try
@@ -62,7 +62,7 @@ namespace JSTest.TestAdapter.SettingsProvider
         {
             this.frameworkHandle = frameworkHandle;
 
-            var settingsProvider = runContext.RunSettings.GetSettings(AdapterConstants.SettingsName) as JavaScriptSettingsProvider;
+            var settingsProvider = runContext.RunSettings.GetSettings(JSTestAdapterConstants.SettingsName) as JavaScriptSettingsProvider;
             var settings = settingsProvider != null ? settingsProvider.Settings : new JSTestSettings();
 
             try
