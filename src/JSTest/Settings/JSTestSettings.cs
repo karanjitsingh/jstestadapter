@@ -1,14 +1,8 @@
-﻿using Microsoft.VisualStudio.TestPlatform.ObjectModel;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Runtime.Serialization;
-using System.Text;
+﻿using System.Runtime.Serialization;
 using System.Xml.Serialization;
 
 namespace JSTest.Settings
 {
-
     [DataContract]
     public class JSTestSettings
     {
@@ -26,6 +20,9 @@ namespace JSTest.Settings
         [XmlIgnore]
         [DataMember]
         public JSTestFramework JavaScriptTestFramework { get; set; }
+
+        [XmlElement("NodePath")]
+        public string NodePath { get; set; }
 
         [XmlElement("TestFramework")]
         public string JavaScriptTestFrameworkAsString
@@ -77,6 +74,7 @@ namespace JSTest.Settings
             this.Discovery = false;
             this.RunInParallel = true;
             this.DebugLogs = false;
+            this.NodePath = string.Empty;
         }
     }
 }
