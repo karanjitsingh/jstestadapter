@@ -1,12 +1,10 @@
-﻿using JSTest.Communication;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Diagnostics;
-using System.IO;
 using System.Net;
-using System.Text;
 using System.Threading.Tasks;
+using JSTest.Communication;
+using JSTest.RuntimeProviders;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 
 namespace JSTest
 {
@@ -33,15 +31,9 @@ namespace JSTest
         public JSProcess()
         {
         }
-      
-        public bool IsAlive
-        {
-            get
-            {
-                return this.process != null && !this.process.HasExited;
-            }
-        }
-        
+
+        public bool IsAlive => this.process != null && !this.process.HasExited;
+
         public bool EnableDebugLogs { get; set; }
 
         public bool LaunchProcess(TestProcessStartInfo startInfo, Action<object, string> processErrorReceived, Action<object> processExitReceived)
@@ -87,11 +79,24 @@ namespace JSTest
 
             this.process = process;
 
-            this.channel.WaitForClientConnection(-1);
+            this.channel.WaitForClientConnection(GetConnectionTimeout());
 
             return process != null;
         }
-        
+
+        private int GetConnectionTimeout()
+        {
+            var connectionTimeoutString = Environment.GetEnvironmentVariable(Constants.VsTestConnectionTimeout);
+            if (!int.TryParse(connectionTimeoutString, out int connectionTimeout))
+            {
+                connectionTimeout = Constants.DefaultVsTestNodeStartTimeout;
+            }
+
+            return RuntimeProviderFactory.Instance.IsRuntimeDebuggingEnabled
+                                                ? Constants.VsTestNodeStartInfiniteTimout
+                                                : connectionTimeout;
+        }
+
         public void TerminateProcess()
         {
             if (this.IsAlive)
@@ -111,7 +116,7 @@ namespace JSTest
                                                         endPoint.Port,
                                                         this.EnableDebugLogs ? "--diag" : "");
 
-            foreach(var entry in startInfo.EnvironmentVariables)
+            foreach (var entry in startInfo.EnvironmentVariables)
             {
 #if NETSTANDARD14
                 process.StartInfo.Environment.Add(entry);

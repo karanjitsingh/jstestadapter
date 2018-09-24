@@ -81,13 +81,13 @@ namespace JSTest.TestAdapter.SettingsProvider
 
         private void SubscribeToEvents(ITestRunEvents testRunEvents)
         {
-            testRunEvents.onTestCaseStart += this.onTestCaseStartHandler;
-            testRunEvents.onTestCaseEnd += this.onTestCaseEndHandler;
-            testRunEvents.onTestSessionEnd += this.onTestSessionEndHandler;
-            testRunEvents.onTestMessageReceived += this.onTestMessageReceived;
+            testRunEvents.onTestCaseStart += this.OnTestCaseStartHandler;
+            testRunEvents.onTestCaseEnd += this.OnTestCaseEndHandler;
+            testRunEvents.onTestSessionEnd += this.OnTestSessionEndHandler;
+            testRunEvents.onTestMessageReceived += this.OnTestMessageReceived;
         }
 
-        private void onTestMessageReceived(object sender, TestMessagePayload e)
+        private void OnTestMessageReceived(object sender, TestMessagePayload e)
         {
             if (e.MessageLevel != TestMessageLevel.Informational)
             {
@@ -95,17 +95,17 @@ namespace JSTest.TestAdapter.SettingsProvider
             }
         }
 
-        private void onTestCaseStartHandler(object sender, TestCaseStartEventArgs e)
+        private void OnTestCaseStartHandler(object sender, TestCaseStartEventArgs e)
         {
             this.frameworkHandle.RecordStart(e.TestCase);
         }
 
-        private void onTestCaseEndHandler(object sender, TestCaseEndEventArgs e)
+        private void OnTestCaseEndHandler(object sender, TestCaseEndEventArgs e)
         {
             this.frameworkHandle.RecordResult(e.TestResult);
         }
 
-        private void onTestSessionEndHandler(object sender, EventArgs e)
+        private void OnTestSessionEndHandler(object sender, EventArgs e)
         {
             this.executionCompletion.Set();
         }
