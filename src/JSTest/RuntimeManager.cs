@@ -134,7 +134,7 @@
                 try
                 {
                     this.processStdError = new StringBuilder(this.ErrorLength, this.ErrorLength);
-                    EqtTrace.Verbose("DotnetTestHostManager: Starting process '{0}' with command line '{1}'", runtimeProcessStartInfo.FileName, runtimeProcessStartInfo.Arguments);
+                    EqtTrace.Verbose("JSTestHostManager: Starting process '{0}' with command line '{1}'", runtimeProcessStartInfo.FileName, runtimeProcessStartInfo.Arguments);
 
                     cancellationToken.ThrowIfCancellationRequested();
 
@@ -144,14 +144,11 @@
                 catch (OperationCanceledException ex)
                 {
                     EqtTrace.Error("DotnetTestHostManager.LaunchHost: Failed to launch testhost: {0}", ex);
-                    //this.messageLogger.SendMessage(TestMessageLevel.Error, ex.ToString());
                     Console.Write(ex);
                     return false;
                 }
 
-                //this.OnHostLaunched(new HostProviderEventArgs("Test Runtime launched", 0, this.testHostProcess.Id));
                 this.InitializeCommunication(cancellationToken);
-
                 return this.jsProcess.IsAlive;
             });
         }

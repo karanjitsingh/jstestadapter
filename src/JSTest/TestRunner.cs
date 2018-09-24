@@ -7,9 +7,11 @@ namespace JSTest
     using System.Diagnostics;
     using System.Threading;
     using System.Threading.Tasks;
+
     using JSTest.Interfaces;
     using JSTest.RuntimeProviders;
     using JSTest.Settings;
+
     using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 
 
@@ -34,23 +36,28 @@ namespace JSTest
             }
         }
 
-        private void StartRuntimeManager(JSTestSettings settings, IEnumerable<string> sources)
+        private void StartExecution(JSTestSettings settings, IEnumerable<string> sources)
         {
             var processInfo = RuntimeProviderFactory.Instance.GetRuntimeProcessInfo(settings, sources);
             this.runtimeManager = new TestRuntimeManager(settings, this.testRunEvents);
 
             Task<bool> launchTask = null;
-
             JSTestException exception = null;
 
             try
             {
+                var launchStopWatch = Stopwatch.StartNew();
                 launchTask = Task.Run(() => this.runtimeManager.LaunchProcessAsync(processInfo, new CancellationToken()));
-                if (!launchTask.Wait(RuntimeProviderFactory.Instance.IsRuntimeDebuggingEnabled
-                                    ? Constants.InfiniteTimout
-                                    : Constants.StandardWaitTimout))
+                int launchTimeoutInMilliseconds = GetProcessLauncTimeout();
+
+                if (!launchTask.Wait(launchTimeoutInMilliseconds))
                 {
-                    throw new TimeoutException("Process launch timeout.");
+                    throw new TimeoutException($"Process launch timeout after {launchTimeoutInMilliseconds} ms");
+                }
+                else
+                {
+                    launchStopWatch.Stop();
+                    Console.WriteLine($"JSTest.TestRunner.StartExecution: Process Launched in {launchStopWatch.ElapsedMilliseconds} ms");
                 }
             }
             catch (Exception ex)
@@ -75,10 +82,22 @@ namespace JSTest
             }
         }
 
+        private static int GetProcessLauncTimeout()
+        {
+            var startTimeoutString = Environment.GetEnvironmentVariable(Constants.VsTestNodeStartTimeout);
+            if (!int.TryParse(startTimeoutString, out int startTimeout))
+            {
+                startTimeout = Constants.DefaultVsTestNodeStartTimeout;
+            }
+
+            return RuntimeProviderFactory.Instance.IsRuntimeDebuggingEnabled
+                                                ? Constants.VsTestNodeStartInfiniteTimout
+                                                : Constants.DefaultVsTestNodeStartTimeout;
+        }
+
         public void StartExecution(IEnumerable<string> sources, JSTestSettings settings, CancellationToken? cancellationToken)
         {
-            this.StartRuntimeManager(settings, sources);
-
+            this.StartExecution(settings, sources);
             if (settings.Discovery)
             {
                 this.runtimeManager.SendStartDiscovery(sources);
@@ -101,7 +120,7 @@ namespace JSTest
                 }
             }
 
-            this.StartRuntimeManager(settings, list);
+            this.StartExecution(settings, list);
             this.runtimeManager.SendStartExecution(tests);
         }
 

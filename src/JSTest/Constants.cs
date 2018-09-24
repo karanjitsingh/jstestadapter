@@ -7,8 +7,9 @@ namespace JSTest
 {
     internal static class Constants
     {
-        public const int InfiniteTimout = -1;
-        public const int StandardWaitTimout = 5000;
+        public const int VsTestNodeStartInfiniteTimout = -1;
+        public const int DefaultVsTestNodeStartTimeout = 30000;
+        public const string VsTestNodeStartTimeout = "VsTestNodeStartTimeout";
         public const int MessageProtocolVersion = 1;
         public const int StreamBufferSize = 16384;
 
