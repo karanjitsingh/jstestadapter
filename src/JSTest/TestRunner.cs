@@ -40,7 +40,6 @@ namespace JSTest
         {
             var processInfo = RuntimeProviderFactory.Instance.GetRuntimeProcessInfo(settings, sources);
             this.runtimeManager = new TestRuntimeManager(settings, this.testRunEvents);
-
             Task<bool> launchTask = null;
             JSTestException exception = null;
 
@@ -48,7 +47,7 @@ namespace JSTest
             {
                 var launchStopWatch = Stopwatch.StartNew();
                 launchTask = Task.Run(() => this.runtimeManager.LaunchProcessAsync(processInfo, new CancellationToken()));
-                int launchTimeoutInMilliseconds = GetProcessLauncTimeout();
+                int launchTimeoutInMilliseconds = GetProcessLaunchTimeout();
 
                 if (!launchTask.Wait(launchTimeoutInMilliseconds))
                 {
@@ -82,7 +81,7 @@ namespace JSTest
             }
         }
 
-        private static int GetProcessLauncTimeout()
+        private static int GetProcessLaunchTimeout()
         {
             var startTimeoutString = Environment.GetEnvironmentVariable(Constants.VsTestNodeStartTimeout);
             if (!int.TryParse(startTimeoutString, out int startTimeout))
@@ -92,7 +91,7 @@ namespace JSTest
 
             return RuntimeProviderFactory.Instance.IsRuntimeDebuggingEnabled
                                                 ? Constants.VsTestNodeStartInfiniteTimout
-                                                : Constants.DefaultVsTestNodeStartTimeout;
+                                                : startTimeout;
         }
 
         public void StartExecution(IEnumerable<string> sources, JSTestSettings settings, CancellationToken? cancellationToken)

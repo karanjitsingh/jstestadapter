@@ -5,23 +5,18 @@
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
-
-    using Microsoft.VisualStudio.TestPlatform.ObjectModel;
-    using Microsoft.VisualStudio.TestPlatform.ObjectModel.Host;
-    using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
-    using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions;
-    using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces;
-
     using JSTest.Communication;
     using JSTest.Communication.Payloads;
     using JSTest.Settings;
-    using System.Diagnostics;
+    using Microsoft.VisualStudio.TestPlatform.ObjectModel;
+    using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions;
+    using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces;
 
     internal class TestRuntimeManager
     {
-        private JSTestSettings settings;
+        private readonly JSTestSettings settings;
         private StringBuilder processStdError;
-        private ManualResetEventSlim versionCheckComplete;
+        private readonly ManualResetEventSlim versionCheckComplete;
         private bool runtimeCanExit = false;
 
         private readonly JSProcess jsProcess;
@@ -48,12 +43,6 @@
 
         private Action<object> ProcessExitReceived => (process) =>
         {
-            //this.jsProcess.WaitForExit();
-
-            //this.testRunEvents.InvokeTestSessionEnd(this);
-
-            // It's possible error occured before version check complete
-            //versionCheckComplete.Set();
             if (!runtimeCanExit)
             {
                 this.testRunEvents.InvokeTestSessionEnd(this);
@@ -195,13 +184,11 @@
                     var task = channel.ReceiveMessageAsync(cancellationToken);
                     task.Wait();
 
-                    this.onMessageReceived(task.Result);
+                    this.OnMessageReceived(task.Result);
                 }
                 catch (Exception exception)
                 {
-                    EqtTrace.Error(
-                            "Socket: Message loop: failed to receive message {0}",
-                            exception);
+                    EqtTrace.Error("Socket: Message loop: failed to receive message {0}", exception);
                     error = exception;
                     break;
                 }
@@ -210,9 +197,9 @@
             return Task.FromResult(0);
         }
 
-        private void onMessageReceived(Message message)
+        private void OnMessageReceived(Message message)
         {
-            switch(message.MessageType)
+            switch (message.MessageType)
             {
                 case MessageType.VersionCheck:
                     var version = this.dataSerializer.DeserializePayload<int>(message);

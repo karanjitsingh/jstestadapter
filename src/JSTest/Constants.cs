@@ -1,15 +1,12 @@
-﻿using JSTest.Settings;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace JSTest
+﻿namespace JSTest
 {
     internal static class Constants
     {
         public const int VsTestNodeStartInfiniteTimout = -1;
         public const int DefaultVsTestNodeStartTimeout = 30000;
+        public const int DefaultVsTestConnectionTimeout = 60000;
         public const string VsTestNodeStartTimeout = "VsTestNodeStartTimeout";
+        public const string VsTestConnectionTimeout = "VsTestConnectionTimeout";
         public const int MessageProtocolVersion = 1;
         public const int StreamBufferSize = 16384;
 
