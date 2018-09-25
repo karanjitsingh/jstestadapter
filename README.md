@@ -1,6 +1,7 @@
-### JSTestAdapter
 
 [![Build Status](https://karanjitsingh.visualstudio.com/JSTestAdapter/_apis/build/status/karanjitsingh.JSTestAdapter)](https://karanjitsingh.visualstudio.com/JSTestAdapter/_build/latest?definitionId=4)
+
+### JSTestAdapter
 
 JSTestAdapter is a JavaScript test adapter extension for [Visual Studio Test Platform](https://github.com/Microsoft/vstest). JSTestAdapter with vstest can be used as a command line tool to run tests written in mocha, jasmine or jest.
 
