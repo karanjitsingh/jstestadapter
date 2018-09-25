@@ -69,14 +69,13 @@ function Publish-Package {
 function Build-Solution {
     Write-Host "`nStarting msbuild.`n"
     if($configuration -eq "Release") {
-        dotnet msbuild $ProjectSolutionFile /p:"Configuration=$configuration;TargetFramework=$target" /p:DebugSymbols=false /p:DebugType=None
+        dotnet build $ProjectSolutionFile /p:"Configuration=$configuration;TargetFramework=$target" /p:DebugSymbols=false /p:DebugType=None
     }
     else {
-        dotnet msbuild $ProjectSolutionFile /p:"Configuration=$configuration;TargetFramework=$target"
+        dotnet build $ProjectSolutionFile /p:"Configuration=$configuration;TargetFramework=$target"
     }
 
     # Delete Unnecessary files produced in net451
-
 
     Write-Host "`nStarting typescript build."
     if(!$nolint) { npm run lint }
@@ -86,8 +85,6 @@ function Build-Solution {
         # Remove-Item -Recurse "$JSTestRunnerBin*.map"
         Get-ChildItem -Path $JSTestRunnerBin -Recurse -Filter *.map | Remove-Item
     }
-
-
 }
 
 if($clean) { Build-Clean; }
