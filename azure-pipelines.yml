@@ -24,9 +24,7 @@ steps:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
     
-- powershell: ./ scripts/build.ps1 
-  arguments: '-configuration $(buildConfiguration)'
-
+- powershell: ./ scripts/build.ps1 -configuration $(buildConfiguration) 
   displayName: 'scripts\build.ps1'
 
 - task: VSTest@2
