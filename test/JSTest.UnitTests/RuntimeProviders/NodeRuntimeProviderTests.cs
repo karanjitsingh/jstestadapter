@@ -23,10 +23,10 @@
         {
             var sources = new string[] { "source1", "source2", "source3" };
             var startInfo = this.runtimeProvider.GetRuntimeProcessInfo(null, false, sources);
-            var arguments = Regex.Match(startInfo.Arguments, " -r source-map-support/register   (.*)");
+            var arguments = Regex.Match(startInfo.Arguments, " -r source-map-support/register (.*)");
 
-            Assert.IsTrue(arguments.Groups[0].Value.EndsWith("index.js"));
-            Assert.IsTrue(startInfo.FileName.EndsWith("node"));
+            Assert.IsTrue(arguments.Groups[1].Value.EndsWith("index.js"));
+            Assert.IsTrue(startInfo.FileName.EndsWith("node") || startInfo.FileName.EndsWith("node.exe"));
 
             // Write path wrapper for testable methods
         }

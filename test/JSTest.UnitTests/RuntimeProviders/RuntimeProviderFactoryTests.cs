@@ -35,7 +35,7 @@
             var sources = new string[] { "source" };
 
             var startInfo = factory.GetRuntimeProcessInfo(settings, sources);
-            Assert.IsTrue(startInfo.FileName.EndsWith("node"));
+            Assert.IsTrue(startInfo.FileName.EndsWith("node") || startInfo.FileName.EndsWith("node.exe"));
         }
     }
 }
