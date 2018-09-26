@@ -33,5 +33,16 @@ namespace JSTest.AcceptanceTests
             JasmineFramework.InitializeBase("jasmine", "Jasmine", "Jasmine");
         }
 
+        [TestMethod]
+        public void TestExecutionJasmine()
+        {
+            this.TestExecution();
+        }
+
+        [TestMethod]
+        public void TestDiscoveryJasmine()
+        {
+            this.TestDiscovery();
+        }
     }
 }

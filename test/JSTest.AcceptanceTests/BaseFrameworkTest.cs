@@ -213,7 +213,6 @@ namespace JSTest.AcceptanceTests
             Directory.Delete(BaseFrameworkTest.testRepoPath, true);
         }
 
-        [TestMethod]
         public void TestDiscovery()
         {
             var files = Directory.EnumerateFiles(BaseFrameworkTest.testRepoPath);
@@ -234,7 +233,6 @@ namespace JSTest.AcceptanceTests
             this.ValidateOutput(output, expectedOutput);
         }
 
-        [TestMethod]
         public void TestExecution()
         {
             var files = Directory.EnumerateFiles(BaseFrameworkTest.testRepoPath).Where((file) => file.EndsWith(this.ContainerExtension));

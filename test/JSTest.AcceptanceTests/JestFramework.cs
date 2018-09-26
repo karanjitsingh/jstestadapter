@@ -32,5 +32,16 @@ namespace JSTest.AcceptanceTests
             JestFramework.InitializeBase("jest", "Jest", "Jest");
         }
 
+        [TestMethod]
+        public void TestExecutionJest()
+        {
+            this.TestExecution();
+        }
+
+        [TestMethod]
+        public void TestDiscoveryJest()
+        {
+            this.TestDiscovery();
+        }
     }
 }

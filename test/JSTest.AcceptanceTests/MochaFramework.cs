@@ -33,5 +33,16 @@ namespace JSTest.AcceptanceTests
             MochaFramework.InitializeBase("mocha", "Mocha", "Mocha");
         }
 
+        [TestMethod]
+        public void TestExecutionMocha()
+        {
+            this.TestExecution();
+        }
+
+        [TestMethod]
+        public void TestDiscoveryMocha()
+        {
+            this.TestDiscovery();
+        }
     }
 }
