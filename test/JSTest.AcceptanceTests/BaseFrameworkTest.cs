@@ -173,7 +173,7 @@ namespace JSTest.AcceptanceTests
             } while (Directory.Exists(testRepoPath));
 
             // This dll resides in folder: ...\JSTestAdapter\test\JSTest.AcceptanceTests\bin\Debug
-            var projectFolder = Directory.GetParent(Assembly.GetExecutingAssembly().Location).Parent.Parent.Parent.Parent.FullName;
+            var projectFolder = Directory.GetParent(Assembly.GetExecutingAssembly().Location).Parent.Parent.Parent.Parent.Parent.FullName;
 
 #if DEBUG
             var config = "Debug";
