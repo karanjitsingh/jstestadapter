@@ -17,26 +17,19 @@ steps:
 - task: NuGetCommand@2
   inputs:
     restoreSolution: '$(solution)'
-
-- task: VSBuild@1
-  inputs:
-    solution: '$(solution)'
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
     
 - powershell: .\scripts\build.ps1 -configuration $(buildConfiguration) 
   displayName: 'scripts\build.ps1'
 
-steps:
 - powershell: |
    npm run build:test
-    
   displayName: 'npm run build:test'
 
 - task: VSTest@2
   inputs:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
+  displayName: 'Managed Tests'
     
 - task: VSTest@2
   inputs:
@@ -45,4 +38,4 @@ steps:
     pathtoCustomTestAdapters: '$(System.DefaultWorkingDirectory)\artifacts\Release\net451'
     platform: '$(BuildPlatform)'
     configuration: '$(BuildConfiguration)'
-
+  displayName: 'JavaScript Tests'
