@@ -215,8 +215,8 @@ namespace JSTest.AcceptanceTests
 
         public void TestDiscovery()
         {
-            var files = Directory.EnumerateFiles(BaseFrameworkTest.testRepoPath);
-            files.Where((file) => file.EndsWith(this.ContainerExtension));
+            var filesInDirectory = Directory.EnumerateFiles(BaseFrameworkTest.testRepoPath);
+            var files = filesInDirectory.Where((file) => file.EndsWith(this.ContainerExtension));
 
             var cliOptions = new Dictionary<string, string>
             {
