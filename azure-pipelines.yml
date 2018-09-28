@@ -31,3 +31,12 @@ steps:
   inputs:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
+    
+- task: VSTest@2
+  inputs:
+    testAssemblyVer2: '**\Tests.js'
+    runSettingsFile: '$(System.DefaultWorkingDirectory)\scripts\runsettings.xml'
+    pathtoCustomTestAdapters: '$(System.DefaultWorkingDirectory)\artifacts\Release\net451'
+    platform: '$(BuildPlatform)'
+    configuration: '$(BuildConfiguration)'
+
