@@ -27,6 +27,12 @@ steps:
 - powershell: .\scripts\build.ps1 -configuration $(buildConfiguration) 
   displayName: 'scripts\build.ps1'
 
+steps:
+- powershell: |
+   npm run build:test
+    
+  displayName: 'npm run build:test'
+
 - task: VSTest@2
   inputs:
     platform: '$(buildPlatform)'
