@@ -38,4 +38,5 @@ steps:
     pathtoCustomTestAdapters: '$(System.DefaultWorkingDirectory)\artifacts\Release\net451'
     platform: '$(BuildPlatform)'
     configuration: '$(BuildConfiguration)'
+    runTestsInIsolation: true
   displayName: 'JavaScript Tests'
