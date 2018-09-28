@@ -1,5 +1,4 @@
-
-[![Build Status](https://karanjitsingh.visualstudio.com/JSTestAdapter/_apis/build/status/karanjitsingh.JSTestAdapter)](https://karanjitsingh.visualstudio.com/JSTestAdapter/_build/latest?definitionId=4)
+[![Build Status](https://dev.azure.com/karanjitsingh/JSTestAdapter/_apis/build/status/karanjitsingh.JSTestAdapter)](https://dev.azure.com/karanjitsingh/JSTestAdapter/_build/latest?definitionId=4)
 
 ### JSTestAdapter
 
