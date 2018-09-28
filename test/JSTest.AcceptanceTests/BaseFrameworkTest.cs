@@ -64,7 +64,7 @@ namespace JSTest.AcceptanceTests
             return new ExecutionOutput(process);
         }
 
-        protected static void InstallNpmPackage(string package)
+        protected static void InstallNpmPackage(string package, string packageVersion = "")
         {
             var process = new Process();
             var startInfo = new ProcessStartInfo();
@@ -73,7 +73,7 @@ namespace JSTest.AcceptanceTests
             startInfo.WindowStyle = ProcessWindowStyle.Hidden;
             startInfo.FileName = "cmd.exe";
             startInfo.WorkingDirectory = BaseFrameworkTest.testRepoPath;
-            startInfo.Arguments = $"/C npm install {package} --silent";
+            startInfo.Arguments = $"/C npm install {package}{ (packageVersion != "" ? $"@{packageVersion}" :  "") } --silent";
             startInfo.RedirectStandardError = true;
             startInfo.RedirectStandardOutput = true;
 
@@ -111,7 +111,7 @@ namespace JSTest.AcceptanceTests
                 File.Copy(newPath, newPath.Replace(testFrameworkItems, BaseFrameworkTest.testRepoPath), true);
         }
 
-        protected static void InitializeBase(string package, string frameworkName, string itemFolder)
+        protected static void InitializeBase(string package, string frameworkName, string itemFolder, string packageVersion = "")
         {
             BaseFrameworkTest.InitializePaths();
             BaseFrameworkTest.InitializeTempFolder();
