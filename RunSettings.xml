@@ -1,0 +1,7 @@
+<RunSettings>
+    <JSTest>
+        <TestFramework>mocha</TestFramework>
+        <TestFrameworkConfigJson>{
+        }</TestFrameworkConfigJson>
+    </JSTest>
+</RunSettings>
