@@ -56,14 +56,36 @@ With RunSettings.xml:
 </RunSettings>
 ```
 
-### Building
+### Building from source
 ```bash
+# Build binaries and javascript to `./artifacts/Debug/net451/` along with the package tarball in `./artifacts/Debug`
 .\scripts\build.ps1
 ```
 
-### Running Tests
+#### Build Options
 
-#### Running JavaScript tests
+| Option         | Value                  | Description                        | Default |
+| -------------- | ---------------------- | ---------------------------------- | ------- |
+| -clean         |                        | Clean built output                 | false   |
+| -nolint        |                        | Build without tslint pass          | false   |
+| -configuration | Debug, Release         | Build configuration                | Debug   |
+| -target        | net451, netstandard1.4 | Platform for building managed code | net451  |
+
+#### Running Tests
+
+Running JavaScript tests
 ```bash
 .\test.ps1 -vstest \path\to\vstest.console.exe
 ```
+
+#### Test run options
+
+| Option         | Value                            | Description                             | Default |
+| -------------- | -------------------------------- | --------------------------------------- | ------- |
+| -runonly       |                                  | Run tests without building              | false   |
+| -parallel      |                                  | Enable run tests in parallel for vstest | false   |
+| -discover      |                                  | Enable --listtests option in vstest     | false   |
+| -configuration | Debug, Release                   | Build configuration                     | Debug   |
+| -log           | \path\to\log                     | Will enable vstest diagnostic logs      | ""      |
+| -test          | "test filter"                    | Test filter                             | ""      |
+| -vstest        | \path\to\custom\vstest.conso.exe | Path to vstest.console.exe              | D:\vstest\artifacts\Debug\net451\win7-x64\vstest.console.exe  |
