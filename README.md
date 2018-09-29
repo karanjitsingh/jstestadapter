@@ -58,12 +58,12 @@ With RunSettings.xml:
 
 ### Building
 ```bash
-    .\scripts\build.ps1
+.\scripts\build.ps1
 ```
 
 ### Running Tests
 
 #### Running JavaScript tests
 ```bash
-    .\test.ps1 -vstest \path\to\vstest.console.exe
+.\test.ps1 -vstest \path\to\vstest.console.exe
 ```
