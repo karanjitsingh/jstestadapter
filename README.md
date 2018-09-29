@@ -73,8 +73,8 @@ With RunSettings.xml:
 
 #### Running Tests
 
-Running JavaScript tests
 ```bash
+# Self dogfooding JSTestAdapter javascript tests
 .\test.ps1 -vstest \path\to\vstest.console.exe
 ```
 
