@@ -55,3 +55,15 @@ With RunSettings.xml:
     </JSTest>
 </RunSettings>
 ```
+
+### Building
+```bash
+    .\scripts\build.ps1
+```
+
+### Running Tests
+
+#### Running JavaScript tests
+```bash
+    .\test.ps1 -vstest \path\to\vstest.console.exe
+```

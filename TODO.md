@@ -10,3 +10,5 @@
         - [ ] In `before`
         - [ ] In `it`
     - [x] For each supported framework
+- [ ] Test script for managed code
+- [ ] Debug logs fix for jest
