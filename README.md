@@ -80,12 +80,12 @@ With RunSettings.xml:
 
 #### Test run options
 
-| Option         | Value                            | Description                             | Default |
-| -------------- | -------------------------------- | --------------------------------------- | ------- |
-| -runonly       |                                  | Run tests without building              | false   |
-| -parallel      |                                  | Enable run tests in parallel for vstest | false   |
-| -discover      |                                  | Enable --listtests option in vstest     | false   |
-| -configuration | Debug, Release                   | Build configuration                     | Debug   |
-| -log           | \path\to\log                     | Will enable vstest diagnostic logs      | ""      |
-| -test          | "test filter"                    | Test filter                             | ""      |
-| -vstest        | \path\to\custom\vstest.conso.exe | Path to vstest.console.exe              | D:\vstest\artifacts\Debug\net451\win7-x64\vstest.console.exe  |
+| Option         | Value                              | Description                             | Default |
+| -------------- | ---------------------------------- | --------------------------------------- | ------- |
+| -runonly       |                                    | Run tests without building              | false   |
+| -parallel      |                                    | Enable run tests in parallel for vstest | false   |
+| -discover      |                                    | Enable --listtests option in vstest     | false   |
+| -configuration | Debug, Release                     | Build configuration                     | Debug   |
+| -log           | \path\to\log                       | Will enable vstest diagnostic logs      | ""      |
+| -test          | "test filter"                      | Test filter                             | ""      |
+| -vstest        | \path\to\custom\vstest.console.exe | Path to vstest.console.exe              | D:\vstest\artifacts\Debug\net451\win7-x64\vstest.console.exe  |
