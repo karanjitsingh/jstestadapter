@@ -21,9 +21,7 @@ path/to/vstest.console.exe --Inisolation --TestAdapterPath:./node_modules/jstest
 path/to/vstest.console.exe --Inisolation --TestAdapterPath:./node_modules/jstestadapter/ path/to/package.json -- JSTest.TestFramework=Jest
 ```
 
-
-
-Due to a current bug in vstest the switch `--Inisolation` is required to run JSTestAdapter.
+***Due to a current [bug](https://github.com/Microsoft/vstest/issues/1673) in vstest the switch `--Inisolation` is required to run JSTestAdapter.***
 
 ### RunSettings Configuration
 
