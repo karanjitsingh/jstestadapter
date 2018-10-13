@@ -36,7 +36,7 @@ vstest.console.exe --Isolation --TestAdapterPath:<path> <files> -- JSTest.DebugL
 
 #### Using RunSettings xml defined for vstest:
 ```bash
-vstest.console.exe --Isolation --Settings:RunSettings.xml --TestAdapterPath:<path> <files>
+vstest.console.exe --Settings:RunSettings.xml --TestAdapterPath:<path> <files>
 ```
 With RunSettings.xml:
 ```xml
