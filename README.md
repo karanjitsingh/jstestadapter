@@ -73,7 +73,7 @@ With RunSettings.xml:
 # Self dogfooding JSTestAdapter javascript tests
 .\test.ps1 -vstest \path\to\vstest.console.exe
 ```
-
+asdf
 #### Test run options
 
 | Option         | Value                              | Description                             | Default |
