@@ -60,12 +60,18 @@ class JestReporter {
             if (result.pending === true) {
                 outcome = TestOutcome.Skipped;
             }
-            
+
+            // Jest provides test suite title as ancestor titles. Use them if provided
+            let resultTitle = result.title;
+            if (result.ancestorTitles && result.ancestorTitles.length > 0) {
+                resultTitle = [...result.ancestorTitles, resultTitle].join(" > ");
+            }
+        
             if (JestReporter.discovery) {
-                JestReporter.callbacks.handleSpecFound(result.fullName, result.title, test.path);
+                JestReporter.callbacks.handleSpecFound(result.fullName, resultTitle, test.path);
             } else {
                 JestReporter.callbacks.handleSpecResult(result.fullName,
-                                                        result.title,
+                                                        resultTitle,
                                                         test.path,
                                                         outcome,
                                                         failedExpectations,
