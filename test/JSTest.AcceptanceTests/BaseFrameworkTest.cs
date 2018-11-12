@@ -38,7 +38,7 @@ namespace JSTest.AcceptanceTests
 
         public BaseFrameworkTest()
         {
-           }
+        }
 
         #endregion
 
@@ -48,7 +48,7 @@ namespace JSTest.AcceptanceTests
         {
             var process = new Process();
             var startInfo = new ProcessStartInfo();
-            
+
             startInfo.UseShellExecute = false;
             startInfo.WindowStyle = ProcessWindowStyle.Normal;
             startInfo.FileName = BaseFrameworkTest.vstestPath;
@@ -60,7 +60,7 @@ namespace JSTest.AcceptanceTests
             process.StartInfo.UseShellExecute = false;
 
             Console.Write($"{startInfo.FileName} {startInfo.Arguments}");
-            
+
             return new ExecutionOutput(process);
         }
 
@@ -73,7 +73,7 @@ namespace JSTest.AcceptanceTests
             startInfo.WindowStyle = ProcessWindowStyle.Hidden;
             startInfo.FileName = "cmd.exe";
             startInfo.WorkingDirectory = BaseFrameworkTest.testRepoPath;
-            startInfo.Arguments = $"/C npm install {package}{ (packageVersion != "" ? $"@{packageVersion}" :  "") } --silent";
+            startInfo.Arguments = $"/C npm install {package}{ (packageVersion != "" ? $"@{packageVersion}" : "") } --silent";
             startInfo.RedirectStandardError = true;
             startInfo.RedirectStandardOutput = true;
 
@@ -130,9 +130,9 @@ namespace JSTest.AcceptanceTests
         {
             var args = $"--Inisolation --TestAdapterPath:{Path.Combine(BaseFrameworkTest.testRepoPath, "node_modules", "jstestadapter")}";
 
-            foreach(var entry in cliOptions)
+            foreach (var entry in cliOptions)
             {
-                args += " --" + entry.Key + (!string.IsNullOrEmpty(entry.Value)? ":" + entry.Value: string.Empty);
+                args += " --" + entry.Key + (!string.IsNullOrEmpty(entry.Value) ? ":" + entry.Value : string.Empty);
             }
 
             foreach (var file in files)
@@ -183,7 +183,7 @@ namespace JSTest.AcceptanceTests
 
             var jstestPackageFolder = Path.Combine(projectFolder, "artifacts", config);
 
-            var packageVersion= JObject.Parse(File.ReadAllText(Path.Combine(projectFolder, "package.json")))["version"];
+            var packageVersion = JObject.Parse(File.ReadAllText(Path.Combine(projectFolder, "package.json")))["version"];
             var package = Directory.EnumerateFiles(jstestPackageFolder, $"jstestadapter-{packageVersion}.tgz", SearchOption.TopDirectoryOnly);
 
             BaseFrameworkTest.jstestPackage = package.First();
@@ -233,6 +233,17 @@ namespace JSTest.AcceptanceTests
             this.ValidateOutput(output, expectedOutput);
         }
 
+        protected virtual List<string> GetExpectedTestOutput()
+        {
+            return new List<string>
+            {
+                "Passed   test case a1",
+                "Failed   test case a2",
+                "Passed   test case b1",
+                "Failed   test case b2"
+            };
+        }
+
         public void TestExecution()
         {
             var files = Directory.EnumerateFiles(BaseFrameworkTest.testRepoPath).Where((file) => file.EndsWith(this.ContainerExtension));
@@ -244,7 +255,7 @@ namespace JSTest.AcceptanceTests
             };
 
             var output = this.RunTests(files, cliOptions, runConfig);
-            var expectedStdOut = new List<string> { "Passed   test case a1", "Failed   test case a2", "Passed   test case b1", "Failed   test case a2" };
+            var expectedStdOut = this.GetExpectedTestOutput();
 
             this.ValidateOutput(output, expectedStdOut, false);
         }
@@ -255,7 +266,7 @@ namespace JSTest.AcceptanceTests
 
         private void ValidateOutput(ExecutionOutput output, IEnumerable<string> expectedStdOut, bool failOnStdErr = true)
         {
-            if(output.ProcessTimeout)
+            if (output.ProcessTimeout)
             {
                 Assert.Fail("Process timed out");
             }
@@ -292,4 +303,3 @@ namespace JSTest.AcceptanceTests
         #endregion
     }
 }
- 
