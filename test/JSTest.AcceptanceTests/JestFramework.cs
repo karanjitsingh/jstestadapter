@@ -43,5 +43,16 @@ namespace JSTest.AcceptanceTests
         {
             this.TestDiscovery();
         }
+
+        protected virtual List<string> GetExpectedOutput()
+        {
+            return new List<string>
+            {
+                "Passed   suite a > test case a1",
+                "Failed   suite a > test case a2",
+                "Passed   suite b > test case b1",
+                "Failed   suite b > test case b2"
+            };
+        }
     }
 }
