@@ -67,7 +67,7 @@ With RunSettings.xml:
 | -configuration | Debug, Release         | Build configuration                | Debug   |
 | -target        | net451, netstandard1.4 | Platform for building managed code | net451  |
 
-#### Running Tests
+#### Running Testsasdfasdfasdf
 
 ```bash
 # Self dogfooding JSTestAdapter javascript tests
