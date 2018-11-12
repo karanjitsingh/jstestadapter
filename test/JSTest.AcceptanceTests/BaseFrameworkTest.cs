@@ -244,7 +244,12 @@ namespace JSTest.AcceptanceTests
             };
 
             var output = this.RunTests(files, cliOptions, runConfig);
-            var expectedStdOut = new List<string> { "Passed   test case a1", "Failed   test case a2", "Passed   test case b1", "Failed   test case a2" };
+            var expectedStdOut = new List<string> {
+                "Passed   suite a > test case a1",
+                "Failed   suite a > test case a2",
+                "Passed   suite b > test case b1",
+                "Failed   suite b > test case b2"
+            };
 
             this.ValidateOutput(output, expectedStdOut, false);
         }
