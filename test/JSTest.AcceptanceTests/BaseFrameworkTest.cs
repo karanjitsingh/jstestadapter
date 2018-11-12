@@ -233,7 +233,7 @@ namespace JSTest.AcceptanceTests
             this.ValidateOutput(output, expectedOutput);
         }
 
-        protected virtual List<string> GetExpectedOutput()
+        protected virtual List<string> GetExpectedTestOutput()
         {
             return new List<string>
             {
@@ -255,7 +255,7 @@ namespace JSTest.AcceptanceTests
             };
 
             var output = this.RunTests(files, cliOptions, runConfig);
-            var expectedStdOut = this.GetExpectedOutput();
+            var expectedStdOut = this.GetExpectedTestOutput();
 
             this.ValidateOutput(output, expectedStdOut, false);
         }

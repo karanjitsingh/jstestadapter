@@ -44,7 +44,7 @@ namespace JSTest.AcceptanceTests
             this.TestDiscovery();
         }
 
-        protected virtual List<string> GetExpectedOutput()
+        protected override List<string> GetExpectedTestOutput()
         {
             return new List<string>
             {
