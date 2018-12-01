@@ -12,6 +12,7 @@ namespace JSTest.Settings
         public bool Discovery { get; set; }
         public bool RunInParallel { get; set; }
         public bool DebugLogs { get; set; }
+        public string DebugPath { get; set; }
 
         #endregion
 

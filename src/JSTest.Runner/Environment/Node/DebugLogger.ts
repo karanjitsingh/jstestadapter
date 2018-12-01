@@ -9,14 +9,22 @@ export class DebugLogger implements IDebugLogger {
 
     constructor() {
         this.processPid = process.pid;
+    }
 
+    private defaultPath() {
         const date = new Date();
         const dateStamp = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
         const timeStamp = `${date.getHours()}-${date.getMinutes()}.${date.getMilliseconds()}`;
-        const diagFile = path.join(process.cwd(), `jstest.${this.processName}.${dateStamp}-${timeStamp}_${process.pid}.log`);
+    
+        return path.join(process.cwd(), `jstest.${this.processName}.${dateStamp}-${timeStamp}_${process.pid}.log`);
+    }
 
-        console.log('Logging JSTet.Runner Diagnostics in file: ' + diagFile);
+    public initialize(diagFile: string) {
+        if (!diagFile) {
+            diagFile = this.defaultPath();
+        }
         this.logFileStream = fs.createWriteStream(diagFile);
+        console.log('Logging JSTet.Runner Diagnostics in file: ' + diagFile);
     }
 
     public closeLogFile() {

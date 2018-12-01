@@ -64,7 +64,7 @@ class JestReporter {
             // Jest provides test suite title as ancestor titles. Use them if provided
             let resultTitle = result.title;
             if (result.ancestorTitles && result.ancestorTitles.length > 0) {
-                resultTitle = [...result.ancestorTitles, resultTitle].join(" > ");
+                resultTitle = [...result.ancestorTitles, resultTitle].join(' > ');
             }
         
             if (JestReporter.discovery) {

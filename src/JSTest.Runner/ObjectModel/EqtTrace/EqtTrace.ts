@@ -13,10 +13,11 @@ export namespace EqtTrace {
         }
     };
 
-    export const initialize = (debugLogger: IDebugLogger) => {
+    export const initialize = (debugLogger: IDebugLogger, diagFile: string) => {
         if (debugLogger) {
-            loggerInitialized = true;
             logger = debugLogger;
+            debugLogger.initialize(diagFile);
+            loggerInitialized = true;
         }
     };
 
