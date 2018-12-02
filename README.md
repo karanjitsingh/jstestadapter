@@ -23,10 +23,11 @@ path/to/vstest.console.exe --TestAdapterPath:./node_modules/jstestadapter/ path/
 
 ### RunSettings Configuration
 
-Option |  Usage  | Default
------- | ------- | --------
-TestFramework | One of the following test frameworks for execution: Jasmine/Mocha/Jest | Jasmine
-DebugLogs | Enable debug logs for JavaScript test runner | false
+Option                  |  Usage                                                                                | Default
+----------------------- | ------------------------------------------------------------------------------------- | --------
+TestFramework           | One of the following test frameworks for execution: Jasmine/Mocha/Jest                | Jasmine
+DebugLogs               | Enable debug logs for JavaScript test runner                                          | false
+DebugFilePath           | Path for diagnostic logs                                                              | ""
 TestFrameworkConfigJson | Override test framework configurations (Specific to the testframework) in json format | {} 
 
 #### RunSettings can be provided through the the vstest cli itself:
