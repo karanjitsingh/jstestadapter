@@ -75,7 +75,6 @@ export class ExecutionManager extends BaseExecutionManager {
         TestCaseEnd: (sender: object, args: TestSpecEventArgs) => {
             const attachments: Array<AttachmentSet> = [];
 
-            // TODO incomplete test results - display name etc are null
             const testResult: TestResult = {
                 TestCase: args.TestCase,
                 Attachments: attachments,

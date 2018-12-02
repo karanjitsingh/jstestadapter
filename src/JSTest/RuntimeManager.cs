@@ -38,7 +38,10 @@
             this.settings = settings;
             this.testRunEvents = testRunEvents;
 
-            this.jsProcess.EnableDebugLogs = this.settings.DebugLogs;
+            if (this.settings.DebugLogs)
+            {
+                this.jsProcess.EnableDebugLogs(this.settings.DebugFilePath);
+            }
         }
 
         private Action<object> ProcessExitReceived => (process) =>

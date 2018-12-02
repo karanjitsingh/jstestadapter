@@ -11,12 +11,14 @@ namespace JSTest.Settings
         public JavaScriptRuntime Runtime { get; set; }
         public bool Discovery { get; set; }
         public bool RunInParallel { get; set; }
-        public bool DebugLogs { get; set; }
-        public string DebugPath { get; set; }
 
         #endregion
 
         #region JS Runner Specific Settings
+
+        public bool DebugLogs { get; set; }
+
+        public string DebugFilePath { get; set; }
 
         [XmlIgnore]
         [DataMember]
@@ -76,6 +78,7 @@ namespace JSTest.Settings
             this.RunInParallel = true;
             this.DebugLogs = false;
             this.NodePath = string.Empty;
+            this.DebugFilePath = string.Empty;
         }
     }
 }

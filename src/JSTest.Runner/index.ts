@@ -16,7 +16,7 @@ function processCLIArgs(env: IEnvironment): CLIArgs {
                 case 'diag':
                     debugEnabled = true;
                     if (env.argv[++i]) {
-                        debugFilePath = env.argv[i];
+                        debugFilePath = unescape(env.argv[i]);
                     }
                     break;
                 default:
