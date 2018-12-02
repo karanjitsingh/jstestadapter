@@ -1,7 +1,6 @@
 ﻿using JSTest.Communication.Payloads;
 using JSTest.Interfaces;
 using JSTest.Settings;
-using JSTest.TestAdapter.SettingsProvider;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
@@ -10,7 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 
-namespace JSTest.TestAdapter.SettingsProvider
+namespace JSTest.TestAdapter
 {
 
     [ExtensionUri(JSTestAdapterConstants.ExecutorUri)]
@@ -39,7 +38,7 @@ namespace JSTest.TestAdapter.SettingsProvider
         public void RunTests(IEnumerable<TestCase> tests, IRunContext runContext, IFrameworkHandle frameworkHandle)
         {
             this.frameworkHandle = frameworkHandle;
-            
+
             var settingsProvider = runContext.RunSettings.GetSettings(JSTestAdapterConstants.SettingsName) as JavaScriptSettingsProvider;
             var settings = settingsProvider != null ? settingsProvider.Settings : new JSTestSettings();
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using JSTest.Communication;
@@ -12,6 +13,8 @@ namespace JSTest
     {
         private Process process;
         private CommunicationChannel channel;
+        private bool debugEnabled;
+        private string debugFilePath;
 
         public CommunicationChannel CommunicationChannel
         {
@@ -33,8 +36,14 @@ namespace JSTest
         }
 
         public bool IsAlive => this.process != null && !this.process.HasExited;
+        
+        public string DebugFilePath { get; set; }
 
-        public bool EnableDebugLogs { get; set; }
+        public void EnableDebugLogs(string debugFilePath)
+        {
+            this.debugEnabled = true;
+            this.debugFilePath = debugFilePath;
+        }
 
         public bool LaunchProcess(TestProcessStartInfo startInfo, Action<object, string> processErrorReceived, Action<object> processExitReceived)
         {
@@ -114,7 +123,7 @@ namespace JSTest
                                                         startInfo.Arguments,
                                                         endPoint.Address,
                                                         endPoint.Port,
-                                                        this.EnableDebugLogs ? "--diag" : "");
+                                                        this.GetDebugArg());
 
             foreach (var entry in startInfo.EnvironmentVariables)
             {
@@ -141,6 +150,30 @@ namespace JSTest
             Task.Run(() => channel.AcceptClientAsync());
 
             return endpoint;
+        }
+
+        private string GetDebugArg()
+        {
+            if (this.debugEnabled)
+            {
+                var arg = "--diag";
+
+                try {
+                    if (File.Exists(this.debugFilePath) || Directory.Exists(Path.GetDirectoryName(this.debugFilePath)) || Directory.Exists(this.debugFilePath))
+                    {
+                        arg += " " + Uri.EscapeDataString(this.debugFilePath);
+                    }
+                }
+                catch
+                {
+                    EqtTrace.Warning("Could not use debug file path \"{0}\"", this.debugFilePath);
+                }
+
+                return arg;
+            }
+
+            return string.Empty;
+
         }
     }
 }

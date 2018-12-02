@@ -47,7 +47,7 @@ namespace JSTest.RuntimeProviders
             };
 
             processInfo.Arguments = string.Format(CultureInfo.InvariantCulture,
-                " -r source-map-support/register {0} {1}", isDebugEnabled ? "--inspect-brk=9229" : "", jstestrunner);
+                " -r source-map-support/register {0} {1}", isDebugEnabled ? "--inspect-brk=9229" : string.Empty, jstestrunner);
 
             return processInfo;
         }

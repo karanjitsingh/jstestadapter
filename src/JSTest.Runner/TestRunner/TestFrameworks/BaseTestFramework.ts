@@ -5,13 +5,6 @@ import { SessionHash } from '../../Utils/Hashing/SessionHash';
 import { Constants } from '../../Constants';
 import { EqtTrace } from '../../ObjectModel/EqtTrace';
 
-/*
- * TODO:
- * try catch all event handlers
- * if this code breaks sometimes it might never be caught
- * at least trace all errors in event handlers
- */
-
 export abstract class BaseTestFramework implements ITestFramework {
     public readonly abstract environmentType: EnvironmentType;
     public readonly abstract canHandleMultipleSources: boolean;

@@ -8,12 +8,16 @@ import { EqtTrace } from './ObjectModel/EqtTrace';
 function processCLIArgs(env: IEnvironment): CLIArgs {
 
     let debugEnabled = false;
+    let debugFilePath = '';
 
     for (let i = 4; i < env.argv.length; i++) {
         if (env.argv[i].startsWith('--')) {
             switch (env.argv[i].substr(2).toLowerCase()) {
                 case 'diag':
                     debugEnabled = true;
+                    if (env.argv[++i]) {
+                        debugFilePath = unescape(env.argv[i]);
+                    }
                     break;
                 default:
                     console.error('Unknown option ' + env.argv[i]);
@@ -26,7 +30,8 @@ function processCLIArgs(env: IEnvironment): CLIArgs {
     return <CLIArgs> {
         ip: env.argv[2],
         port: Number(env.argv[3]),
-        traceEnabled: debugEnabled
+        traceEnabled: debugEnabled,
+        traceFilePath: debugFilePath
     };
 }
 
@@ -46,10 +51,13 @@ environmentProvider.getEnvironment().then((env: IEnvironment) => {
 
     try {
         if (cliArgs.traceEnabled) {
-            EqtTrace.initialize(env.getDebugLogger());
+            EqtTrace.initialize(env.getDebugLogger(), cliArgs.traceFilePath);
         }
         
         EqtTrace.info(`Index: Environment started for ${env.environmentType} with process arguments ${env.argv}.` );
+
+        // Remove arguments for test runner since jest reads arguments from environment
+        env.argv.splice(1);
 
         // tslint:disable-next-line
         new TestRunner(env, cliArgs);

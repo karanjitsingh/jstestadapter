@@ -76,7 +76,7 @@ namespace JSTest.TestAdapter
         private void onTestCaseFoundHandler(object sender, TestCaseFoundEventArgs e)
         {
             if (this.settings.JavaScriptTestFramework == JSTestFramework.Jest) {
-                string package = "";
+                string package = string.Empty;
                 using (IEnumerator<string> enumer = sources.GetEnumerator())
                 {
                     enumer.MoveNext();
