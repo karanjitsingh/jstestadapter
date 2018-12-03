@@ -29,7 +29,7 @@ namespace JSTest.AcceptanceTests
         [ClassInitialize]
         public static void ClassInitialize(TestContext context)
         {
-            JestFramework.InitializeBase("jest", "Jest", "Jest", "22.4.2");
+            JestFramework.InitializeBase("jest", "Jest", "Jest", "23.6.0");
         }
 
         [TestMethod]
