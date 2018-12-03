@@ -51,9 +51,8 @@ export class DebugLogger implements IDebugLogger {
             }
         }
 
-        // TODO: this is a hack for this message to display in the console
-        console.error('Logging JSTet.Runner Diagnostics in file: ' + diagFilePath);
         this.logFileStream = fs.createWriteStream(diagFilePath);
+        console.log('Logging JSTet.Runner Diagnostics in file: ' + diagFilePath);
     }
 
     public closeLogFile() {
