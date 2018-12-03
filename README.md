@@ -1,6 +1,6 @@
 [![Build Status](https://dev.azure.com/karanjitsingh/JSTestAdapter/_apis/build/status/karanjitsingh.JSTestAdapter)](https://dev.azure.com/karanjitsingh/JSTestAdapter/_build/latest?definitionId=7)
 
-Latest tested framework versions
+Tested framework versions
 
 Framework | Version
 --------- | -------
