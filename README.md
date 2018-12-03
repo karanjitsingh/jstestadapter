@@ -1,13 +1,5 @@
 [![Build Status](https://dev.azure.com/karanjitsingh/JSTestAdapter/_apis/build/status/karanjitsingh.JSTestAdapter)](https://dev.azure.com/karanjitsingh/JSTestAdapter/_build/latest?definitionId=7)
 
-Tested framework versions
-
-Framework | Version
---------- | -------
-Jasmine   | latest
-Mocha     | latest
-Jest      | 23.6.0
-
 ### JSTestAdapter
 
 JSTestAdapter is a JavaScript test adapter extension for [Visual Studio Test Platform](https://github.com/Microsoft/vstest). JSTestAdapter with vstest can be used as a command line tool to run tests written in mocha, jasmine or jest.
@@ -94,3 +86,12 @@ With RunSettings.xml:
 | -log           | \path\to\log                       | Will enable vstest diagnostic logs      | -       |
 | -test          | "test filter"                      | Test filter                             | -       |
 | -vstest        | \path\to\custom\vstest.console.exe | Path to vstest.console.exe              | D:\vstest\artifacts\Debug\net451\win7-x64\vstest.console.exe  |
+
+
+##### Tested framework versions
+
+Framework | Version
+--------- | -------
+Jasmine   | latest
+Mocha     | latest
+Jest      | 23.6.0
