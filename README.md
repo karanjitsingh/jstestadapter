@@ -1,4 +1,4 @@
-[![Build Status](https://dev.azure.com/karanjitsingh/JSTestAdapter/_apis/build/status/karanjitsingh.JSTestAdapter)](https://dev.azure.com/karanjitsingh/JSTestAdapter/_build/latest?definitionId=7)
+[![Build Status](https://dev.azure.com/karanjitsingh/JSTestAdapter/_apis/build/status/karanjitsingh.JSTestAdapter)](https://dev.azure.com/karanjitsingh/JSTestAdapter/_build/latest?definitionId=7) [![npm version](https://img.shields.io/npm/v/jstestadapter.svg)](https://www.npmjs.com/package/jstestadapter)
 
 ### JSTestAdapter
 
