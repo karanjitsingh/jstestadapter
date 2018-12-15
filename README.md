@@ -1,8 +1,8 @@
-[![Build Status](https://dev.azure.com/karanjitsingh/JSTestAdapter/_apis/build/status/karanjitsingh.JSTestAdapter)](https://dev.azure.com/karanjitsingh/JSTestAdapter/_build/latest?definitionId=7) [![npm version](https://img.shields.io/npm/v/jstestadapter.svg)](https://www.npmjs.com/package/jstestadapter)
+[![Build Status](https://dev.azure.com/karanjitsingh/jstest/_apis/build/status/JSTestAdapter%20CI%20Build?branchName=master)](https://dev.azure.com/karanjitsingh/jstest/_build/latest?definitionId=7?branchName=master) [![npm version](https://img.shields.io/npm/v/jstestadapter.svg)](https://www.npmjs.com/package/jstestadapter)
 
-### JSTestAdapter
+### jstest
 
-JSTestAdapter is a JavaScript test adapter extension for [Visual Studio Test Platform](https://github.com/Microsoft/vstest). JSTestAdapter with vstest can be used as a command line tool to run tests written in mocha, jasmine or jest.
+jstest is a JavaScript test adapter extension for [Visual Studio Test Platform](https://github.com/Microsoft/vstest). jstest with vstest can be used as a command line tool to run tests written in mocha, jasmine or jest.
 
 ### Install
 ```bash
@@ -71,7 +71,7 @@ With RunSettings.xml:
 #### Running Tests
 
 ```bash
-# Self dogfooding JSTestAdapter javascript tests
+# Self dogfooding jstest javascript tests
 .\test.ps1 -vstest \path\to\vstest.console.exe
 ```
 
