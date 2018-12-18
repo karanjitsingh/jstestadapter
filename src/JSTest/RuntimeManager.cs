@@ -15,7 +15,6 @@
     internal class TestRuntimeManager
     {
         private readonly JSTestSettings settings;
-        private StringBuilder processStdError;
         private readonly ManualResetEventSlim versionCheckComplete;
         private bool runtimeCanExit = false;
 
@@ -44,6 +43,11 @@
             }
         }
 
+        public int getProcessId()
+        {
+            return this.jsProcess.ProcessId;
+        }
+
         private Action<object> ProcessExitReceived => (process) =>
         {
             if (!runtimeCanExit)
@@ -55,56 +59,24 @@
 
         private Action<object, string> ProcessOutputReceived => (process, data) =>
         {
-            Console.Write(data);
+            EqtTrace.Error("JSTestHostManager: Node {0} StdOut: {1}", this.jsProcess.ProcessId, data);
+
+            if (!string.IsNullOrEmpty(data))
+            {
+                Console.Write(data + Environment.NewLine);
+            }
         };
 
         private Action<object, string> ProcessErrorReceived => (process, data) =>
         {
-            this.errorReceivedCallback(this.processStdError, data);
-
-            var errorString = this.processStdError.ToString();
-            if (!string.IsNullOrEmpty(errorString))
-            {
-                //messageLogger.SendMessage(TestMessageLevel.Error, errorString);
-                Console.Write(errorString);
-                // clear waits
-            }
-        };
-
-        public void errorReceivedCallback(StringBuilder testRunnerProcessStdError, string data)
-        {
+            EqtTrace.Error("JSTestHostManager: Node {0} StdErr: {2}", this.jsProcess.ProcessId, data);
+            
             if (!string.IsNullOrEmpty(data))
             {
-                testRunnerProcessStdError.Clear();
-
-                // Log all standard error message because on too much data we ignore starting part.
-                // This is helpful in abnormal failure of testhost.
-                EqtTrace.Warning("Test host standard error line: {0}", data);
-
-                // Add newline for readbility.
-                data += Environment.NewLine;
-
-                // if incoming data stream is huge empty entire testError stream, & limit data stream to MaxCapacity
-                if (data.Length > testRunnerProcessStdError.MaxCapacity)
-                {
-                    testRunnerProcessStdError.Clear();
-                    data = data.Substring(data.Length - testRunnerProcessStdError.MaxCapacity);
-                }
-
-                // remove only what is required, from beginning of error stream
-                else
-                {
-                    int required = data.Length + testRunnerProcessStdError.Length - testRunnerProcessStdError.MaxCapacity;
-                    if (required > 0)
-                    {
-                        testRunnerProcessStdError.Remove(0, required);
-                    }
-                }
-
-                testRunnerProcessStdError.Append(data);
+                Console.Write(data + Environment.NewLine);
             }
-        }
-
+        };
+        
         public Task CleanProcessAsync()
         {
             try
@@ -125,17 +97,16 @@
             {
                 try
                 {
-                    this.processStdError = new StringBuilder(this.ErrorLength, this.ErrorLength);
                     EqtTrace.Verbose("JSTestHostManager: Starting process '{0}' with command line '{1}'", runtimeProcessStartInfo.FileName, runtimeProcessStartInfo.Arguments);
 
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    this.jsProcess.LaunchProcess(runtimeProcessStartInfo, this.ProcessErrorReceived, this.ProcessExitReceived);
+                    this.jsProcess.LaunchProcess(runtimeProcessStartInfo, this.ProcessOutputReceived, this.ProcessErrorReceived, this.ProcessExitReceived);
 
                 }
                 catch (OperationCanceledException ex)
                 {
-                    EqtTrace.Error("DotnetTestHostManager.LaunchHost: Failed to launch testhost: {0}", ex);
+                    EqtTrace.Error("JSTestHostManager: Failed to launch node: {0}", ex);
                     Console.Write(ex);
                     return false;
                 }
@@ -191,7 +162,7 @@
                 }
                 catch (Exception exception)
                 {
-                    EqtTrace.Error("Socket: Message loop: failed to receive message {0}", exception);
+                    EqtTrace.Error("JSTestHostManager: Socket: Message loop: failed to receive message {0}", exception);
                     error = exception;
                     break;
                 }

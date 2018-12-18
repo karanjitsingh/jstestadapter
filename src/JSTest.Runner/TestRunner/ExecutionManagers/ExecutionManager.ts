@@ -3,7 +3,7 @@ import { ITestFramework, TestSessionEventArgs, TestSpecEventArgs, TestFrameworks
 import { TestMessageLevel, TestResult, AttachmentSet, JSTestSettings } from '../../ObjectModel';
 import { TestCase } from '../../ObjectModel/Common';
 import { IEnvironment } from '../../Environment/IEnvironment';
-import { TimeSpan } from '../../Utils/TimeSpan';
+import { TimeSpan } from '../../Utils/TimeUtils';
 import { MessageSender } from '../MessageSender';
 import { BaseExecutionManager } from './BaseExecutionManager';
 import { TestFrameworkEventHandlers } from '../TestFrameworks/TestFrameworkEventHandlers';
