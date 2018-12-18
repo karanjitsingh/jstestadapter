@@ -38,9 +38,9 @@ function processCLIArgs(env: IEnvironment): CLIArgs {
 function handleError(err: any) {
     if (err instanceof Exception) {
         const ex = <Exception> err;
-        console.error(`JSTest Runner threw an exception of type ${ex.exceptionName}: ${ex.message}`);
+        console.error(`JSTest Runner threw an exception of type ${ex.exceptionName}: ${ex.message}${ex.stack ? '\n' + ex.stack : '' }`);
     } else {
-        console.error(`JSTest Runner ran into an internal error: ${err.message}`);
+        console.error(`JSTest Runner ran into an internal error: ${err}`);
     }
 }
 
