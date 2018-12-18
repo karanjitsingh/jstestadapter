@@ -1,4 +1,4 @@
-[![Build Status](https://dev.azure.com/karanjitsingh/jstestadapter/_apis/build/status/JSTestAdapter%20CI%20Build?branchName=master)](https://dev.azure.com/karanjitsingh/jstestadapter/_build/latest?definitionId=7?branchName=master) [![npm version](https://img.shields.io/npm/v/jstestadapter.svg)](https://www.npmjs.com/package/jstestadapter)
+[![Build Status](https://dev.azure.com/karanjitsingh/jstestadapter/_apis/build/status/JSTestAdapter%20Build?branchName=master)](https://dev.azure.com/karanjitsingh/jstestadapter/_build/latest?definitionId=4?branchName=master) [![npm version](https://img.shields.io/npm/v/jstestadapter.svg)](https://www.npmjs.com/package/jstestadapter)
 
 ### jstestadapter
 
