@@ -20,13 +20,7 @@ steps:
 - powershell: |
    npm run build:test
   displayName: 'npm run build:test'
-
-- task: VSTest@2
-  inputs:
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
-  displayName: 'Managed Tests'
-    
+  
 - task: VSTest@2
   inputs:
     testAssemblyVer2: '**\*Tests.js'
@@ -36,3 +30,9 @@ steps:
     configuration: '$(BuildConfiguration)'
     runTestsInIsolation: true
   displayName: 'JavaScript Tests'
+  
+- task: VSTest@2
+  inputs:
+    platform: '$(buildPlatform)'
+    configuration: '$(buildConfiguration)'
+  displayName: 'Managed Tests'
