@@ -1,20 +1,17 @@
-﻿
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
+
+using JSTest.Interfaces;
+using JSTest.RuntimeProviders;
+using JSTest.Settings;
+
+using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 
 namespace JSTest
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Threading;
-    using System.Threading.Tasks;
-
-    using JSTest.Interfaces;
-    using JSTest.RuntimeProviders;
-    using JSTest.Settings;
-
-    using Microsoft.VisualStudio.TestPlatform.ObjectModel;
-
-
     public class TestRunner : IDisposable
     {
         private TestRuntimeManager runtimeManager;
