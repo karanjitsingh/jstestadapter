@@ -1,8 +1,8 @@
-[![Build Status](https://dev.azure.com/karanjitsingh/jstest/_apis/build/status/JSTestAdapter%20CI%20Build?branchName=master)](https://dev.azure.com/karanjitsingh/jstest/_build/latest?definitionId=7?branchName=master) [![npm version](https://img.shields.io/npm/v/jstestadapter.svg)](https://www.npmjs.com/package/jstestadapter)
+[![Build Status](https://dev.azure.com/karanjitsingh/jstestadapter/_apis/build/status/JSTestAdapter%20CI%20Build?branchName=master)](https://dev.azure.com/karanjitsingh/jstestadapter/_build/latest?definitionId=7?branchName=master) [![npm version](https://img.shields.io/npm/v/jstestadapter.svg)](https://www.npmjs.com/package/jstestadapter)
 
-### jstest
+### jstestadapter
 
-jstest is a JavaScript test adapter extension for [Visual Studio Test Platform](https://github.com/Microsoft/vstest). jstest with vstest can be used as a command line tool to run tests written in mocha, jasmine or jest.
+jstestadapter is a JavaScript test adapter extension for [Visual Studio Test Platform](https://github.com/Microsoft/vstest). jstest with vstest can be used as a command line tool to run tests written in mocha, jasmine or jest.
 
 ### Install
 ```bash

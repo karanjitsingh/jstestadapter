@@ -12,7 +12,7 @@ import * as Assert from 'assert';
 import { TestUtils } from '../../TestUtils';
 import { Exception, ExceptionType } from '../../../../src/JSTest.Runner/Exceptions';
 import { TestableExecutionManager, TestableTestFrameworkFactory, TestableTestSessionManager, TestableFramework } from './Testable';
-import { TimeSpan } from '../../../../src/JSTest.Runner/Utils/TimeSpan';
+import { TimeSpan } from '../../../../src/JSTest.Runner/Utils/TimeUtils';
 
 describe('ExecutionManager Suite', () => {
     let mockEM: IMock<TestableExecutionManager>;

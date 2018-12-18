@@ -31,6 +31,21 @@ namespace JSTest
             }
         }
 
+        public int ProcessId
+        {
+            get
+            {
+                try
+                {
+                    return this.process.Id;
+                }
+                catch
+                {
+                    return 0;
+                }
+            }
+        }
+
         public JSProcess()
         {
         }
@@ -45,7 +60,7 @@ namespace JSTest
             this.debugFilePath = debugFilePath;
         }
 
-        public bool LaunchProcess(TestProcessStartInfo startInfo, Action<object, string> processErrorReceived, Action<object> processExitReceived)
+        public bool LaunchProcess(TestProcessStartInfo startInfo, Action<object, string> processOutputRecieived, Action<object, string> processErrorReceived, Action<object> processExitReceived)
         {
             var endpoint = this.InitializeChannel();
 
@@ -55,6 +70,7 @@ namespace JSTest
                 this.InitializeStartInfo(process, startInfo, endpoint);
 
                 process.EnableRaisingEvents = true;
+                process.OutputDataReceived += (sender, args) => processOutputRecieived(sender as Process, args.Data);
                 process.ErrorDataReceived += (sender, args) => processErrorReceived(sender as Process, args.Data);
                 process.Exited += (sender, args) =>
                 {
@@ -73,16 +89,18 @@ namespace JSTest
                     processExitReceived(p);
                 };
 
-                // EqtTrace.Verbose("ProcessHelper: Starting process '{0}' with command line '{1}'", processPath, arguments);
+                EqtTrace.Verbose("JSProcess: Starting process '{0}' with command line '{1}'", startInfo.FileName, startInfo.Arguments);
+
                 process.Start();
                 process.BeginErrorReadLine();
+                process.BeginOutputReadLine();
             }
-            catch (Exception)
+            catch (Exception exception)
             {
                 process.Dispose();
                 process = null;
 
-                // EqtTrace.Error("TestHost Object {0} failed to launch with the following exception: {1}", processPath, exception.Message);
+                EqtTrace.Error("JSProcess: Test runner {0} failed to launch with the following exception: {1}", startInfo.FileName, exception.Message);
                 throw;
             }
 
@@ -166,7 +184,7 @@ namespace JSTest
                 }
                 catch
                 {
-                    EqtTrace.Warning("Could not use debug file path \"{0}\"", this.debugFilePath);
+                    EqtTrace.Warning("JSProcess: Could not use debug file path \"{0}\"", this.debugFilePath);
                 }
 
                 return arg;
