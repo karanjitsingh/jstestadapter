@@ -69,35 +69,50 @@ export class JestTestFramework extends BaseTestFramework {
     }
 
     public startExecutionWithTests(sources: Array<string>, testCollection: Map<string, TestCase>, options: JSON) {
-        let runConfigPath;
-        try {
+        const configToSourceMap: Map<string, Array<string>> = new Map();
+
             // tslint:disable-next-line:no-string-literal
-            runConfigPath = testCollection.entries().next().value[1].Properties[0]['Value'];
-        } catch (e) {
-            throw new Exception('TestCase object does not contain jestConfigPath in Properties', ExceptionType.TestFrameworkError);
-        }
+            sources.forEach((src) => {
+                const testCase = testCollection.get(src);
+                const fqnRegex = testCase.FullyQualifiedName.match(/.*::(.*)/);
+                if (fqnRegex) {
+                    // config path appended to the fqn is relative to the source
+                    const config = path.normalize(path.dirname(src) + '\\' + fqnRegex[1]);
+                    if (configToSourceMap.has(config)) {
+                        configToSourceMap.get(config).push(src);
+                    } else {
+                        configToSourceMap.set(config, [src]);
+                    }
+                } else {
+                    console.warn('Config file not provided in fqn for source:', src);
+                }
+            });
         this.sources = sources;
-        this.runJest(runConfigPath, null, sources);
+        this.runTests(configToSourceMap, options);
     }
 
     public startExecutionWithSources(sources: Array<string>, options: JSON): void {
         EqtTrace.info(`JestTestFramework: starting with options: ${JSON.stringify(options)}`);
 
         this.sources = sources;
-        this.runJest(sources[0], null, null);
+        
+        const map = new Map();
+        map.set(sources[0], []);
+
+        this.runTests(map, options);
     }
 
     public startDiscovery(sources: Array<string>): void {
         this.sources = sources;
         this.jestReporter.discovery = true;
-        this.runJest(sources[0], null, null, true);
+        this.runTestAsync(sources[0], null, null, true);
     }
 
     protected skipSpec(specObject: any) {
         // Cannot skip at test case level in jest
     }
 
-    private runJest(runConfigPath: string, configOverride: JSON, sources: Array<string>, discovery: boolean = false) {
+    private async runTestAsync(runConfigPath: string, sources: Array<string>, configOverride: JSON, discovery: boolean = false) {
         const jestArgv = this.jestArgv;
         sources = sources || [];
         
@@ -117,11 +132,6 @@ export class JestTestFramework extends BaseTestFramework {
         jestArgv.rootDir = path.dirname(runConfigPath);
         jestArgv.reporters = [ require.resolve('./JestReporter.js') ];
 
-        // if (jestArgv.setupFiles instanceof Array) {
-        //     jestArgv.setupFiles.unshift(require.resolve('./JestSetup'));
-        // } else {
-        //     jestArgv.setupFiles = [ require.resolve('./JestSetup') ];
-        // }
         const src = [];
         sources.forEach((source, i) => {
             src.push(source.replace(/\\/g, '/'));  //  Cannot run specific test files in jest unless path separator is '/'
@@ -133,12 +143,29 @@ export class JestTestFramework extends BaseTestFramework {
         EqtTrace.info(`JestTestFramework: JestArgv: ${JSON.stringify(jestArgv)}`);
 
         this.handleSessionStarted();
+        this.jestReporter.UPDATE_CONFIG(runConfigPath);
 
-        this.jest.runCLI(jestArgv, this.jestProjects).then(() => {
+        return this.jest.runCLI(jestArgv, this.jestProjects);
+    }
+
+    private async runTests(configToSourceMap: Map<string, Array<string>>, configOverride: JSON) {
+        
+        if (!configToSourceMap.size) {
+            this.handleErrorMessage('JestTestFramework: No configs in config source map', '');
             this.handleSessionDone();
-        }, (err) => {
-            this.handleErrorMessage(err.message, err.stack);
-            this.handleSessionDone();
-        });
+            return;
+        }
+
+        const entries = configToSourceMap.entries();
+
+        for (let kvp = entries.next(); kvp.done; kvp = entries.next()) {
+            try {
+                await this.runTestAsync(kvp.value[0], kvp.value[1], configOverride);
+            } catch (err) {
+                this.handleErrorMessage(err.message, err.stack);
+            }
+        }
+
+        this.handleSessionDone();
     }
 }
