@@ -157,7 +157,7 @@
                 this.versionCheckComplete.Wait();
 
                 connectionStopwatch.Stop();
-                Console.WriteLine("JSTest: Connected to client with id {0}, time taken {1}.", jsProcess.ProcessId, connectionStopwatch.ElapsedMilliseconds);
+                Console.WriteLine("JSTest: Connected to process with id {0}, time taken {1}.", jsProcess.ProcessId, connectionStopwatch.ElapsedMilliseconds);
             }
         }
 
