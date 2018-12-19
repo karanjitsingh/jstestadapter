@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using JSTest.Communication;
+using JSTest.Interfaces;
 using JSTest.RuntimeProviders;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 
@@ -60,18 +61,18 @@ namespace JSTest
             this.debugFilePath = debugFilePath;
         }
 
-        public bool LaunchProcess(TestProcessStartInfo startInfo, Action<object, string> processOutputRecieived, Action<object, string> processErrorReceived, Action<object> processExitReceived)
+        public bool LaunchProcess(TestProcessStartInfo startInfo, ProcessCallbacks processStreamCallbacks)
         {
             var endpoint = this.InitializeChannel();
-
+            
             var process = new Process();
             try
             {
                 this.InitializeStartInfo(process, startInfo, endpoint);
 
                 process.EnableRaisingEvents = true;
-                process.OutputDataReceived += (sender, args) => processOutputRecieived(sender as Process, args.Data);
-                process.ErrorDataReceived += (sender, args) => processErrorReceived(sender as Process, args.Data);
+                process.OutputDataReceived += (sender, args) => processStreamCallbacks.outputReceived(sender as Process, args.Data);
+                process.ErrorDataReceived += (sender, args) => processStreamCallbacks.errorReceived(sender as Process, args.Data);
                 process.Exited += (sender, args) =>
                 {
                     // Call WaitForExit without again to ensure all streams are flushed,
@@ -86,7 +87,7 @@ namespace JSTest
                     }
 
                     // If exit callback has code that access Process object, ensure that the exceptions handling should be done properly.
-                    processExitReceived(p);
+                    processStreamCallbacks.exitReceived(p);
                 };
 
                 EqtTrace.Verbose("JSProcess: Starting process '{0}' with command line '{1}'", startInfo.FileName, startInfo.Arguments);

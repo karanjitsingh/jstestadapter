@@ -7,6 +7,7 @@
     using System.Threading.Tasks;
     using JSTest.Communication;
     using JSTest.Communication.Payloads;
+    using JSTest.Interfaces;
     using JSTest.Settings;
     using Microsoft.VisualStudio.TestPlatform.ObjectModel;
     using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions;
@@ -101,7 +102,14 @@
 
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    this.jsProcess.LaunchProcess(runtimeProcessStartInfo, this.ProcessOutputReceived, this.ProcessErrorReceived, this.ProcessExitReceived);
+                    var callbacks = new ProcessCallbacks
+                    {
+                        outputReceived = this.ProcessOutputReceived,
+                        errorReceived = this.ProcessErrorReceived,
+                        exitReceived = this.ProcessExitReceived
+                    };
+
+                    this.jsProcess.LaunchProcess(runtimeProcessStartInfo, callbacks);
 
                 }
                 catch (OperationCanceledException ex)
