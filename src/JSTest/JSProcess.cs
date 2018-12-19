@@ -71,6 +71,7 @@ namespace JSTest
                 process.EnableRaisingEvents = true;
                 process.OutputDataReceived += (sender, args) => processStreamCallbacks.outputReceived(sender as Process, args.Data);
                 process.ErrorDataReceived += (sender, args) => processStreamCallbacks.errorReceived(sender as Process, args.Data);
+
                 process.Exited += (sender, args) =>
                 {
                     // Call WaitForExit without again to ensure all streams are flushed,
@@ -80,16 +81,16 @@ namespace JSTest
                         // Add timeout to avoid indefinite waiting on child process exit.
                         if (exitingProcess.WaitForExit(500))
                         {
-                            EqtTrace.Verbose("JSProcess: Process with id {0} exited successfully.", jsProcessId);
+                            Console.Write("JSProcess: Process with id {0} exited successfully.", jsProcessId);
                         }
                         else
                         {
-                            EqtTrace.Error("JSProcess: WaitForExit timed out for process {0}", jsProcessId);
+                            Console.Error.Write("JSProcess: WaitForExit timed out for process {0}.", jsProcessId);
                         }
                     }
                     catch (InvalidOperationException)
                     {
-                        // Process had already exited
+                        Console.Write("JSProcess: Process with id {0} exited successfully.", jsProcessId);
                     }
 
                     // If exit callback has code that access Process object, ensure that the exceptions handling should be done properly.

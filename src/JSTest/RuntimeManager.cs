@@ -65,7 +65,7 @@
 
             if (!string.IsNullOrEmpty(data))
             {
-                Console.Write(data + Environment.NewLine);
+                Console.Write("{0} StdOut: {1}{2}", this.GetProcessId(), data, Environment.NewLine);
             }
         };
 
@@ -75,7 +75,7 @@
             
             if (!string.IsNullOrEmpty(data))
             {
-                Console.Write(data + Environment.NewLine);
+                Console.Write("{0} StdErr: {1}{2}", this.GetProcessId(), data, Environment.NewLine);
             }
         };
         
