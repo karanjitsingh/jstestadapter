@@ -16,6 +16,7 @@ namespace JSTest
         private CommunicationChannel channel;
         private bool debugEnabled;
         private string debugFilePath;
+        private int jsProcessId = 0;
 
         public CommunicationChannel CommunicationChannel
         {
@@ -36,14 +37,11 @@ namespace JSTest
         {
             get
             {
-                try
-                {
-                    return this.process.Id;
-                }
-                catch
-                {
-                    return 0;
-                }
+                return this.jsProcessId;
+            }
+            private set
+            {
+                this.jsProcessId = value;
             }
         }
 
@@ -76,18 +74,26 @@ namespace JSTest
                 process.Exited += (sender, args) =>
                 {
                     // Call WaitForExit without again to ensure all streams are flushed,
-                    var p = sender as Process;
+                    var exitingProcess = sender as Process;
                     try
                     {
                         // Add timeout to avoid indefinite waiting on child process exit.
-                        p.WaitForExit(500);
+                        if (exitingProcess.WaitForExit(500))
+                        {
+                            EqtTrace.Verbose("JSProcess: Process with id {0} exited successfully.", jsProcessId);
+                        }
+                        else
+                        {
+                            EqtTrace.Error("JSProcess: WaitForExit timed out for process {0}", jsProcessId);
+                        }
                     }
                     catch (InvalidOperationException)
                     {
+                        // Process had already exited
                     }
 
                     // If exit callback has code that access Process object, ensure that the exceptions handling should be done properly.
-                    processStreamCallbacks.exitReceived(p);
+                    processStreamCallbacks.exitReceived(exitingProcess);
                 };
 
                 EqtTrace.Verbose("JSProcess: Starting process '{0}' with command line '{1}'", startInfo.FileName, startInfo.Arguments);
@@ -95,6 +101,7 @@ namespace JSTest
                 process.Start();
                 process.BeginErrorReadLine();
                 process.BeginOutputReadLine();
+                this.jsProcessId = process.Id;
             }
             catch (Exception exception)
             {
