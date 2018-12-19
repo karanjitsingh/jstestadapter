@@ -2,11 +2,13 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
     using JSTest.Communication;
     using JSTest.Communication.Payloads;
+    using JSTest.Interfaces;
     using JSTest.Settings;
     using Microsoft.VisualStudio.TestPlatform.ObjectModel;
     using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions;
@@ -43,7 +45,7 @@
             }
         }
 
-        public int getProcessId()
+        public int GetProcessId()
         {
             return this.jsProcess.ProcessId;
         }
@@ -59,7 +61,7 @@
 
         private Action<object, string> ProcessOutputReceived => (process, data) =>
         {
-            EqtTrace.Error("JSTestHostManager: Node {0} StdOut: {1}", this.jsProcess.ProcessId, data);
+            EqtTrace.Verbose("JSTestHostManager: Node {0} StdOut: {1}", this.jsProcess.ProcessId, data);
 
             if (!string.IsNullOrEmpty(data))
             {
@@ -101,7 +103,14 @@
 
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    this.jsProcess.LaunchProcess(runtimeProcessStartInfo, this.ProcessOutputReceived, this.ProcessErrorReceived, this.ProcessExitReceived);
+                    var callbacks = new ProcessCallbacks
+                    {
+                        outputReceived = this.ProcessOutputReceived,
+                        errorReceived = this.ProcessErrorReceived,
+                        exitReceived = this.ProcessExitReceived
+                    };
+
+                    this.jsProcess.LaunchProcess(runtimeProcessStartInfo, callbacks);
 
                 }
                 catch (OperationCanceledException ex)
@@ -138,11 +147,17 @@
         {
             if (jsProcess.IsAlive)
             {
+                EqtTrace.Verbose("JSTestHostManager: Initializing communication with client process.");
+                var connectionStopwatch = Stopwatch.StartNew();
+                
                 // Start the message loop
                 Task.Run(() => { this.MessageLoopAsync(this.jsProcess.CommunicationChannel, cancellationToken); });
                 this.jsProcess.CommunicationChannel.SendMessage(MessageType.TestRunSettings, settings);
 
                 this.versionCheckComplete.Wait();
+
+                connectionStopwatch.Stop();
+                EqtTrace.Verbose("JSTestHostManager: Connected to client, time taken {0}.", connectionStopwatch.ElapsedMilliseconds);
             }
         }
 

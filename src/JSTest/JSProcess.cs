@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using JSTest.Communication;
+using JSTest.Interfaces;
 using JSTest.RuntimeProviders;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 
@@ -15,6 +16,7 @@ namespace JSTest
         private CommunicationChannel channel;
         private bool debugEnabled;
         private string debugFilePath;
+        private int jsProcessId = 0;
 
         public CommunicationChannel CommunicationChannel
         {
@@ -35,14 +37,11 @@ namespace JSTest
         {
             get
             {
-                try
-                {
-                    return this.process.Id;
-                }
-                catch
-                {
-                    return 0;
-                }
+                return this.jsProcessId;
+            }
+            private set
+            {
+                this.jsProcessId = value;
             }
         }
 
@@ -60,33 +59,41 @@ namespace JSTest
             this.debugFilePath = debugFilePath;
         }
 
-        public bool LaunchProcess(TestProcessStartInfo startInfo, Action<object, string> processOutputRecieived, Action<object, string> processErrorReceived, Action<object> processExitReceived)
+        public bool LaunchProcess(TestProcessStartInfo startInfo, ProcessCallbacks processStreamCallbacks)
         {
             var endpoint = this.InitializeChannel();
-
+            
             var process = new Process();
             try
             {
                 this.InitializeStartInfo(process, startInfo, endpoint);
 
                 process.EnableRaisingEvents = true;
-                process.OutputDataReceived += (sender, args) => processOutputRecieived(sender as Process, args.Data);
-                process.ErrorDataReceived += (sender, args) => processErrorReceived(sender as Process, args.Data);
+                process.OutputDataReceived += (sender, args) => processStreamCallbacks.outputReceived(sender as Process, args.Data);
+                process.ErrorDataReceived += (sender, args) => processStreamCallbacks.errorReceived(sender as Process, args.Data);
                 process.Exited += (sender, args) =>
                 {
                     // Call WaitForExit without again to ensure all streams are flushed,
-                    var p = sender as Process;
+                    var exitingProcess = sender as Process;
                     try
                     {
                         // Add timeout to avoid indefinite waiting on child process exit.
-                        p.WaitForExit(500);
+                        if (exitingProcess.WaitForExit(500))
+                        {
+                            EqtTrace.Verbose("JSProcess: Process with id {0} exited successfully.", jsProcessId);
+                        }
+                        else
+                        {
+                            EqtTrace.Error("JSProcess: WaitForExit timed out for process {0}", jsProcessId);
+                        }
                     }
                     catch (InvalidOperationException)
                     {
+                        // Process had already exited
                     }
 
                     // If exit callback has code that access Process object, ensure that the exceptions handling should be done properly.
-                    processExitReceived(p);
+                    processStreamCallbacks.exitReceived(exitingProcess);
                 };
 
                 EqtTrace.Verbose("JSProcess: Starting process '{0}' with command line '{1}'", startInfo.FileName, startInfo.Arguments);
@@ -94,6 +101,7 @@ namespace JSTest
                 process.Start();
                 process.BeginErrorReadLine();
                 process.BeginOutputReadLine();
+                this.jsProcessId = process.Id;
             }
             catch (Exception exception)
             {
