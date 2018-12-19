@@ -32,7 +32,10 @@ namespace JSTest.AcceptanceTests
 
         private readonly IEnumerable<string> PreDefinedOutput = new List<string>()
         {
-            "Logging JSTet.Runner Diagnostics in file"
+            "Logging JSTet.Runner Diagnostics in file",
+            "Connected to client with",
+            "Process Launched with id",
+            "Process with id"
         };
 
         #endregion
