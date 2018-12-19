@@ -45,7 +45,7 @@ namespace JSTest.AcceptanceTests
             this.stdErr = process.StandardError;
 
 
-            this.waitTimeout = !process.WaitForExit(30000);
+            this.waitTimeout = !process.WaitForExit(1200000);
         }
     }
 }
