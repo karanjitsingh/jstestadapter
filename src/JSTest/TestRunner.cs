@@ -53,7 +53,7 @@ namespace JSTest
                 else
                 {
                     launchStopWatch.Stop();
-                    Console.WriteLine($"JSTest.TestRunner.StartExecution: Process Launched with id {this.runtimeManager.GetProcessId()} in {launchStopWatch.ElapsedMilliseconds} ms");
+                    Console.WriteLine($"JSTest: Process Launched with id {this.runtimeManager.GetProcessId()} in {launchStopWatch.ElapsedMilliseconds} ms");
                 }
             }
             catch (Exception ex)
