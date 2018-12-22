@@ -28,6 +28,14 @@ namespace JSTest.AcceptanceTests
 
         #endregion
 
+        #region Private Variables
+
+        private readonly IEnumerable<string> PreDefinedOutput = new List<string>()
+        {
+        };
+
+        #endregion
+
         #region Protected Variables
 
         protected abstract string ContainerExtension { get; }
@@ -224,7 +232,8 @@ namespace JSTest.AcceptanceTests
             };
             var runConfig = new Dictionary<string, string>()
             {
-                { "TestFramework", BaseFrameworkTest.frameworkName }
+                { "TestFramework", BaseFrameworkTest.frameworkName },
+                { "DebugLogs", "true" }
             };
 
             var output = this.RunTests(files, cliOptions, runConfig);
@@ -251,7 +260,8 @@ namespace JSTest.AcceptanceTests
             var cliOptions = new Dictionary<string, string>();
             var runConfig = new Dictionary<string, string>()
             {
-                { "TestFramework", BaseFrameworkTest.frameworkName }
+                { "TestFramework", BaseFrameworkTest.frameworkName },
+                { "DebugLogs", "true" }
             };
 
             var output = this.RunTests(files, cliOptions, runConfig);
@@ -262,7 +272,7 @@ namespace JSTest.AcceptanceTests
 
         #endregion
 
-        #region Validations
+        #region Output Validations
 
         private void ValidateOutput(ExecutionOutput output, IEnumerable<string> expectedStdOut, bool failOnStdErr = true)
         {
@@ -278,8 +288,21 @@ namespace JSTest.AcceptanceTests
 
             var stdout = output.StdOut;
 
+            foreach (var str in this.PreDefinedOutput)
+            {
+                if (!stdout.Contains(str))
+                {
+                    Console.Error.Write("Expected output:\n", stdout);
+                }
+                Assert.IsTrue(stdout.Contains(str), "Actual StdOut did not match the expected StdOut");
+            }
+
             foreach (var str in expectedStdOut)
             {
+                if(!stdout.Contains(str))
+                {
+                    Console.Error.Write("Expected output:\n", stdout);
+                }
                 Assert.IsTrue(stdout.Contains(str), "Actual StdOut did not match the expected StdOut");
             }
 
@@ -294,10 +317,15 @@ namespace JSTest.AcceptanceTests
 
             foreach (var str in expectedStdErr)
             {
+                if (!stderr.Contains(str))
+                {
+                    Console.Error.Write("Expected error:\n", stderr);
+                }
+
                 Assert.IsTrue(stderr.Contains(str), "Actual StdErr did not match the StdErr");
             }
 
-            Console.Error.Write(stderr);
+            Console.Write(stderr);
         }
 
         #endregion

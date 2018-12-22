@@ -1,14 +1,13 @@
 import { IDebugLogger } from './IDebugLogger';
+import { GetTimeStamp } from '../../Utils/TimeUtils';
 
 export namespace EqtTrace {
     let logger: IDebugLogger;
-    let loggerInitialized: boolean = false;
+    let loggingEnabled: boolean;
     
     const writeLog = (prefix: string, message: string) => {
-        if (loggerInitialized) {
-            const date = new Date();
-            const dateStamp = `${date.getFullYear()}/${date.getMonth()}/${date.getDate()}`;
-            const timeStamp = `${date.getHours()}:${date.getMinutes()}.${date.getMilliseconds()}`;
+        if (loggingEnabled) {
+            const [dateStamp, timeStamp] = GetTimeStamp('/', ':');
             logger.log(`${prefix}: ${logger.processPid}, ${dateStamp}, ${timeStamp}, ${message}`);
         }
     };
@@ -17,7 +16,7 @@ export namespace EqtTrace {
         if (debugLogger) {
             logger = debugLogger;
             debugLogger.initialize(diagFile);
-            loggerInitialized = true;
+            loggingEnabled = true;
         }
     };
 

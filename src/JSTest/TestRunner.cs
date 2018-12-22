@@ -1,20 +1,17 @@
-﻿
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
+
+using JSTest.Interfaces;
+using JSTest.RuntimeProviders;
+using JSTest.Settings;
+
+using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 
 namespace JSTest
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Threading;
-    using System.Threading.Tasks;
-
-    using JSTest.Interfaces;
-    using JSTest.RuntimeProviders;
-    using JSTest.Settings;
-
-    using Microsoft.VisualStudio.TestPlatform.ObjectModel;
-
-
     public class TestRunner : IDisposable
     {
         private TestRuntimeManager runtimeManager;
@@ -56,7 +53,7 @@ namespace JSTest
                 else
                 {
                     launchStopWatch.Stop();
-                    Console.WriteLine($"JSTest.TestRunner.StartExecution: Process Launched in {launchStopWatch.ElapsedMilliseconds} ms");
+                    Console.WriteLine($"JSTest: Process Launched with id {this.runtimeManager.GetProcessId()} in {launchStopWatch.ElapsedMilliseconds} ms");
                 }
             }
             catch (Exception ex)

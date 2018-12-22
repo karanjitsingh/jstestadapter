@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using JSTest.Communication;
+using JSTest.Interfaces;
 using JSTest.RuntimeProviders;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 
@@ -15,6 +16,7 @@ namespace JSTest
         private CommunicationChannel channel;
         private bool debugEnabled;
         private string debugFilePath;
+        private int jsProcessId = 0;
 
         public CommunicationChannel CommunicationChannel
         {
@@ -28,6 +30,18 @@ namespace JSTest
                 {
                     throw new Exception("Process is not running.");
                 }
+            }
+        }
+
+        public int ProcessId
+        {
+            get
+            {
+                return this.jsProcessId;
+            }
+            private set
+            {
+                this.jsProcessId = value;
             }
         }
 
@@ -45,44 +59,57 @@ namespace JSTest
             this.debugFilePath = debugFilePath;
         }
 
-        public bool LaunchProcess(TestProcessStartInfo startInfo, Action<object, string> processErrorReceived, Action<object> processExitReceived)
+        public bool LaunchProcess(TestProcessStartInfo startInfo, ProcessCallbacks processStreamCallbacks)
         {
             var endpoint = this.InitializeChannel();
-
+            
             var process = new Process();
             try
             {
                 this.InitializeStartInfo(process, startInfo, endpoint);
 
                 process.EnableRaisingEvents = true;
-                process.ErrorDataReceived += (sender, args) => processErrorReceived(sender as Process, args.Data);
+                process.OutputDataReceived += (sender, args) => processStreamCallbacks.outputReceived(sender as Process, args.Data);
+                process.ErrorDataReceived += (sender, args) => processStreamCallbacks.errorReceived(sender as Process, args.Data);
+
                 process.Exited += (sender, args) =>
                 {
                     // Call WaitForExit without again to ensure all streams are flushed,
-                    var p = sender as Process;
+                    var exitingProcess = sender as Process;
                     try
                     {
                         // Add timeout to avoid indefinite waiting on child process exit.
-                        p.WaitForExit(500);
+                        if (exitingProcess.WaitForExit(500))
+                        {
+                            Console.WriteLine("JSTest: Process with id {0} exited successfully.", jsProcessId);
+                        }
+                        else
+                        {
+                            Console.Error.WriteLine("JSTest: WaitForExit timed out for process {0}.{1}", jsProcessId);
+                        }
                     }
                     catch (InvalidOperationException)
                     {
+                        Console.WriteLine("JSTest: Process with id {0} exited successfully.{1}", jsProcessId);
                     }
 
                     // If exit callback has code that access Process object, ensure that the exceptions handling should be done properly.
-                    processExitReceived(p);
+                    processStreamCallbacks.exitReceived(exitingProcess);
                 };
 
-                // EqtTrace.Verbose("ProcessHelper: Starting process '{0}' with command line '{1}'", processPath, arguments);
+                EqtTrace.Verbose("JSProcess: Starting process '{0}' with command line '{1}'", startInfo.FileName, startInfo.Arguments);
+
                 process.Start();
                 process.BeginErrorReadLine();
+                process.BeginOutputReadLine();
+                this.jsProcessId = process.Id;
             }
-            catch (Exception)
+            catch (Exception exception)
             {
                 process.Dispose();
                 process = null;
 
-                // EqtTrace.Error("TestHost Object {0} failed to launch with the following exception: {1}", processPath, exception.Message);
+                EqtTrace.Error("JSProcess: Test runner {0} failed to launch with the following exception: {1}", startInfo.FileName, exception.Message);
                 throw;
             }
 
@@ -166,7 +193,7 @@ namespace JSTest
                 }
                 catch
                 {
-                    EqtTrace.Warning("Could not use debug file path \"{0}\"", this.debugFilePath);
+                    EqtTrace.Warning("JSProcess: Could not use debug file path \"{0}\"", this.debugFilePath);
                 }
 
                 return arg;
