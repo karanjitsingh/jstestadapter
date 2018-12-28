@@ -27,12 +27,12 @@ export class JestTestFramework extends BaseTestFramework {
                 return require('jest');
             default:
                 throw new Exception('Not implemented.', ExceptionType.NotImplementedException);
-                /*
-                 * TODO CHECK FOR FRAMEWORK SPECIFIC ERRORS
-                 * report as test framework threw an error,
-                 * rethrow all errors wrapped in exception
-                 * don't take dependency on exception here
-                 */
+            /*
+             * TODO CHECK FOR FRAMEWORK SPECIFIC ERRORS
+             * report as test framework threw an error,
+             * rethrow all errors wrapped in exception
+             * don't take dependency on exception here
+             */
         }
     }
 
@@ -56,7 +56,7 @@ export class JestTestFramework extends BaseTestFramework {
 
         //tslint:disable:no-require-imports
         this.jestReporter = require('./JestReporter');
-        this.jestReporter.INITIALIZE_REPORTER(<JestCallbacks> {
+        this.jestReporter.INITIALIZE_REPORTER(<JestCallbacks>{
             handleSessionDone: this.handleSessionDone.bind(this),
             handleSpecFound: this.handleSpecStarted.bind(this),
             handleSpecResult: this.handleSpecResult.bind(this),
@@ -77,14 +77,14 @@ export class JestTestFramework extends BaseTestFramework {
             throw new Exception('TestCase object does not contain jestConfigPath in Properties', ExceptionType.TestFrameworkError);
         }
         this.sources = sources;
-        this.runJest(runConfigPath, null, sources);
+        this.runJest(runConfigPath, options, sources);
     }
 
     public startExecutionWithSources(sources: Array<string>, options: JSON): void {
         EqtTrace.info(`JestTestFramework: starting with options: ${JSON.stringify(options)}`);
 
         this.sources = sources;
-        this.runJest(sources[0], null, null);
+        this.runJest(sources[0], options, null);
     }
 
     public startDiscovery(sources: Array<string>): void {
@@ -100,7 +100,7 @@ export class JestTestFramework extends BaseTestFramework {
     private runJest(runConfigPath: string, configOverride: JSON, sources: Array<string>, discovery: boolean = false) {
         const jestArgv = this.jestArgv;
         sources = sources || [];
-        
+
         if (configOverride instanceof Object) {
             Object.keys(configOverride).forEach(key => {
                 jestArgv[key] = configOverride[key];
@@ -115,7 +115,7 @@ export class JestTestFramework extends BaseTestFramework {
         jestArgv.$0 = runConfigPath;
         jestArgv.config = runConfigPath;
         jestArgv.rootDir = path.dirname(runConfigPath);
-        jestArgv.reporters = [ require.resolve('./JestReporter.js') ];
+        jestArgv.reporters = [require.resolve('./JestReporter.js')];
 
         // if (jestArgv.setupFiles instanceof Array) {
         //     jestArgv.setupFiles.unshift(require.resolve('./JestSetup'));
