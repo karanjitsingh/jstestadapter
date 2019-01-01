@@ -43,6 +43,6 @@ export const GetTimeStamp = (dateJoin: string, timeJoin: string) => {
 
     return [
         [date.getFullYear(), date.getMonth() + 1, date.getDate() + 1].join(dateJoin),
-        [h, m, date.getSeconds(), date.getMilliseconds()].join(timeJoin)
+        [h, m, s, date.getMilliseconds()].join(timeJoin)
     ];
 };

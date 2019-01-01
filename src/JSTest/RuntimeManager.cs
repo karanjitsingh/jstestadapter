@@ -65,17 +65,17 @@
 
             if (!string.IsNullOrEmpty(data))
             {
-                Console.Write(data + Environment.NewLine);
+                Console.WriteLine("JSTest: {0} StdOut: {1}", this.jsProcess.ProcessId, data);
             }
         };
 
         private Action<object, string> ProcessErrorReceived => (process, data) =>
         {
-            EqtTrace.Error("JSTestHostManager: Node {0} StdErr: {2}", this.jsProcess.ProcessId, data);
+            EqtTrace.Error("JSTestHostManager: Node {0} StdErr: {1}", this.jsProcess.ProcessId, data);
             
             if (!string.IsNullOrEmpty(data))
             {
-                Console.Write(data + Environment.NewLine);
+                Console.WriteLine("JSTest: {0} StdErr: {1}", this.jsProcess.ProcessId, data);
             }
         };
         
@@ -116,7 +116,7 @@
                 catch (OperationCanceledException ex)
                 {
                     EqtTrace.Error("JSTestHostManager: Failed to launch node: {0}", ex);
-                    Console.Write(ex);
+                    Console.WriteLine(ex);
                     return false;
                 }
 
@@ -157,7 +157,7 @@
                 this.versionCheckComplete.Wait();
 
                 connectionStopwatch.Stop();
-                EqtTrace.Verbose("JSTestHostManager: Connected to client, time taken {0}.", connectionStopwatch.ElapsedMilliseconds);
+                Console.WriteLine("JSTest: Connected to process with id {0}, time taken {1}.", jsProcess.ProcessId, connectionStopwatch.ElapsedMilliseconds);
             }
         }
 
@@ -236,7 +236,7 @@
                     break;
 
                 default:
-                    Console.Write(message.Payload);
+                    Console.WriteLine("JSTest: Unknown message type {0} with payload {1}", message.MessageType, message.Payload);
                     break;
             }
 

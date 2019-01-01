@@ -80,16 +80,16 @@ namespace JSTest
                         // Add timeout to avoid indefinite waiting on child process exit.
                         if (exitingProcess.WaitForExit(500))
                         {
-                            EqtTrace.Verbose("JSProcess: Process with id {0} exited successfully.", jsProcessId);
+                            Console.WriteLine("JSTest: Process with id {0} exited successfully.", jsProcessId);
                         }
                         else
                         {
-                            EqtTrace.Error("JSProcess: WaitForExit timed out for process {0}", jsProcessId);
+                            Console.Error.WriteLine("JSTest: WaitForExit timed out for process {0}.{1}", jsProcessId);
                         }
                     }
                     catch (InvalidOperationException)
                     {
-                        // Process had already exited
+                        Console.WriteLine("JSTest: Process with id {0} exited successfully.{1}", jsProcessId);
                     }
 
                     // If exit callback has code that access Process object, ensure that the exceptions handling should be done properly.

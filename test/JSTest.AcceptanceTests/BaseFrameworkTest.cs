@@ -32,7 +32,6 @@ namespace JSTest.AcceptanceTests
 
         private readonly IEnumerable<string> PreDefinedOutput = new List<string>()
         {
-            "Logging JSTet.Runner Diagnostics in file"
         };
 
         #endregion
