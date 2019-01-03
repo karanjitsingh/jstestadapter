@@ -134,6 +134,8 @@ namespace JSTest
 
         public void TerminateProcess()
         {
+            this.channel.StopServer();
+
             if (this.IsAlive)
             {
                 this.process.Kill();
@@ -199,7 +201,6 @@ namespace JSTest
             }
 
             return string.Empty;
-
         }
     }
 }
