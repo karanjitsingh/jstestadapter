@@ -73,7 +73,7 @@ class JestReporter {
             }
         
             if (JestReporter.discovery) {
-                JestReporter.callbacks.handleSpecFound(result.fullName, resultTitle, test.path, '::' + JestReporter.configFilePath);
+                JestReporter.callbacks.handleSpecFound(result.fullName, resultTitle, JestReporter.configFilePath, '::' + test.path);
             } else {
                 JestReporter.callbacks.handleSpecResult(result.fullName,
                                                         resultTitle,
