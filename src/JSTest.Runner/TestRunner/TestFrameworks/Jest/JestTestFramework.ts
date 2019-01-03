@@ -88,7 +88,7 @@ export class JestTestFramework extends BaseTestFramework {
                 }
             });
         this.sources = sources;
-        this.runTests(configToSourceMap, options);
+        this.runTestsAsync(configToSourceMap, options);
     }
 
     public startExecutionWithSources(sources: Array<string>, options: JSON): void {
@@ -99,7 +99,7 @@ export class JestTestFramework extends BaseTestFramework {
         const map = new Map();
         map.set(sources[0], []);
 
-        this.runTests(map, options);
+        this.runTestsAsync(map, options);
     }
 
     public startDiscovery(sources: Array<string>): void {
@@ -148,7 +148,7 @@ export class JestTestFramework extends BaseTestFramework {
         return this.jest.runCLI(jestArgv, this.jestProjects);
     }
 
-    private async runTests(configToSourceMap: Map<string, Array<string>>, configOverride: JSON) {
+    private async runTestsAsync(configToSourceMap: Map<string, Array<string>>, configOverride: JSON) {
         
         if (!configToSourceMap.size) {
             this.handleErrorMessage('JestTestFramework: No configs in config source map', '');
@@ -157,13 +157,16 @@ export class JestTestFramework extends BaseTestFramework {
         }
 
         const entries = configToSourceMap.entries();
+        let kvp = entries.next();
 
-        for (let kvp = entries.next(); kvp.done; kvp = entries.next()) {
+        while (!kvp.done) {
             try {
                 await this.runTestAsync(kvp.value[0], kvp.value[1], configOverride);
             } catch (err) {
                 this.handleErrorMessage(err.message, err.stack);
             }
+
+            kvp = entries.next();
         }
 
         this.handleSessionDone();

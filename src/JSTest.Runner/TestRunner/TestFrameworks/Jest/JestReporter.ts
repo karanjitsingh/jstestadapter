@@ -73,22 +73,19 @@ class JestReporter {
             }
         
             if (JestReporter.discovery) {
-                JestReporter.callbacks.handleSpecFound(this.appendConfigFile(result.fullName), resultTitle, test.path);
+                JestReporter.callbacks.handleSpecFound(result.fullName, resultTitle, test.path, '::' + JestReporter.configFilePath);
             } else {
-                JestReporter.callbacks.handleSpecResult(this.appendConfigFile(result.fullName),
+                JestReporter.callbacks.handleSpecResult(result.fullName,
                                                         resultTitle,
                                                         test.path,
                                                         outcome,
                                                         failedExpectations,
                                                         new Date(startTime),
-                                                        new Date(startTime + result.duration));
+                                                        new Date(startTime + result.duration),
+                                                        '::' + JestReporter.configFilePath);
                 startTime += result.duration;
             }
         });
-    }
-
-    private appendConfigFile(fqn: string): string {
-        return fqn + '::' + JestReporter.configFilePath;
     }
 }
 
