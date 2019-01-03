@@ -77,12 +77,12 @@ class JestReporter {
             } else {
                 JestReporter.callbacks.handleSpecResult(result.fullName,
                                                         resultTitle,
-                                                        test.path,
+                                                        JestReporter.configFilePath,
                                                         outcome,
                                                         failedExpectations,
                                                         new Date(startTime),
                                                         new Date(startTime + result.duration),
-                                                        '::' + JestReporter.configFilePath);
+                                                        '::' + test.path);
                 startTime += result.duration;
             }
         });

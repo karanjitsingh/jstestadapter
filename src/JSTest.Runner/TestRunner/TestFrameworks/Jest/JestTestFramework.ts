@@ -71,22 +71,56 @@ export class JestTestFramework extends BaseTestFramework {
     public startExecutionWithTests(sources: Array<string>, testCollection: Map<string, TestCase>, options: JSON) {
         const configToSourceMap: Map<string, Array<string>> = new Map();
 
-            // tslint:disable-next-line:no-string-literal
-            sources.forEach((src) => {
-                const testCase = testCollection.get(src);
-                const fqnRegex = testCase.FullyQualifiedName.match(/.*::(.*)/);
-                if (fqnRegex) {
-                    // config path appended to the fqn is relative to the source
-                    const config = path.normalize(path.dirname(src) + '\\' + fqnRegex[1]);
-                    if (configToSourceMap.has(config)) {
-                        configToSourceMap.get(config).push(src);
-                    } else {
-                        configToSourceMap.set(config, [src]);
-                    }
+        // tslint:disable-next-line:no-string-literal
+        // sources.forEach((src) => {
+        //     const testCase = testCollection.get(src);
+        //     const fqnRegex = testCase.FullyQualifiedName.match(/.*::(.*)/);
+        //     if (fqnRegex) {
+        //         // config path appended to the fqn is relative to the source
+        //         const config = path.normalize(path.dirname(src) + '\\' + fqnRegex[1]);
+        //         if (configToSourceMap.has(config)) {
+        //             configToSourceMap.get(config).push(src);
+        //         } else {
+        //             configToSourceMap.set(config, [src]);
+        //         }
+        //     } else {
+        //         console.warn('Config file not provided in fqn for source:', src);
+        //     }
+        // });
+
+        const testCaseIterator = testCollection.values();
+        let testCaseIteration = testCaseIterator.next();
+        while (!testCaseIteration.done) {
+            const testCase = testCaseIteration.value;
+            const fqnRegex = testCase.FullyQualifiedName.match(/.*::(.*)/);
+
+            const configPath = testCase.Source;
+
+            if (fqnRegex) {
+                // source path appended to the fqn is relative to the config file
+                const source = path.normalize(path.dirname(configPath) + '\\' + fqnRegex[1]);
+                if (configToSourceMap.has(configPath)) {
+                    configToSourceMap.get(configPath)[source] = 1;
                 } else {
-                    console.warn('Config file not provided in fqn for source:', src);
+                    const sourceArray = [];
+                    sourceArray[source] = 1;
+                    configToSourceMap.set(configPath, sourceArray);
                 }
-            });
+            } else {
+                // console.warn('Config file not provided in fqn for source:', src);
+            }
+
+            testCaseIteration = testCaseIterator.next();
+        }
+
+        const packageIterator = configToSourceMap.entries();
+        let packageIteration = packageIterator.next();
+
+        while (!packageIteration.done) {
+            configToSourceMap.set(packageIteration.value[0], Object.keys(packageIteration.value[1]));
+            packageIteration = packageIterator.next();
+        }
+
         this.sources = sources;
         this.runTestsAsync(configToSourceMap, options);
     }
