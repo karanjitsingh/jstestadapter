@@ -108,7 +108,7 @@ export class JestTestFramework extends BaseTestFramework {
         }
 
         this.sources = sources;
-        this.runTestsAsync(configToSourceMap, options);
+        this.runTestsAsync(configToSourceMap, options, testNames);
     }
 
     public startExecutionWithSources(sources: Array<string>, options: JSON): void {
@@ -174,7 +174,7 @@ export class JestTestFramework extends BaseTestFramework {
         return this.jest.runCLI(jestArgv, this.jestProjects);
     }
 
-    private async runTestsAsync(configToSourceMap: Map<string, Array<string>>, configOverride: JSON) {
+    private async runTestsAsync(configToSourceMap: Map<string, Array<string>>, configOverride: JSON, testNames?: Array<string>) {
         
         if (!configToSourceMap.size) {
             this.handleErrorMessage('JestTestFramework: No configs in config source map', '');
@@ -187,7 +187,7 @@ export class JestTestFramework extends BaseTestFramework {
 
         while (!kvp.done) {
             try {
-                await this.runTestAsync(kvp.value[0], kvp.value[1], configOverride);
+                await this.runTestAsync(kvp.value[0], kvp.value[1], configOverride, testNames);
             } catch (err) {
                 this.handleErrorMessage(err.message, err.stack);
             }
