@@ -2,6 +2,7 @@ import { JestCallbacks } from './JestCallbacks';
 import { TestOutcome } from '../../../ObjectModel/Common';
 import { FailedExpectation } from '../../../ObjectModel/TestFramework';
 import { EqtTrace } from '../../../ObjectModel/EqtTrace';
+import * as Path from 'path';
 
 // tslint:disable:no-default-export
 class JestReporter {
@@ -71,9 +72,15 @@ class JestReporter {
             if (result.ancestorTitles && result.ancestorTitles.length > 0) {
                 resultTitle = [...result.ancestorTitles, resultTitle].join(' > ');
             }
+
+            const testFilePath = Path.relative(Path.dirname(JestReporter.configFilePath), test.path);
         
             if (JestReporter.discovery) {
-                JestReporter.callbacks.handleSpecFound(result.fullName, resultTitle, JestReporter.configFilePath, '::' + test.path);
+                JestReporter.callbacks.handleSpecFound(result.fullName,
+                                                       resultTitle,
+                                                       JestReporter.configFilePath,
+                                                       undefined,
+                                                       '::' + result.fullName + '::' + testFilePath);
             } else {
                 JestReporter.callbacks.handleSpecResult(result.fullName,
                                                         resultTitle,
@@ -82,7 +89,7 @@ class JestReporter {
                                                         failedExpectations,
                                                         new Date(startTime),
                                                         new Date(startTime + result.duration),
-                                                        '::' + test.path);
+                                                        '::' + result.fullName + '::' + testFilePath);
                 startTime += result.duration;
             }
         });

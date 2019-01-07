@@ -70,35 +70,21 @@ export class JestTestFramework extends BaseTestFramework {
 
     public startExecutionWithTests(sources: Array<string>, testCollection: Map<string, TestCase>, options: JSON) {
         const configToSourceMap: Map<string, Array<string>> = new Map();
-
-        // tslint:disable-next-line:no-string-literal
-        // sources.forEach((src) => {
-        //     const testCase = testCollection.get(src);
-        //     const fqnRegex = testCase.FullyQualifiedName.match(/.*::(.*)/);
-        //     if (fqnRegex) {
-        //         // config path appended to the fqn is relative to the source
-        //         const config = path.normalize(path.dirname(src) + '\\' + fqnRegex[1]);
-        //         if (configToSourceMap.has(config)) {
-        //             configToSourceMap.get(config).push(src);
-        //         } else {
-        //             configToSourceMap.set(config, [src]);
-        //         }
-        //     } else {
-        //         console.warn('Config file not provided in fqn for source:', src);
-        //     }
-        // });
+        const testNames = [];
 
         const testCaseIterator = testCollection.values();
         let testCaseIteration = testCaseIterator.next();
         while (!testCaseIteration.done) {
             const testCase = testCaseIteration.value;
-            const fqnRegex = testCase.FullyQualifiedName.match(/.*::(.*)/);
+            const fqnRegex = testCase.FullyQualifiedName.match(/.*::(.*)::(.*)/);
 
             const configPath = testCase.Source;
 
             if (fqnRegex) {
                 // source path appended to the fqn is relative to the config file
-                const source = path.normalize(path.dirname(configPath) + '\\' + fqnRegex[1]);
+                testNames.push(fqnRegex[1]);
+
+                const source = path.normalize(path.dirname(configPath) + '\\' + fqnRegex[2]);
                 if (configToSourceMap.has(configPath)) {
                     configToSourceMap.get(configPath)[source] = 1;
                 } else {
@@ -139,14 +125,18 @@ export class JestTestFramework extends BaseTestFramework {
     public startDiscovery(sources: Array<string>): void {
         this.sources = sources;
         this.jestReporter.discovery = true;
-        this.runTestAsync(sources[0], null, null, true);
+        this.runTestAsync(sources[0], null, null, null, true);
     }
 
     protected skipSpec(specObject: any) {
         // Cannot skip at test case level in jest
     }
 
-    private async runTestAsync(runConfigPath: string, sources: Array<string>, configOverride: JSON, discovery: boolean = false) {
+    private async runTestAsync(runConfigPath: string,
+                               sources: Array<string>,
+                               configOverride: JSON,
+                               testNames?: Array<string>,
+                               discovery: boolean = false) {
         const jestArgv = this.jestArgv;
         sources = sources || [];
         
@@ -159,13 +149,15 @@ export class JestTestFramework extends BaseTestFramework {
         if (discovery) {
             // ^$a is a regex that will never match any string and force jest to skip all tests
             jestArgv.testNamePattern = '^$a';
+        } else if (testNames) {
+            jestArgv.testNamePattern = this.getTestNamePattern(testNames);
         }
 
         jestArgv.$0 = runConfigPath;
         jestArgv.config = runConfigPath;
         jestArgv.rootDir = path.dirname(runConfigPath);
         jestArgv.reporters = [ require.resolve('./JestReporter.js') ];
-
+        
         const src = [];
         sources.forEach((source, i) => {
             src.push(source.replace(/\\/g, '/'));  //  Cannot run specific test files in jest unless path separator is '/'
@@ -204,5 +196,15 @@ export class JestTestFramework extends BaseTestFramework {
         }
 
         this.handleSessionDone();
+    }
+
+    private getTestNamePattern(testCaseNames: Array<string>) {
+        const escapeRegex = /[.*+?^${}()|[\]\\]/g;
+
+        testCaseNames.forEach((str, i) => {
+            testCaseNames[i] = '(' + str.replace(escapeRegex, '\\$&') + ')';
+        });
+
+        return testCaseNames.join('|');
     }
 }
