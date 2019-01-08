@@ -93,7 +93,7 @@ export class JestTestFramework extends BaseTestFramework {
                     configToSourceMap.set(configPath, sourceArray);
                 }
             } else {
-                // console.warn('Config file not provided in fqn for source:', src);
+                EqtTrace.warn('Incorrect fqn pattern for test case ' + JSON.stringify(testCase));
             }
 
             testCaseIteration = testCaseIterator.next();
