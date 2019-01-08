@@ -180,10 +180,14 @@ export abstract class BaseTestFramework implements ITestFramework {
         fqn = fqn + (fqnPostFix || '');
 
         if (this.testExecutionCount.has(fqn)) {
-            EqtTrace.warn('BaseTestFramework: Duplicate test case with fqn: ' + fqn);
+            EqtTrace.warn(`BaseTestFramework: Duplicate test case with fqn: '${fqn}'`);
             this.testExecutionCount.set(fqn, this.testExecutionCount.get(fqn) + 1);
         } else {
             this.testExecutionCount.set(fqn, 1);
+        }
+
+        if (fqn.length > 512) {
+            EqtTrace.warn(`BaseTestFramework: Fqn length exceeding 512 characters with value: '${fqn}'`);
         }
 
         const testCase = new TestCase(source, fqn, Constants.executorURI);

@@ -28,12 +28,12 @@ export namespace TestUtils {
             this.logs.push(message);
         }
 
-        public logContains(log: string) {
-            this.logs.forEach(value => {
-                if (value === log) {
+        public logContains(pattern: RegExp) {
+            for (let i = 0; i < this.logs.length; i++) {
+                if (this.logs[i].match(pattern)) {
                     return true;
                 }
-            });
+            }
             return false;
         }
     }

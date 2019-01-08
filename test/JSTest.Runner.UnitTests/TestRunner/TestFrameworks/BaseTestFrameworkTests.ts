@@ -168,20 +168,25 @@ describe('BaseTestFramework suite', () => {
         baseTestFramework.specDone(TestOutcome.Passed, ['expectation']);
     });
 
-    it('handleSpecStarted will handle duplicate FQNs', (done) => {
+    it('handleSpecStarted will log warning duplicate FQNs', (done) => {
         const logger = new TestUtils.MockDebugLogger();
         EqtTrace.initialize(logger, 'file');
 
         let i = 0;
         testFrameworkEvents.onTestCaseStart.subscribe((sender: object, args: TestSpecEventArgs) => {
-            Assert.equal(args.TestCase.FullyQualifiedName, 'fqn');
-            if (++i === 2) {
-                logger.logContains('Warning: 0, 2019/1/9, 14:08:16:991, BaseTestFramework: Duplicate test case with fqn: fqn');
+            if (++i < 3) {
+                Assert.equal(args.TestCase.FullyQualifiedName, 'fqn');
+            } else if (i === 2) {
+                Assert.equal(logger.logContains(/Warning.*BaseTestFramework: Duplicate test case with fqn: \'fqn\'/), true);
+            } else {
+                Assert.equal(logger.logContains(/Warning.*BaseTestFramework: Fqn length exceeding 512 characters with value.*/), true);
             }
         });
 
         baseTestFramework.specStarted('fqn', 'testcase', 'source', null);
         baseTestFramework.specStarted('fqn', 'testcase', 'source', null);
+        baseTestFramework.specStarted(new Array(514).join('1'), 'testcase', 'source', null);
+
         done();
     });
 
