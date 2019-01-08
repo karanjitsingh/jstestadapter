@@ -1,5 +1,5 @@
 import { ITestFramework, TestSessionEventArgs, TestSpecEventArgs, TestFrameworks,
-         TestErrorMessageEventArgs } from '../../ObjectModel/TestFramework';
+         TestMessageEventArgs } from '../../ObjectModel/TestFramework';
 import { TestMessageLevel, TestResult, AttachmentSet, JSTestSettings } from '../../ObjectModel';
 import { TestCase } from '../../ObjectModel/Common';
 import { IEnvironment } from '../../Environment/IEnvironment';
@@ -59,7 +59,7 @@ export class ExecutionManager extends BaseExecutionManager {
             framework.testFrameworkEvents.onTestSessionEnd.subscribe(this.testFrameworkEventHandlers.TestSessionEnd);
             framework.testFrameworkEvents.onTestCaseStart.subscribe(this.testFrameworkEventHandlers.TestCaseStart);
             framework.testFrameworkEvents.onTestCaseEnd.subscribe(this.testFrameworkEventHandlers.TestCaseEnd);
-            framework.testFrameworkEvents.onErrorMessage.subscribe(this.testFrameworkEventHandlers.TestErrorMessage);
+            framework.testFrameworkEvents.onMessage.subscribe(this.testFrameworkEventHandlers.TestMessage);
         },
 
         TestSessionStart: (sender: object, args: TestSessionEventArgs) => {
@@ -99,9 +99,9 @@ export class ExecutionManager extends BaseExecutionManager {
 
             this.messageSender.sendTestCaseEnd(testResult);
         },
-
-        TestErrorMessage: (sender: object, args: TestErrorMessageEventArgs) => {
-            this.messageSender.sendMessage(args.Message, TestMessageLevel.Error);
+        
+        TestMessage: (sender: object, args: TestMessageEventArgs) => {
+            this.messageSender.sendMessage(args.Message, args.MessageLevel);
         }
     };
 

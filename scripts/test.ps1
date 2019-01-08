@@ -22,7 +22,7 @@ $vstest = "& '$vstest'"
 
 $AdapterPath = Join-Path $ProjectDir "artifacts\$configuration\net451"
 
-$command = "$vstest --TestAdapterPath:$AdapterPath --inisolation"
+$command = "$vstest --TestAdapterPath:$AdapterPath"
 if($log) {
     $command = "$command --diag:D:\logs\jstest.log"
 }

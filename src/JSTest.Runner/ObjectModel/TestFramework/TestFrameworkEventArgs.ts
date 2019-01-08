@@ -1,5 +1,6 @@
 import { TestCase, TestOutcome, IEventArgs } from '../Common';
 import { FailedExpectation } from '.';
+import { TestMessageLevel } from '../TestMessageLevel';
 
 interface BaseTestEventArgs extends IEventArgs {
     StartTime: Date;
@@ -36,6 +37,7 @@ export class TestSessionEventArgs implements BaseTestEventArgs {
 
 }
 
-export interface TestErrorMessageEventArgs {
+export interface TestMessageEventArgs {
     Message: string;
+    MessageLevel: TestMessageLevel;
 }

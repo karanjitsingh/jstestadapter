@@ -49,7 +49,7 @@ describe('ExecutionManager Suite', () => {
             Subscribe: () => { return; },
             TestSessionEnd: () => { return; },
             TestCaseStart: () => { return; },
-            TestErrorMessage: () => { return; }
+            TestMessage: () => { return; }
         });
 
         settings = new JSTestSettings({
@@ -207,7 +207,7 @@ describe('ExecutionManager Suite', () => {
         mockTestFramework.object.testFrameworkEvents.onTestCaseEnd.raise(sender, testSpecEventArgs);
         mockMessageSender.verify((x) => x.sendTestCaseEnd(It.is((x) => TestUtils.assertDeepEqual(x, testResult))), Times.once());
 
-        mockTestFramework.object.testFrameworkEvents.onErrorMessage.raise(sender, args);
+        mockTestFramework.object.testFrameworkEvents.onMessage.raise(sender, args);
         mockMessageSender.verify((x) => x.sendMessage(It.is((x) => x === args.Message), It.is((x) => x === TestMessageLevel.Error)),
                                  Times.once());
 

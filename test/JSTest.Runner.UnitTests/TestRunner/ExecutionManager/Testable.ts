@@ -22,7 +22,7 @@ export class TestableFramework implements ITestFramework {
 
     constructor(env: IEnvironment) {
         this.testFrameworkEvents = {
-            onErrorMessage: env.createEvent(),
+            onMessage: env.createEvent(),
             onTestCaseEnd: env.createEvent(),
             onTestCaseStart: env.createEvent(),
             onTestSessionEnd: env.createEvent(),

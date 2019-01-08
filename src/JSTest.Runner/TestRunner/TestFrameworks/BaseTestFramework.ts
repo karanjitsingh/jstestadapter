@@ -1,9 +1,10 @@
 import { ITestFramework, TestSessionEventArgs, TestSuiteEventArgs, TestSpecEventArgs,
-         FailedExpectation, ITestFrameworkEvents, TestErrorMessageEventArgs } from '../../ObjectModel/TestFramework';
+         FailedExpectation, ITestFrameworkEvents, TestMessageEventArgs } from '../../ObjectModel/TestFramework';
 import { TestCase, TestOutcome, EnvironmentType } from '../../ObjectModel/Common';
 import { SessionHash } from '../../Utils/Hashing/SessionHash';
 import { Constants } from '../../Constants';
 import { EqtTrace } from '../../ObjectModel/EqtTrace';
+import { TestMessageLevel } from '../../ObjectModel';
 
 export abstract class BaseTestFramework implements ITestFramework {
     public readonly abstract environmentType: EnvironmentType;
@@ -161,7 +162,15 @@ export abstract class BaseTestFramework implements ITestFramework {
         this.testFrameworkEvents.onTestCaseEnd.raise(this, specResult);
     }
 
-    protected handleErrorMessage(errMessage: string, errStack: string) {
+    protected handleInfoMessage(message: string, errStack?: string) {
+        this.sendMessage(message, TestMessageLevel.Informational);        
+    }
+
+    protected handleWarningMessage(message: string, errStack?: string) {
+        this.sendMessage(message, TestMessageLevel.Warning);        
+    }
+
+    protected handleErrorMessage(errMessage: string, errStack?: string) {
         let message;
         if (errMessage === errStack || !errStack) {
             message = errMessage;
@@ -171,20 +180,26 @@ export abstract class BaseTestFramework implements ITestFramework {
 
         EqtTrace.warn(`BaseTestFramework: Error message was received from test framework: ${message}`);
 
-        this.testFrameworkEvents.onErrorMessage.raise(this, <TestErrorMessageEventArgs> {
-            Message: message
+        this.sendMessage(message, TestMessageLevel.Error);
+    }
+
+    private sendMessage(message: string, messageLevel: TestMessageLevel) {
+        this.testFrameworkEvents.onMessage.raise(this, <TestMessageEventArgs> {
+            Message: message,
+            MessageLevel: messageLevel
         });
     }
 
     private getTestCase(testCaseName: string, fqn: string, source: string, fqnPostFix: string): TestCase {
-        let executionCount = 1;
-        fqn = fqn + ' ' + executionCount + (fqnPostFix || '');
+        fqn = fqn + (fqnPostFix || '');
 
         if (this.testExecutionCount.has(fqn)) {
-            executionCount = this.testExecutionCount.get(fqn) + 1;
+            EqtTrace.warn('BaseTestFramework: Duplicate test case with fqn: ' + fqn);
+            
+            this.testExecutionCount.set(fqn, this.testExecutionCount.get(fqn) + 1);
+        } else {
+            this.testExecutionCount.set(fqn, 1);
         }
-
-        this.testExecutionCount.set(fqn, executionCount);
 
         const testCase = new TestCase(source, fqn, Constants.executorURI);
         testCase.DisplayName = testCaseName;

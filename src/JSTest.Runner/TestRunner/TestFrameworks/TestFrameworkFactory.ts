@@ -42,7 +42,7 @@ export class TestFrameworkFactory {
             onTestSuiteEnd: this.environment.createEvent(),
             onTestSessionStart: this.environment.createEvent(),
             onTestSessionEnd: this.environment.createEvent(),
-            onErrorMessage: this.environment.createEvent()
+            onMessage: this.environment.createEvent()
         };
     }
 

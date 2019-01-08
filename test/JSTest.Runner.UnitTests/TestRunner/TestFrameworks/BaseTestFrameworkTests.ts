@@ -78,7 +78,7 @@ describe('BaseTestFramework suite', () => {
             onTestSuiteEnd: env.createEvent(),
             onTestSessionStart: env.createEvent(),
             onTestSessionEnd: env.createEvent(),
-            onErrorMessage: env.createEvent()
+            onMessage: env.createEvent()
         };
 
         baseTestFramework = new TestableBaseTestFramework(testFrameworkEvents, env.environmentType, sources);
@@ -140,7 +140,7 @@ describe('BaseTestFramework suite', () => {
     });
 
     it('handleSpecStarted/Done will raise onTestCaseStart/End', (done) => {
-        const testCase: TestCase = new TestCase('source', 'fqn 1', Constants.executorURI);
+        const testCase: TestCase = new TestCase('source', 'fqn', Constants.executorURI);
         testCase.DisplayName = 'testcase';
         let specArgs: TestSpecEventArgs;
 

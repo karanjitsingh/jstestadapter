@@ -41,7 +41,7 @@ describe('DiscoveryManager Suite', () => {
             Subscribe: () => { return; },
             TestSessionEnd: () => { return; },
             TestCaseStart: () => { return; },
-            TestErrorMessage: () => { return; }
+            TestMessage: () => { return; }
         });
 
         settings = new JSTestSettings({
@@ -110,7 +110,7 @@ describe('DiscoveryManager Suite', () => {
 
         mockTestFramework.object.testFrameworkEvents.onTestSessionEnd.raise(sender, args);
         mockTestFramework.object.testFrameworkEvents.onTestCaseStart.raise(sender, args);
-        mockTestFramework.object.testFrameworkEvents.onErrorMessage.raise(sender, args);
+        mockTestFramework.object.testFrameworkEvents.onMessage.raise(sender, args);
 
         mockSessionManager.verify((x) => x.setSessionComplete(It.is((x) => TestUtils.assertDeepEqual(x, args))), Times.once());
         mockMessageSender.verify((x) => x.sendTestCaseFound(It.is((x) => x === args.TestCase)), Times.once());

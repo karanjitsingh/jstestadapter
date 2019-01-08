@@ -23,7 +23,7 @@ describe('TestFrameworkFactory Suite', () => {
 
     it('createTestFramework will instantiate test framework', (done) => {
         const tf = testFrameworkFactory.createTestFramework(TestFrameworks.Jasmine);
-        Assert.strictEqual(tf.testFrameworkEvents.onErrorMessage instanceof Event, true);
+        Assert.strictEqual(tf.testFrameworkEvents.onMessage instanceof Event, true);
         Assert.strictEqual(tf.testFrameworkEvents.onTestCaseEnd instanceof Event, true);
         Assert.strictEqual(tf.testFrameworkEvents.onTestCaseStart instanceof Event, true);
         Assert.strictEqual(tf.testFrameworkEvents.onTestSessionEnd instanceof Event, true);
