@@ -7,11 +7,9 @@ describe('JestTestFramework suite', () => {
     let framework: any;
     let sessionStarted: boolean;
     let configPath: string;
-    let sessionDone: boolean;
 
     beforeEach(() => {
         sessionStarted = false;
-        sessionDone = false;
         configPath = null;
 
         framework = new JestTestFramework(<any>{}, EnvironmentType.NodeJS);
@@ -22,10 +20,6 @@ describe('JestTestFramework suite', () => {
         };
         framework.handleSessionStarted = () => {
             sessionStarted = true;
-        };
-
-        framework.handleSessionDone = () => {
-            sessionDone = true;
         };
 
         framework.jestReporter = {
