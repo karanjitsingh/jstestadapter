@@ -1,7 +1,6 @@
 import { EnvironmentType, TestCase } from '../../../../../src/JSTest.Runner/ObjectModel/Common';
 import { JestTestFramework } from '../../../../../src/JSTest.Runner/TestRunner/TestFrameworks/Jest/JestTestFramework';
 import * as Assert from 'assert';
-import { EPROTONOSUPPORT } from 'constants';
 
 describe('JestTestFramework suite', () => {
     let framework: any;
