@@ -1,5 +1,4 @@
 import { JestCallbacks } from '../../../../../src/JSTest.Runner/TestRunner/TestFrameworks/Jest/JestCallbacks';
-import { Mock, It } from 'typemoq';
 import { TestUtils } from '../../../TestUtils';
 import { } from '../../../../../src/JSTest.Runner/TestRunner/TestFrameworks/Jest/JestReporter';
 import * as Assert from 'assert';

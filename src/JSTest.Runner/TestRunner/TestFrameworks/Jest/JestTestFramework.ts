@@ -70,7 +70,7 @@ export class JestTestFramework extends BaseTestFramework {
 
     public startExecutionWithTests(sources: Array<string>, testCollection: Map<string, TestCase>, options: JSON) {
         const configToSourceMap: Map<string, Array<string>> = new Map();
-        const testNames = [];
+        const configToTestNamesMap: Map<string, Array<string>> = new Map();
 
         const testCaseIterator = testCollection.values();
         let testCaseIteration = testCaseIterator.next();
@@ -81,16 +81,19 @@ export class JestTestFramework extends BaseTestFramework {
             const configPath = testCase.Source;
 
             if (fqnRegex) {
+                
                 // source path appended to the fqn is relative to the config file
-                testNames.push(fqnRegex[1]);
 
                 const source = path.normalize(path.dirname(configPath) + '\\' + fqnRegex[2]);
                 if (configToSourceMap.has(configPath)) {
+                    configToTestNamesMap.get(configPath).push(fqnRegex[1]);
                     configToSourceMap.get(configPath)[source] = 1;
                 } else {
                     const sourceArray = [];
                     sourceArray[source] = 1;
                     configToSourceMap.set(configPath, sourceArray);
+                    
+                    configToTestNamesMap.set(configPath, [fqnRegex[1]]);
                 }
             } else {
                 EqtTrace.warn('Incorrect fqn pattern for test case ' + JSON.stringify(testCase));
@@ -108,7 +111,7 @@ export class JestTestFramework extends BaseTestFramework {
         }
 
         this.sources = sources;
-        this.runTestsAsync(configToSourceMap, options, testNames);
+        this.runTestsAsync(configToSourceMap, options, configToTestNamesMap);
     }
 
     public startExecutionWithSources(sources: Array<string>, options: JSON): void {
@@ -129,7 +132,36 @@ export class JestTestFramework extends BaseTestFramework {
     }
 
     protected skipSpec(specObject: any) {
-        // Cannot skip at test case level in jest
+        // Cannot skip at test case level while execution in jest
+    }
+
+    private async runTestsAsync(configToSourceMap: Map<string, Array<string>>,
+                                configOverride: JSON, 
+                                configToTestNameMap?: Map<string, Array<string>>) {
+        
+        if (!configToSourceMap.size) {
+            this.handleErrorMessage('JestTestFramework: No configs in config source map.', '');
+            this.handleSessionDone();
+            return;
+        }
+
+        const entries = configToSourceMap.entries();
+        let kvp = entries.next();
+
+        while (!kvp.done) {
+            try {
+                await this.runTestAsync(kvp.value[0],
+                                        kvp.value[1],
+                                        configOverride,
+                                        configToTestNameMap ? configToTestNameMap.get(kvp.value[0]) : null);
+            } catch (err) {
+                this.handleErrorMessage(err.message, err.stack);
+            }
+
+            kvp = entries.next();
+        }
+
+        this.handleSessionDone();
     }
 
     private async runTestAsync(runConfigPath: string,
@@ -172,30 +204,6 @@ export class JestTestFramework extends BaseTestFramework {
         this.jestReporter.UPDATE_CONFIG(runConfigPath);
 
         return this.jest.runCLI(jestArgv, this.jestProjects);
-    }
-
-    private async runTestsAsync(configToSourceMap: Map<string, Array<string>>, configOverride: JSON, testNames?: Array<string>) {
-        
-        if (!configToSourceMap.size) {
-            this.handleErrorMessage('JestTestFramework: No configs in config source map', '');
-            this.handleSessionDone();
-            return;
-        }
-
-        const entries = configToSourceMap.entries();
-        let kvp = entries.next();
-
-        while (!kvp.done) {
-            try {
-                await this.runTestAsync(kvp.value[0], kvp.value[1], configOverride, testNames);
-            } catch (err) {
-                this.handleErrorMessage(err.message, err.stack);
-            }
-
-            kvp = entries.next();
-        }
-
-        this.handleSessionDone();
     }
 
     private getTestNamePattern(testCaseNames: Array<string>) {
