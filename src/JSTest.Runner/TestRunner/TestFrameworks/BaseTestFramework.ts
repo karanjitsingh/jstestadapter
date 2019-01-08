@@ -177,14 +177,14 @@ export abstract class BaseTestFramework implements ITestFramework {
     }
 
     private getTestCase(testCaseName: string, fqn: string, source: string, fqnPostFix: string): TestCase {
-        let executionCount = 1;
-        fqn = fqn + ' ' + executionCount + (fqnPostFix || '');
+        fqn = fqn + (fqnPostFix || '');
 
         if (this.testExecutionCount.has(fqn)) {
-            executionCount = this.testExecutionCount.get(fqn) + 1;
+            EqtTrace.warn('BaseTestFramework: Duplicate test case with fqn: ' + fqn);
+            this.testExecutionCount.set(fqn, this.testExecutionCount.get(fqn) + 1);
+        } else {
+            this.testExecutionCount.set(fqn, 1);
         }
-
-        this.testExecutionCount.set(fqn, executionCount);
 
         const testCase = new TestCase(source, fqn, Constants.executorURI);
         testCase.DisplayName = testCaseName;

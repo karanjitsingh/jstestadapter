@@ -8,6 +8,7 @@ import { Constants } from '../../../../src/JSTest.Runner/Constants';
 import { TestUtils } from '../../TestUtils';
 import { Mock, It, Times } from 'typemoq';
 import * as Assert from 'assert';
+import { EqtTrace } from '../../../../src/JSTest.Runner/ObjectModel/EqtTrace';
 
 class TestableBaseTestFramework extends BaseTestFramework {
     public readonly canHandleMultipleSources: boolean = true;
@@ -140,7 +141,7 @@ describe('BaseTestFramework suite', () => {
     });
 
     it('handleSpecStarted/Done will raise onTestCaseStart/End', (done) => {
-        const testCase: TestCase = new TestCase('source', 'fqn 1', Constants.executorURI);
+        const testCase: TestCase = new TestCase('source', 'fqn', Constants.executorURI);
         testCase.DisplayName = 'testcase';
         let specArgs: TestSpecEventArgs;
 
@@ -168,16 +169,19 @@ describe('BaseTestFramework suite', () => {
     });
 
     it('handleSpecStarted will handle duplicate FQNs', (done) => {
+        const logger = new TestUtils.MockDebugLogger();
+        EqtTrace.initialize(logger, 'file');
+
         let i = 0;
         testFrameworkEvents.onTestCaseStart.subscribe((sender: object, args: TestSpecEventArgs) => {
-            i++;
-            Assert.equal(args.TestCase.FullyQualifiedName, 'fqn ' + i);
+            Assert.equal(args.TestCase.FullyQualifiedName, 'fqn');
+            if (++i === 2) {
+                logger.logContains('Warning: 0, 2019/1/9, 14:08:16:991, BaseTestFramework: Duplicate test case with fqn: fqn');
+            }
         });
 
         baseTestFramework.specStarted('fqn', 'testcase', 'source', null);
         baseTestFramework.specStarted('fqn', 'testcase', 'source', null);
-        baseTestFramework.specStarted('fqn', 'testcase', 'source', null);
-
         done();
     });
 
