@@ -40,6 +40,36 @@ namespace JSTest.AcceptanceTests
 
         protected abstract string ContainerExtension { get; }
 
+        protected ExpectedOutput ExpectedOutput { get; set; } = new ExpectedOutput(
+            new List<string> {
+                "test case a1",
+                "test case a2",
+                "test case b1",
+                "test case b2",
+                "test case c1",
+                "test case c2"
+            },
+
+            new List<string>
+            {
+                "Passed   test case a1",
+                "Failed   test case a2",
+                "Passed   test case b1",
+                "Failed   test case b2",
+                "Passed   test case c1",
+                "Failed   test case c2"
+            },
+
+            new List<string>
+            {
+                "Passed   test case a1",
+                "Skipped  test case a2",
+                "Passed   test case b1",
+                "Skipped  test case b2",
+                "Passed   test case c1",
+                "Skipped  test case c2"
+            });
+
         #endregion
 
         #region Constructor
@@ -237,27 +267,17 @@ namespace JSTest.AcceptanceTests
             };
 
             var output = this.RunTests(files, cliOptions, runConfig);
-            var expectedOutput = new List<string> { "test case a1", "test case a2", "test case b1", "test case b2" };
+            var expectedOutput = new List<string> { "test case a1", "test case a2", "test case b1", "test case b2", "test case c1", "test case c2" };
 
             this.ValidateOutput(output, expectedOutput);
         }
 
-        protected virtual List<string> GetExpectedTestOutput()
-        {
-            return new List<string>
-            {
-                "Passed   test case a1",
-                "Failed   test case a2",
-                "Passed   test case b1",
-                "Failed   test case b2"
-            };
-        }
-
-        public void TestExecution()
+        public void TestExecution(IDictionary<string, string> cliArgs = null, List<string> expectedOutput = null)
         {
             var files = Directory.EnumerateFiles(BaseFrameworkTest.testRepoPath).Where((file) => file.EndsWith(this.ContainerExtension));
 
-            var cliOptions = new Dictionary<string, string>();
+
+            var cliOptions = cliArgs != null ? cliArgs : new Dictionary<string, string>();
             var runConfig = new Dictionary<string, string>()
             {
                 { "TestFramework", BaseFrameworkTest.frameworkName },
@@ -265,9 +285,21 @@ namespace JSTest.AcceptanceTests
             };
 
             var output = this.RunTests(files, cliOptions, runConfig);
-            var expectedStdOut = this.GetExpectedTestOutput();
+            var expectedStdOut = expectedOutput != null ? expectedOutput : this.ExpectedOutput.ExecutionOutput;
 
             this.ValidateOutput(output, expectedStdOut, false);
+        }
+
+        public void TestExecutionWithTests()
+        {
+            this.TestExecution(new Dictionary<string, string>() {
+                { "Tests", "1" }
+            }, this.ExpectedOutput.ExecutionWithTestsOutput);
+        }
+
+        public void TestExecutionWithTestsThroughTranslation()
+        {
+
         }
 
         #endregion

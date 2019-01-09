@@ -1,5 +1,5 @@
 ﻿const assert = require('assert');
-describe('suite 1', () => {
+describe('suite a', () => {
     it('test case a1', () => {
 
     });

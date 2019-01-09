@@ -40,6 +40,12 @@ namespace JSTest.AcceptanceTests
         }
 
         [TestMethod]
+        public void TestExecutionWithTestsMocha()
+        {
+            this.TestExecutionWithTests();
+        }
+
+        [TestMethod]
         public void TestDiscoveryMocha()
         {
             this.TestDiscovery();
