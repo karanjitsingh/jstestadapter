@@ -23,6 +23,16 @@ namespace JSTest.AcceptanceTests
 
         public JestFramework() : base()
         {
+            this.ExpectedOutput.DiscoveryOutput = new List<string>
+            {
+                "suite a > test case a1",
+                "suite a > test case a2",
+                "suite b > test case b1",
+                "suite b > test case b2",
+                "suite c > test case c1",
+                "suite c > test case c2"
+            };
+
             this.ExpectedOutput.ExecutionOutput = new List<string>
             {
                 "Passed   suite a > test case a1",
@@ -35,7 +45,7 @@ namespace JSTest.AcceptanceTests
             this.ExpectedOutput.ExecutionWithTestsOutput = new List<string>
             {
                 "Passed   suite a > test case a1",
-                "Skipped  suite a > test case a2",
+                "Failed   suite a > test case a2",
                 "Passed   suite c > test case c1",
                 "Skipped  suite c > test case c2",
                 "Passed   suite b > test case b1",

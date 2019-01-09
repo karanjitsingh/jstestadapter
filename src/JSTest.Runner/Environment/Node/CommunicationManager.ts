@@ -21,8 +21,6 @@ export class CommunicationManager implements ICommunicationManager {
         this.socketBuffer = new Buffer(0);
         this.onMessageReceived = environment.createEvent();
         this.socket.on('data', this.onSocketDataReceived);
-        this.socket.on('connection', this.onSocketConnected);
-        this.socket.on('error', this.onSocketError);
     }
 
     public connectToServer(ip: string, port: number, callback?: () => void) {
@@ -37,14 +35,6 @@ export class CommunicationManager implements ICommunicationManager {
         dataObject = this.intTo7BitEncodedInt(dataObject.length) + dataObject;
         EqtTrace.info(`CommunicationManager: Sending message: ${dataObject}.`);
         this.socket.write(dataObject, 'binary');
-    }
-
-    private onSocketConnected = () => {
-        EqtTrace.info('CommunicationManager: Socket connected.');
-    }
-
-    private onSocketError = (err: any) => {
-        EqtTrace.error('CommunicationManager: Socket encountered an error.', err);
     }
 
     private onSocketDataReceived = (buffer: Buffer) => {

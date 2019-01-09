@@ -267,7 +267,8 @@ namespace JSTest.AcceptanceTests
             };
 
             var output = this.RunTests(files, cliOptions, runConfig);
-            var expectedOutput = new List<string> { "test case a1", "test case a2", "test case b1", "test case b2", "test case c1", "test case c2" };
+            var expectedOutput = this.ExpectedOutput.DiscoveryOutput;
+
 
             this.ValidateOutput(output, expectedOutput);
         }

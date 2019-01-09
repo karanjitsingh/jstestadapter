@@ -34,8 +34,12 @@ export class TestRunner {
     }
 
     private initializeCommunication() {
+        EqtTrace.info('TestRunner: Initializing communication.');
+
         this.communicationManager.onMessageReceived.subscribe(this.messageReceived);
-        this.communicationManager.connectToServer(this.cliArgs.ip, this.cliArgs.port);
+        this.communicationManager.connectToServer(this.cliArgs.ip, this.cliArgs.port, (...args) => {
+            EqtTrace.info('TestRunner: Communication initialized.');
+        });
         this.waitForSessionEnd();
     }
 
