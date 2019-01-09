@@ -134,12 +134,21 @@ namespace JSTest
 
         public void TerminateProcess()
         {
-            this.channel.StopServer();
-
-            if (this.IsAlive)
+            try
             {
-                this.process.Kill();
-                this.process.WaitForExit();
+                this.channel.StopServer();
+            }
+            catch (Exception e)
+            {
+                EqtTrace.Error("JSProcess: Error occured while trying to stop communication channel:  {0}.", e.Message);
+            }
+            finally
+            {
+                if (this.IsAlive)
+                {
+                    this.process.Kill();
+                    this.process.WaitForExit();
+                }
             }
         }
 
