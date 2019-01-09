@@ -98,8 +98,12 @@ export abstract class BaseTestFramework implements ITestFramework {
         this.testFrameworkEvents.onTestSuiteEnd.raise(this, suiteEndEventArgs);
     }
 
-    protected handleSpecStarted(fullyQualifiedName: string, testCaseName: string, sourceFile: string, specObject: any) {
-        const testCase = this.getTestCase(testCaseName, fullyQualifiedName, sourceFile);
+    protected handleSpecStarted(fullyQualifiedName: string,
+                                testCaseName: string,
+                                sourceFile: string,
+                                specObject: any,
+                                fqnPostFix?: string) {
+        const testCase = this.getTestCase(testCaseName, fullyQualifiedName, sourceFile, fqnPostFix);
         this.applyTestCaseFilter(testCase, specObject);
 
         // should check if spec was already active and not ended
@@ -137,9 +141,10 @@ export abstract class BaseTestFramework implements ITestFramework {
                                testOutcome: TestOutcome,
                                failedExpectations: Array<FailedExpectation>,
                                startTime: Date,
-                               endTime: Date) {
+                               endTime: Date,
+                               fqnPostFix?: string) {
 
-        const testCase = this.getTestCase(testCaseName, fullyQualifiedName, sourceFile);
+        const testCase = this.getTestCase(testCaseName, fullyQualifiedName, sourceFile, fqnPostFix);
 
         const specResult = <TestSpecEventArgs> {
             TestCase: testCase,
@@ -171,15 +176,21 @@ export abstract class BaseTestFramework implements ITestFramework {
         });
     }
 
-    private getTestCase(testCaseName: string, fqn: string, source: string): TestCase {
-        let executionCount = 1;
+    private getTestCase(testCaseName: string, fqn: string, source: string, fqnPostFix: string): TestCase {
+        fqn = fqn + (fqnPostFix || '');
 
         if (this.testExecutionCount.has(fqn)) {
-            executionCount = this.testExecutionCount.get(fqn) + 1;
+            EqtTrace.warn(`BaseTestFramework: Duplicate test case with fqn: '${fqn}'`);
+            this.testExecutionCount.set(fqn, this.testExecutionCount.get(fqn) + 1);
+        } else {
+            this.testExecutionCount.set(fqn, 1);
         }
-        this.testExecutionCount.set(fqn, executionCount);
 
-        const testCase = new TestCase(source, fqn + ' ' + executionCount, Constants.executorURI);
+        if (fqn.length > 512) {
+            EqtTrace.warn(`BaseTestFramework: Fqn length exceeding 512 characters with value: '${fqn}'`);
+        }
+
+        const testCase = new TestCase(source, fqn, Constants.executorURI);
         testCase.DisplayName = testCaseName;
 
         return testCase;

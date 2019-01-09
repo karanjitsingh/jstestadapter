@@ -221,8 +221,8 @@
 
                 case MessageType.ExecutionComplete:
                 case MessageType.DiscoveryComplete:
-                    this.testRunEvents.InvokeTestSessionEnd(this);
                     runtimeCanExit = true;
+                    this.testRunEvents.InvokeTestSessionEnd(this);
                     break;
 
                 case MessageType.TestMessage:

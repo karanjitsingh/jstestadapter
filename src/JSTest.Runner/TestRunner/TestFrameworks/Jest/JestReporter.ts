@@ -2,15 +2,21 @@ import { JestCallbacks } from './JestCallbacks';
 import { TestOutcome } from '../../../ObjectModel/Common';
 import { FailedExpectation } from '../../../ObjectModel/TestFramework';
 import { EqtTrace } from '../../../ObjectModel/EqtTrace';
+import * as Path from 'path';
 
 // tslint:disable:no-default-export
 class JestReporter {
     private static callbacks: JestCallbacks;
+    private static configFilePath: string;
     public static discovery: boolean = false;
 
     public static INITIALIZE_REPORTER(callbacks: JestCallbacks) {
         this.callbacks = callbacks;
         EqtTrace.info(`JestReporter: initializing`);
+    }
+
+    public static UPDATE_CONFIG(configFilePath: string) {
+        this.configFilePath = configFilePath;
     }
 
     public onRunComplete = () => {
@@ -66,17 +72,24 @@ class JestReporter {
             if (result.ancestorTitles && result.ancestorTitles.length > 0) {
                 resultTitle = [...result.ancestorTitles, resultTitle].join(' > ');
             }
+
+            const testFilePath = Path.relative(Path.dirname(JestReporter.configFilePath), test.path);
         
             if (JestReporter.discovery) {
-                JestReporter.callbacks.handleSpecFound(result.fullName, resultTitle, test.path);
+                JestReporter.callbacks.handleSpecFound(result.fullName,
+                                                       resultTitle,
+                                                       JestReporter.configFilePath,
+                                                       undefined,
+                                                       '::' + result.fullName + '::' + testFilePath);
             } else {
                 JestReporter.callbacks.handleSpecResult(result.fullName,
                                                         resultTitle,
-                                                        test.path,
+                                                        JestReporter.configFilePath,
                                                         outcome,
                                                         failedExpectations,
                                                         new Date(startTime),
-                                                        new Date(startTime + result.duration));
+                                                        new Date(startTime + result.duration),
+                                                        '::' + result.fullName + '::' + testFilePath);
                 startTime += result.duration;
             }
         });

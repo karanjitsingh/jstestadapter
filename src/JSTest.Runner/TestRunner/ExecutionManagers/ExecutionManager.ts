@@ -38,6 +38,8 @@ export class ExecutionManager extends BaseExecutionManager {
 
     public startTestRunWithTests(tests: Array<TestCase>): Promise<void> {
         const sourceMap = {};
+
+        // map each unique TestCase id to the object itself
         this.testCollection = new Map<string, TestCase>();
 
         tests.forEach((test: TestCase) => {

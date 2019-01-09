@@ -40,6 +40,12 @@ namespace JSTest.AcceptanceTests
         }
 
         [TestMethod]
+        public void TestExecutionWithTestsJasmine()
+        {
+            this.TestExecutionWithTests();
+        }
+
+        [TestMethod]
         public void TestDiscoveryJasmine()
         {
             this.TestDiscovery();

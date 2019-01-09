@@ -8,6 +8,7 @@ import { Constants } from '../../../../src/JSTest.Runner/Constants';
 import { TestUtils } from '../../TestUtils';
 import { Mock, It, Times } from 'typemoq';
 import * as Assert from 'assert';
+import { EqtTrace } from '../../../../src/JSTest.Runner/ObjectModel/EqtTrace';
 
 class TestableBaseTestFramework extends BaseTestFramework {
     public readonly canHandleMultipleSources: boolean = true;
@@ -140,7 +141,7 @@ describe('BaseTestFramework suite', () => {
     });
 
     it('handleSpecStarted/Done will raise onTestCaseStart/End', (done) => {
-        const testCase: TestCase = new TestCase('source', 'fqn 1', Constants.executorURI);
+        const testCase: TestCase = new TestCase('source', 'fqn', Constants.executorURI);
         testCase.DisplayName = 'testcase';
         let specArgs: TestSpecEventArgs;
 
@@ -167,16 +168,24 @@ describe('BaseTestFramework suite', () => {
         baseTestFramework.specDone(TestOutcome.Passed, ['expectation']);
     });
 
-    it('handleSpecStarted will handle duplicate FQNs', (done) => {
+    it('handleSpecStarted will log warning duplicate FQNs', (done) => {
+        const logger = new TestUtils.MockDebugLogger();
+        EqtTrace.initialize(logger, 'file');
+
         let i = 0;
         testFrameworkEvents.onTestCaseStart.subscribe((sender: object, args: TestSpecEventArgs) => {
-            i++;
-            Assert.equal(args.TestCase.FullyQualifiedName, 'fqn ' + i);
+            if (++i < 3) {
+                Assert.equal(args.TestCase.FullyQualifiedName, 'fqn');
+            } else if (i === 2) {
+                Assert.equal(logger.logContains(/Warning.*BaseTestFramework: Duplicate test case with fqn: \'fqn\'/), true);
+            } else {
+                Assert.equal(logger.logContains(/Warning.*BaseTestFramework: Fqn length exceeding 512 characters with value.*/), true);
+            }
         });
 
         baseTestFramework.specStarted('fqn', 'testcase', 'source', null);
         baseTestFramework.specStarted('fqn', 'testcase', 'source', null);
-        baseTestFramework.specStarted('fqn', 'testcase', 'source', null);
+        baseTestFramework.specStarted(new Array(514).join('1'), 'testcase', 'source', null);
 
         done();
     });

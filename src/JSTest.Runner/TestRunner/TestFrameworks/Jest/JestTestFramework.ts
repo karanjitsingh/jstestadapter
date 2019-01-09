@@ -27,12 +27,12 @@ export class JestTestFramework extends BaseTestFramework {
                 return require('jest');
             default:
                 throw new Exception('Not implemented.', ExceptionType.NotImplementedException);
-            /*
-             * TODO CHECK FOR FRAMEWORK SPECIFIC ERRORS
-             * report as test framework threw an error,
-             * rethrow all errors wrapped in exception
-             * don't take dependency on exception here
-             */
+                /*
+                 * TODO CHECK FOR FRAMEWORK SPECIFIC ERRORS
+                 * report as test framework threw an error,
+                 * rethrow all errors wrapped in exception
+                 * don't take dependency on exception here
+                 */
         }
     }
 
@@ -56,7 +56,7 @@ export class JestTestFramework extends BaseTestFramework {
 
         //tslint:disable:no-require-imports
         this.jestReporter = require('./JestReporter');
-        this.jestReporter.INITIALIZE_REPORTER(<JestCallbacks>{
+        this.jestReporter.INITIALIZE_REPORTER(<JestCallbacks> {
             handleSessionDone: this.handleSessionDone.bind(this),
             handleSpecFound: this.handleSpecStarted.bind(this),
             handleSpecResult: this.handleSpecResult.bind(this),
@@ -69,38 +69,109 @@ export class JestTestFramework extends BaseTestFramework {
     }
 
     public startExecutionWithTests(sources: Array<string>, testCollection: Map<string, TestCase>, options: JSON) {
-        let runConfigPath;
-        try {
-            // tslint:disable-next-line:no-string-literal
-            runConfigPath = testCollection.entries().next().value[1].Properties[0]['Value'];
-        } catch (e) {
-            throw new Exception('TestCase object does not contain jestConfigPath in Properties', ExceptionType.TestFrameworkError);
+        const configToSourceMap: Map<string, Array<string>> = new Map();
+        const configToTestNamesMap: Map<string, Array<string>> = new Map();
+
+        const testCaseIterator = testCollection.values();
+        let testCaseIteration = testCaseIterator.next();
+        while (!testCaseIteration.done) {
+            const testCase = testCaseIteration.value;
+            const fqnRegex = testCase.FullyQualifiedName.match(/.*::(.*)::(.*)/);
+
+            const configPath = testCase.Source;
+
+            if (fqnRegex) {
+                
+                // source path appended to the fqn is relative to the config file
+
+                const source = path.normalize(path.dirname(configPath) + '\\' + fqnRegex[2]);
+                if (configToSourceMap.has(configPath)) {
+                    configToTestNamesMap.get(configPath).push(fqnRegex[1]);
+                    configToSourceMap.get(configPath)[source] = 1;
+                } else {
+                    const sourceArray = [];
+                    sourceArray[source] = 1;
+                    configToSourceMap.set(configPath, sourceArray);
+                    
+                    configToTestNamesMap.set(configPath, [fqnRegex[1]]);
+                }
+            } else {
+                EqtTrace.warn('Incorrect fqn pattern for test case ' + JSON.stringify(testCase));
+            }
+
+            testCaseIteration = testCaseIterator.next();
         }
+
+        const packageIterator = configToSourceMap.entries();
+        let packageIteration = packageIterator.next();
+
+        while (!packageIteration.done) {
+            configToSourceMap.set(packageIteration.value[0], Object.keys(packageIteration.value[1]));
+            packageIteration = packageIterator.next();
+        }
+
         this.sources = sources;
-        this.runJest(runConfigPath, options, sources);
+        this.runTestsAsync(configToSourceMap, options, configToTestNamesMap);
     }
 
     public startExecutionWithSources(sources: Array<string>, options: JSON): void {
         EqtTrace.info(`JestTestFramework: starting with options: ${JSON.stringify(options)}`);
 
         this.sources = sources;
-        this.runJest(sources[0], options, null);
+        
+        const map = new Map();
+        map.set(sources[0], []);
+
+        this.runTestsAsync(map, options);
     }
 
     public startDiscovery(sources: Array<string>): void {
         this.sources = sources;
         this.jestReporter.discovery = true;
-        this.runJest(sources[0], null, null, true);
+        this.runTestAsync(sources[0], null, null, null, true);
     }
 
     protected skipSpec(specObject: any) {
-        // Cannot skip at test case level in jest
+        // Cannot skip at test case level while execution in jest
     }
 
-    private runJest(runConfigPath: string, configOverride: JSON, sources: Array<string>, discovery: boolean = false) {
+    private async runTestsAsync(configToSourceMap: Map<string, Array<string>>,
+                                configOverride: JSON, 
+                                configToTestNameMap?: Map<string, Array<string>>) {
+        
+        if (!configToSourceMap.size) {
+            this.handleErrorMessage('JestTestFramework: No configs in config source map.', '');
+            this.handleSessionDone();
+            return;
+        }
+
+        const entries = configToSourceMap.entries();
+        let kvp = entries.next();
+
+        while (!kvp.done) {
+            try {
+                await this.runTestAsync(kvp.value[0],
+                                        kvp.value[1],
+                                        configOverride,
+                                        configToTestNameMap ? configToTestNameMap.get(kvp.value[0]) : null);
+            } catch (err) {
+                this.handleErrorMessage(err.message, err.stack);
+            }
+
+            kvp = entries.next();
+        }
+
+        this.handleSessionDone();
+    }
+
+    private async runTestAsync(runConfigPath: string,
+                               sources: Array<string>,
+                               configOverride: JSON,
+                               testNames?: Array<string>,
+                               discovery: boolean = false) {
         const jestArgv = this.jestArgv;
         sources = sources || [];
-
+        
         if (configOverride instanceof Object) {
             Object.keys(configOverride).forEach(key => {
                 jestArgv[key] = configOverride[key];
@@ -110,18 +181,15 @@ export class JestTestFramework extends BaseTestFramework {
         if (discovery) {
             // ^$a is a regex that will never match any string and force jest to skip all tests
             jestArgv.testNamePattern = '^$a';
+        } else if (testNames) {
+            jestArgv.testNamePattern = this.getTestNamePattern(testNames);
         }
 
         jestArgv.$0 = runConfigPath;
         jestArgv.config = runConfigPath;
         jestArgv.rootDir = path.dirname(runConfigPath);
-        jestArgv.reporters = [require.resolve('./JestReporter.js')];
-
-        // if (jestArgv.setupFiles instanceof Array) {
-        //     jestArgv.setupFiles.unshift(require.resolve('./JestSetup'));
-        // } else {
-        //     jestArgv.setupFiles = [ require.resolve('./JestSetup') ];
-        // }
+        jestArgv.reporters = [ require.resolve('./JestReporter.js') ];
+        
         const src = [];
         sources.forEach((source, i) => {
             src.push(source.replace(/\\/g, '/'));  //  Cannot run specific test files in jest unless path separator is '/'
@@ -133,12 +201,18 @@ export class JestTestFramework extends BaseTestFramework {
         EqtTrace.info(`JestTestFramework: JestArgv: ${JSON.stringify(jestArgv)}`);
 
         this.handleSessionStarted();
+        this.jestReporter.UPDATE_CONFIG(runConfigPath);
 
-        this.jest.runCLI(jestArgv, this.jestProjects).then(() => {
-            this.handleSessionDone();
-        }, (err) => {
-            this.handleErrorMessage(err.message, err.stack);
-            this.handleSessionDone();
+        return this.jest.runCLI(jestArgv, this.jestProjects);
+    }
+
+    private getTestNamePattern(testCaseNames: Array<string>) {
+        const escapeRegex = /[.*+?^${}()|[\]\\]/g;
+
+        testCaseNames.forEach((str, i) => {
+            testCaseNames[i] = '(' + str.replace(escapeRegex, '\\$&') + ')';
         });
+
+        return testCaseNames.join('|');
     }
 }

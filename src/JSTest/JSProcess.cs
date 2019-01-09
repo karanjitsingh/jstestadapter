@@ -71,7 +71,6 @@ namespace JSTest
                 process.EnableRaisingEvents = true;
                 process.OutputDataReceived += (sender, args) => processStreamCallbacks.outputReceived(sender as Process, args.Data);
                 process.ErrorDataReceived += (sender, args) => processStreamCallbacks.errorReceived(sender as Process, args.Data);
-
                 process.Exited += (sender, args) =>
                 {
                     // Call WaitForExit without again to ensure all streams are flushed,
@@ -135,10 +134,21 @@ namespace JSTest
 
         public void TerminateProcess()
         {
-            if (this.IsAlive)
+            try
             {
-                this.process.Kill();
-                this.process.WaitForExit();
+                this.channel.StopServer();
+            }
+            catch (Exception e)
+            {
+                EqtTrace.Error("JSProcess: Error occured while trying to stop communication channel:  {0}.", e.Message);
+            }
+            finally
+            {
+                if (this.IsAlive)
+                {
+                    this.process.Kill();
+                    this.process.WaitForExit();
+                }
             }
         }
 
@@ -200,7 +210,6 @@ namespace JSTest
             }
 
             return string.Empty;
-
         }
     }
 }
