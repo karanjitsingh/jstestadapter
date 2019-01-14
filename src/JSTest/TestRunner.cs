@@ -61,14 +61,14 @@ namespace JSTest
                 this.testRunEvents.DisableInvoke = true;
 
                 EqtTrace.Error(ex);
-                exception = new JSTestException($"JSTest.TestRunner.StartExecution: Could not start javascript runtime : {ex}");
+                exception = new JSTestException($"JSTest.TestRunner.StartExecution: Could not start javascript runtime : {ex}", ex);
             }
             finally
             {
                 if (exception == null && launchTask.Exception != null)
                 {
                     EqtTrace.Error(launchTask.Exception);
-                    exception = new JSTestException($"JSTest.TestRunner.StartExecution: Could not start javascript runtime. {launchTask.Exception}");
+                    exception = new JSTestException($"JSTest.TestRunner.StartExecution: Could not start javascript runtime. {launchTask.Exception}", launchTask.Exception);
                 }
             }
 

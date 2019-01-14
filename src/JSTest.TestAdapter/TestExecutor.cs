@@ -49,6 +49,12 @@ namespace JSTest.TestAdapter
             catch (JSTestException e)
             {
                 frameworkHandle.SendMessage(TestMessageLevel.Error, e.ToString());
+
+                if (e.InnerException is TimeoutException)
+                {
+                    this.testRunner.Dispose();
+                }
+
                 return;
             }
 
@@ -71,6 +77,12 @@ namespace JSTest.TestAdapter
             catch (JSTestException e)
             {
                 frameworkHandle.SendMessage(TestMessageLevel.Error, e.ToString());
+
+                if (e.InnerException is TimeoutException)
+                {
+                    this.testRunner.Dispose();
+                }
+
                 return;
             }
 
