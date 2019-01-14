@@ -1,8 +1,8 @@
-import { FailedExpectation, ITestFrameworkEvents } from '../../../ObjectModel/TestFramework';
-import { EnvironmentType, TestOutcome } from '../../../ObjectModel/Common';
 import { Exception, ExceptionType } from '../../../Exceptions';
-import { BaseTestFramework } from '../BaseTestFramework';
+import { EnvironmentType, TestOutcome } from '../../../ObjectModel/Common';
 import { EqtTrace } from '../../../ObjectModel/EqtTrace';
+import { FailedExpectation, ITestFrameworkEvents } from '../../../ObjectModel/TestFramework';
+import { BaseTestFramework } from '../BaseTestFramework';
 
 enum ReporterEvent {
     SessionStarted,
@@ -18,6 +18,7 @@ export class MochaTestFramework extends BaseTestFramework {
     public readonly environmentType: EnvironmentType;
     public readonly canHandleMultipleSources: boolean = true;
     public readonly supportsJsonOptions: boolean = true;
+    public readonly supportsCodeCoverage: boolean = false;
 
     protected sources: Array<string>;
 

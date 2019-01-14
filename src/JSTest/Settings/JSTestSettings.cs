@@ -16,6 +16,9 @@ namespace JSTest.Settings
 
         #region JS Runner Specific Settings
 
+        [DataMember]
+        public bool CodeCoverageEnabled { get; set; }
+
         public bool DebugLogs { get; set; }
 
         public string DebugFilePath { get; set; }
@@ -79,6 +82,7 @@ namespace JSTest.Settings
             this.DebugLogs = false;
             this.NodePath = string.Empty;
             this.DebugFilePath = string.Empty;
+            this.CodeCoverageEnabled = false;
         }
     }
 }

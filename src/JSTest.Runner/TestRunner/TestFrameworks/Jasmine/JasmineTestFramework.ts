@@ -1,8 +1,8 @@
-import { FailedExpectation, ITestFrameworkEvents, ITestFramework } from '../../../ObjectModel/TestFramework';
-import { EnvironmentType, TestOutcome } from '../../../ObjectModel/Common';
 import { Exception, ExceptionType } from '../../../Exceptions';
-import { BaseTestFramework } from '../BaseTestFramework';
+import { EnvironmentType, TestOutcome } from '../../../ObjectModel/Common';
 import { EqtTrace } from '../../../ObjectModel/EqtTrace';
+import { FailedExpectation, ITestFrameworkEvents } from '../../../ObjectModel/TestFramework';
+import { BaseTestFramework } from '../BaseTestFramework';
 
 enum JasmineReporterEvent {
     JasmineStarted,
@@ -13,10 +13,11 @@ enum JasmineReporterEvent {
     SpecDone
 }
 
-export class JasmineTestFramework extends BaseTestFramework implements ITestFramework {
+export class JasmineTestFramework extends BaseTestFramework {
     public readonly environmentType: EnvironmentType;
     public readonly canHandleMultipleSources: boolean = false;
     public readonly supportsJsonOptions: boolean = false;
+    public readonly supportsCodeCoverage: boolean = false;
 
     protected sources: Array<string>;
 
@@ -40,7 +41,7 @@ export class JasmineTestFramework extends BaseTestFramework implements ITestFram
 
     public initialize() {
         EqtTrace.info('JasmineTestFramework: initializing jasmine');
-        
+
         const jasmineLib = this.getJasmine();
         this.jasmine = new jasmineLib();
         

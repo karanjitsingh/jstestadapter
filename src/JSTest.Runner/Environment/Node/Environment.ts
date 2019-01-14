@@ -1,13 +1,14 @@
-import { EnvironmentType, IEventArgs, IEvent } from '../../ObjectModel/Common';
+import { Socket } from 'net';
+import * as OS from 'os';
+import { Event } from '../../Events/Event';
+import { IEventDispatcher } from '../../Events/IEventDispatcher';
+import { EnvironmentType, IEvent, IEventArgs } from '../../ObjectModel/Common';
+import { IDebugLogger } from '../../ObjectModel/EqtTrace';
+import { ICommunicationManager } from '../ICommunicationManager';
 import { IEnvironment } from '../IEnvironment';
 import { CommunicationManager } from './CommunicationManager';
-import { ICommunicationManager } from '../ICommunicationManager';
-import { IEventDispatcher } from '../../Events/IEventDispatcher';
-import { EventDispatcher } from './EventDispatcher';
-import { Event } from '../../Events/Event';
 import { DebugLogger } from './DebugLogger';
-import { Socket } from 'net';
-import { IDebugLogger } from '../../ObjectModel/EqtTrace';
+import { EventDispatcher } from './EventDispatcher';
 
 export class Environment implements IEnvironment {
     public readonly environmentType: EnvironmentType = EnvironmentType.NodeJS;
@@ -42,5 +43,9 @@ export class Environment implements IEnvironment {
 
     public exit(exitCode: number) {
         process.exit(exitCode);
+    }
+
+    public getTempDirectory(): string {
+        return OS.tmpdir();
     }
 }

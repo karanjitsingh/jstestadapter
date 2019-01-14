@@ -1,4 +1,5 @@
+// tslint:disable:variable-name
 export namespace Constants {
-    export const executorURI: string = 'executor://JSTestAdapter/v1';
-    export const messageProtocolVersion: number = 1;
+    export const ExecutorURI: string = 'executor://JSTestAdapter/v1';
+    export const MessageProtocolVersion: number = 2;
 }

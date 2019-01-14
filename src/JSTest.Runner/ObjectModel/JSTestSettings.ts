@@ -1,13 +1,16 @@
-import { TestFrameworks } from './TestFramework';
 import { Exception, ExceptionType } from '../Exceptions';
+import { TestFrameworks } from './TestFramework';
 
 export class JSTestSettings {
     // tslint:disable:variable-name
-    public JavaScriptTestFramework: TestFrameworks;
-    public TestFrameworkConfigJson: JSON;
+    public readonly JavaScriptTestFramework: TestFrameworks;
+    public readonly TestFrameworkConfigJson: JSON;
+    public readonly CodeCoverageEnabled: boolean;
+    public readonly TempDir: string;
 
-    constructor(json: any) {
+    constructor(json: any, tempDir: string) {
         this.JavaScriptTestFramework = -1;
+        this.TempDir = tempDir;
 
         for (let i = 0; TestFrameworks[i] !== undefined && TestFrameworks[i].toLowerCase(); i++) {
             if (TestFrameworks[i].toLowerCase() === json.JavaScriptTestFramework.toLowerCase()) {
@@ -15,6 +18,8 @@ export class JSTestSettings {
                 break;
             }
         }
+
+        this.CodeCoverageEnabled = json.CodeCoverageEnabled && json.CodeCoverageEnabled === true;
 
         if (this.JavaScriptTestFramework === -1) {
             throw new Exception(`'${json.JavaScriptTestFramework}' is not a valid supported test framework.`,

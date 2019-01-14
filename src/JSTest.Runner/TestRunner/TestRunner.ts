@@ -1,15 +1,15 @@
-import { MessageType, JSTestSettings } from '../ObjectModel';
-import { IEnvironment } from '../Environment/IEnvironment';
-import { ICommunicationManager, MessageReceivedEventArgs } from '../Environment/ICommunicationManager';
-import { JobQueue } from '../Utils/JobQueue';
-import { MessageSender } from './MessageSender';
-import { ExecutionManager, DiscoveryManager } from './ExecutionManagers';
-import { StartExecutionWithSourcesPayload, StartExecutionWithTestsPayload, StartDiscoveryPayload } from '../ObjectModel/Payloads';
-import { TestFrameworkFactory } from './TestFrameworks/TestFrameworkFactory';
-import { TestSessionManager } from './ExecutionManagers/TestSessionManager';
 import { Constants } from '../Constants';
-import { CLIArgs } from './CLIArgs';
+import { ICommunicationManager, MessageReceivedEventArgs } from '../Environment/ICommunicationManager';
+import { IEnvironment } from '../Environment/IEnvironment';
+import { JSTestSettings, MessageType } from '../ObjectModel';
 import { EqtTrace } from '../ObjectModel/EqtTrace';
+import { StartDiscoveryPayload, StartExecutionWithSourcesPayload, StartExecutionWithTestsPayload } from '../ObjectModel/Payloads';
+import { JobQueue } from '../Utils/JobQueue';
+import { CLIArgs } from './CLIArgs';
+import { DiscoveryManager, ExecutionManager } from './ExecutionManagers';
+import { TestSessionManager } from './ExecutionManagers/TestSessionManager';
+import { MessageSender } from './MessageSender';
+import { TestFrameworkFactory } from './TestFrameworks/TestFrameworkFactory';
 
 export class TestRunner {
     private readonly environment: IEnvironment;
@@ -57,11 +57,11 @@ export class TestRunner {
         switch (message.MessageType) {
 
             case MessageType.TestRunSettings:
-                if (message.Version === Constants.messageProtocolVersion) {
-                    this.jsTestSettings = new JSTestSettings(message.Payload);
+                if (message.Version === Constants.MessageProtocolVersion) {
+                    this.jsTestSettings = new JSTestSettings(message.Payload, this.environment.getTempDirectory());
                 } else {
                     EqtTrace.error(`TestRunner: Message protocol version mismatch, version is` + 
-                                   ` ${Constants.messageProtocolVersion}, provided was ${message.Version}`, null);            
+                                   ` ${Constants.MessageProtocolVersion}, provided was ${message.Version}`, null);            
                 }
 
                 this.messageSender.sendVersionCheck();

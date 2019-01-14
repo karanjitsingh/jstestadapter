@@ -1,39 +1,9 @@
-import { IEnvironment } from './Environment/IEnvironment';
+import { ArgProcessor } from './ArgProcessor';
 import { EnvironmentProvider } from './Environment/EnvironmentProvider';
-import { TestRunner } from './TestRunner/TestRunner';
+import { IEnvironment } from './Environment/IEnvironment';
 import { Exception } from './Exceptions';
-import { CLIArgs } from './TestRunner/CLIArgs';
 import { EqtTrace } from './ObjectModel/EqtTrace';
-
-function processCLIArgs(env: IEnvironment): CLIArgs {
-
-    let debugEnabled = false;
-    let debugFilePath = '';
-
-    for (let i = 4; i < env.argv.length; i++) {
-        if (env.argv[i].startsWith('--')) {
-            switch (env.argv[i].substr(2).toLowerCase()) {
-                case 'diag':
-                    debugEnabled = true;
-                    if (env.argv[++i]) {
-                        debugFilePath = unescape(env.argv[i]);
-                    }
-                    break;
-                default:
-                    console.error('Unknown option ' + env.argv[i]);
-            }
-        } else {
-            console.error('Invalid option ' + env.argv[i]);
-        }
-    }
-
-    return <CLIArgs> {
-        ip: env.argv[2],
-        port: Number(env.argv[3]),
-        traceEnabled: debugEnabled,
-        traceFilePath: debugFilePath
-    };
-}
+import { TestRunner } from './TestRunner/TestRunner';
 
 function handleError(err: any) {
     if (err instanceof Exception) {
@@ -47,7 +17,7 @@ function handleError(err: any) {
 const environmentProvider = new EnvironmentProvider();
 
 environmentProvider.getEnvironment().then((env: IEnvironment) => {
-    const cliArgs = processCLIArgs(env);
+    const cliArgs = ArgProcessor.processCLIArgs(env);
 
     try {
         if (cliArgs.traceEnabled) {

@@ -1,12 +1,13 @@
 import { IEnvironment } from '../../Environment/IEnvironment';
-import { MessageSender } from '../MessageSender';
-import { TestFrameworkFactory } from '../TestFrameworks/TestFrameworkFactory';
-import { IEvent, IEventArgs } from '../../ObjectModel/Common';
-import { TestFrameworkEventHandlers } from '../TestFrameworks/TestFrameworkEventHandlers';
-import { TestSessionManager } from './TestSessionManager';
-import { TestFrameworks, ITestFramework } from '../../ObjectModel/TestFramework';
 import { Exception, ExceptionType } from '../../Exceptions';
+import { JSTestSettings } from '../../ObjectModel';
+import { IEvent, IEventArgs } from '../../ObjectModel/Common';
 import { EqtTrace } from '../../ObjectModel/EqtTrace';
+import { ITestFramework, TestFrameworks } from '../../ObjectModel/TestFramework';
+import { MessageSender } from '../MessageSender';
+import { TestFrameworkEventHandlers } from '../TestFrameworks/TestFrameworkEventHandlers';
+import { TestFrameworkFactory } from '../TestFrameworks/TestFrameworkFactory';
+import { TestSessionManager } from './TestSessionManager';
 
 export abstract class BaseExecutionManager {
     protected readonly environment: IEnvironment;
@@ -14,6 +15,8 @@ export abstract class BaseExecutionManager {
     protected readonly testFrameworkFactory: TestFrameworkFactory;
     protected readonly onComplete: IEvent<IEventArgs>;
     protected readonly testSessionManager: TestSessionManager;
+    protected jsTestSettings: JSTestSettings;
+    protected testFramework: TestFrameworks;
 
     protected abstract testFrameworkEventHandlers: TestFrameworkEventHandlers;
 
@@ -46,8 +49,14 @@ export abstract class BaseExecutionManager {
 
     protected createTestFramework(framework: TestFrameworks): ITestFramework {
         const testFrameworkInstance = this.testFrameworkFactory.createTestFramework(framework);
+        testFrameworkInstance.codeCoverageEnabled = this.jsTestSettings.CodeCoverageEnabled;
+
+        if (!testFrameworkInstance.supportsCodeCoverage) {
+            EqtTrace.warn('CodeCoverage not supported for test framework: ' + TestFrameworks[this.testFramework] + '.');
+        }
+
         try {
-            testFrameworkInstance.initialize();
+            testFrameworkInstance.initialize(this.jsTestSettings.TempDir);
         } catch (e) {
             EqtTrace.error(`BaseExecutionManager: error initializing test framework`, e);
             throw new Exception('Error initializing test framework: ' + e.message, ExceptionType.TestFrameworkError);

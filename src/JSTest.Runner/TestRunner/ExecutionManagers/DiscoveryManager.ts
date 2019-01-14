@@ -1,14 +1,11 @@
-import { ITestFramework, TestSessionEventArgs, TestSpecEventArgs, TestFrameworks,
-         TestErrorMessageEventArgs } from '../../ObjectModel/TestFramework';
 import { IEnvironment } from '../../Environment/IEnvironment';
+import { JSTestSettings, TestMessageLevel } from '../../ObjectModel';
+import { ITestFramework, TestErrorMessageEventArgs, TestSessionEventArgs, TestSpecEventArgs } from '../../ObjectModel/TestFramework';
 import { MessageSender } from '../MessageSender';
 import { TestFrameworkEventHandlers } from '../TestFrameworks/TestFrameworkEventHandlers';
 import { BaseExecutionManager } from './BaseExecutionManager';
-import { TestMessageLevel, JSTestSettings } from '../../ObjectModel';
 
 export class DiscoveryManager extends BaseExecutionManager {
-    private jsTestSettings: JSTestSettings;
-    private testFramework: TestFrameworks;
 
     constructor(environment: IEnvironment, messageSender: MessageSender, jsTestSettings: JSTestSettings) {
         super(environment, messageSender, jsTestSettings.JavaScriptTestFramework);

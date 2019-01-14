@@ -1,5 +1,6 @@
 import { MessageType } from '.';
 import { Exception, ExceptionType} from '../Exceptions';
+import { Constants } from 'Constants';
 
 export class Message {
     /* These variables serialize to a JSON that will be deserialized
@@ -10,10 +11,8 @@ export class Message {
     public Version?: number;
     // tslint:enable:variable-name
 
-    constructor(messageType: MessageType, payload: any, version?: number) {
-        if (version) {
-            this.Version = version;
-        }
+    constructor(messageType: MessageType, payload: any) {
+        this.Version = Constants.MessageProtocolVersion;
 
         this.MessageType = messageType;
         this.Payload = payload;

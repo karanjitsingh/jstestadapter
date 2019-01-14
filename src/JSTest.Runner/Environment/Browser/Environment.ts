@@ -1,9 +1,9 @@
 
-import { EnvironmentType, IEvent, IEventArgs } from '../../ObjectModel/Common';
-import { IEnvironment } from '../IEnvironment';
-import { ICommunicationManager } from '../ICommunicationManager';
 import { Exception, ExceptionType } from '../../Exceptions';
+import { EnvironmentType, IEvent, IEventArgs } from '../../ObjectModel/Common';
 import { IDebugLogger } from '../../ObjectModel/EqtTrace';
+import { ICommunicationManager } from '../ICommunicationManager';
+import { IEnvironment } from '../IEnvironment';
 
 export class Environment implements IEnvironment {
     public readonly environmentType: EnvironmentType = EnvironmentType.Browser;
@@ -29,11 +29,7 @@ export class Environment implements IEnvironment {
         throw new Exception('Not implemented', ExceptionType.NotImplementedException);
     }
 
-    public setupGlobalLogger() {
-        throw new Exception('Not implemented', ExceptionType.NotImplementedException);
-    }
-
-    public reinitializeConsoleLogger() {
-        throw new Exception('Not implemented', ExceptionType.NotImplementedException);
+    public getTempDirectory() {
+        return null;
     }
 }

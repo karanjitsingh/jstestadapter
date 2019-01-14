@@ -1,18 +1,22 @@
-import { ITestFrameworkEvents } from '../../../ObjectModel/TestFramework';
-import { EnvironmentType, TestCase } from '../../../ObjectModel/Common';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as rewire from 'rewire';
 import { Exception, ExceptionType } from '../../../Exceptions';
+import { EnvironmentType, TestCase } from '../../../ObjectModel/Common';
+import { EqtTrace } from '../../../ObjectModel/EqtTrace';
+import { ITestFrameworkEvents } from '../../../ObjectModel/TestFramework';
 import { BaseTestFramework } from '../BaseTestFramework';
 import { JestCallbacks } from './JestCallbacks';
-import * as rewire from 'rewire';
-import * as path from 'path';
-import { EqtTrace } from '../../../ObjectModel/EqtTrace';
 
 export class JestTestFramework extends BaseTestFramework {
     public readonly environmentType: EnvironmentType;
     public readonly canHandleMultipleSources: boolean = false;
     public readonly supportsJsonOptions: boolean = true;
+    public readonly supportsCodeCoverage: boolean = true;
 
     protected sources: Array<string>;
+
+    private tempDir: string;
 
     private jest: any;
     private jestArgv: any;
@@ -41,8 +45,15 @@ export class JestTestFramework extends BaseTestFramework {
         this.environmentType = envrionmentType;
     }
 
-    public initialize() {
+    public initialize(tempDir?: string) {
         EqtTrace.info('JestTestFramework: initializing jest');
+        this.tempDir = tempDir;
+
+        if (tempDir) {
+            EqtTrace.info('Temp dir: ' + tempDir);
+        } else {
+            EqtTrace.info('No temp dir provided.');
+        }
 
         this.jest = this.getJest();
 
@@ -189,6 +200,20 @@ export class JestTestFramework extends BaseTestFramework {
         jestArgv.config = runConfigPath;
         jestArgv.rootDir = path.dirname(runConfigPath);
         jestArgv.reporters = [ require.resolve('./JestReporter.js') ];
+
+        if (this.supportsCodeCoverage && this.codeCoverageEnabled && this.tempDir) {
+            const testResultsDirectory: string = path.join(this.tempDir, this.getPseudoGuid());
+            
+            try {
+                fs.mkdtempSync(testResultsDirectory);
+                jestArgv.collectCoverage = true;
+                jestArgv.coverageReporters = [ 'clover' ];
+
+                EqtTrace.info('Generating coverage for jest at ' + testResultsDirectory);
+            } catch (e) {
+                EqtTrace.error('Could not create directory ' + testResultsDirectory + 'for test results.', e);
+            }
+        }
         
         const src = [];
         sources.forEach((source, i) => {
@@ -203,7 +228,14 @@ export class JestTestFramework extends BaseTestFramework {
         this.handleSessionStarted();
         this.jestReporter.UPDATE_CONFIG(runConfigPath);
 
-        return this.jest.runCLI(jestArgv, this.jestProjects);
+        //tslint:disable-next-line
+        const value = this.jest.runCLI(jestArgv, this.jestProjects);
+        value.then((...args) => {
+            EqtTrace.info('stufff');
+            EqtTrace.info(JSON.stringify(args));
+        });
+
+        return value;
     }
 
     private getTestNamePattern(testCaseNames: Array<string>) {
@@ -214,5 +246,14 @@ export class JestTestFramework extends BaseTestFramework {
         });
 
         return testCaseNames.join('|');
+    }
+
+    private getPseudoGuid() {
+        const S4 = () => {
+            // tslint:disable-next-line
+            return (((1+Math.random())*0x10000)|0).toString(16).substring(1); 
+        };
+         
+        return (S4() + S4() + '-' + S4() + '-4' + S4().substr(0, 3) + '-' + S4() + '-' + S4() + S4() + S4()).toLowerCase();
     }
 }

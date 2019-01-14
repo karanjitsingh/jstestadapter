@@ -1,14 +1,9 @@
-import { ISerializable } from '../Utils/ISerializable';
-
-// TODO Attachments
-export class AttachmentSet implements ISerializable {
-    private obj: Object;
-
-    constructor(object: Object) {
-        this.obj = object;
-    }
-
-    public toJSON() {
-        return this.obj;
-    }
+// tslint:disable:variable-name
+export interface AttachmentSet {
+    Uri: string;
+    DisplayName: string;
+    Attachments: Array<{
+        Description: string,
+        Uri: string
+    }>;
 }

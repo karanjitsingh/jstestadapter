@@ -1,16 +1,13 @@
-import { ITestFramework, TestSessionEventArgs, TestSpecEventArgs, TestFrameworks,
-         TestErrorMessageEventArgs } from '../../ObjectModel/TestFramework';
-import { TestMessageLevel, TestResult, AttachmentSet, JSTestSettings } from '../../ObjectModel';
-import { TestCase } from '../../ObjectModel/Common';
 import { IEnvironment } from '../../Environment/IEnvironment';
+import { AttachmentSet, JSTestSettings, TestMessageLevel, TestResult } from '../../ObjectModel';
+import { TestCase } from '../../ObjectModel/Common';
+import { ITestFramework, TestErrorMessageEventArgs, TestSessionEventArgs, TestSpecEventArgs } from '../../ObjectModel/TestFramework';
 import { TimeSpan } from '../../Utils/TimeUtils';
 import { MessageSender } from '../MessageSender';
-import { BaseExecutionManager } from './BaseExecutionManager';
 import { TestFrameworkEventHandlers } from '../TestFrameworks/TestFrameworkEventHandlers';
+import { BaseExecutionManager } from './BaseExecutionManager';
 
 export class ExecutionManager extends BaseExecutionManager {
-    private jsTestSettings: JSTestSettings;
-    private testFramework: TestFrameworks;
     private testCollection: Map<string, TestCase>;
 
     constructor(environment: IEnvironment, messageSender: MessageSender, jsTestSettings: JSTestSettings) {

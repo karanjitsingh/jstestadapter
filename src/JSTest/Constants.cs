@@ -7,7 +7,7 @@
         public const int DefaultVsTestConnectionTimeout = 60000;
         public const string VsTestNodeStartTimeout = "VsTestNodeStartTimeout";
         public const string VsTestConnectionTimeout = "VsTestConnectionTimeout";
-        public const int MessageProtocolVersion = 1;
+        public const int MessageProtocolVersion = 2;
         public const int StreamBufferSize = 16384;
 
         public static class TestFrameworkStrings

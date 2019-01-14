@@ -1,5 +1,6 @@
-import { TestCase, TestOutcome, IEventArgs } from '../Common';
 import { FailedExpectation } from '.';
+import { AttachmentSet } from '../AttachmentSet';
+import { IEventArgs, TestCase, TestOutcome } from '../Common';
 
 interface BaseTestEventArgs extends IEventArgs {
     StartTime: Date;
@@ -24,14 +25,16 @@ export class TestSessionEventArgs implements BaseTestEventArgs {
     public readonly SessionId: string;
     public readonly Sources: Array<string>;
     public readonly StartTime: Date;
+    public readonly RunAttachments: Array<AttachmentSet>;
     public InProgress: boolean;
     public EndTime: Date;
 
-    constructor(sources: Array<string>, sessionId: string) {
+    constructor(sources: Array<string>, sessionId: string, runAttachments: Array<AttachmentSet>) {
         this.Sources = sources;
         this.SessionId = sessionId;
         this.StartTime =  new Date();
         this.InProgress = true;
+        this.RunAttachments = runAttachments;
     }
 
 }
