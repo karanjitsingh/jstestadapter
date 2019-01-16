@@ -58,6 +58,7 @@ export class ExecutionManager extends BaseExecutionManager {
             framework.testFrameworkEvents.onTestCaseStart.subscribe(this.testFrameworkEventHandlers.TestCaseStart);
             framework.testFrameworkEvents.onTestCaseEnd.subscribe(this.testFrameworkEventHandlers.TestCaseEnd);
             framework.testFrameworkEvents.onErrorMessage.subscribe(this.testFrameworkEventHandlers.TestErrorMessage);
+            framework.testFrameworkEvents.onRunAttachment.subscribe(this.testFrameworkEventHandlers.TestRunAttachment);
         },
 
         TestSessionStart: (sender: object, args: TestSessionEventArgs) => {

@@ -173,6 +173,7 @@ export abstract class BaseTestFramework implements ITestFramework {
                 AttachmentCollection: attachmentCollection
             });
         }
+        this.testFrameworkEvents.onRunAttachment.raise(this, {AttachmentCollection: attachmentCollection});
     }
 
     protected handleErrorMessage(errMessage: string, errStack: string) {
