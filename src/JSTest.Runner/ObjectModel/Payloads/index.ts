@@ -1,4 +1,4 @@
 export { TestMessagePayload } from './TestMessagePayload';
 export { TestCaseEndEventArgs, TestCaseFoundEventArgs, TestCaseStartEventArgs } from './TestRunEventArgs';
 export { StartDiscoveryPayload, StartExecutionWithSourcesPayload, StartExecutionWithTestsPayload } from './TestRunRequestPayload';
-export { TestRunAttachmentsPayload } from './RunAttachmentsPayload';
+export { TestRunAttachmentsPayload } from './TestRunAttachmentsPayload';

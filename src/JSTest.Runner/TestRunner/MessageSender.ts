@@ -2,7 +2,8 @@ import { Constants } from '../Constants';
 import { ICommunicationManager } from '../Environment/ICommunicationManager';
 import { AttachmentSet, Message, MessageType, TestMessageLevel, TestResult } from '../ObjectModel';
 import { TestCase } from '../ObjectModel/Common';
-import { TestCaseEndEventArgs, TestCaseFoundEventArgs, TestCaseStartEventArgs, TestMessagePayload } from '../ObjectModel/Payloads';
+import { TestCaseEndEventArgs, TestCaseFoundEventArgs, TestCaseStartEventArgs,
+         TestMessagePayload, TestRunAttachmentsPayload } from '../ObjectModel/Payloads';
 
 export class MessageSender {
     private readonly commManager: ICommunicationManager;
@@ -59,7 +60,9 @@ export class MessageSender {
     }
 
     public sendRunAttachments(attachmentCollection: Array<AttachmentSet>) {
-        this.commManager.sendMessage(new Message(MessageType.RunAttachments, attachmentCollection));
+        this.commManager.sendMessage(new Message(MessageType.RunAttachments, <TestRunAttachmentsPayload> {
+            Attachments: attachmentCollection
+        }));
     }
 
 }

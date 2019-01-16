@@ -8,6 +8,6 @@ namespace JSTest.Communication.Payloads
     [Serializable]
     public class TestRunAttachmentPayload : EventArgs
     {
-        public IList<AttachmentSet> Attachments;
+        public IEnumerable<AttachmentSet> Attachments;
     }
 }
