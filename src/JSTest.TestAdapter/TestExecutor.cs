@@ -50,10 +50,8 @@ namespace JSTest.TestAdapter
             {
                 frameworkHandle.SendMessage(TestMessageLevel.Error, e.ToString());
 
-                if (e.InnerException is TimeoutException)
-                {
-                    this.testRunner.Dispose();
-                }
+                EqtTrace.Error("TestExecutor: Starting test execution with test cases failed with the following exception: {0}", e);
+                this.testRunner.Dispose();
 
                 return;
             }
@@ -78,7 +76,7 @@ namespace JSTest.TestAdapter
             {
                 frameworkHandle.SendMessage(TestMessageLevel.Error, e.ToString());
 
-                EqtTrace.Error("TestExecutor: Starting test execution failed with the following exception: {0}", e);
+                EqtTrace.Error("TestExecutor: Starting test execution with sources failed with the following exception: {0}", e);
                 this.testRunner.Dispose();
 
                 return;
