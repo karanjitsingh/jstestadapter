@@ -1,4 +1,3 @@
-
 import { Exception, ExceptionType } from '../../Exceptions';
 import { EnvironmentType, IEvent, IEventArgs } from '../../ObjectModel/Common';
 import { IDebugLogger } from '../../ObjectModel/EqtTrace';
