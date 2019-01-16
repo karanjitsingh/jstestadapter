@@ -7,6 +7,8 @@ import { EqtTrace } from '../../../ObjectModel/EqtTrace';
 import { ITestFrameworkEvents } from '../../../ObjectModel/TestFramework';
 import { BaseTestFramework } from '../BaseTestFramework';
 import { JestCallbacks } from './JestCallbacks';
+import { AttachmentSet } from '../../../ObjectModel';
+import { Constants } from '../../../Constants';
 
 export class JestTestFramework extends BaseTestFramework {
     public readonly environmentType: EnvironmentType;
@@ -26,7 +28,6 @@ export class JestTestFramework extends BaseTestFramework {
     private getJest() {
         switch (this.environmentType) {
             case EnvironmentType.NodeJS:
-                // tslint:disable-next-line
                 // tslint:disable-next-line:no-require-imports
                 return require('jest');
             default:
@@ -68,7 +69,7 @@ export class JestTestFramework extends BaseTestFramework {
         //tslint:disable:no-require-imports
         this.jestReporter = require('./JestReporter');
         this.jestReporter.INITIALIZE_REPORTER(<JestCallbacks> {
-            handleSessionDone: this.handleSessionDone.bind(this),
+            handleRunComplete: this.reporterRunCompleteHandler.bind(this),
             handleSpecFound: this.handleSpecStarted.bind(this),
             handleSpecResult: this.handleSpecResult.bind(this),
             handleErrorMessage: this.handleErrorMessage.bind(this)
@@ -201,17 +202,21 @@ export class JestTestFramework extends BaseTestFramework {
         jestArgv.rootDir = path.dirname(runConfigPath);
         jestArgv.reporters = [ require.resolve('./JestReporter.js') ];
 
+        let coverageDirectory: string = null;
+
         if (this.supportsCodeCoverage && this.codeCoverageEnabled && this.tempDir) {
-            const testResultsDirectory: string = path.join(this.tempDir, this.getPseudoGuid());
+            coverageDirectory = path.join(this.tempDir, this.getPseudoGuid());
             
             try {
-                fs.mkdtempSync(testResultsDirectory);
+                fs.mkdtempSync(coverageDirectory);
                 jestArgv.collectCoverage = true;
                 jestArgv.coverageReporters = [ 'clover' ];
+                jestArgv.coverageDirectory = coverageDirectory;
 
-                EqtTrace.info('Generating coverage for jest at ' + testResultsDirectory);
+                EqtTrace.info('Generating coverage for jest at ' + coverageDirectory);
             } catch (e) {
-                EqtTrace.error('Could not create directory ' + testResultsDirectory + 'for test results.', e);
+                EqtTrace.error('Could not create directory ' + coverageDirectory + 'for test results.', e);
+                coverageDirectory = null;
             }
         }
         
@@ -228,14 +233,23 @@ export class JestTestFramework extends BaseTestFramework {
         this.handleSessionStarted();
         this.jestReporter.UPDATE_CONFIG(runConfigPath);
 
-        //tslint:disable-next-line
-        const value = this.jest.runCLI(jestArgv, this.jestProjects);
-        value.then((...args) => {
-            EqtTrace.info('stufff');
-            EqtTrace.info(JSON.stringify(args));
-        });
+        try {
+            await this.jest.runCLI(jestArgv, this.jestProjects);
+            EqtTrace.info('JestTestFramework: Execution complete');
+        } catch (e) {
+            EqtTrace.error('JestTestFramework: Exception on await runCLI', e);
+        }
 
-        return value;
+        if (coverageDirectory) {
+            const coverageFile = path.join(coverageDirectory, 'clover.xml');
+            if (fs.existsSync(coverageFile)) {
+                this.handleRunAttachment([this.getAttachmentObject([coverageFile], 'Code Coverage')]);
+            } else {
+                EqtTrace.error(`Coverage file ${coverageFile} does not exist`, null);
+            }
+        }
+
+        return;
     }
 
     private getTestNamePattern(testCaseNames: Array<string>) {
@@ -255,5 +269,50 @@ export class JestTestFramework extends BaseTestFramework {
         };
          
         return (S4() + S4() + '-' + S4() + '-4' + S4().substr(0, 3) + '-' + S4() + '-' + S4() + S4() + S4()).toLowerCase();
+    }
+
+    private reporterRunCompleteHandler() {
+        //
+    }
+
+    private getAttachmentObject(attachments: Array<string>, displayName: string): AttachmentSet {
+        const uriAttachments = [];
+
+        attachments.forEach(path => {
+            uriAttachments.push({
+                Description: '',
+                Uri: this.getFileUrl(path)
+            });
+        });
+        
+        return {
+            Uri: Constants.ExecutorURI,
+            DisplayName: displayName,
+            Attachments: uriAttachments
+        };
+
+        // "Uri": "datacollector://Microsoft/CodeCoverage/2.0",
+        // "DisplayName": "Code Coverage",
+        // "Attachments": [
+        //   {
+        //     "Description": "",
+        //     "Uri": "file://D:/logs/c66f12ba-df20-4fba-aa66-ebe4110a660e/karsin_KARSIN%202019-01-14%2013_47_49.coverage"
+        //   }
+        // ]
+    }
+
+    private getFileUrl(str: string): string {
+        if (typeof str !== 'string') {
+            throw new Error('Expected a string');
+        }
+    
+        let pathName = path.resolve(str).replace(/\\/g, '/');
+    
+        // Windows drive letter must be prefixed with a slash
+        if (pathName[0] !== '/') {
+            pathName = '/' + pathName;
+        }
+    
+        return encodeURI('file://' + pathName);
     }
 }

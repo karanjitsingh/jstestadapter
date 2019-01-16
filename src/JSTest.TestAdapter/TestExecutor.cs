@@ -108,5 +108,10 @@ namespace JSTest.TestAdapter
         {
             this.executionCompletion.Set();
         }
+
+        private void OnTestRunAttachmentReceivedHandler(object sender, TestRunAttachmentPayload e)
+        {
+            this.frameworkHandle.RecordAttachments(e.Attachments);
+        }
     }
 }

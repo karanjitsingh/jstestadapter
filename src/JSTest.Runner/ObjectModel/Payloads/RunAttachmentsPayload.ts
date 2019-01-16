@@ -1,5 +1,5 @@
 import { AttachmentSet } from '../AttachmentSet';
 
-export interface RunAttachmentsPayload {
+export interface TestRunAttachmentsPayload {
     AttachmentCollection: Array<AttachmentSet>;
 }

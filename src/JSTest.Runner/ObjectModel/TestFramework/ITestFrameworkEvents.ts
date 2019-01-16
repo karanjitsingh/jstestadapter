@@ -1,4 +1,4 @@
-import { TestSpecEventArgs, TestSuiteEventArgs, TestSessionEventArgs, TestErrorMessageEventArgs } from '.';
+import { TestSpecEventArgs, TestSuiteEventArgs, TestSessionEventArgs, TestErrorMessageEventArgs, TestRunAttachmentEventArgs } from '.';
 import { IEvent } from '../Common';
 
 export interface ITestFrameworkEvents {
@@ -9,4 +9,5 @@ export interface ITestFrameworkEvents {
     onTestSessionStart: IEvent<TestSessionEventArgs>;
     onTestSessionEnd: IEvent<TestSessionEventArgs>;
     onErrorMessage: IEvent<TestErrorMessageEventArgs>;
+    onRunAttachment: IEvent<TestRunAttachmentEventArgs>;
 }

@@ -1,6 +1,6 @@
 import { MessageType } from '.';
 import { Exception, ExceptionType} from '../Exceptions';
-import { Constants } from 'Constants';
+import { Constants } from '../Constants';
 
 export class Message {
     /* These variables serialize to a JSON that will be deserialized
@@ -20,7 +20,6 @@ export class Message {
 
     public static FROM_JSON(messageJSON : JSON): Message {
         let messageType : MessageType;
-        let version = null;
 
         const json = <any>messageJSON;
 
@@ -34,10 +33,6 @@ export class Message {
 
         messageType = <MessageType>json.MessageType;
 
-        if (json.Version) {
-            version = json.Version;
-        }
-
-        return new Message(messageType, json.Payload, version);
+        return new Message(messageType, json.Payload);
     }
 }

@@ -25,20 +25,22 @@ export class TestSessionEventArgs implements BaseTestEventArgs {
     public readonly SessionId: string;
     public readonly Sources: Array<string>;
     public readonly StartTime: Date;
-    public readonly RunAttachments: Array<AttachmentSet>;
     public InProgress: boolean;
     public EndTime: Date;
 
-    constructor(sources: Array<string>, sessionId: string, runAttachments: Array<AttachmentSet>) {
+    constructor(sources: Array<string>, sessionId: string) {
         this.Sources = sources;
         this.SessionId = sessionId;
         this.StartTime =  new Date();
         this.InProgress = true;
-        this.RunAttachments = runAttachments;
     }
 
 }
 
 export interface TestErrorMessageEventArgs {
     Message: string;
+}
+
+export interface TestRunAttachmentEventArgs {
+    AttachmentCollection: Array<AttachmentSet>;
 }

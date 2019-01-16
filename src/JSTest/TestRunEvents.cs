@@ -11,6 +11,7 @@ namespace JSTest
         public event EventHandler<TestCaseFoundEventArgs> onTestCaseFound;
         public event EventHandler<TestMessagePayload> onTestMessageReceived;
         public event EventHandler<EventArgs> onTestSessionEnd;
+        public event EventHandler<TestRunAttachmentPayload> onTestRunAttachmentReceived;
 
         internal Boolean DisableInvoke = false;
 
@@ -51,6 +52,14 @@ namespace JSTest
             if (!this.DisableInvoke && this.onTestSessionEnd != null)
             {
                 this.onTestSessionEnd.Invoke(sender, null);
+            }
+        }
+
+        internal void InvokeTestRunAttachmentReceived(object sender, TestRunAttachmentPayload args)
+        {
+            if (!this.DisableInvoke && this.onTestRunAttachmentReceived != null)
+            {
+                this.onTestRunAttachmentReceived.Invoke(sender, args);
             }
         }
     }

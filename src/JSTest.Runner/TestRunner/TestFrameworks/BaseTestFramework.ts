@@ -1,15 +1,19 @@
-import { ITestFramework, TestSessionEventArgs, TestSuiteEventArgs, TestSpecEventArgs,
-         FailedExpectation, ITestFrameworkEvents, TestErrorMessageEventArgs } from '../../ObjectModel/TestFramework';
-import { TestCase, TestOutcome, EnvironmentType } from '../../ObjectModel/Common';
-import { SessionHash } from '../../Utils/Hashing/SessionHash';
 import { Constants } from '../../Constants';
+import { EnvironmentType, TestCase, TestOutcome } from '../../ObjectModel/Common';
 import { EqtTrace } from '../../ObjectModel/EqtTrace';
+import { FailedExpectation, ITestFramework, ITestFrameworkEvents, TestErrorMessageEventArgs,
+         TestSessionEventArgs, TestSpecEventArgs, TestSuiteEventArgs } from '../../ObjectModel/TestFramework';
+import { SessionHash } from '../../Utils/Hashing/SessionHash';
+import { AttachmentSet } from '../../ObjectModel';
 
 export abstract class BaseTestFramework implements ITestFramework {
     public readonly abstract environmentType: EnvironmentType;
     public readonly abstract canHandleMultipleSources: boolean;
     public readonly abstract supportsJsonOptions: boolean;
+    public readonly abstract supportsCodeCoverage: boolean;
     public readonly testFrameworkEvents: ITestFrameworkEvents;
+    // public attachmentCollection: Array<AttachmentSet>;
+    public codeCoverageEnabled: boolean;
 
     protected abstract sources: Array<string>;
 
@@ -24,6 +28,7 @@ export abstract class BaseTestFramework implements ITestFramework {
         this.testFrameworkEvents = testFrameworkEvents;
         this.testExecutionCount = new Map();
         this.suiteStack = [];
+        // this.attachmentCollection = [];
     }
 
     public abstract startExecutionWithSources(sources: Array<string>, options: JSON);
@@ -161,6 +166,15 @@ export abstract class BaseTestFramework implements ITestFramework {
         this.testFrameworkEvents.onTestCaseEnd.raise(this, specResult);
     }
 
+    protected handleRunAttachment(attachmentCollection: Array<AttachmentSet>) {
+        // this.attachmentCollection.push(attachmentSet);
+        if (attachmentCollection instanceof Array) {
+            this.testFrameworkEvents.onRunAttachment.raise(this, { 
+                AttachmentCollection: attachmentCollection
+            });
+        }
+    }
+
     protected handleErrorMessage(errMessage: string, errStack: string) {
         let message;
         if (errMessage === errStack || !errStack) {
@@ -190,7 +204,7 @@ export abstract class BaseTestFramework implements ITestFramework {
             EqtTrace.warn(`BaseTestFramework: Fqn length exceeding 512 characters with value: '${fqn}'`);
         }
 
-        const testCase = new TestCase(source, fqn, Constants.executorURI);
+        const testCase = new TestCase(source, fqn, Constants.ExecutorURI);
         testCase.DisplayName = testCaseName;
 
         return testCase;

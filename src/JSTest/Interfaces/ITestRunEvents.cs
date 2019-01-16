@@ -12,6 +12,6 @@ namespace JSTest.Interfaces
         event EventHandler<TestCaseFoundEventArgs> onTestCaseFound;
         event EventHandler<TestMessagePayload> onTestMessageReceived;
         event EventHandler<EventArgs> onTestSessionEnd;
-        
+        event EventHandler<TestRunAttachmentPayload> onTestRunAttachmentReceived;
     }
 }

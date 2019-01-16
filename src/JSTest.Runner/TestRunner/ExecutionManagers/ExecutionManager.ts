@@ -1,7 +1,8 @@
 import { IEnvironment } from '../../Environment/IEnvironment';
 import { AttachmentSet, JSTestSettings, TestMessageLevel, TestResult } from '../../ObjectModel';
 import { TestCase } from '../../ObjectModel/Common';
-import { ITestFramework, TestErrorMessageEventArgs, TestSessionEventArgs, TestSpecEventArgs } from '../../ObjectModel/TestFramework';
+import { ITestFramework, TestErrorMessageEventArgs, TestSessionEventArgs,
+         TestSpecEventArgs, TestRunAttachmentEventArgs } from '../../ObjectModel/TestFramework';
 import { TimeSpan } from '../../Utils/TimeUtils';
 import { MessageSender } from '../MessageSender';
 import { TestFrameworkEventHandlers } from '../TestFrameworks/TestFrameworkEventHandlers';
@@ -99,6 +100,10 @@ export class ExecutionManager extends BaseExecutionManager {
 
         TestErrorMessage: (sender: object, args: TestErrorMessageEventArgs) => {
             this.messageSender.sendMessage(args.Message, TestMessageLevel.Error);
+        },
+
+        TestRunAttachment: (sender: object, args: TestRunAttachmentEventArgs) => {
+            this.messageSender.sendRunAttachments(args.AttachmentCollection);
         }
     };
 

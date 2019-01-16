@@ -2,8 +2,10 @@
 export interface AttachmentSet {
     Uri: string;
     DisplayName: string;
-    Attachments: Array<{
-        Description: string,
-        Uri: string
-    }>;
+    Attachments: Array<UriDataAttachment>;
+}
+
+export interface UriDataAttachment {
+    Description: string;
+    Uri: string;
 }

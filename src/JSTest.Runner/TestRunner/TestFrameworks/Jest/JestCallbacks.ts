@@ -2,7 +2,7 @@ import { FailedExpectation } from '../../../ObjectModel/TestFramework';
 import { TestOutcome } from '../../../ObjectModel/Common';
 
 export interface JestCallbacks {
-    handleSessionDone();
+    handleRunComplete();
     handleSpecFound(fullyQualifiedName: string,
         testCaseName: string,
         sourceFile: string,

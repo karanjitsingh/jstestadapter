@@ -19,5 +19,6 @@ namespace JSTest.Communication
         public const string StartTestExecutionWithSources = "JSTest.StartWithSources";
         public const string StartTestExecutionWithTests = "JSTest.StartWithTests";
         public const string StartDiscovery = "JSTest.StartDiscovery";
+        public const string RunAttachments = "JSTest.RunAttachments";
     }
 }
