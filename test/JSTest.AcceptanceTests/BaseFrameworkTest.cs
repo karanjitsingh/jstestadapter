@@ -32,10 +32,6 @@ namespace JSTest.AcceptanceTests
 
         private readonly IEnumerable<string> PreDefinedOutput = new List<string>()
         {
-            "Logging JSTet.Runner Diagnostics in file",
-            "Connected to process with",
-            "Process Launched with id",
-            "Process with id"
         };
 
         #endregion
@@ -176,7 +172,7 @@ namespace JSTest.AcceptanceTests
 
         private string BuildVSTestArgs(IEnumerable<string> files, IDictionary<string, string> cliOptions, IDictionary<string, string> runConfig)
         {
-            var args = $"--TestAdapterPath:{Path.Combine(BaseFrameworkTest.testRepoPath, "node_modules", "jstestadapter")}";
+            var args = $"--InIsolation --TestAdapterPath:{Path.Combine(BaseFrameworkTest.testRepoPath, "node_modules", "jstestadapter")}";
 
             foreach (var entry in cliOptions)
             {
