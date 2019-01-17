@@ -3,8 +3,8 @@
     <TargetFrameworks>net451</TargetFrameworks>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="Jest\tests\test.1.js" />
-    <None Remove="Jest\tests\test.2.js" />
+    <None Remove="Jest\__tests__\test.4.js" />
+    <None Remove="Jest\__tests__\test.5.js" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.TestPlatform.ObjectModel" Version="15.8.0" PrivateAssets="All" />
@@ -14,15 +14,10 @@
     <ProjectReference Include="..\..\src\JSTest\JSTest.csproj" Project="832CF89A-268A-4E1B-BD5D-1F621877121F" Name="JSTest" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Jest\package.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Jest\tests\test.1.js">
+    <Content Include="Jest\__tests__\test.4.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Jest\tests\test.2.js">
+    <Content Include="Jest\__tests__\test.5.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Jest\__tests__\test.1.js">
@@ -48,10 +43,13 @@
     <None Update="Jasmine\test.3.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Jest\package2.json">
+    <None Update="Jest\packag_e.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Jest\tests\test.3.js">
+    <None Update="Jest\package.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Jest\__tests__\test.6.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Jest\__tests__\test.3.js">

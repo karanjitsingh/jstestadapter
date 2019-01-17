@@ -9,6 +9,6 @@
   "author": "",
   "license": "ISC",
   "jest": {
-    "testPathPattern": ".*/test/test...js"
+    "testMatch": [ "**/test.(1|2|3|4|5|6).js" ]
   }
 }

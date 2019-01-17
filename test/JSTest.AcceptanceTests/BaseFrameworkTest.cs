@@ -32,6 +32,10 @@ namespace JSTest.AcceptanceTests
 
         private readonly IEnumerable<string> PreDefinedOutput = new List<string>()
         {
+            "Logging JSTet.Runner Diagnostics in file",
+            "Connected to process with",
+            "Process Launched with id",
+            "Process with id"
         };
 
         #endregion
@@ -82,7 +86,7 @@ namespace JSTest.AcceptanceTests
 
         #region Protected Methods
 
-        protected ExecutionOutput RunTests(IEnumerable<string> files, IDictionary<string, string> cliOptions, IDictionary<string, string> runConfig)
+        protected ExecutionOutput RunTests(IEnumerable<string> files, IDictionary<string, string> cliOptions, IDictionary<string, string> runConfig, bool debug = false)
         {
             var process = new Process();
             var startInfo = new ProcessStartInfo();
@@ -93,6 +97,12 @@ namespace JSTest.AcceptanceTests
             startInfo.Arguments = this.BuildVSTestArgs(files, cliOptions, runConfig);
             startInfo.RedirectStandardError = true;
             startInfo.RedirectStandardOutput = true;
+
+            if(debug)
+            {
+                startInfo.EnvironmentVariables.Add("JSTEST_RUNNER_DEBUG", "1");
+                startInfo.EnvironmentVariables.Add("JSTEST_HOST_DEBUG", "1");
+            }
 
             process.StartInfo = startInfo;
             process.StartInfo.UseShellExecute = false;
@@ -166,7 +176,7 @@ namespace JSTest.AcceptanceTests
 
         private string BuildVSTestArgs(IEnumerable<string> files, IDictionary<string, string> cliOptions, IDictionary<string, string> runConfig)
         {
-            var args = $"--Inisolation --TestAdapterPath:{Path.Combine(BaseFrameworkTest.testRepoPath, "node_modules", "jstestadapter")}";
+            var args = $"--TestAdapterPath:{Path.Combine(BaseFrameworkTest.testRepoPath, "node_modules", "jstestadapter")}";
 
             foreach (var entry in cliOptions)
             {
@@ -285,13 +295,13 @@ namespace JSTest.AcceptanceTests
                 { "DebugLogs", "true" }
             };
 
-            var output = this.RunTests(files, cliOptions, runConfig);
+            var output = this.RunTests(files, cliOptions, runConfig, debug: false);
             var expectedStdOut = expectedOutput != null ? expectedOutput : this.ExpectedOutput.ExecutionOutput;
 
             this.ValidateOutput(output, expectedStdOut, false);
         }
 
-        public void TestExecutionWithTests()
+        public void TestExecutionWithTests(List<string> expectedOutput = null, string extensionOverride = null)
         {
             this.TestExecution(new Dictionary<string, string>() {
                 { "Tests", "1" }
@@ -316,27 +326,19 @@ namespace JSTest.AcceptanceTests
 
             if (!string.IsNullOrEmpty(output.StdErr.Trim().ToString()) && failOnStdErr)
             {
-                Assert.Fail("StandardError for execution should have been empty");
+                Assert.Fail("StdErr for execution should have been empty. Value: {0}", output);
             }
 
             var stdout = output.StdOut;
 
             foreach (var str in this.PreDefinedOutput)
             {
-                if (!stdout.Contains(str))
-                {
-                    Console.Error.Write("Expected output:\n", stdout);
-                }
-                Assert.IsTrue(stdout.Contains(str), "Actual StdOut did not match the expected StdOut");
+                Assert.IsTrue(stdout.Contains(str), "Actual StdOut did not match the expected StdOut. \n\n {0}", stdout);
             }
 
             foreach (var str in expectedStdOut)
             {
-                if(!stdout.Contains(str))
-                {
-                    Console.Error.Write("Expected output:\n", stdout);
-                }
-                Assert.IsTrue(stdout.Contains(str), "Actual StdOut did not match the expected StdOut");
+                Assert.IsTrue(stdout.Contains(str), "Actual StdOut did not match the expected StdOut. \n\n {0}", stdout);
             }
 
             Console.Write(stdout);
@@ -350,12 +352,7 @@ namespace JSTest.AcceptanceTests
 
             foreach (var str in expectedStdErr)
             {
-                if (!stderr.Contains(str))
-                {
-                    Console.Error.Write("Expected error:\n", stderr);
-                }
-
-                Assert.IsTrue(stderr.Contains(str), "Actual StdErr did not match the StdErr");
+                Assert.IsTrue(stderr.Contains(str), "Actual StdErr did not match the StdErr. \n\n {0}", stderr);
             }
 
             Console.Write(stderr);

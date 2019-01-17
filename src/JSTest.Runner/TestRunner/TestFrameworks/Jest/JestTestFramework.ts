@@ -57,7 +57,7 @@ export class JestTestFramework extends BaseTestFramework {
         //tslint:disable:no-require-imports
         this.jestReporter = require('./JestReporter');
         this.jestReporter.INITIALIZE_REPORTER(<JestCallbacks> {
-            handleSessionDone: this.handleSessionDone.bind(this),
+            handleJestRunComplete: this.reporterRunCompleteHandler.bind(this),
             handleSpecFound: this.handleSpecStarted.bind(this),
             handleSpecResult: this.handleSpecResult.bind(this),
             handleErrorMessage: this.handleErrorMessage.bind(this)
@@ -111,7 +111,7 @@ export class JestTestFramework extends BaseTestFramework {
         }
 
         this.sources = sources;
-        this.runTestsAsync(configToSourceMap, options, configToTestNamesMap);
+        this.executeTestsAsync(configToSourceMap, options, configToTestNamesMap);
     }
 
     public startExecutionWithSources(sources: Array<string>, options: JSON): void {
@@ -122,20 +122,34 @@ export class JestTestFramework extends BaseTestFramework {
         const map = new Map();
         map.set(sources[0], []);
 
-        this.runTestsAsync(map, options);
+        this.executeTestsAsync(map, options);
     }
 
     public startDiscovery(sources: Array<string>): void {
         this.sources = sources;
         this.jestReporter.discovery = true;
-        this.runTestAsync(sources[0], null, null, null, true);
+        this.discoverTestsAsync(sources);
     }
 
     protected skipSpec(specObject: any) {
         // Cannot skip at test case level while execution in jest
     }
 
-    private async runTestsAsync(configToSourceMap: Map<string, Array<string>>,
+    private async discoverTestsAsync(sources: Array<string>) {
+        if (sources) {
+            for (let i = 0; i < sources.length; i++) {
+                try {
+                    await this.runTestAsync(sources[i], null, null, null, true);
+                } catch (err) {
+                    this.handleErrorMessage(err.message, err.stack);
+                }
+            }                
+        }
+
+        this.handleSessionDone();
+    }
+
+    private async executeTestsAsync(configToSourceMap: Map<string, Array<string>>,
                                 configOverride: JSON, 
                                 configToTestNameMap?: Map<string, Array<string>>) {
         
@@ -214,5 +228,9 @@ export class JestTestFramework extends BaseTestFramework {
         });
 
         return testCaseNames.join('|');
+    }
+    
+    private reporterRunCompleteHandler() {
+        // do nothing
     }
 }
