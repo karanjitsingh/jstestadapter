@@ -61,11 +61,31 @@ namespace JSTest.AcceptanceTests
         }
 
         [TestMethod]
-        public void TestExecutionJest()
+        public void TestExecutionJestSinglePackageJson()
         {
             this.TestExecution();
         }
 
+        [TestMethod]
+        public void TestExecutionJestMultiplePackageJson()
+        {
+            var output = new List<string>
+            {
+                "Passed   suite a > test case a1",
+                "Failed   suite a > test case a2",
+                "Passed   suite b > test case b1",
+                "Failed   suite b > test case b2",
+                "Passed   suite c > test case c1",
+                "Failed   suite c > test case c2",
+                "Passed   suite a1 > test case a1",
+                "Failed   suite a1 > test case a2",
+                "Passed   suite b1 > test case b1",
+                "Failed   suite b1 > test case b2",
+                "Passed   suite c1 > test case c1",
+                "Failed   suite c1 > test case c2",
+            }; 
+            this.TestExecution(extensionOverride: ".json", expectedOutput: output );
+        }
 
         [TestMethod]
         public void TestExecutionWithTestsJest()

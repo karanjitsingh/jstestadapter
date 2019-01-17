@@ -273,9 +273,9 @@ namespace JSTest.AcceptanceTests
             this.ValidateOutput(output, expectedOutput);
         }
 
-        public void TestExecution(IDictionary<string, string> cliArgs = null, List<string> expectedOutput = null)
+        public void TestExecution(IDictionary<string, string> cliArgs = null, List<string> expectedOutput = null, string extensionOverride = null)
         {
-            var files = Directory.EnumerateFiles(BaseFrameworkTest.testRepoPath).Where((file) => file.EndsWith(this.ContainerExtension));
+            var files = Directory.EnumerateFiles(BaseFrameworkTest.testRepoPath).Where((file) => file.EndsWith(extensionOverride == null ? this.ContainerExtension : extensionOverride));
 
 
             var cliOptions = cliArgs != null ? cliArgs : new Dictionary<string, string>();
