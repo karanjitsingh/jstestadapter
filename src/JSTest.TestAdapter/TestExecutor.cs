@@ -49,6 +49,10 @@ namespace JSTest.TestAdapter
             catch (JSTestException e)
             {
                 frameworkHandle.SendMessage(TestMessageLevel.Error, e.ToString());
+
+                EqtTrace.Error("TestExecutor: Starting test execution with test cases failed with the following exception: {0}", e);
+                this.testRunner.Dispose();
+
                 return;
             }
 
@@ -71,6 +75,10 @@ namespace JSTest.TestAdapter
             catch (JSTestException e)
             {
                 frameworkHandle.SendMessage(TestMessageLevel.Error, e.ToString());
+
+                EqtTrace.Error("TestExecutor: Starting test execution with sources failed with the following exception: {0}", e);
+                this.testRunner.Dispose();
+
                 return;
             }
 
