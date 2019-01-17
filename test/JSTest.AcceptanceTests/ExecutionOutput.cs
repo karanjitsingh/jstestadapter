@@ -47,6 +47,11 @@ namespace JSTest.AcceptanceTests
             using (AutoResetEvent outputWaitHandle = new AutoResetEvent(false))
             using (AutoResetEvent errorWaitHandle = new AutoResetEvent(false))
             {
+
+                /* There is a limit to the stream buffer if this limit is reached, console.write infinitely waits
+                 * Hence, save the output in a buffer instead of reading all of it using .ReadToEnd()
+                 */
+
                 process.OutputDataReceived += (sender, e) => {
                     if (e.Data == null)
                     {
