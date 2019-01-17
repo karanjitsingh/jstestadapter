@@ -31,12 +31,12 @@ namespace JSTest.AcceptanceTests
                 "suite b > test case b2",
                 "suite c > test case c1",
                 "suite c > test case c2",
-                "suite a1 > test case a1",
-                "suite a1 > test case a2",
-                "suite b1 > test case b1",
-                "suite b1 > test case b2",
-                "suite c1 > test case c1",
-                "suite c1 > test case c2"
+                "suite ax > test case a1",
+                "suite ax > test case a2",
+                "suite bx > test case b1",
+                "suite bx > test case b2",
+                "suite cx > test case c1",
+                "suite cx > test case c2"
             };
 
             this.ExpectedOutput.ExecutionOutput = new List<string>
@@ -47,12 +47,12 @@ namespace JSTest.AcceptanceTests
                 "Failed   suite b > test case b2",
                 "Passed   suite c > test case c1",
                 "Failed   suite c > test case c2",
-                "Passed   suite a1 > test case a1",
-                "Failed   suite a1 > test case a2",
-                "Passed   suite b1 > test case b1",
-                "Failed   suite b1 > test case b2",
-                "Passed   suite c1 > test case c1",
-                "Failed   suite c1 > test case c2"
+                "Passed   suite ax > test case a1",
+                "Failed   suite ax > test case a2",
+                "Passed   suite bx > test case b1",
+                "Failed   suite bx > test case b2",
+                "Passed   suite cx > test case c1",
+                "Failed   suite cx > test case c2"
             };
             this.ExpectedOutput.ExecutionWithTestsOutput = new List<string>
             {
@@ -62,12 +62,12 @@ namespace JSTest.AcceptanceTests
                 "Skipped  suite c > test case c2",
                 "Passed   suite b > test case b1",
                 "Skipped  suite b > test case b2",
-                "Passed   suite a1 > test case a1",
-                "Failed   suite a1 > test case a2",
-                "Passed   suite c1 > test case c1",
-                "Skipped  suite c1 > test case c2",
-                "Passed   suite b1 > test case b1",
-                "Skipped  suite b1 > test case b2"
+                "Passed   suite ax > test case a1",
+                "Failed   suite ax > test case a2",
+                "Passed   suite cx > test case c1",
+                "Skipped  suite cx > test case c2",
+                "Passed   suite bx > test case b1",
+                "Skipped  suite bx > test case b2"
             };
         }
 
