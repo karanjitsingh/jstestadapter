@@ -71,7 +71,7 @@ namespace JSTest.AcceptanceTests
         {
             this.TestExecutionWithTests();
         }
-        
+
         [TestMethod]
         public void TestDiscoveryJest_SingleSource()
         {
