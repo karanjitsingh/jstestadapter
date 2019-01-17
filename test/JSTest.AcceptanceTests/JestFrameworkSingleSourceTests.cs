@@ -53,7 +53,6 @@ namespace JSTest.AcceptanceTests
             };
         }
 
-
         [ClassInitialize]
         public static void ClassInitialize(TestContext context)
         {

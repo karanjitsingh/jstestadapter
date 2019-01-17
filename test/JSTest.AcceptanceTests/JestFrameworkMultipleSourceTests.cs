@@ -71,7 +71,6 @@ namespace JSTest.AcceptanceTests
             };
         }
 
-
         [ClassInitialize]
         public static void ClassInitialize(TestContext context)
         {
@@ -84,7 +83,6 @@ namespace JSTest.AcceptanceTests
             this.TestExecution();
         }
         
-
         [TestMethod]
         public void TestExecutionWithTestsJest_MultipleSources()
         {
