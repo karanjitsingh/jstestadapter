@@ -1,5 +1,10 @@
-import { ITestFramework, TestSessionEventArgs, TestSpecEventArgs, TestFrameworks,
-         TestErrorMessageEventArgs } from '../../ObjectModel/TestFramework';
+import * as fs from 'fs';
+import * as path from 'path';
+
+import {
+    ITestFramework, TestSessionEventArgs, TestSpecEventArgs, TestFrameworks,
+    TestErrorMessageEventArgs
+} from '../../ObjectModel/TestFramework';
 import { TestMessageLevel, TestResult, AttachmentSet, JSTestSettings } from '../../ObjectModel';
 import { TestCase } from '../../ObjectModel/Common';
 import { IEnvironment } from '../../Environment/IEnvironment';
@@ -7,6 +12,7 @@ import { TimeSpan } from '../../Utils/TimeUtils';
 import { MessageSender } from '../MessageSender';
 import { BaseExecutionManager } from './BaseExecutionManager';
 import { TestFrameworkEventHandlers } from '../TestFrameworks/TestFrameworkEventHandlers';
+import { EqtTrace } from '../../ObjectModel/EqtTrace';
 
 export class ExecutionManager extends BaseExecutionManager {
     private jsTestSettings: JSTestSettings;
@@ -75,11 +81,9 @@ export class ExecutionManager extends BaseExecutionManager {
         },
 
         TestCaseEnd: (sender: object, args: TestSpecEventArgs) => {
-            const attachments: Array<AttachmentSet> = [];
-
             const testResult: TestResult = {
                 TestCase: args.TestCase,
-                Attachments: attachments,
+                Attachments: this.getAttachments(args.AttachmentsFolder, args.TestCase.ExecutorUri),
                 Outcome: args.Outcome,
                 ErrorMessage: null,
                 ErrorStackTrace: null,
@@ -110,7 +114,7 @@ export class ExecutionManager extends BaseExecutionManager {
             this.messageSender.sendMessage(err.stack ?
                 err.stack :
                 (err.constructor.name + ': ' + err.message),
-            TestMessageLevel.Error);
+                TestMessageLevel.Error);
         }
     }
 
@@ -123,13 +127,51 @@ export class ExecutionManager extends BaseExecutionManager {
                 framework.startExecutionWithSources(sources, this.jsTestSettings.TestFrameworkConfigJson);
             }
         },
-        (e) => {
-            this.sessionError(sources, e);
-        });
+            (e) => {
+                this.sessionError(sources, e);
+            });
     }
 
     private executionComplete = () => {
         this.messageSender.sendExecutionComplete();
         this.onComplete.raise(this, null);
+    }
+
+    private getAttachments(attachmentsFolder: string, executorUri: string): Array<AttachmentSet> {
+        const attachments: Array<AttachmentSet> = [];
+        let attachmentSet: AttachmentSet = null;
+
+        if (this.jsTestSettings.UploadAttachments && attachmentsFolder) {
+            try {
+                // Make sure attachments folder exists
+                if (fs.existsSync(attachmentsFolder)) {
+                    const stats = fs.lstatSync(attachmentsFolder);
+                    if (stats.isDirectory()) {
+                        // Read the content of the attachments folder and convert to attachment objects
+                        fs.readdirSync(attachmentsFolder).forEach(file => {
+                            const filePath = path.join(attachmentsFolder, file);
+                            const fileStats = fs.lstatSync(filePath);
+                            if (fileStats.isFile()) {
+                                EqtTrace.info(`ExecutionManager: adding set ${executorUri}`);
+                                // Ensure top level attachment set
+                                if (!attachmentSet) {
+                                    attachmentSet = new AttachmentSet(executorUri, 'Attachments');
+                                    attachments.push(attachmentSet);
+                                }
+
+                                EqtTrace.info(`ExecutionManager: adding attachment ${filePath}`);
+                                // Add current file as attachment
+                                attachmentSet.addAttachment(filePath);
+                            }
+                        });
+                    }
+                }
+            } catch (e) {
+                EqtTrace.error(`ExecutionManager: error gettings the attachments to upliad from ${attachmentsFolder}`, e);
+                // We should probably continue at this point since this is not critical
+            }
+        }
+
+        return attachments;
     }
 }

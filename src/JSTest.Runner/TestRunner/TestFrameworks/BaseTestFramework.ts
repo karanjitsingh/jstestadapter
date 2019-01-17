@@ -1,5 +1,7 @@
-import { ITestFramework, TestSessionEventArgs, TestSuiteEventArgs, TestSpecEventArgs,
-         FailedExpectation, ITestFrameworkEvents, TestErrorMessageEventArgs } from '../../ObjectModel/TestFramework';
+import {
+    ITestFramework, TestSessionEventArgs, TestSuiteEventArgs, TestSpecEventArgs,
+    FailedExpectation, ITestFrameworkEvents, TestErrorMessageEventArgs
+} from '../../ObjectModel/TestFramework';
 import { TestCase, TestOutcome, EnvironmentType } from '../../ObjectModel/Common';
 import { SessionHash } from '../../Utils/Hashing/SessionHash';
 import { Constants } from '../../Constants';
@@ -47,7 +49,7 @@ export abstract class BaseTestFramework implements ITestFramework {
     }
 
     protected handleSessionDone() {
-        
+
         if (this.sessionActive) {
             this.sessionEventArgs.EndTime = new Date();
             this.sessionEventArgs.InProgress = false;
@@ -99,16 +101,16 @@ export abstract class BaseTestFramework implements ITestFramework {
     }
 
     protected handleSpecStarted(fullyQualifiedName: string,
-                                testCaseName: string,
-                                sourceFile: string,
-                                specObject: any,
-                                fqnPostFix?: string) {
+        testCaseName: string,
+        sourceFile: string,
+        specObject: any,
+        fqnPostFix?: string) {
         const testCase = this.getTestCase(testCaseName, fullyQualifiedName, sourceFile, fqnPostFix);
         this.applyTestCaseFilter(testCase, specObject);
 
         // should check if spec was already active and not ended
 
-        this.activeSpec = <TestSpecEventArgs> {
+        this.activeSpec = <TestSpecEventArgs>{
             TestCase: testCase,
             FailedExpectations: [],
             Outcome: TestOutcome.None,
@@ -136,24 +138,26 @@ export abstract class BaseTestFramework implements ITestFramework {
     }
 
     protected handleSpecResult(fullyQualifiedName: string,
-                               testCaseName: string,
-                               sourceFile: string,
-                               testOutcome: TestOutcome,
-                               failedExpectations: Array<FailedExpectation>,
-                               startTime: Date,
-                               endTime: Date,
-                               fqnPostFix?: string) {
+        testCaseName: string,
+        sourceFile: string,
+        testOutcome: TestOutcome,
+        failedExpectations: Array<FailedExpectation>,
+        startTime: Date,
+        endTime: Date,
+        fqnPostFix?: string,
+        attachmentsFolder?: string) {
 
         const testCase = this.getTestCase(testCaseName, fullyQualifiedName, sourceFile, fqnPostFix);
 
-        const specResult = <TestSpecEventArgs> {
+        const specResult = <TestSpecEventArgs>{
             TestCase: testCase,
             FailedExpectations: failedExpectations,
             Outcome: testOutcome,
             Source: sourceFile,
             StartTime: startTime,
             InProgress: false,
-            EndTime: endTime
+            EndTime: endTime,
+            AttachmentsFolder: attachmentsFolder
         };
 
         EqtTrace.info(`BaseTestFramework: Test result received ${JSON.stringify(specResult)}`);
@@ -171,7 +175,7 @@ export abstract class BaseTestFramework implements ITestFramework {
 
         EqtTrace.warn(`BaseTestFramework: Error message was received from test framework: ${message}`);
 
-        this.testFrameworkEvents.onErrorMessage.raise(this, <TestErrorMessageEventArgs> {
+        this.testFrameworkEvents.onErrorMessage.raise(this, <TestErrorMessageEventArgs>{
             Message: message
         });
     }

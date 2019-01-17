@@ -11,12 +11,13 @@ export interface TestSpecEventArgs extends BaseTestEventArgs {
     TestCase: TestCase;
     FailedExpectations: Array<FailedExpectation>;
     Outcome: TestOutcome;
-    Source: string;    
+    Source: string;
+    AttachmentsFolder?: string;
 }
 
 export interface TestSuiteEventArgs extends BaseTestEventArgs {
     Name: string;
-    Source: string;    
+    Source: string;
 }
 
 export class TestSessionEventArgs implements BaseTestEventArgs {
@@ -30,7 +31,7 @@ export class TestSessionEventArgs implements BaseTestEventArgs {
     constructor(sources: Array<string>, sessionId: string) {
         this.Sources = sources;
         this.SessionId = sessionId;
-        this.StartTime =  new Date();
+        this.StartTime = new Date();
         this.InProgress = true;
     }
 

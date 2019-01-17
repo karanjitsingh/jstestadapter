@@ -5,6 +5,7 @@ export class JSTestSettings {
     // tslint:disable:variable-name
     public JavaScriptTestFramework: TestFrameworks;
     public TestFrameworkConfigJson: JSON;
+    public UploadAttachments: boolean;
 
     constructor(json: any) {
         this.JavaScriptTestFramework = -1;
@@ -18,7 +19,7 @@ export class JSTestSettings {
 
         if (this.JavaScriptTestFramework === -1) {
             throw new Exception(`'${json.JavaScriptTestFramework}' is not a valid supported test framework.`,
-                                ExceptionType.UnSupportedTestFramework);
+                ExceptionType.UnSupportedTestFramework);
         }
 
         if (json.TestFrameworkConfigJson !== null && json.TestFrameworkConfigJson !== '') {
@@ -30,5 +31,7 @@ export class JSTestSettings {
         } else {
             this.TestFrameworkConfigJson = JSON.parse('{}');
         }
+
+        this.UploadAttachments = json.UploadAttachments === true;
     }
 }

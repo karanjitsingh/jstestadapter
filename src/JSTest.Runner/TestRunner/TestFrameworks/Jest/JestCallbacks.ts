@@ -15,6 +15,7 @@ export interface JestCallbacks {
         failedExpectations: Array<FailedExpectation>,
         startTime: Date,
         endTime: Date,
-        fqnPostFix?: string);
+        fqnPostFix?: string,
+        attachmentsFolder?: string);
     handleErrorMessage(message: string);
 }
