@@ -9,9 +9,9 @@ describe('JestReporter suite', () => {
     // tslint:disable-next-line:no-require-imports
     const jestReporter = require('../../../../../src/JSTest.Runner/TestRunner/TestFrameworks/Jest/JestReporter');
 
-    it('onRunComplete will call handleSessionDone', (done) => {
+    it('onRunComplete will call handleRunComplete', (done) => {
         jestReporter.INITIALIZE_REPORTER({
-            handleSessionDone: () => {
+            handleJestRunComplete: () => {
                 done();
             }
         });

@@ -17,6 +17,7 @@ describe('JestTestFramework suite', () => {
         framework.handleErrorMessage = (a, b) => {
             throw new Error(a + '\n' + b);
         };
+
         framework.handleSessionStarted = () => {
             sessionStarted = true;
         };
@@ -31,45 +32,99 @@ describe('JestTestFramework suite', () => {
     });
 
     it('startExecutionWithSources', (done) => {
+        let runCount = 0;
 
         framework.jest = {
             runCLI: (argv, projects) => {
-                Assert.deepEqual(argv, {
-                    $0: 'C:\\a\\package.json',
-                    config: 'C:\\a\\package.json',
-                    rootDir: 'C:\\a',
-                    reporters: [ require.resolve('../../../../../src/JSTest.Runner/TestRunner/TestFrameworks/Jest/JestReporter.js') ],
-                    _: [],
-                    prop: 'value'
-                });
-                Assert.equal(sessionStarted, true);
-                Assert.equal(configPath, 'C:\\a\\package.json');
-                Assert.equal(projects, framework.jestProjects);
-                done();
+                runCount++;
+
+                switch (runCount) {
+                    case 1:
+                        Assert.deepEqual(argv, {
+                            $0: 'C:\\a\\package.json',
+                            config: 'C:\\a\\package.json',
+                            rootDir: 'C:\\a',
+                            reporters: [
+                                require.resolve('../../../../../src/JSTest.Runner/TestRunner/TestFrameworks/Jest/JestReporter.js')
+                            ],
+                            _: [],
+                            prop: 'value'
+                        });
+                        Assert.equal(sessionStarted, true);
+                        Assert.equal(configPath, 'C:\\a\\package.json');
+                        break;
+                    case 2:
+                        Assert.deepEqual(argv, {
+                            $0: 'C:\\a\\package2.json',
+                            config: 'C:\\a\\package2.json',
+                            rootDir: 'C:\\a',
+                            reporters: [
+                                require.resolve('../../../../../src/JSTest.Runner/TestRunner/TestFrameworks/Jest/JestReporter.js')
+                            ],
+                            _: [],
+                            prop: 'value'
+                        });
+                        Assert.equal(sessionStarted, true);
+                        Assert.equal(configPath, 'C:\\a\\package2.json');
+
+                        break;
+                }
             }
         };
 
-        framework.startExecutionWithSources(['C:\\a\\package.json'], {prop: 'value'});
+        framework.handleSessionDone = () => {
+            done();
+        };
+
+        framework.startExecutionWithSources(['C:\\a\\package.json', 'C:\\a\\package2.json'], {prop: 'value'});
     });
 
     it('startDiscovery', (done) => {
+        let runCount = 0;
+
         framework.jest = {
             runCLI: (argv, projects) => {
-                Assert.deepEqual(argv, {
-                    $0: 'C:\\a\\package.json',
-                    config: 'C:\\a\\package.json',
-                    rootDir: 'C:\\a',
-                    reporters: [ require.resolve('../../../../../src/JSTest.Runner/TestRunner/TestFrameworks/Jest/JestReporter.js') ],
-                    _: [],
-                    testNamePattern: '^$a'
-                });
-                Assert.equal(sessionStarted, true);
-                Assert.equal(configPath, 'C:\\a\\package.json');
-                done();
+                runCount++;
+
+                switch (runCount) {
+                    case 1:
+                        Assert.deepEqual(argv, {
+                            $0: 'C:\\a\\package.json',
+                            config: 'C:\\a\\package.json',
+                            rootDir: 'C:\\a',
+                            reporters: [
+                                require.resolve('../../../../../src/JSTest.Runner/TestRunner/TestFrameworks/Jest/JestReporter.js')
+                            ],
+                            _: [],
+                            testNamePattern: '^$a'
+                        });
+                        Assert.equal(sessionStarted, true);
+                        Assert.equal(configPath, 'C:\\a\\package.json');
+                        break;
+                    case 2:
+                        Assert.deepEqual(argv, {
+                            $0: 'C:\\a\\package2.json',
+                            config: 'C:\\a\\package2.json',
+                            rootDir: 'C:\\a',
+                            reporters: [
+                                require.resolve('../../../../../src/JSTest.Runner/TestRunner/TestFrameworks/Jest/JestReporter.js')
+                            ],
+                            _: [],
+                            testNamePattern: '^$a'
+                        });
+                        Assert.equal(sessionStarted, true);
+                        Assert.equal(configPath, 'C:\\a\\package2.json');
+
+                        break;
+                }
             }
         };
 
-        framework.startDiscovery(['C:\\a\\package.json']);
+        framework.handleSessionDone = () => {
+            done();
+        };
+
+        framework.startDiscovery(['C:\\a\\package.json', 'C:\\a\\package2.json']);
     });
     
     it('startExecutionWithTests', (done) => {

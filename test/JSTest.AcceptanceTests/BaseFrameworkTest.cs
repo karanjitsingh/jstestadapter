@@ -326,19 +326,19 @@ namespace JSTest.AcceptanceTests
 
             if (!string.IsNullOrEmpty(output.StdErr.Trim().ToString()) && failOnStdErr)
             {
-                Assert.Fail("StdErr for execution should have been empty. Value: {0}", output);
+                Assert.Fail("StdErr for execution should have been empty. Value: {0}", output.StdErr);
             }
 
             var stdout = output.StdOut;
 
             foreach (var str in this.PreDefinedOutput)
             {
-                Assert.IsTrue(stdout.Contains(str), "Actual StdOut did not match the expected StdOut. \n\n {0}", stdout);
+                Assert.IsTrue(stdout.Contains(str), "Actual StdOut did not match the expected StdOut. \n\n Did not contain: {0} \n\n {1}", str, stdout);
             }
 
             foreach (var str in expectedStdOut)
             {
-                Assert.IsTrue(stdout.Contains(str), "Actual StdOut did not match the expected StdOut. \n\n {0}", stdout);
+                Assert.IsTrue(stdout.Contains(str), "Actual StdOut did not match the expected StdOut. \n\n Did not contain: {0} \n\n {1}", str, stdout);
             }
 
             Console.Write(stdout);
@@ -352,7 +352,7 @@ namespace JSTest.AcceptanceTests
 
             foreach (var str in expectedStdErr)
             {
-                Assert.IsTrue(stderr.Contains(str), "Actual StdErr did not match the StdErr. \n\n {0}", stderr);
+                Assert.IsTrue(stderr.Contains(str), "Actual StdErr did not match the StdErr. \n\n Did not contain: {0} \n\n {1}", str, stderr);
             }
 
             Console.Write(stderr);
