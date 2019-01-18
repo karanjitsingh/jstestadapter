@@ -14,11 +14,11 @@ namespace JSTest.AcceptanceTests
     public class JasmineFramework : BaseFrameworkTest
     {
 
-        protected override string ContainerExtension
+        protected override string[] ContainerExtension
         {
             get
             {
-                return ".js";
+                return new string[] { ".js" };
             }
         }
 

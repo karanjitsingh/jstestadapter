@@ -21,7 +21,7 @@ class JestReporter {
 
     public onRunComplete = () => {
         EqtTrace.info(`JestReporter: run complete`);
-        JestReporter.callbacks.handleSessionDone();
+        JestReporter.callbacks.handleJestRunComplete();
     }
 
     public onTestResult = (test: any, aggregatedResults: any) => {
