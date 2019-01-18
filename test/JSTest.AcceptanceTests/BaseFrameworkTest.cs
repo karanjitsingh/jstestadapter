@@ -38,7 +38,7 @@ namespace JSTest.AcceptanceTests
 
         #region Protected Variables
 
-        protected abstract string ContainerExtension { get; }
+        protected abstract string[] ContainerExtension { get; }
 
         protected ExpectedOutput ExpectedOutput { get; set; } = new ExpectedOutput(
             new List<string> {
@@ -57,7 +57,8 @@ namespace JSTest.AcceptanceTests
                 "Passed   test case b1",
                 "Failed   test case b2",
                 "Passed   test case c1",
-                "Failed   test case c2"
+                "Failed   test case c2",
+                "Total tests: 6. Passed: 3. Failed: 3. Skipped: 0."
             },
 
             new List<string>
@@ -67,7 +68,8 @@ namespace JSTest.AcceptanceTests
                 "Passed   test case b1",
                 "Skipped  test case b2",
                 "Passed   test case c1",
-                "Skipped  test case c2"
+                "Skipped  test case c2",
+                "Total tests: 6. Passed: 3. Failed: 0. Skipped: 3."
             });
 
         #endregion
@@ -259,8 +261,7 @@ namespace JSTest.AcceptanceTests
 
         public void TestDiscovery()
         {
-            var filesInDirectory = Directory.EnumerateFiles(BaseFrameworkTest.testRepoPath);
-            var files = filesInDirectory.Where((file) => file.EndsWith(this.ContainerExtension));
+            var files = Directory.EnumerateFiles(BaseFrameworkTest.testRepoPath).Where((file) => this.ContainerExtension.Any((ext) => file.EndsWith(ext)));
 
             var cliOptions = new Dictionary<string, string>
             {
@@ -281,8 +282,7 @@ namespace JSTest.AcceptanceTests
 
         public void TestExecution(IDictionary<string, string> cliArgs = null, List<string> expectedOutput = null)
         {
-            var files = Directory.EnumerateFiles(BaseFrameworkTest.testRepoPath).Where((file) => file.EndsWith(this.ContainerExtension));
-
+            var files = Directory.EnumerateFiles(BaseFrameworkTest.testRepoPath).Where((file) => this.ContainerExtension.Any((ext) => file.EndsWith(ext)));
 
             var cliOptions = cliArgs != null ? cliArgs : new Dictionary<string, string>();
             var runConfig = new Dictionary<string, string>()

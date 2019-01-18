@@ -13,11 +13,11 @@ namespace JSTest.AcceptanceTests
     [TestClass]
     public class JestFrameworkSingleSourceTests : BaseFrameworkTest
     {
-        protected override string ContainerExtension
+        protected override string[] ContainerExtension
         {
             get
             {
-                return "package.json";
+                return new string[] { "package.json" };
             }
         }
 
@@ -40,7 +40,8 @@ namespace JSTest.AcceptanceTests
                 "Passed   suite b > test case b1",
                 "Failed   suite b > test case b2",
                 "Passed   suite c > test case c1",
-                "Failed   suite c > test case c2"
+                "Failed   suite c > test case c2",
+                "Total tests: 6. Passed: 3. Failed: 3. Skipped: 0."
             };
             this.ExpectedOutput.ExecutionWithTestsOutput = new List<string>
             {
@@ -49,7 +50,8 @@ namespace JSTest.AcceptanceTests
                 "Passed   suite c > test case c1",
                 "Skipped  suite c > test case c2",
                 "Passed   suite b > test case b1",
-                "Skipped  suite b > test case b2"
+                "Skipped  suite b > test case b2",
+                "Total tests: 6. Passed: 3. Failed: 1. Skipped: 2."
             };
         }
 

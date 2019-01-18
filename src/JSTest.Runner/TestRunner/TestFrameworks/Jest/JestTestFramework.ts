@@ -9,6 +9,7 @@ import { EqtTrace } from '../../../ObjectModel/EqtTrace';
 
 export class JestTestFramework extends BaseTestFramework {
     public readonly environmentType: EnvironmentType;
+    // Even though we can handle multiple sources for all types of executions we'll leave this option be for now
     public readonly canHandleMultipleSources: boolean = false;
     public readonly supportsJsonOptions: boolean = true;
 
@@ -76,27 +77,29 @@ export class JestTestFramework extends BaseTestFramework {
         let testCaseIteration = testCaseIterator.next();
         while (!testCaseIteration.done) {
             const testCase = testCaseIteration.value;
-            const fqnRegex = testCase.FullyQualifiedName.match(/.*::(.*)::(.*)/);
 
-            const configPath = testCase.Source;
+            if (sources.indexOf(testCase.Source) !== -1) {
+                const fqnRegex = testCase.FullyQualifiedName.match(/.*::(.*)::(.*)/);
+                const configPath = testCase.Source;
 
-            if (fqnRegex) {
-                
-                // source path appended to the fqn is relative to the config file
-
-                const source = path.normalize(path.dirname(configPath) + '\\' + fqnRegex[2]);
-                if (configToSourceMap.has(configPath)) {
-                    configToTestNamesMap.get(configPath).push(fqnRegex[1]);
-                    configToSourceMap.get(configPath)[source] = 1;
-                } else {
-                    const sourceArray = [];
-                    sourceArray[source] = 1;
-                    configToSourceMap.set(configPath, sourceArray);
+                if (fqnRegex) {
                     
-                    configToTestNamesMap.set(configPath, [fqnRegex[1]]);
+                    // source path appended to the fqn is relative to the config file
+
+                    const source = path.normalize(path.dirname(configPath) + '\\' + fqnRegex[2]);
+                    if (configToSourceMap.has(configPath)) {
+                        configToTestNamesMap.get(configPath).push(fqnRegex[1]);
+                        configToSourceMap.get(configPath)[source] = 1;
+                    } else {
+                        const sourceArray = [];
+                        sourceArray[source] = 1;
+                        configToSourceMap.set(configPath, sourceArray);
+                        
+                        configToTestNamesMap.set(configPath, [fqnRegex[1]]);
+                    }
+                } else {
+                    EqtTrace.warn('Incorrect fqn pattern for test case ' + JSON.stringify(testCase));
                 }
-            } else {
-                EqtTrace.warn('Incorrect fqn pattern for test case ' + JSON.stringify(testCase));
             }
 
             testCaseIteration = testCaseIterator.next();
@@ -111,7 +114,7 @@ export class JestTestFramework extends BaseTestFramework {
         }
 
         this.sources = sources;
-        this.executeTestsAsync(configToSourceMap, options, configToTestNamesMap);
+        this.executeTestsAsync(sources, configToSourceMap, options, configToTestNamesMap);
     }
 
     public startExecutionWithSources(sources: Array<string>, options: JSON): void {
@@ -122,7 +125,7 @@ export class JestTestFramework extends BaseTestFramework {
         const map = new Map();
         map.set(sources[0], []);
 
-        this.executeTestsAsync(map, options);
+        this.executeTestsAsync(sources, map, options);
     }
 
     public startDiscovery(sources: Array<string>): void {
@@ -149,7 +152,7 @@ export class JestTestFramework extends BaseTestFramework {
         this.handleSessionDone();
     }
 
-    private async executeTestsAsync(configToSourceMap: Map<string, Array<string>>,
+    private async executeTestsAsync(sources: Array<string>, configToSourceMap: Map<string, Array<string>>,
                                 configOverride: JSON, 
                                 configToTestNameMap?: Map<string, Array<string>>) {
         
@@ -159,20 +162,20 @@ export class JestTestFramework extends BaseTestFramework {
             return;
         }
 
-        const entries = configToSourceMap.entries();
-        let kvp = entries.next();
-
-        while (!kvp.done) {
+        /* sometimes (usually in execute with tests scenario)
+         * configToSourceMap can contain configs/sources which
+         * are not supposed to be executed, hence filter with sources
+         */
+        for (let i = 0; i < sources.length; i++) {
             try {
-                await this.runTestAsync(kvp.value[0],
-                                        kvp.value[1],
+                await this.runTestAsync(sources[i],
+                                        configToSourceMap.get(sources[i]),
                                         configOverride,
-                                        configToTestNameMap ? configToTestNameMap.get(kvp.value[0]) : null);
+                                        configToTestNameMap ? configToTestNameMap.get(sources[i]) : null);
             } catch (err) {
                 this.handleErrorMessage(err.message, err.stack);
             }
 
-            kvp = entries.next();
         }
 
         this.handleSessionDone();
