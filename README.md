@@ -96,5 +96,8 @@ Jasmine   | latest
 Mocha     | latest
 Jest      | 23.6.0
 
-#### Used and loved by
+---
 
+###### Used and loved by
+
+![(https://dev.azure.com/)[Azure Pipelines]](https://user-images.githubusercontent.com/4632805/51794131-3c5c6080-21f2-11e9-9173-0ccbb3418252.png)
