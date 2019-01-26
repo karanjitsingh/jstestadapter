@@ -95,3 +95,6 @@ Framework | Version
 Jasmine   | latest
 Mocha     | latest
 Jest      | 23.6.0
+
+#### Used and loved by
+
