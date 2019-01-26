@@ -34,6 +34,8 @@ namespace JSTest.AcceptanceTests
         {
         };
 
+        private static string packageVersion;
+
         #endregion
 
         #region Protected Variables
@@ -166,6 +168,8 @@ namespace JSTest.AcceptanceTests
             BaseFrameworkTest.frameworkPackage = package;
             BaseFrameworkTest.frameworkName = frameworkName;
             BaseFrameworkTest.frameworkItemFolder = itemFolder;
+
+
         }
 
         #endregion
@@ -229,7 +233,8 @@ namespace JSTest.AcceptanceTests
 
             var jstestPackageFolder = Path.Combine(projectFolder, "artifacts", config);
 
-            var packageVersion = JObject.Parse(File.ReadAllText(Path.Combine(projectFolder, "package.json")))["version"];
+            BaseFrameworkTest.packageVersion = JObject.Parse(File.ReadAllText(Path.Combine(projectFolder, "package.json")))["version"].ToString();
+
             var package = Directory.EnumerateFiles(jstestPackageFolder, $"jstestadapter-{packageVersion}.tgz", SearchOption.TopDirectoryOnly);
 
             BaseFrameworkTest.jstestPackage = package.First();
@@ -315,6 +320,9 @@ namespace JSTest.AcceptanceTests
 
         private void ValidateOutput(ExecutionOutput output, IEnumerable<string> expectedStdOut, bool failOnStdErr = true)
         {
+
+            Assert.IsTrue(output.StdOut.Contains("JSTest: Version " + BaseFrameworkTest.packageVersion), "Console header version should match package version.");
+
             if (output.ProcessTimeout)
             {
                 Assert.Fail("Process timed out");
