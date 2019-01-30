@@ -25,7 +25,7 @@ namespace JSTest
             this.executionComplete = new ManualResetEventSlim(false);
             this.testRunEvents = new TestRunEvents();
 
-            var hostDebug = Environment.GetEnvironmentVariable("JSTEST_HOST_DEBUG");
+            var hostDebug = Environment.GetEnvironmentVariable(Constants.EnvironmentVariables.DebugHost);
 
             if (!string.IsNullOrEmpty(hostDebug) && hostDebug == "1")
             {
@@ -37,7 +37,9 @@ namespace JSTest
         {
             this.PrintHeader();
 
-            var processInfo = RuntimeProviderFactory.Instance.GetRuntimeProcessInfo(settings, sources);
+            this.OverrideSettingsFromEnv(settings);
+
+            var processInfo = RuntimeProcessInfoProvider.Instance.GetRuntimeProcessInfo(settings, sources);
             this.runtimeManager = new TestRuntimeManager(settings, this.testRunEvents);
             Task<bool> launchTask = null;
             JSTestException exception = null;
@@ -80,15 +82,25 @@ namespace JSTest
             }
         }
 
+        private void OverrideSettingsFromEnv(JSTestSettings settings)
+        {
+            var diagPath = Environment.GetEnvironmentVariable(Constants.EnvironmentVariables.RunnerDiagnostics);
+            if (!string.IsNullOrEmpty(diagPath))
+            {
+                settings.DebugFilePath = diagPath;
+                settings.DebugLogs = true;
+            }
+        }
+
         private static int GetProcessLaunchTimeout()
         {
-            var startTimeoutString = Environment.GetEnvironmentVariable(Constants.VsTestNodeStartTimeout);
+            var startTimeoutString = Environment.GetEnvironmentVariable(Constants.EnvironmentVariables.VsTestNodeStartTimeout);
             if (!int.TryParse(startTimeoutString, out int startTimeout))
             {
                 startTimeout = Constants.DefaultVsTestNodeStartTimeout;
             }
 
-            return RuntimeProviderFactory.Instance.IsRuntimeDebuggingEnabled
+            return RuntimeProcessInfoProvider.Instance.IsRuntimeDebuggingEnabled
                                                 ? Constants.VsTestNodeStartInfiniteTimout
                                                 : startTimeout;
         }

@@ -14,7 +14,7 @@
     using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions;
     using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces;
 
-    internal class TestRuntimeManager
+    internal class TestRuntimeManager: IRuntimeManager
     {
         private readonly JSTestSettings settings;
         private readonly ManualResetEventSlim versionCheckComplete;
@@ -93,9 +93,9 @@
             return Task.FromResult(true);
         }
 
-        public async Task<bool> LaunchProcessAsync(TestProcessStartInfo runtimeProcessStartInfo, CancellationToken cancellationToken)
+        public Task<bool> LaunchProcessAsync(TestProcessStartInfo runtimeProcessStartInfo, CancellationToken cancellationToken)
         {
-            return await Task.Run(() =>
+            return Task.Run(() =>
             {
                 try
                 {

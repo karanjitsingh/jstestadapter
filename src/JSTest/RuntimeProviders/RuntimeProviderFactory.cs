@@ -7,9 +7,9 @@ using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 
 namespace JSTest.RuntimeProviders
 {
-    internal class RuntimeProviderFactory
+    internal class RuntimeProcessInfoProvider
     {
-        private RuntimeProviderFactory()
+        private RuntimeProcessInfoProvider()
         {
         }
 
@@ -22,7 +22,7 @@ namespace JSTest.RuntimeProviders
             }
         }
 
-        public static RuntimeProviderFactory Instance { get; } = new RuntimeProviderFactory();
+        public static RuntimeProcessInfoProvider Instance { get; } = new RuntimeProcessInfoProvider();
 
         public TestProcessStartInfo GetRuntimeProcessInfo(JSTestSettings settings, IEnumerable<string> sources)
         {

@@ -8,11 +8,11 @@
     [TestClass]
     public class RuntimeProviderFactoryTests
     {
-        RuntimeProviderFactory factory;
+        RuntimeProcessInfoProvider factory;
 
         public RuntimeProviderFactoryTests()
         {
-            factory = RuntimeProviderFactory.Instance;
+            factory = RuntimeProcessInfoProvider.Instance;
         }
 
         [TestMethod]

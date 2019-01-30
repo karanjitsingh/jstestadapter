@@ -5,8 +5,7 @@
         public const int VsTestNodeStartInfiniteTimout = -1;
         public const int DefaultVsTestNodeStartTimeout = 30000;
         public const int DefaultVsTestConnectionTimeout = 60000;
-        public const string VsTestNodeStartTimeout = "VsTestNodeStartTimeout";
-        public const string VsTestConnectionTimeout = "VsTestConnectionTimeout";
+
         public const int MessageProtocolVersion = 1;
         public const int StreamBufferSize = 16384;
         public const string JSTestVersionInfo = "1.0.9";
@@ -21,6 +20,15 @@
         public static class JavaScriptRuntimeStrings
         {
             public const string NodeJS = "node";
+        }
+
+        public static class EnvironmentVariables
+        {
+            public const string DebugHost = "JSTEST_HOST_DEBUG";
+            public const string DebugRunner = "JSTEST_RUNNER_DEBUG";
+            public const string RunnerDiagnostics = "JSTEST_RUNNER_DIAG";
+            public const string VsTestNodeStartTimeout = "VsTestNodeStartTimeout";
+            public const string VsTestConnectionTimeout = "VsTestConnectionTimeout";
         }
     }
 }

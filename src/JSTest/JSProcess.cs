@@ -121,13 +121,13 @@ namespace JSTest
 
         private int GetConnectionTimeout()
         {
-            var connectionTimeoutString = Environment.GetEnvironmentVariable(Constants.VsTestConnectionTimeout);
+            var connectionTimeoutString = Environment.GetEnvironmentVariable(Constants.EnvironmentVariables.VsTestConnectionTimeout);
             if (!int.TryParse(connectionTimeoutString, out int connectionTimeout))
             {
                 connectionTimeout = Constants.DefaultVsTestNodeStartTimeout;
             }
 
-            return RuntimeProviderFactory.Instance.IsRuntimeDebuggingEnabled
+            return RuntimeProcessInfoProvider.Instance.IsRuntimeDebuggingEnabled
                                                 ? Constants.VsTestNodeStartInfiniteTimout
                                                 : connectionTimeout;
         }
