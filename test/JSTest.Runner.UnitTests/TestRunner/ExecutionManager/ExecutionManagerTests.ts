@@ -4,7 +4,7 @@ import { TestFrameworkFactory } from '../../../../src/JSTest.Runner/TestRunner/T
 import { Environment } from '../../../../src/JSTest.Runner/Environment/Node/Environment';
 import { TestSessionManager } from '../../../../src/JSTest.Runner/TestRunner/ExecutionManagers/TestSessionManager';
 import { TestFrameworks, ITestFramework, TestSpecEventArgs }
-from '../../../../src/JSTest.Runner/ObjectModel/TestFramework';
+    from '../../../../src/JSTest.Runner/ObjectModel/TestFramework';
 import { TestOutcome, TestCase } from '../../../../src/JSTest.Runner/ObjectModel/Common';
 import { TestFrameworkEventHandlers } from '../../../../src/JSTest.Runner/TestRunner/TestFrameworks/TestFrameworkEventHandlers';
 import { Mock, IMock, Times, It } from 'typemoq';
@@ -13,6 +13,7 @@ import { TestUtils } from '../../TestUtils';
 import { Exception, ExceptionType } from '../../../../src/JSTest.Runner/Exceptions';
 import { TestableExecutionManager, TestableTestFrameworkFactory, TestableTestSessionManager, TestableFramework } from './Testable';
 import { TimeSpan } from '../../../../src/JSTest.Runner/Utils/TimeUtils';
+import { IEnvironment } from '../../../../src/JSTest.Runner/Environment/IEnvironment';
 
 describe('ExecutionManager Suite', () => {
     let mockEM: IMock<TestableExecutionManager>;
@@ -45,7 +46,7 @@ describe('ExecutionManager Suite', () => {
 
         mockTestFramework = Mock.ofInstance(new TestableFramework(environment));
 
-        mockEventHandlers = Mock.ofInstance(<TestFrameworkEventHandlers> {
+        mockEventHandlers = Mock.ofInstance(<TestFrameworkEventHandlers>{
             Subscribe: () => { return; },
             TestSessionEnd: () => { return; },
             TestCaseStart: () => { return; },
@@ -55,12 +56,12 @@ describe('ExecutionManager Suite', () => {
         settings = new JSTestSettings({
             JavaScriptTestFramework: 'jest',
             TestFrameworkConfigJson: '{"key": "value"}'
-        });
+        }, {} as IEnvironment);
         mockMessageSender = Mock.ofType(MessageSender);
         mockEM = Mock.ofInstance(new TestableExecutionManager(new Environment(),
-                                                              mockMessageSender.object,
-                                                              settings,
-                                                              mockEventHandlers.object));
+            mockMessageSender.object,
+            settings,
+            mockEventHandlers.object));
         mockEM.callBase = true;
 
         mockSessionManager.reset();
@@ -68,7 +69,7 @@ describe('ExecutionManager Suite', () => {
     });
 
     it('startExecutionWithTests will call startExecutionWithSources', (done) => {
-        mockFactory.setup((x) => x.createTestFramework(It.isAny())).returns(() => <ITestFramework> { canHandleMultipleSources: true });
+        mockFactory.setup((x) => x.createTestFramework(It.isAny())).returns(() => <ITestFramework>{ canHandleMultipleSources: true });
 
         mockEM.object.startTestRunWithTests(tests);
 
@@ -79,7 +80,7 @@ describe('ExecutionManager Suite', () => {
     });
 
     it('startExeuctionWithSources will add single session for canHandleMultipleSources=true', (done) => {
-        mockFactory.setup((x) => x.createTestFramework(It.isAny())).returns(() => <ITestFramework> { canHandleMultipleSources: true });
+        mockFactory.setup((x) => x.createTestFramework(It.isAny())).returns(() => <ITestFramework>{ canHandleMultipleSources: true });
 
         mockSessionManager.setup((x) => x.addSession(It.isAny(), It.isAny(), It.isAny())).callback((...args: Array<any>) => {
             validateSession(args[0], args[1], args[2]);
@@ -90,13 +91,13 @@ describe('ExecutionManager Suite', () => {
         mockFactory.verify((x) => x.createTestFramework(TestFrameworks.Jest), Times.once());
         mockSessionManager.verify((x) => x.addSession(It.isAny(), It.isAny(), It.isAny()), Times.once());
         mockSessionManager.verify((x) => x.addSession(It.is((x) => TestUtils.assertDeepEqual(x, sources)), It.isAny(), It.isAny()),
-                                  Times.once());
+            Times.once());
 
         done();
     });
 
     it('startExeuctionWithSources will add multiple sessions for canHandleMultipleSources=false', (done) => {
-        mockFactory.setup((x) => x.createTestFramework(It.isAny())).returns(() => <ITestFramework> { canHandleMultipleSources: false });
+        mockFactory.setup((x) => x.createTestFramework(It.isAny())).returns(() => <ITestFramework>{ canHandleMultipleSources: false });
 
         mockSessionManager.setup((x) => x.addSession(It.isAny(), It.isAny(), It.isAny())).callback((...args: Array<any>) => {
             validateSession(args[0], args[1], args[2]);
@@ -109,14 +110,14 @@ describe('ExecutionManager Suite', () => {
 
         sources.forEach(source => {
             mockSessionManager.verify((x) => x.addSession(It.is((x) => TestUtils.assertDeepEqual(x, [source])), It.isAny(), It.isAny()),
-                                      Times.once());
+                Times.once());
         });
 
         done();
     });
 
     it('startExeuctionWithTests will add single session for canHandleMultipleSources=true', (done) => {
-        mockFactory.setup((x) => x.createTestFramework(It.isAny())).returns(() => <ITestFramework> { canHandleMultipleSources: true });
+        mockFactory.setup((x) => x.createTestFramework(It.isAny())).returns(() => <ITestFramework>{ canHandleMultipleSources: true });
 
         mockSessionManager.setup((x) => x.addSession(It.isAny(), It.isAny(), It.isAny())).callback((...args: Array<any>) => {
             validateSession(args[0], args[1], args[2], tests);
@@ -127,13 +128,13 @@ describe('ExecutionManager Suite', () => {
         mockFactory.verify((x) => x.createTestFramework(TestFrameworks.Jest), Times.once());
         mockSessionManager.verify((x) => x.addSession(It.isAny(), It.isAny(), It.isAny()), Times.once());
         mockSessionManager.verify((x) => x.addSession(It.is((x) => TestUtils.assertDeepEqual(x, sources)), It.isAny(), It.isAny()),
-                                  Times.once());
+            Times.once());
 
         done();
     });
 
     it('startExeuctionWithTests will add multiple sessions for canHandleMultipleSources=false', (done) => {
-        mockFactory.setup((x) => x.createTestFramework(It.isAny())).returns(() => <ITestFramework> { canHandleMultipleSources: false });
+        mockFactory.setup((x) => x.createTestFramework(It.isAny())).returns(() => <ITestFramework>{ canHandleMultipleSources: false });
 
         mockSessionManager.setup((x) => x.addSession(It.isAny(), It.isAny(), It.isAny())).callback((...args: Array<any>) => {
             validateSession(args[0], args[1], args[2], tests);
@@ -146,7 +147,7 @@ describe('ExecutionManager Suite', () => {
 
         sources.forEach(source => {
             mockSessionManager.verify((x) => x.addSession(It.is((x) => TestUtils.assertDeepEqual(x, [source])), It.isAny(), It.isAny()),
-                                      Times.once());
+                Times.once());
         });
 
         done();
@@ -154,13 +155,13 @@ describe('ExecutionManager Suite', () => {
 
     it('testFrameworkEventHandlers will handle TestSessionStart/End, TestCaseStart/End, TestErrorMessage', (done) => {
         const testableDiscoveryManager = new TestableExecutionManager(new Environment(),
-                                                                      mockMessageSender.object,
-                                                                      settings);
+            mockMessageSender.object,
+            settings);
 
         const eventHandlers = testableDiscoveryManager.getEventHandlers();
 
-        const sender = <any> { sender: 'this' };
-        const args = <any> { key: 'value', TestCase: 'test case', Message: 'message' };
+        const sender = <any>{ sender: 'this' };
+        const args = <any>{ key: 'value', TestCase: 'test case', Message: 'message' };
 
         const startTime = new Date();
         const endTime = new Date(startTime.getTime() + 1000);
@@ -168,7 +169,7 @@ describe('ExecutionManager Suite', () => {
         const testSpecEventArgs: TestSpecEventArgs = {
             Source: null,
             InProgress: false,
-            TestCase: <any> { DisplayName: 'name' },
+            TestCase: <any>{ DisplayName: 'name' },
             Outcome: TestOutcome.Passed,
             StartTime: startTime,
             EndTime: endTime,
@@ -209,7 +210,7 @@ describe('ExecutionManager Suite', () => {
 
         mockTestFramework.object.testFrameworkEvents.onErrorMessage.raise(sender, args);
         mockMessageSender.verify((x) => x.sendMessage(It.is((x) => x === args.Message), It.is((x) => x === TestMessageLevel.Error)),
-                                 Times.once());
+            Times.once());
 
         mockTestFramework.object.testFrameworkEvents.onTestSessionEnd.raise(sender, args);
         mockSessionManager.verify((x) => x.setSessionComplete(It.is((x) => TestUtils.assertDeepEqual(x, args))), Times.once());
@@ -225,14 +226,14 @@ describe('ExecutionManager Suite', () => {
         err.stack = null;
         mockEM.object.sessionError(sources, err);
         mockMessageSender.verify((x) => x.sendMessage(It.is((x) => x === (err.constructor.name + ': ' + err.message)), It.isAny()),
-                                 Times.once());
+            Times.once());
 
         done();
     });
 
     it('will eventually send execution complete and resolve compleition promise', (done) => {
 
-        mockFactory.setup((x) => x.createTestFramework(It.isAny())).returns(() => <ITestFramework> { canHandleMultipleSources: false });
+        mockFactory.setup((x) => x.createTestFramework(It.isAny())).returns(() => <ITestFramework>{ canHandleMultipleSources: false });
         mockEM.object.startTestRunWithSources(sources).then(() => {
             done();
         });
@@ -242,9 +243,9 @@ describe('ExecutionManager Suite', () => {
     });
 
     function validateSession(sources: Array<string>,
-                             executeJob: () => void,
-                             errorCallback: (err: Error) => void,
-                             testCollection?: Array<TestCase>) {
+        executeJob: () => void,
+        errorCallback: (err: Error) => void,
+        testCollection?: Array<TestCase>) {
         mockFactory.reset();
         mockEventHandlers.reset();
         mockTestFramework.reset();
@@ -276,7 +277,7 @@ describe('ExecutionManager Suite', () => {
         // Validate error callback
         errorCallback(dummyError);
         mockEM.verify((x) => x.sessionError(It.is((x) => TestUtils.assertDeepEqual(x, sources)), It.is((x) => x === dummyError)),
-                      Times.once());
+            Times.once());
 
     }
 });

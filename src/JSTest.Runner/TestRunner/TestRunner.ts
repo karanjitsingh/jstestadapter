@@ -62,8 +62,7 @@ export class TestRunner {
 
                 if (message.Version === Constants.messageProtocolVersion) {
                     try {
-                        this.jsTestSettings = new JSTestSettings(message.Payload);
-                        this.jsTestSettings.setupAttachments(message.Payload, this.environment);
+                        this.jsTestSettings = new JSTestSettings(message.Payload, this.environment);
                     }
                     catch (err) {
                         error = err;

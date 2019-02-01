@@ -10,6 +10,7 @@ import * as Assert from 'assert';
 import { TestUtils } from '../../TestUtils';
 import { Exception, ExceptionType } from '../../../../src/JSTest.Runner/Exceptions';
 import { TestableDiscoveryManager, TestableFramework, TestableTestFrameworkFactory, TestableTestSessionManager } from './Testable';
+import { IEnvironment } from '../../../../src/JSTest.Runner/Environment/IEnvironment';
 
 describe('DiscoveryManager Suite', () => {
     let mockDM: IMock<TestableDiscoveryManager>;
@@ -37,7 +38,7 @@ describe('DiscoveryManager Suite', () => {
 
         mockTestFramework = Mock.ofInstance(new TestableFramework(environment));
 
-        mockEventHandlers = Mock.ofInstance(<TestFrameworkEventHandlers> {
+        mockEventHandlers = Mock.ofInstance(<TestFrameworkEventHandlers>{
             Subscribe: () => { return; },
             TestSessionEnd: () => { return; },
             TestCaseStart: () => { return; },
@@ -47,12 +48,12 @@ describe('DiscoveryManager Suite', () => {
         settings = new JSTestSettings({
             JavaScriptTestFramework: 'jest',
             TestFrameworkConfigJson: '{}'
-        });
+        }, {} as IEnvironment);
         mockMessageSender = Mock.ofType(MessageSender);
         mockDM = Mock.ofInstance(new TestableDiscoveryManager(new Environment(),
-                                                              mockMessageSender.object,
-                                                              settings,
-                                                              mockEventHandlers.object));
+            mockMessageSender.object,
+            settings,
+            mockEventHandlers.object));
         mockDM.callBase = true;
 
         mockSessionManager.reset();
@@ -60,7 +61,7 @@ describe('DiscoveryManager Suite', () => {
     });
 
     it('discoverTests will add single session for canHandleMultipleSources=true', (done) => {
-        mockFactory.setup((x) => x.createTestFramework(It.isAny())).returns(() => <ITestFramework> { canHandleMultipleSources: true });
+        mockFactory.setup((x) => x.createTestFramework(It.isAny())).returns(() => <ITestFramework>{ canHandleMultipleSources: true });
 
         mockSessionManager.setup((x) => x.addSession(It.isAny(), It.isAny(), It.isAny())).callback((...args: Array<any>) => {
             validateSession(args[0], args[1], args[2]);
@@ -71,13 +72,13 @@ describe('DiscoveryManager Suite', () => {
         mockFactory.verify((x) => x.createTestFramework(TestFrameworks.Jest), Times.once());
         mockSessionManager.verify((x) => x.addSession(It.isAny(), It.isAny(), It.isAny()), Times.once());
         mockSessionManager.verify((x) => x.addSession(It.is((x) => TestUtils.assertDeepEqual(x, sources)), It.isAny(), It.isAny()),
-                                  Times.once());
+            Times.once());
 
         done();
     });
 
     it('discoverTests will add multiple sessions for canHandleMultipleSources=false', (done) => {
-        mockFactory.setup((x) => x.createTestFramework(It.isAny())).returns(() => <ITestFramework> { canHandleMultipleSources: false });
+        mockFactory.setup((x) => x.createTestFramework(It.isAny())).returns(() => <ITestFramework>{ canHandleMultipleSources: false });
 
         mockSessionManager.setup((x) => x.addSession(It.isAny(), It.isAny(), It.isAny())).callback((...args: Array<any>) => {
             validateSession(args[0], args[1], args[2]);
@@ -90,7 +91,7 @@ describe('DiscoveryManager Suite', () => {
 
         sources.forEach(source => {
             mockSessionManager.verify((x) => x.addSession(It.is((x) => TestUtils.assertDeepEqual(x, [source])), It.isAny(), It.isAny()),
-                                      Times.once());
+                Times.once());
         });
 
         done();
@@ -98,13 +99,13 @@ describe('DiscoveryManager Suite', () => {
 
     it('testFrameworkEventHandlers will handle TestCaseStart, TestSessionEnd, TestErrorMessage', (done) => {
         const testableDiscoveryManager = new TestableDiscoveryManager(new Environment(),
-                                                                      mockMessageSender.object,
-                                                                      settings);
+            mockMessageSender.object,
+            settings);
 
         const eventHandlers = testableDiscoveryManager.getEventHandlers();
 
-        const sender = <any> { sender: 'this' };
-        const args = <any> { key: 'value', TestCase: 'test case', Message: 'message' };
+        const sender = <any>{ sender: 'this' };
+        const args = <any>{ key: 'value', TestCase: 'test case', Message: 'message' };
 
         eventHandlers.Subscribe(mockTestFramework.object);
 
@@ -115,7 +116,7 @@ describe('DiscoveryManager Suite', () => {
         mockSessionManager.verify((x) => x.setSessionComplete(It.is((x) => TestUtils.assertDeepEqual(x, args))), Times.once());
         mockMessageSender.verify((x) => x.sendTestCaseFound(It.is((x) => x === args.TestCase)), Times.once());
         mockMessageSender.verify((x) => x.sendMessage(It.is((x) => x === args.Message), It.is((x) => x === TestMessageLevel.Error)),
-                                 Times.once());
+            Times.once());
 
         done();
     });
@@ -128,14 +129,14 @@ describe('DiscoveryManager Suite', () => {
         err.stack = null;
         mockDM.object.sessionError(sources, err);
         mockMessageSender.verify((x) => x.sendMessage(It.is((x) => x === (err.constructor.name + ': ' + err.message)), It.isAny()),
-                                 Times.once());
+            Times.once());
 
         done();
     });
 
     it('will eventually send discovery complete and resolve compleition promise', (done) => {
 
-        mockFactory.setup((x) => x.createTestFramework(It.isAny())).returns(() => <ITestFramework> { canHandleMultipleSources: false });
+        mockFactory.setup((x) => x.createTestFramework(It.isAny())).returns(() => <ITestFramework>{ canHandleMultipleSources: false });
         mockDM.object.discoverTests(sources).then(() => {
             done();
         });
@@ -164,7 +165,7 @@ describe('DiscoveryManager Suite', () => {
         // Validate error callback
         errorCallback(dummyError);
         mockDM.verify((x) => x.sessionError(It.is((x) => TestUtils.assertDeepEqual(x, sources)), It.is((x) => x === dummyError)),
-                      Times.once());
+            Times.once());
 
     }
 });
