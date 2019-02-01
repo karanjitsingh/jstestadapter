@@ -11,7 +11,7 @@ export class JSTestSettings {
     public UploadAttachments: boolean;
     public AttachmentsFolder: string;
 
-    constructor(json: any, environment: IEnvironment) {
+    constructor(json: any) {
         this.JavaScriptTestFramework = -1;
 
         for (let i = 0; TestFrameworks[i] !== undefined && TestFrameworks[i].toLowerCase(); i++) {
@@ -35,7 +35,9 @@ export class JSTestSettings {
         } else {
             this.TestFrameworkConfigJson = JSON.parse('{}');
         }
+    }
 
+    public setupAttachments(json: any, environment: IEnvironment): void {
         this.UploadAttachments = json.UploadAttachments === true;
 
         if (this.UploadAttachments) {
