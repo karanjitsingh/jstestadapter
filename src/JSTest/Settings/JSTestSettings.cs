@@ -68,6 +68,11 @@ namespace JSTest.Settings
         [DataMember]
         public string TestFrameworkConfigJson { get; set; }
 
+        [DataMember]
+        public string AttachmentsFolder { get; set; }
+
+        [DataMember]
+        public bool UploadAttachments { get; set; }
         #endregion
 
         public JSTestSettings()
@@ -79,6 +84,8 @@ namespace JSTest.Settings
             this.DebugLogs = false;
             this.NodePath = string.Empty;
             this.DebugFilePath = string.Empty;
+            this.UploadAttachments = false;
+            this.AttachmentsFolder = string.Empty;
         }
     }
 }
