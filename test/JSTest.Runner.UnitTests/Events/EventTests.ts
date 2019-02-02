@@ -77,5 +77,5 @@ describe('BaseEventDispatcher suite', () => {
 
         Assert.equal(total, eventidMap.size);
         done();
-    }, 5000);
+    });
 });
