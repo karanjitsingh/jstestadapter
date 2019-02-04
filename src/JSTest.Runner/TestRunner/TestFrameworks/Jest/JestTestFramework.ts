@@ -10,7 +10,7 @@ import { EqtTrace } from '../../../ObjectModel/EqtTrace';
 export class JestTestFramework extends BaseTestFramework {
     public readonly environmentType: EnvironmentType;
     // Even though we can handle multiple sources for all types of executions we'll leave this option be for now
-    public readonly canHandleMultipleSources: boolean = false;
+    public readonly canHandleMultipleSources: boolean = true;
     public readonly supportsJsonOptions: boolean = true;
 
     protected sources: Array<string>;
