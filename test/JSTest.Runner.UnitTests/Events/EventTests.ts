@@ -67,7 +67,7 @@ describe('BaseEventDispatcher suite', () => {
     it('EventDispatcher will create unique event ids', (done: any) => {
         const eventidMap = new Map<string, number>();
         const eventDispatcher = new TestableEventDispatcher();
-        const total = 100;
+        const total = 20;
 
         for (let i = 0; i < total; i++) {
             const id = eventDispatcher.registerEvent();
@@ -77,5 +77,5 @@ describe('BaseEventDispatcher suite', () => {
 
         Assert.equal(total, eventidMap.size);
         done();
-    }, 5000);
+    });
 });
