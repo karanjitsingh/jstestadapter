@@ -10,7 +10,7 @@ import * as Assert from 'assert';
 import { TestUtils } from '../../TestUtils';
 import { Exception, ExceptionType } from '../../../../src/JSTest.Runner/Exceptions';
 import { TestableDiscoveryManager, TestableFramework, TestableTestFrameworkFactory, TestableTestSessionManager } from './Testable';
-import { IEnvironment } from '../../../../src/JSTest.Runner/Environment/IEnvironment';
+import { defaultTestEnvironment } from '../../Environment/TestEnvironment';
 
 describe('DiscoveryManager Suite', () => {
     let mockDM: IMock<TestableDiscoveryManager>;
@@ -48,7 +48,7 @@ describe('DiscoveryManager Suite', () => {
         settings = new JSTestSettings({
             JavaScriptTestFramework: 'jest',
             TestFrameworkConfigJson: '{}'
-        }, {} as IEnvironment);
+        }, defaultTestEnvironment);
         mockMessageSender = Mock.ofType(MessageSender);
         mockDM = Mock.ofInstance(new TestableDiscoveryManager(new Environment(),
             mockMessageSender.object,

@@ -5,7 +5,7 @@ export enum ExceptionType {
     InvalidArgumentsException,
     InvalidMessageException,
     InvalidJSONException,
-    NotFoundException,
+    DirectoryNotFoundException,
     NotImplementedException,
     TestFrameworkError,
     UnSupportedTestFramework,

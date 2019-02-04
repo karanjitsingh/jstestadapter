@@ -13,7 +13,7 @@ import { TestUtils } from '../../TestUtils';
 import { Exception, ExceptionType } from '../../../../src/JSTest.Runner/Exceptions';
 import { TestableExecutionManager, TestableTestFrameworkFactory, TestableTestSessionManager, TestableFramework } from './Testable';
 import { TimeSpan } from '../../../../src/JSTest.Runner/Utils/TimeUtils';
-import { IEnvironment } from '../../../../src/JSTest.Runner/Environment/IEnvironment';
+import { defaultTestEnvironment } from '../../Environment/TestEnvironment';
 
 describe('ExecutionManager Suite', () => {
     let mockEM: IMock<TestableExecutionManager>;
@@ -56,7 +56,7 @@ describe('ExecutionManager Suite', () => {
         settings = new JSTestSettings({
             JavaScriptTestFramework: 'jest',
             TestFrameworkConfigJson: '{"key": "value"}'
-        }, {} as IEnvironment);
+        }, defaultTestEnvironment);
         mockMessageSender = Mock.ofType(MessageSender);
         mockEM = Mock.ofInstance(new TestableExecutionManager(new Environment(),
             mockMessageSender.object,

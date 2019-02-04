@@ -63,10 +63,9 @@ export class TestRunner {
                 if (message.Version === Constants.messageProtocolVersion) {
                     try {
                         this.jsTestSettings = new JSTestSettings(message.Payload, this.environment);
-                    }
-                    catch (err) {
+                    } catch (err) {
                         error = err;
-                        errorMessage = "TestRunner: Error when reading test settings";
+                        errorMessage = 'TestRunner: Starting test execution failed.';
                     }
                 } else {
                     errorMessage = `TestRunner: Message protocol version mismatch, version is` +
@@ -76,7 +75,7 @@ export class TestRunner {
                 if (errorMessage) {
                     EqtTrace.error(errorMessage, error);
                     this.messageSender.sendVersionCheck();
-                    this.messageSender.sendMessage(`${errorMessage}${error ? (": " + error.message) : ""}`, TestMessageLevel.Error);
+                    this.messageSender.sendMessage(`${errorMessage}${error ? (': ' + error.message) : ''}`, TestMessageLevel.Error);
                     this.messageSender.sendExecutionComplete();
                 } else {
                     this.messageSender.sendVersionCheck();

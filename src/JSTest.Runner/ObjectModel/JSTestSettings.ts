@@ -1,5 +1,5 @@
-import fs = require('fs');
-import path = require('path');
+import * as fs from 'fs';
+import * as path from 'path';
 import { TestFrameworks } from './TestFramework';
 import { IEnvironment } from '../Environment/IEnvironment';
 import { Exception, ExceptionType } from '../Exceptions';
@@ -8,7 +8,6 @@ export class JSTestSettings {
     // tslint:disable:variable-name
     public JavaScriptTestFramework: TestFrameworks;
     public TestFrameworkConfigJson: JSON;
-    public UploadAttachments: boolean;
     public AttachmentsFolder: string;
 
     constructor(json: any, environment: IEnvironment) {
@@ -36,34 +35,33 @@ export class JSTestSettings {
             this.TestFrameworkConfigJson = JSON.parse('{}');
         }
 
-        this.UploadAttachments = json.UploadAttachments === true;
-        if (this.UploadAttachments) {
-            let attachmentsFolder = json.AttachmentsFolder;
-            if (!attachmentsFolder) {
-                attachmentsFolder = environment.getTempDirectory();
-            }
-
-            if (!fs.existsSync(attachmentsFolder)) {
-                throw new Exception('Attachments folder does not exist: ' + attachmentsFolder, ExceptionType.NotFoundException);
-            }
-
-            const lstat = fs.lstatSync(attachmentsFolder);
-            if (!lstat.isDirectory()) {
-                throw new Exception('Attachments folder needs to be a valid directory: ' + attachmentsFolder, ExceptionType.InvalidArgumentsException);
-            }
-
-            // Make sure we have a distinct folder for each test run
-            attachmentsFolder = path.join(attachmentsFolder, `jstestadapter_run_${Date.now()}`);
-
-            // Make sure that folder exists
-            fs.mkdirSync(attachmentsFolder);
-
-            // Set attachments folder
-            this.AttachmentsFolder = attachmentsFolder;
-
-            // Set environment variable
-            // TODO: we should probably get the env key from jstestcontext package
-            process.env["JSTEST_RESULTS_DIRECTORY"] = attachmentsFolder;
+        let attachmentsFolder = json.AttachmentsFolder;
+        if (!attachmentsFolder) {
+            attachmentsFolder = environment.getTempDirectory();
         }
+
+        if (!fs.existsSync(attachmentsFolder)) {
+            throw new Exception('Attachments folder does not exist: ' + attachmentsFolder, ExceptionType.DirectoryNotFoundException);
+        }
+
+        const lstat = fs.lstatSync(attachmentsFolder);
+        if (!lstat.isDirectory()) {
+            throw new Exception('Attachments folder needs to be a valid directory: ' + attachmentsFolder,
+                ExceptionType.InvalidArgumentsException);
+        }
+
+        // Make sure we have a distinct folder for each test run
+        attachmentsFolder = path.join(attachmentsFolder, `jstestadapter_run_${process.pid}_${Date.now()}`);
+
+        // Make sure that folder exists
+        fs.mkdirSync(attachmentsFolder);
+
+        // Set attachments folder
+        this.AttachmentsFolder = attachmentsFolder;
+
+        // Set environment variable
+        // TODO: we should probably get the env key from jstestcontext package
+        /* tslint:disable:no-string-literal */
+        process.env['JSTEST_RESULTS_DIRECTORY'] = attachmentsFolder;
     }
 }
