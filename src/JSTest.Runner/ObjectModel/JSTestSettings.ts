@@ -44,17 +44,28 @@ export class JSTestSettings {
             throw new Exception('Attachments folder does not exist: ' + attachmentsFolder, ExceptionType.DirectoryNotFoundException);
         }
 
-        const lstat = fs.lstatSync(attachmentsFolder);
-        if (!lstat.isDirectory()) {
+        if (!fs.lstatSync(attachmentsFolder).isDirectory()) {
             throw new Exception('Attachments folder needs to be a valid directory: ' + attachmentsFolder,
                 ExceptionType.InvalidArgumentsException);
         }
 
-        // Make sure we have a distinct folder for each test run
-        attachmentsFolder = path.join(attachmentsFolder, `jstestadapter_run_${process.pid}_${Date.now()}`);
+        // We will have all attachment folders under jstestadapter
+        attachmentsFolder = path.join(attachmentsFolder, 'jstestadapter_runs');
+        if (!fs.existsSync(attachmentsFolder) || !fs.lstatSync(attachmentsFolder).isDirectory()) {
+            fs.mkdirSync(attachmentsFolder);
+        }
 
-        // Make sure that folder exists
-        fs.mkdirSync(attachmentsFolder);
+        // We will have folder for each process
+        attachmentsFolder = path.join(attachmentsFolder, `run_${process.pid}`);
+        if (!fs.existsSync(attachmentsFolder) || !fs.lstatSync(attachmentsFolder).isDirectory()) {
+            fs.mkdirSync(attachmentsFolder);
+        }
+
+        // Add older for each run
+        attachmentsFolder = path.join(attachmentsFolder, Date.now().toString());
+        if (!fs.existsSync(attachmentsFolder) || !fs.lstatSync(attachmentsFolder).isDirectory()) {
+            fs.mkdirSync(attachmentsFolder);
+        }
 
         // Set attachments folder
         this.AttachmentsFolder = attachmentsFolder;
