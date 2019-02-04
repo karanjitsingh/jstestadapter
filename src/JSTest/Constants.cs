@@ -9,7 +9,7 @@
         public const string VsTestConnectionTimeout = "VsTestConnectionTimeout";
         public const int MessageProtocolVersion = 1;
         public const int StreamBufferSize = 16384;
-        public const string JSTestVersionInfo = "1.0.9";
+        public const string JSTestVersionInfo = "1.0.10-beta.0";
 
         public static class TestFrameworkStrings
         {
