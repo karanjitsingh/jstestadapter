@@ -7,6 +7,7 @@ export interface IEnvironment {
     readonly argv: Array<string>;
     getDebugLogger(): IDebugLogger;
     getCommunicationManager(): ICommunicationManager;
+    getTempDirectory(): string;
     createEvent<T extends IEventArgs>(): IEvent<T>;
     exit(exitCode: number);
 }
