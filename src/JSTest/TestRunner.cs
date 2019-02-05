@@ -35,6 +35,8 @@ namespace JSTest
 
         private void StartExecution(JSTestSettings settings, IEnumerable<string> sources)
         {
+            this.PrintHeader();
+
             var processInfo = RuntimeProviderFactory.Instance.GetRuntimeProcessInfo(settings, sources);
             this.runtimeManager = new TestRuntimeManager(settings, this.testRunEvents);
             Task<bool> launchTask = null;
@@ -123,6 +125,11 @@ namespace JSTest
         public void Dispose()
         {
             this.runtimeManager.CleanProcessAsync().Wait();
+        }
+
+        private void PrintHeader()
+        {
+            Console.WriteLine("JSTest: Version {0}", Constants.JSTestVersionInfo);
         }
     }
 }

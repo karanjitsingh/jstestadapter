@@ -1,6 +1,6 @@
 {
   "name": "jstestadapter",
-  "version": "1.0.9",
+  "version": "1.0.10-beta.0",
   "description": "",
   "bundledDependencies": [
     "rewire",
@@ -36,7 +36,7 @@
     "type": "git",
     "url": "git+https://github.com/karanjitsingh/JSTestAdapter.git"
   },
-  "author": "",
+  "author": "karanjitsingh",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/karanjitsingh/JSTestAdapter/issues"
