@@ -12,6 +12,7 @@ export abstract class BaseTestFramework implements ITestFramework {
     public readonly testFrameworkEvents: ITestFrameworkEvents;
 
     protected abstract sources: Array<string>;
+    protected executingWithTests: boolean = false;
 
     private sessionEventArgs: TestSessionEventArgs;
     private suiteStack: Array<TestSuiteEventArgs>;
@@ -33,6 +34,7 @@ export abstract class BaseTestFramework implements ITestFramework {
     protected abstract skipSpec(specObject: any);
 
     public startExecutionWithTests(sources: Array<string>, testCollection: Map<string, TestCase>, options: JSON) {
+        this.executingWithTests = true;
         this.testCollection = testCollection;
         this.startExecutionWithSources(sources, options);
     }
@@ -132,7 +134,7 @@ export abstract class BaseTestFramework implements ITestFramework {
 
         EqtTrace.info(`BaseTestFramework: Test case done ${JSON.stringify(this.activeSpec)}`);
 
-        this.testFrameworkEvents.onTestCaseEnd.raise(this, this.activeSpec);
+        this.handleTestCaseEnd(this.activeSpec);
     }
 
     protected handleSpecResult(fullyQualifiedName: string,
@@ -158,7 +160,7 @@ export abstract class BaseTestFramework implements ITestFramework {
 
         EqtTrace.info(`BaseTestFramework: Test result received ${JSON.stringify(specResult)}`);
 
-        this.testFrameworkEvents.onTestCaseEnd.raise(this, specResult);
+        this.handleTestCaseEnd(specResult);
     }
 
     protected handleErrorMessage(errMessage: string, errStack: string) {
@@ -174,6 +176,16 @@ export abstract class BaseTestFramework implements ITestFramework {
         this.testFrameworkEvents.onErrorMessage.raise(this, <TestErrorMessageEventArgs> {
             Message: message
         });
+    }
+
+    private handleTestCaseEnd(testSpecEventArgs: TestSpecEventArgs) {
+        if (this.executingWithTests && !this.testCollection.has(testSpecEventArgs.TestCase.Id)) {
+            EqtTrace.verbose('BaseTestFramework: Skipping test result since it is not part of the slice. Test: ' +
+            JSON.stringify(testSpecEventArgs));
+            return;
+        }
+        
+        this.testFrameworkEvents.onTestCaseEnd.raise(this, testSpecEventArgs);
     }
 
     private getTestCase(testCaseName: string, fqn: string, source: string, fqnPostFix: string): TestCase {
