@@ -18,7 +18,7 @@ Write-host ""
 if ($beta) {
     if($filename -match "^jstestadapter-[0-9]+\.[0-9]+\.[0-9]+-beta\.[0-9]+\.tgz$") {
         $confirmation = Read-Host "Publish beta package" $filename"? [Y/N]"
-        $command = "npm publish $($file.fullname) --tags beta"
+        $command = "npm publish $($file.fullname) --tag beta"
     }
     else {
         Write-host "Package $filename does not match beta version format"
