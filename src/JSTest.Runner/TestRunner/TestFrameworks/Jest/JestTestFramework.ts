@@ -28,12 +28,12 @@ export class JestTestFramework extends BaseTestFramework {
                 return require('jest');
             default:
                 throw new Exception('Not implemented.', ExceptionType.NotImplementedException);
-                /*
-                 * TODO CHECK FOR FRAMEWORK SPECIFIC ERRORS
-                 * report as test framework threw an error,
-                 * rethrow all errors wrapped in exception
-                 * don't take dependency on exception here
-                 */
+            /*
+             * TODO CHECK FOR FRAMEWORK SPECIFIC ERRORS
+             * report as test framework threw an error,
+             * rethrow all errors wrapped in exception
+             * don't take dependency on exception here
+             */
         }
     }
 
@@ -57,7 +57,7 @@ export class JestTestFramework extends BaseTestFramework {
 
         //tslint:disable:no-require-imports
         this.jestReporter = require('./JestReporter');
-        this.jestReporter.INITIALIZE_REPORTER(<JestCallbacks> {
+        this.jestReporter.INITIALIZE_REPORTER(<JestCallbacks>{
             handleJestRunComplete: this.reporterRunCompleteHandler.bind(this),
             handleSpecFound: this.handleSpecStarted.bind(this),
             handleSpecResult: this.handleSpecResult.bind(this),
@@ -70,6 +70,8 @@ export class JestTestFramework extends BaseTestFramework {
     }
 
     public startExecutionWithTests(sources: Array<string>, testCollection: Map<string, TestCase>, options: JSON) {
+        this.setExecutingWithTests(testCollection);
+
         const configToSourceMap: Map<string, Array<string>> = new Map();
         const configToTestNamesMap: Map<string, Array<string>> = new Map();
 
@@ -83,7 +85,7 @@ export class JestTestFramework extends BaseTestFramework {
                 const configPath = testCase.Source;
 
                 if (fqnRegex) {
-                    
+
                     // source path appended to the fqn is relative to the config file
 
                     const source = path.normalize(path.dirname(configPath) + '\\' + fqnRegex[2]);
@@ -94,7 +96,7 @@ export class JestTestFramework extends BaseTestFramework {
                         const sourceArray = [];
                         sourceArray[source] = 1;
                         configToSourceMap.set(configPath, sourceArray);
-                        
+
                         configToTestNamesMap.set(configPath, [fqnRegex[1]]);
                     }
                 } else {
@@ -121,7 +123,7 @@ export class JestTestFramework extends BaseTestFramework {
         EqtTrace.info(`JestTestFramework: starting with options: ${JSON.stringify(options)}`);
 
         this.sources = sources;
-        
+
         const map = new Map();
         map.set(sources[0], []);
 
@@ -146,16 +148,16 @@ export class JestTestFramework extends BaseTestFramework {
                 } catch (err) {
                     this.handleErrorMessage(err.message, err.stack);
                 }
-            }                
+            }
         }
 
         this.handleSessionDone();
     }
 
     private async executeTestsAsync(sources: Array<string>, configToSourceMap: Map<string, Array<string>>,
-                                configOverride: JSON, 
-                                configToTestNameMap?: Map<string, Array<string>>) {
-        
+        configOverride: JSON,
+        configToTestNameMap?: Map<string, Array<string>>) {
+
         if (!configToSourceMap.size) {
             this.handleErrorMessage('JestTestFramework: No configs in config source map.', '');
             this.handleSessionDone();
@@ -169,9 +171,9 @@ export class JestTestFramework extends BaseTestFramework {
         for (let i = 0; i < sources.length; i++) {
             try {
                 await this.runTestAsync(sources[i],
-                                        configToSourceMap.get(sources[i]),
-                                        configOverride,
-                                        configToTestNameMap ? configToTestNameMap.get(sources[i]) : null);
+                    configToSourceMap.get(sources[i]),
+                    configOverride,
+                    configToTestNameMap ? configToTestNameMap.get(sources[i]) : null);
             } catch (err) {
                 this.handleErrorMessage(err.message, err.stack);
             }
@@ -182,13 +184,13 @@ export class JestTestFramework extends BaseTestFramework {
     }
 
     private async runTestAsync(runConfigPath: string,
-                               sources: Array<string>,
-                               configOverride: JSON,
-                               testNames?: Array<string>,
-                               discovery: boolean = false) {
+        sources: Array<string>,
+        configOverride: JSON,
+        testNames?: Array<string>,
+        discovery: boolean = false) {
         const jestArgv = this.jestArgv;
         sources = sources || [];
-        
+
         if (configOverride instanceof Object) {
             Object.keys(configOverride).forEach(key => {
                 jestArgv[key] = configOverride[key];
@@ -205,8 +207,8 @@ export class JestTestFramework extends BaseTestFramework {
         jestArgv.$0 = runConfigPath;
         jestArgv.config = runConfigPath;
         jestArgv.rootDir = path.dirname(runConfigPath);
-        jestArgv.reporters = [ require.resolve('./JestReporter.js') ];
-        
+        jestArgv.reporters = [require.resolve('./JestReporter.js')];
+
         const src = [];
         sources.forEach((source, i) => {
             src.push(source.replace(/\\/g, '/'));  //  Cannot run specific test files in jest unless path separator is '/'
@@ -232,7 +234,7 @@ export class JestTestFramework extends BaseTestFramework {
 
         return testCaseNames.join('|');
     }
-    
+
     private reporterRunCompleteHandler() {
         // do nothing
     }

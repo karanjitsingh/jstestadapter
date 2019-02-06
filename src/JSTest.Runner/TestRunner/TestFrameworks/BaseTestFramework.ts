@@ -34,9 +34,13 @@ export abstract class BaseTestFramework implements ITestFramework {
     protected abstract skipSpec(specObject: any);
 
     public startExecutionWithTests(sources: Array<string>, testCollection: Map<string, TestCase>, options: JSON) {
+        this.setExecutingWithTests(testCollection);
+        this.startExecutionWithSources(sources, options);
+    }
+
+    protected setExecutingWithTests(testCollection: Map<string, TestCase>) {
         this.executingWithTests = true;
         this.testCollection = testCollection;
-        this.startExecutionWithSources(sources, options);
     }
 
     protected handleSessionStarted() {
