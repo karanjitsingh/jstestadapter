@@ -48,10 +48,10 @@ namespace JSTest.AcceptanceTests
                 "Passed   suite a > test case a1",
                 "Failed   suite a > test case a2",
                 "Passed   suite c > test case c1",
-                "Skipped  suite c > test case c2",
+                //"Skipped  suite c > test case c2",
                 "Passed   suite b > test case b1",
-                "Skipped  suite b > test case b2",
-                "Total tests: 6. Passed: 3. Failed: 1. Skipped: 2."
+                //"Skipped  suite b > test case b2",
+                "Total tests: 4. Passed: 3. Failed: 1. Skipped: 0."
             };
         }
 

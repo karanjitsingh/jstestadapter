@@ -66,12 +66,12 @@ namespace JSTest.AcceptanceTests
             new List<string>
             {
                 "Passed   test case a1",
-                "Skipped  test case a2",
+                //"Skipped  test case a2",
                 "Passed   test case b1",
-                "Skipped  test case b2",
+                //"Skipped  test case b2",
                 "Passed   test case c1",
-                "Skipped  test case c2",
-                "Total tests: 6. Passed: 3. Failed: 0. Skipped: 3."
+                //"Skipped  test case c2",
+                "Total tests: 3. Passed: 3. Failed: 0. Skipped: 0."
             });
 
         #endregion

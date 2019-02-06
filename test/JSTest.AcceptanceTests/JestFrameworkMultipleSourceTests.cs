@@ -58,18 +58,18 @@ namespace JSTest.AcceptanceTests
             this.ExpectedOutput.ExecutionWithTestsOutput = new List<string>
             {
                 "Passed   suite bx > test case b1",
-                "Skipped  suite bx > test case b2",
+                //"Skipped  suite bx > test case b2",
                 "Passed   suite cx > test case c1",
-                "Skipped  suite cx > test case c2",
+                //"Skipped  suite cx > test case c2",
                 "Passed   suite ax > test case a1",
-                "Skipped  suite ax > test case a2",
+                //"Skipped  suite ax > test case a2",
                 "Passed   suite c > test case c1",
-                "Skipped  suite c > test case c2",
+                //"Skipped  suite c > test case c2",
                 "Passed   suite b > test case b1",
-                "Skipped  suite b > test case b2",
+                //"Skipped  suite b > test case b2",
                 "Passed   suite a > test case a1",
                 "Failed   suite a > test case a2",
-                "Total tests: 12. Passed: 6. Failed: 1. Skipped: 5."
+                "Total tests: 7. Passed: 6. Failed: 1. Skipped: 0."
             };
         }
 
