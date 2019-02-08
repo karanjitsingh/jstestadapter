@@ -3,8 +3,8 @@ import { CommunicationManager } from '../../../../src/JSTest.Runner/Environment/
 import { IEventArgs } from '../../../../src/JSTest.Runner/ObjectModel/Common';
 import { Event } from '../../../../src/JSTest.Runner/Events/Event';
 import { Socket } from 'net';
-import * as Sinon from 'sinon';
-import * as Assert from 'assert';
+import * as Assert from 'assert'
+import { Mock } from 'typemoq';
 
 interface TestableEventArgs extends IEventArgs {
     arg: string;
@@ -26,9 +26,9 @@ describe('NodeEnvironment Suite', () => {
     });
 
     it('getCommunicationManager will return single instance of communication manager', (done: any) => {
-        const socket = Sinon.createStubInstance(Socket);
+        const socketMock = Mock.ofType(Socket);
 
-        const comm = env.getCommunicationManager(socket);
+        const comm = env.getCommunicationManager(socketMock.object);
         const comm2 = env.getCommunicationManager();
 
         Assert.equal(comm instanceof CommunicationManager, true,
@@ -65,9 +65,15 @@ describe('NodeEnvironment Suite', () => {
     });
 
     it('exit will call process.exit', (done) => {
-        const exit = Sinon.stub(process, 'exit');
+        let exitCalled = false;
+        Object.defineProperty(process, 'exit', {
+            value: () => {
+                exitCalled = true;
+            }
+        });
+        
         env.exit(123);
-        Assert.equal(exit.calledOnce, true);
+        Assert.equal(exitCalled, true);
         done();
     });
 
