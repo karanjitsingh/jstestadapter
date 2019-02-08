@@ -12,7 +12,7 @@ class TestableEnvironmentProvider extends EnvironmentProvider {
         this.browser = isBrowser;
     }
 
-    protected isBrowser() : boolean {
+    protected isBrowser(): boolean {
         return this.browser;
     }
 }
@@ -39,8 +39,8 @@ describe('EnvironmentProvider Suite', () => {
             const envPromise = new TestableEnvironmentProvider(data.isBrowser).getEnvironment();
             envPromise.then((value) => {
                 Assert.equal(value.environmentType === data.envType, true, 'Instance should be ' + data.folderName + 'Environment');
-                
-                switch(value.environmentType) {
+
+                switch (value.environmentType) {
                     case EnvironmentType.Browser:
                         Assert.deepEqual(value.constructor, BrowserEnvironment);
                         break;

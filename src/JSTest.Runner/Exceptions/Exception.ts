@@ -5,13 +5,14 @@ export enum ExceptionType {
     InvalidArgumentsException,
     InvalidMessageException,
     InvalidJSONException,
+    DirectoryNotFoundException,
     NotImplementedException,
     TestFrameworkError,
     UnSupportedTestFramework,
     UnknownException
 }
 
-export class Exception extends Error implements ISerializable  {
+export class Exception extends Error implements ISerializable {
     private cSharpException: CSharpException;
     public readonly exceptionName: string;
 
@@ -29,7 +30,7 @@ export class Exception extends Error implements ISerializable  {
         // Why? Refer --> https://github.com/Microsoft/TypeScript/wiki/FAQ#why-doesnt-extending-built-ins-like-error-array-and-map-work
         Object.setPrototypeOf(this, Exception.prototype);
 
-        let exception: string = typeof(ExceptionType[exceptionType]);
+        let exception: string = typeof (ExceptionType[exceptionType]);
         // Get name of enum property
         if (exception === 'undefined') {
             exception = ExceptionType[ExceptionType.UnknownException];

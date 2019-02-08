@@ -32,7 +32,7 @@ describe('Event Suite', () => {
 
     it('Event will call eventDispatchers subscribe unsubscribe and raise.', (done: any) => {
         mockEventDispatcher.reset();
-        
+
         mockEventDispatcher.setup((x) => x.registerEvent()).returns(() => {
             return 'eventid';
         });
@@ -51,12 +51,12 @@ describe('Event Suite', () => {
         event.unsubscribe(dummyHandler);
 
         mockEventDispatcher.verify((x) => x.subscribe(It.isValue('eventid'),
-                                                      It.is((x) => x.toString() === dummyHandler.toString())),
-                                                      Times.once());
+            It.is((x) => x.toString() === dummyHandler.toString())),
+            Times.once());
         mockEventDispatcher.verify((x) => x.raise(It.isValue('eventid'),
-                                                  It.is((x) => JSON.stringify(x) === JSON.stringify(dummyObject)),
-                                                  It.is((x) => x.toString() === dummyArgs.toString())),
-                                                  Times.once());
+            It.is((x) => JSON.stringify(x) === JSON.stringify(dummyObject)),
+            It.is((x) => x.toString() === dummyArgs.toString())),
+            Times.once());
 
         done();
     });
@@ -67,7 +67,7 @@ describe('BaseEventDispatcher suite', () => {
     it('EventDispatcher will create unique event ids', (done: any) => {
         const eventidMap = new Map<string, number>();
         const eventDispatcher = new TestableEventDispatcher();
-        const total = 100;
+        const total = 20;
 
         for (let i = 0; i < total; i++) {
             const id = eventDispatcher.registerEvent();

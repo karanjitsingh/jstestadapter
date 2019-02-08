@@ -1,3 +1,6 @@
+param(
+    [switch] $beta
+)
 
 . .\base.ps1
 
@@ -7,10 +10,32 @@ $file = Get-ChildItem ..\artifacts\Release\jstestadapter*.tgz | select -last 1
 
 $filename = $file.Name
 
-write-host $filename
+$command = ""
+$confirmation = "n"
 
-$confirmation = Read-Host "Publish" $filename"? [Y/N]"
+Write-host ""
+
+if ($beta) {
+    if($filename -match "^jstestadapter-[0-9]+\.[0-9]+\.[0-9]+-beta\.[0-9]+\.tgz$") {
+        $confirmation = Read-Host "Publish beta package" $filename"? [Y/N]"
+        $command = "npm publish $($file.fullname) --tag beta"
+    }
+    else {
+        Write-host "Package $filename does not match beta version format"
+    }
+}
+else {
+    if($filename -match "^jstestadapter-[0-9]+\.[0-9]+\.[0-9]+\.tgz$") {
+        $confirmation = Read-Host "Publish release package" $filename"? [Y/N]"
+        $command = "npm publish $($file.fullname)"
+    }
+    else {
+        Write-host "Package $filename does not match release version format"
+    }
+}
+
 if ($confirmation -eq 'y') {
-    npm login    
-    npm publish $file.fullname
+    npm login
+    Write-Host $command
+    iex $command
 }

@@ -1,4 +1,6 @@
-[![Build Status](https://dev.azure.com/karanjitsingh/jstestadapter/_apis/build/status/JSTestAdapter%20CI%20Build?branchName=master)](https://dev.azure.com/karanjitsingh/jstestadapter/_build/latest?definitionId=7?branchName=master) [![npm version](https://img.shields.io/npm/v/jstestadapter.svg)](https://www.npmjs.com/package/jstestadapter)
+[![Build Status](https://dev.azure.com/karanjitsingh/jstestadapter/_apis/build/status/JSTestAdapter%20Build?branchName=master)](https://dev.azure.com/karanjitsingh/jstestadapter/_build/latest?definitionId=4&branchName=master)
+[![npm version](https://img.shields.io/npm/v/jstestadapter/latest.svg?label=npm&style=flat)](https://www.npmjs.com/package/jstestadapter)
+[![npm version](https://img.shields.io/npm/v/jstestadapter/beta.svg?style=flat)](https://www.npmjs.com/package/jstestadapter)
 
 ### jstestadapter
 
@@ -95,3 +97,9 @@ Framework | Version
 Jasmine   | latest
 Mocha     | latest
 Jest      | 23.6.0
+
+---
+
+###### Used and loved by
+
+[![Azure Pipelines](https://user-images.githubusercontent.com/4632805/51794131-3c5c6080-21f2-11e9-9173-0ccbb3418252.png)](https://dev.azure.com/)
