@@ -24,8 +24,8 @@ steps:
 - task: VSTest@2
   inputs:
     testAssemblyVer2: |
-     '**\*Tests.js'
-     '!**\node_modules\**\*.js'
+     **\*Tests.js
+     !**\node_modules\**\*.js
     runSettingsFile: '$(System.DefaultWorkingDirectory)\RunSettings.xml'
     pathtoCustomTestAdapters: '$(System.DefaultWorkingDirectory)\artifacts\Release\net451'
     platform: '$(BuildPlatform)'
