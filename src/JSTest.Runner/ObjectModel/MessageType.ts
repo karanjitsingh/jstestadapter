@@ -11,5 +11,6 @@ export enum MessageType {
     ConsoleMessage = 'JSTest.ConsoleMessage',
     StartTestExecutionWithSources = 'JSTest.StartWithSources',
     StartTestExecutionWithTests = 'JSTest.StartWithTests',
-    StartDiscovery = 'JSTest.StartDiscovery'
+    StartDiscovery = 'JSTest.StartDiscovery',
+    RunAttachments = 'JSTest.RunAttachments'
 }
