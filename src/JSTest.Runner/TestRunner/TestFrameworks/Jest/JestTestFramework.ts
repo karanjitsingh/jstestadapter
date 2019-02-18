@@ -12,6 +12,7 @@ export class JestTestFramework extends BaseTestFramework {
     // Even though we can handle multiple sources for all types of executions we'll leave this option be for now
     public readonly canHandleMultipleSources: boolean = true;
     public readonly supportsJsonOptions: boolean = true;
+    public readonly supportsCodeCoverage: boolean = false;
 
     protected sources: Array<string>;
 

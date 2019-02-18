@@ -17,6 +17,7 @@ export class JasmineTestFramework extends BaseTestFramework implements ITestFram
     public readonly environmentType: EnvironmentType;
     public readonly canHandleMultipleSources: boolean = false;
     public readonly supportsJsonOptions: boolean = false;
+    public readonly supportsCodeCoverage: boolean = false;
 
     protected sources: Array<string>;
 

@@ -19,6 +19,7 @@ export class TestableFramework implements ITestFramework {
     public initialize = () => { return; };
     public startDiscovery = () => { return; };
     public testFrameworkEvents: ITestFrameworkEvents;
+    public supportsCodeCoverage: boolean = false;
 
     constructor(env: IEnvironment) {
         this.testFrameworkEvents = {
