@@ -1,5 +1,7 @@
+import * as fs from 'fs';
+import * as path from 'path';
 import { MessageSender } from '../../../../src/JSTest.Runner/TestRunner/MessageSender';
-import { JSTestSettings, TestMessageLevel, TestResult } from '../../../../src/JSTest.Runner/ObjectModel';
+import { JSTestSettings, TestMessageLevel, TestResult, AttachmentSet } from '../../../../src/JSTest.Runner/ObjectModel';
 import { TestFrameworkFactory } from '../../../../src/JSTest.Runner/TestRunner/TestFrameworks/TestFrameworkFactory';
 import { Environment } from '../../../../src/JSTest.Runner/Environment/Node/Environment';
 import { TestSessionManager } from '../../../../src/JSTest.Runner/TestRunner/ExecutionManagers/TestSessionManager';
@@ -218,6 +220,68 @@ describe('ExecutionManager Suite', () => {
         mockTestFramework.object.testFrameworkEvents.onTestSessionEnd.raise(sender, args);
         mockSessionManager.verify((x) => x.setSessionComplete(It.is((x) => TestUtils.assertDeepEqual(x, args))), Times.once());
 
+        done();
+    });
+
+    it('TestCaseEnd handles the attachments', (done) => {
+        // Setup events
+        const testableDiscoveryManager = new TestableExecutionManager(new Environment(),
+            mockMessageSender.object,
+            settings);
+
+        const eventHandlers = testableDiscoveryManager.getEventHandlers();
+        eventHandlers.Subscribe(mockTestFramework.object);
+
+        // Setup attachments
+        const attachmentsFolder = path.join(settings.AttachmentsFolder, 'c5c8b4b5-ade3-2992-aa1b-95c1661977a7');
+        if (!fs.existsSync(attachmentsFolder)) {
+            fs.mkdirSync(attachmentsFolder);
+        }
+
+        // Add 2 files to upload to attachments folder
+        const file1 = path.join(attachmentsFolder, "debug.log");
+        fs.writeFileSync(file1, 'Hey there!');
+        const file2 = path.join(attachmentsFolder, "screenshot.png");
+        fs.writeFileSync(file2, 'Hey there!');
+
+        const sender = <any>{ sender: 'this' };
+        const testCase = new TestCase('file 1', 'fqn', 'uri', 'attachmentId');
+        testCase.DisplayName = 'name';
+
+        const startTime = new Date();
+        const endTime = new Date(startTime.getTime() + 1000);
+
+        const testSpecEventArgs: TestSpecEventArgs = {
+            Source: null,
+            InProgress: false,
+            TestCase: testCase,
+            Outcome: TestOutcome.Passed,
+            StartTime: startTime,
+            EndTime: endTime,
+            FailedExpectations: []
+        };
+
+        const attachmentSet = new AttachmentSet("uri", "Attachments");
+        attachmentSet.addAttachment(file1);
+        attachmentSet.addAttachment(file2);
+        const attachments = [attachmentSet];
+        
+        const testResult: TestResult = {
+            TestCase: testSpecEventArgs.TestCase,
+            Attachments: attachments,
+            Outcome: testSpecEventArgs.Outcome,
+            ErrorMessage: null,
+            ErrorStackTrace: null,
+            DisplayName: testSpecEventArgs.TestCase.DisplayName,
+            Messages: [],
+            ComputerName: null,
+            Duration: TimeSpan.MSToString(testSpecEventArgs.EndTime.getTime() - testSpecEventArgs.StartTime.getTime()),
+            StartTime: testSpecEventArgs.StartTime,
+            EndTime: testSpecEventArgs.EndTime
+        };
+
+        mockTestFramework.object.testFrameworkEvents.onTestCaseEnd.raise(sender, testSpecEventArgs);
+        mockMessageSender.verify((x) => x.sendTestCaseEnd(It.is((x) => TestUtils.assertDeepEqual(x, testResult))), Times.once());
         done();
     });
 

@@ -5,7 +5,7 @@ import { AttachmentSet } from '../AttachmentSet';
 import { EqtTrace } from '../../ObjectModel/EqtTrace';
 
 export class TestCase {
-    
+
     // Variable names must match with ones in c#
     // tslint:disable: variable-name
     public readonly Id: string;
@@ -55,32 +55,38 @@ export class TestCase {
 
         // Lets see any file exists in the attachments folder upload
         if (attachmentsRootFolder && this.AttachmentGuid) {
-            const attachmentsFolder = path.join(attachmentsRootFolder, this.AttachmentGuid);
-            if (fs.existsSync(attachmentsFolder) && fs.lstatSync(attachmentsFolder).isDirectory()) {
-                let attachmentSet: AttachmentSet = null;
+            try {
+                const attachmentsFolder = path.join(attachmentsRootFolder, this.AttachmentGuid);
+                if (fs.lstatSync(attachmentsFolder).isDirectory()) {
+                    let attachmentSet: AttachmentSet = null;
 
-                // Iterate through the files under attachments folder to get the list of attachments
-                fs.readdirSync(attachmentsFolder).forEach(file => {
-                    const filePath = path.join(attachmentsFolder, file);
-                    const fileStats = fs.lstatSync(filePath);
-                    if (fileStats.isFile()) {
-                        EqtTrace.info(`ExecutionManager: adding set ${this.ExecutorUri}`);
-                        
-                        // Ensure top level attachment set
-                        if (!attachmentSet) {
-                            attachmentSet = new AttachmentSet(this.ExecutorUri, 'Attachments');
-                            attachments.push(attachmentSet);
+                    // Iterate through the files under attachments folder to get the list of attachments
+                    fs.readdirSync(attachmentsFolder).forEach(file => {
+                        const filePath = path.join(attachmentsFolder, file);
+                        const fileStats = fs.lstatSync(filePath);
+                        if (fileStats.isFile()) {
+                            EqtTrace.info(`TestCase.getAttachments: adding set ${this.ExecutorUri}`);
+
+                            // Ensure top level attachment set
+                            if (!attachmentSet) {
+                                attachmentSet = new AttachmentSet(this.ExecutorUri, 'Attachments');
+                                attachments.push(attachmentSet);
+                            }
+
+                            EqtTrace.info(`TestCase.getAttachments: adding attachment ${filePath}`);
+
+                            // Add current file as attachment
+                            attachmentSet.addAttachment(filePath);
                         }
-
-                        EqtTrace.info(`ExecutionManager: adding attachment ${filePath}`);
-
-                        // Add current file as attachment
-                        attachmentSet.addAttachment(filePath);
-                    }
-                });
+                    });
+                }
+            }
+            catch (e) {
+                EqtTrace.error(`Error while getting attachments from ${attachmentsRootFolder} for ${this.AttachmentGuid}`, e);
+                return new Array<AttachmentSet>();
             }
         }
-        
+
         return attachments;
     }
 }

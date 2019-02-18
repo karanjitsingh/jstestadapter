@@ -1,7 +1,8 @@
 import { ITestFramework, TestSessionEventArgs, TestSpecEventArgs, TestFrameworks,
          TestErrorMessageEventArgs } from '../../ObjectModel/TestFramework';
-import { TestMessageLevel, TestResult, AttachmentSet, JSTestSettings } from '../../ObjectModel';
+import { TestMessageLevel, TestResult, JSTestSettings } from '../../ObjectModel';
 import { TestCase } from '../../ObjectModel/Common';
+import { EqtTrace } from '../../ObjectModel/EqtTrace';
 import { IEnvironment } from '../../Environment/IEnvironment';
 import { TimeSpan } from '../../Utils/TimeUtils';
 import { MessageSender } from '../MessageSender';
@@ -75,9 +76,11 @@ export class ExecutionManager extends BaseExecutionManager {
         },
 
         TestCaseEnd: (sender: object, args: TestSpecEventArgs) => {
+            EqtTrace.info(`ExectuionManager.TestCaseEnd: getting attachments for test case ${args.TestCase.DisplayName}`);
+            const attachments = args.TestCase.getAttachments(this.jsTestSettings.AttachmentsFolder);
             const testResult: TestResult = {
                 TestCase: args.TestCase,
-                Attachments: args.TestCase.getAttachments(this.jsTestSettings.AttachmentsFolder),
+                Attachments: attachments,
                 Outcome: args.Outcome,
                 ErrorMessage: null,
                 ErrorStackTrace: null,
