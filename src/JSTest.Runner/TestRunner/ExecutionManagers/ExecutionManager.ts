@@ -75,11 +75,9 @@ export class ExecutionManager extends BaseExecutionManager {
         },
 
         TestCaseEnd: (sender: object, args: TestSpecEventArgs) => {
-            const attachments: Array<AttachmentSet> = [];
-
             const testResult: TestResult = {
                 TestCase: args.TestCase,
-                Attachments: attachments,
+                Attachments: args.TestCase.getAttachments(this.jsTestSettings.AttachmentsFolder),
                 Outcome: args.Outcome,
                 ErrorMessage: null,
                 ErrorStackTrace: null,

@@ -166,10 +166,13 @@ describe('ExecutionManager Suite', () => {
         const startTime = new Date();
         const endTime = new Date(startTime.getTime() + 1000);
 
+        const testCase = new TestCase('file 1', 'fqn', 'uri');
+        testCase.DisplayName = 'name';
+
         const testSpecEventArgs: TestSpecEventArgs = {
             Source: null,
             InProgress: false,
-            TestCase: <any>{ DisplayName: 'name' },
+            TestCase: testCase,
             Outcome: TestOutcome.Passed,
             StartTime: startTime,
             EndTime: endTime,

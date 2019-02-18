@@ -23,7 +23,8 @@ describe('new TestCase object will setup object properties', () => {
             Id: 'dc521c8d-c7e4-9404-ae9f-eeb1211e23d2',
             LineNumber: -1,
             Properties: [],
-            Source: 'filename'
+            Source: 'filename',
+            AttachmentGuid: null
         };
 
         Assert.deepEqual(testcase, obj);

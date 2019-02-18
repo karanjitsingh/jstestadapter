@@ -1,4 +1,8 @@
+import * as path from 'path';
+import * as fs from 'fs';
 import { Md5 } from '../../Utils/Hashing/MD5';
+import { AttachmentSet } from '../AttachmentSet';
+import { EqtTrace } from '../../ObjectModel/EqtTrace';
 
 export class TestCase {
     
@@ -13,7 +17,9 @@ export class TestCase {
     public LineNumber: number;
     public Properties: Array<JSON>;
 
-    constructor(source: string, fullyQualifiedName: string, executorUri: string) {
+    private AttachmentGuid: string;
+
+    constructor(source: string, fullyQualifiedName: string, executorUri: string, attachmentId?: string) {
 
         this.FullyQualifiedName = fullyQualifiedName;
         this.Source = source;
@@ -30,5 +36,51 @@ export class TestCase {
             .appendStr(this.Source);
 
         this.Id = hash.getGuid();
+
+        this.AttachmentGuid = null;
+        if (attachmentId) {
+            const attachmentHash = new Md5();
+            attachmentHash.appendStr(attachmentId);
+            this.AttachmentGuid = attachmentHash.getGuid();
+        }
+    }
+
+    /**
+     * Looks for files to upload under the specified folder using test case specific id.
+     * 
+     * @param attachmentsRootFolder Root folder of the attachments.
+     */
+    public getAttachments(attachmentsRootFolder: string): AttachmentSet[] {
+        const attachments = new Array<AttachmentSet>();
+
+        // Lets see any file exists in the attachments folder upload
+        if (attachmentsRootFolder && this.AttachmentGuid) {
+            const attachmentsFolder = path.join(attachmentsRootFolder, this.AttachmentGuid);
+            if (fs.existsSync(attachmentsFolder) && fs.lstatSync(attachmentsFolder).isDirectory()) {
+                let attachmentSet: AttachmentSet = null;
+
+                // Iterate through the files under attachments folder to get the list of attachments
+                fs.readdirSync(attachmentsFolder).forEach(file => {
+                    const filePath = path.join(attachmentsFolder, file);
+                    const fileStats = fs.lstatSync(filePath);
+                    if (fileStats.isFile()) {
+                        EqtTrace.info(`ExecutionManager: adding set ${this.ExecutorUri}`);
+                        
+                        // Ensure top level attachment set
+                        if (!attachmentSet) {
+                            attachmentSet = new AttachmentSet(this.ExecutorUri, 'Attachments');
+                            attachments.push(attachmentSet);
+                        }
+
+                        EqtTrace.info(`ExecutionManager: adding attachment ${filePath}`);
+
+                        // Add current file as attachment
+                        attachmentSet.addAttachment(filePath);
+                    }
+                });
+            }
+        }
+        
+        return attachments;
     }
 }
