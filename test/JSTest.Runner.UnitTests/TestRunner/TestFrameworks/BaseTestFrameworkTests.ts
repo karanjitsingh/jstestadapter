@@ -15,6 +15,7 @@ class TestableBaseTestFramework extends BaseTestFramework {
     public readonly canHandleMultipleSources: boolean = true;
     public readonly environmentType: EnvironmentType;
     public readonly supportsJsonOptions: boolean = true;
+    public readonly supportsCodeCoverage: boolean = false;
 
     protected sources: Array<string>;
 
