@@ -1,6 +1,8 @@
+import * as path from 'path';
+import * as fs from 'fs';
 import { ITestFramework, TestSessionEventArgs, TestSpecEventArgs, TestFrameworks,
          TestErrorMessageEventArgs } from '../../ObjectModel/TestFramework';
-import { TestMessageLevel, TestResult, JSTestSettings } from '../../ObjectModel';
+import { TestMessageLevel, TestResult, JSTestSettings, AttachmentSet } from '../../ObjectModel';
 import { TestCase } from '../../ObjectModel/Common';
 import { EqtTrace } from '../../ObjectModel/EqtTrace';
 import { IEnvironment } from '../../Environment/IEnvironment';
@@ -76,11 +78,9 @@ export class ExecutionManager extends BaseExecutionManager {
         },
 
         TestCaseEnd: (sender: object, args: TestSpecEventArgs) => {
-            EqtTrace.info(`ExectuionManager.TestCaseEnd: getting attachments for test case ${args.TestCase.DisplayName}`);
-            const attachments = args.TestCase.getAttachments(this.jsTestSettings.AttachmentsFolder);
             const testResult: TestResult = {
                 TestCase: args.TestCase,
-                Attachments: attachments,
+                Attachments: this.getTestAttachments(args.TestCase),
                 Outcome: args.Outcome,
                 ErrorMessage: null,
                 ErrorStackTrace: null,
@@ -132,5 +132,46 @@ export class ExecutionManager extends BaseExecutionManager {
     private executionComplete = () => {
         this.messageSender.sendExecutionComplete();
         this.onComplete.raise(this, null);
+    }
+
+    private getTestAttachments(testCase: TestCase): Array<AttachmentSet> {
+        EqtTrace.info(`ExectuionManager.getTestAttachments: getting attachments for test case ${testCase.DisplayName}`);
+        const attachments = new Array<AttachmentSet>();
+
+        // Lets see any file exists in the attachments folder upload
+        if (this.jsTestSettings.AttachmentsFolder && testCase.AttachmentGuid) {
+            try {
+                const attachmentsFolder = path.join(this.jsTestSettings.AttachmentsFolder, testCase.AttachmentGuid);
+                if (fs.lstatSync(attachmentsFolder).isDirectory()) {
+                    let attachmentSet: AttachmentSet = null;
+
+                    // Iterate through the files under attachments folder to get the list of attachments
+                    fs.readdirSync(attachmentsFolder).forEach(file => {
+                        const filePath = path.join(attachmentsFolder, file);
+                        const fileStats = fs.lstatSync(filePath);
+                        if (fileStats.isFile()) {
+                            EqtTrace.info(`ExectuionManager.getTestAttachments: adding set ${testCase.ExecutorUri}`);
+
+                            // Ensure top level attachment set
+                            if (!attachmentSet) {
+                                attachmentSet = new AttachmentSet(testCase.ExecutorUri, 'Attachments');
+                                attachments.push(attachmentSet);
+                            }
+
+                            EqtTrace.info(`ExectuionManager.getTestAttachments: adding attachment ${filePath}`);
+
+                            // Add current file as attachment
+                            attachmentSet.addAttachment(filePath);
+                        }
+                    });
+                }
+            }
+            catch (e) {
+                EqtTrace.error(`ExectuionManager.getTestAttachments: Error while getting attachments from ${this.jsTestSettings.AttachmentsFolder} for ${testCase.AttachmentGuid}`, e);
+                return new Array<AttachmentSet>();
+            }
+        }
+
+        return attachments;
     }
 }
