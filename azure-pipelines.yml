@@ -23,16 +23,31 @@ steps:
   
 - task: VSTest@2
   inputs:
-    testAssemblyVer2: '**\*Tests.js'
+    testAssemblyVer2: |
+     **\*Tests.js
+     !**\node_modules\**\*.js
     runSettingsFile: '$(System.DefaultWorkingDirectory)\RunSettings.xml'
     pathtoCustomTestAdapters: '$(System.DefaultWorkingDirectory)\artifacts\Release\net451'
     platform: '$(BuildPlatform)'
     configuration: '$(BuildConfiguration)'
     runTestsInIsolation: true
-  displayName: 'JavaScript Tests'
+    testRunTitle: 'JavaScript Unit Tests'
+  displayName: 'JavaScript Unit Tests'
   
 - task: VSTest@2
   inputs:
+    testAssemblyVer2: |
+     **\*UnitTests\**\*.dll
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
-  displayName: 'Managed Tests'
+    testRunTitle: 'C# Unit Tests'
+  displayName: 'C# Unit Tests'
+  
+- task: VSTest@2
+  inputs:
+    testAssemblyVer2: |
+     **\*AcceptanceTests\**\*.dll
+    platform: '$(buildPlatform)'
+    configuration: '$(buildConfiguration)'
+    testRunTitle: 'Acceptance Tests'
+  displayName: 'Acceptance Tests'

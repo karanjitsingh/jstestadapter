@@ -40,11 +40,12 @@ describe('JestReporter suite', () => {
 
     it('JestReporter will call handleSpecFound', (done) => {
         jestReporter.INITIALIZE_REPORTER({
-            handleSpecFound: (fullName, resultTitle, configFile, _, fqnPostFix) => {
+            handleSpecFound: (fullName, resultTitle, configFile, _, fqnPostFix, attachmentId) => {
                 Assert.equal(fullName, 'fullname');
                 Assert.equal(resultTitle, 'suite 1 > suite 2 > title');
                 Assert.equal(configFile, 'D:\\a\\b\\package.json');
                 Assert.equal(fqnPostFix, '::fullname::c\\somepath');
+                Assert.equal(attachmentId, 'fullname|spec0');
                 done();
             }
         });
@@ -77,7 +78,7 @@ describe('JestReporter suite', () => {
         let specResult = 0;
 
         jestReporter.INITIALIZE_REPORTER({
-            handleSpecResult: (fullName, title, config, outcome, failures, start, end, postfix) => {
+            handleSpecResult: (fullName, title, config, outcome, failures, start, end, postfix, attachmentId) => {
                 specResult++;
 
                 switch (specResult) {
@@ -90,6 +91,7 @@ describe('JestReporter suite', () => {
                         Assert.equal(start.getTime(), new Date(startTime).getTime());
                         Assert.equal(end.getTime(), new Date(startTime + 1000).getTime());
                         Assert.equal(postfix, '::fullname::c\\somepath');
+                        Assert.equal(attachmentId, 'fullname|spec0');
                         break;
 
                     case 2:
@@ -104,12 +106,14 @@ describe('JestReporter suite', () => {
                                     StackTrace: ' at \n at '
                                 }
                             ]);
+                        Assert.equal(attachmentId, 'fullname|spec1');
                         break;
                         
                     case 3:
                         Assert.equal(outcome, TestOutcome.Skipped);
                         Assert.deepEqual(failures, []);
-                        
+                        Assert.equal(attachmentId, 'fullname|spec2');
+
                         done();
                         break;
                 }

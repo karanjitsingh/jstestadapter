@@ -21,6 +21,10 @@ export class Environment implements IEnvironment {
         throw new Exception('Not implemented', ExceptionType.NotImplementedException);
     }
 
+    public getTempDirectory(): string {
+        throw new Exception('Not implemented', ExceptionType.NotImplementedException);
+    }
+
     public createEvent<T extends IEventArgs>(): IEvent<T> {
         throw new Exception('Not implemented', ExceptionType.NotImplementedException);
     }

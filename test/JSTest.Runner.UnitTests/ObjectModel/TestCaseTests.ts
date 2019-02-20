@@ -13,7 +13,7 @@ describe('new TestCase object will setup object properties', () => {
     });
 
     it('new TestCase object will initialize all properties correctly', (done) => {
-        const testcase = new TestCase('filename', 'testcase', 'uri');
+        const testcase = new TestCase('filename', 'testcase', 'uri', 'attachmentId');
 
         const obj = {
             CodeFilePath: '',
@@ -23,7 +23,8 @@ describe('new TestCase object will setup object properties', () => {
             Id: 'dc521c8d-c7e4-9404-ae9f-eeb1211e23d2',
             LineNumber: -1,
             Properties: [],
-            Source: 'filename'
+            Source: 'filename',
+            AttachmentGuid: 'c5c8b4b5-ade3-2992-aa1b-95c1661977a7'
         };
 
         Assert.deepEqual(testcase, obj);

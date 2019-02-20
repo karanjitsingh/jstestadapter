@@ -1,4 +1,4 @@
-import { MessageType, JSTestSettings } from '../ObjectModel';
+import { MessageType, JSTestSettings, TestMessageLevel } from '../ObjectModel';
 import { IEnvironment } from '../Environment/IEnvironment';
 import { ICommunicationManager, MessageReceivedEventArgs } from '../Environment/ICommunicationManager';
 import { JobQueue } from '../Utils/JobQueue';
@@ -57,14 +57,30 @@ export class TestRunner {
         switch (message.MessageType) {
 
             case MessageType.TestRunSettings:
+                let error: Error = null;
+                let errorMessage: string = null;
+
                 if (message.Version === Constants.messageProtocolVersion) {
-                    this.jsTestSettings = new JSTestSettings(message.Payload);
+                    try {
+                        this.jsTestSettings = new JSTestSettings(message.Payload, this.environment);
+                    } catch (err) {
+                        error = err;
+                        errorMessage = 'TestRunner: Starting test execution failed.';
+                    }
                 } else {
-                    EqtTrace.error(`TestRunner: Message protocol version mismatch, version is` + 
-                                   ` ${Constants.messageProtocolVersion}, provided was ${message.Version}`, null);            
+                    errorMessage = `TestRunner: Message protocol version mismatch, version is` +
+                        ` ${Constants.messageProtocolVersion}, provided was ${message.Version}`;
                 }
 
-                this.messageSender.sendVersionCheck();
+                if (errorMessage) {
+                    EqtTrace.error(errorMessage, error);
+                    this.messageSender.sendVersionCheck();
+                    this.messageSender.sendMessage(`${errorMessage}${error ? (': ' + error.message) : ''}`, TestMessageLevel.Error);
+                    this.messageSender.sendExecutionComplete();
+                } else {
+                    this.messageSender.sendVersionCheck();
+                }
+
                 break;
 
             case MessageType.VersionCheck:
@@ -111,5 +127,4 @@ export class TestRunner {
         TestFrameworkFactory.INITIALIZE(this.environment);
         TestSessionManager.INITIALIZE(this.environment);
     }
-
 }

@@ -1,10 +1,11 @@
 import { Md5 } from '../../Utils/Hashing/MD5';
 
 export class TestCase {
-    
+
     // Variable names must match with ones in c#
     // tslint:disable: variable-name
     public readonly Id: string;
+    public readonly AttachmentGuid: string;
     public FullyQualifiedName: string;
     public DisplayName: string;
     public ExecutorUri: string;
@@ -13,7 +14,7 @@ export class TestCase {
     public LineNumber: number;
     public Properties: Array<JSON>;
 
-    constructor(source: string, fullyQualifiedName: string, executorUri: string) {
+    constructor(source: string, fullyQualifiedName: string, executorUri: string, attachmentId?: string) {
 
         this.FullyQualifiedName = fullyQualifiedName;
         this.Source = source;
@@ -30,5 +31,12 @@ export class TestCase {
             .appendStr(this.Source);
 
         this.Id = hash.getGuid();
+
+        this.AttachmentGuid = null;
+        if (attachmentId) {
+            const attachmentHash = new Md5();
+            attachmentHash.appendStr(attachmentId);
+            this.AttachmentGuid = attachmentHash.getGuid();
+        }
     }
 }
