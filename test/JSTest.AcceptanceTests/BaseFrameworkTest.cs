@@ -124,7 +124,7 @@ namespace JSTest.AcceptanceTests
             startInfo.WindowStyle = ProcessWindowStyle.Hidden;
             startInfo.FileName = "cmd.exe";
             startInfo.WorkingDirectory = BaseFrameworkTest.testRepoPath;
-            startInfo.Arguments = $"/C npm install {package}{ (packageVersion != "" ? $"@{packageVersion}" : "") } --silent";
+            startInfo.Arguments = $"/C npm install --prefix ./ {package}{ (packageVersion != "" ? $"@{packageVersion}" : "") }";
             startInfo.RedirectStandardError = true;
             startInfo.RedirectStandardOutput = true;
 
@@ -171,8 +171,6 @@ namespace JSTest.AcceptanceTests
             BaseFrameworkTest.frameworkPackage = package;
             BaseFrameworkTest.frameworkName = frameworkName;
             BaseFrameworkTest.frameworkItemFolder = itemFolder;
-
-
         }
 
         #endregion
