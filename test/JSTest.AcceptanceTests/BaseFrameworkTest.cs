@@ -72,7 +72,10 @@ namespace JSTest.AcceptanceTests
                 "Passed   test case c1",
                 //"Skipped  test case c2",
                 "Total tests: 3. Passed: 3. Failed: 0. Skipped: 0."
-            });
+            },
+            new List<string>());
+
+        protected ExpectedAttachments ExpectedAttachments { get; set; } = new ExpectedAttachments(new List<string>());
 
         #endregion
 
@@ -98,7 +101,7 @@ namespace JSTest.AcceptanceTests
             startInfo.RedirectStandardError = true;
             startInfo.RedirectStandardOutput = true;
 
-            if(debug)
+            if (debug)
             {
                 startInfo.EnvironmentVariables.Add("JSTEST_RUNNER_DEBUG", "1");
                 startInfo.EnvironmentVariables.Add("JSTEST_HOST_DEBUG", "1");
@@ -285,7 +288,7 @@ namespace JSTest.AcceptanceTests
             this.ValidateOutput(output, expectedOutput);
         }
 
-        public void TestExecution(IDictionary<string, string> cliArgs = null, List<string> expectedOutput = null)
+        public void TestExecution(IDictionary<string, string> cliArgs = null, List<string> expectedOutput = null, List<string> expectedAttachments = null)
         {
             var files = Directory.EnumerateFiles(BaseFrameworkTest.testRepoPath).Where((file) => this.ContainerExtension.Any((ext) => file.EndsWith(ext)));
 
@@ -300,6 +303,22 @@ namespace JSTest.AcceptanceTests
             var expectedStdOut = expectedOutput != null ? expectedOutput : this.ExpectedOutput.ExecutionOutput;
 
             this.ValidateOutput(output, expectedStdOut, false);
+
+            if (expectedAttachments != null)
+            {
+                string testResultsPath = null;
+                if (cliArgs != null)
+                {
+                    testResultsPath = cliArgs["ResultsDirectory"];
+                }
+
+                if (string.IsNullOrEmpty(testResultsPath))
+                {
+                    throw new Exception("ResultsDirectory must be specified in order to validate the attachments");
+                }
+
+                this.ValidateAttachments(testResultsPath, expectedAttachments);
+            }
         }
 
         public void TestExecutionWithTests()
@@ -307,6 +326,15 @@ namespace JSTest.AcceptanceTests
             this.TestExecution(new Dictionary<string, string>() {
                 { "Tests", "1" }
             }, this.ExpectedOutput.ExecutionWithTestsOutput);
+        }
+
+        public void TestExecutionWithAttachments()
+        {
+            this.TestExecution(new Dictionary<string, string>() {
+                { "Tests", "3" },
+                { "ResultsDirectory", GetTestResultsDir() },
+                { "Logger", "trx" }
+            }, this.ExpectedOutput.ExecutionWithAttachmentsOutput, this.ExpectedAttachments.Attachments);
         }
 
         public void TestExecutionWithTestsThroughTranslation()
@@ -360,6 +388,47 @@ namespace JSTest.AcceptanceTests
             }
 
             Console.Write(stderr);
+        }
+
+        private string GetTestResultsDir()
+        {
+            string testResultsRootDir = Path.Combine(Path.GetTempPath(), "jstestadapter_tests");
+            if (!Directory.Exists(testResultsRootDir))
+            {
+                Directory.CreateDirectory(testResultsRootDir);
+            }
+
+            string testResultsDir = Path.Combine(testResultsRootDir, DateTime.UtcNow.Ticks.ToString());
+            if (!Directory.Exists(testResultsDir))
+            {
+                Directory.CreateDirectory(testResultsDir);
+            }
+
+            return testResultsDir;
+        }
+
+        private void ValidateAttachments(string testResultsPath, List<string> attachments)
+        {
+            if (attachments.Count == 0)
+            {
+                // There should only be a .trx file, no folder should exist
+                Assert.AreEqual(0, Directory.GetDirectories(testResultsPath).Length, "There should not be any attachments in the result directory");
+            }
+            else
+            {
+                string testResultFolder = Directory.GetDirectories(testResultsPath).FirstOrDefault();
+                Assert.AreEqual(1, Directory.GetDirectories(testResultsPath).Length, "There should be a folder for attachments");
+
+                var files = Directory.GetFiles(testResultFolder, "*.*", SearchOption.AllDirectories);
+
+                HashSet<string> attachmentsOnDisk = new HashSet<string>(files.Select(f => Path.GetFileName(f)));
+                Assert.AreEqual(attachments.Count, attachmentsOnDisk.Count, "Invalid number of attachments found in the test result directory");
+
+                foreach(string attachment in attachmentsOnDisk)
+                {
+                    Assert.IsTrue(attachments.Contains(attachment), $"Unexpected attachment found on the disk: {attachment}");
+                }
+            }
         }
 
         #endregion
