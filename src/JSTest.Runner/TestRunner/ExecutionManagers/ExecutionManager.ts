@@ -165,8 +165,8 @@ export class ExecutionManager extends BaseExecutionManager {
                         }
                     });
                 }
-            }
-            catch (e) {
+            } catch (e) {
+                // tslint:disable-next-line:max-line-length
                 EqtTrace.error(`ExectuionManager.getTestAttachments: Error while getting attachments from ${this.jsTestSettings.AttachmentsFolder} for ${testCase.AttachmentGuid}`, e);
                 return new Array<AttachmentSet>();
             }
