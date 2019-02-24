@@ -145,8 +145,26 @@ describe('BaseTestFramework suite', () => {
         done();
     });
 
+    it('handleSpecResult will raise onTestCaseEnd', (done) => {
+        const testCase: TestCase = new TestCase('source', 'fqnpostfix', Constants.executorURI, 'attachmentId');
+        testCase.DisplayName = 'testcase';
+
+        testFrameworkEvents.onTestCaseEnd.subscribe((sender: object, args: TestSpecEventArgs) => {
+            Assert.deepEqual(args.FailedExpectations, []);
+            Assert.equal(args.InProgress, false);
+            Assert.equal(args.Outcome, TestOutcome.Passed);
+            Assert.equal(args.Source, 'source');
+            Assert.equal(args.StartTime instanceof Date, true);
+            Assert.equal(args.EndTime instanceof Date, true);
+            Assert.deepEqual(args.TestCase, testCase);
+            done();
+        });
+
+        baseTestFramework.specResult('fqn', 'testcase', 'source', TestOutcome.Passed, [], new Date(), new Date(), 'postfix', 'attachmentId');
+    });
+
     it('handleSpecStarted/Done will raise onTestCaseStart/End', (done) => {
-        const testCase: TestCase = new TestCase('source', 'fqn', Constants.executorURI);
+        const testCase: TestCase = new TestCase('source', 'fqn', Constants.executorURI, 'attachmentId');
         testCase.DisplayName = 'testcase';
         let specArgs: TestSpecEventArgs;
 
@@ -169,7 +187,7 @@ describe('BaseTestFramework suite', () => {
             done();
         });
 
-        baseTestFramework.specStarted('fqn', 'testcase', 'source', null);
+        baseTestFramework.specStarted('fqn', 'testcase', 'source', null, null, 'attachmentId');
         baseTestFramework.specDone(TestOutcome.Passed, ['expectation']);
     });
 
@@ -277,6 +295,5 @@ describe('BaseTestFramework suite', () => {
 
         baseTestFramework.specStarted('fqn 1', 'testcase', 'source', null);
         baseTestFramework.specDone(TestOutcome.Passed, ['expectation']);
-
     });
 });

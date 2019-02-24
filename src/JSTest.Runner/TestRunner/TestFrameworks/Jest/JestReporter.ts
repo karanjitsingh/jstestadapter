@@ -33,7 +33,7 @@ class JestReporter {
             return;
         }
 
-        aggregatedResults.testResults.forEach(result => {
+        aggregatedResults.testResults.forEach((result: any, index: number) => {
 
             let outcome: TestOutcome = TestOutcome.None;
             const failedExpectations: Array<FailedExpectation> = [];
@@ -74,13 +74,16 @@ class JestReporter {
             }
 
             const testFilePath = Path.relative(Path.dirname(JestReporter.configFilePath), test.path);
+
+            const attachmentId = `${result.fullName}|spec${index}`;
         
             if (JestReporter.discovery) {
                 JestReporter.callbacks.handleSpecFound(result.fullName,
                                                        resultTitle,
                                                        JestReporter.configFilePath,
                                                        undefined,
-                                                       '::' + result.fullName + '::' + testFilePath);
+                                                       '::' + result.fullName + '::' + testFilePath,
+                                                       attachmentId);
             } else {
                 JestReporter.callbacks.handleSpecResult(result.fullName,
                                                         resultTitle,
@@ -89,7 +92,8 @@ class JestReporter {
                                                         failedExpectations,
                                                         new Date(startTime),
                                                         new Date(startTime + result.duration),
-                                                        '::' + result.fullName + '::' + testFilePath);
+                                                        '::' + result.fullName + '::' + testFilePath,
+                                                        attachmentId);
                 startTime += result.duration;
             }
         });

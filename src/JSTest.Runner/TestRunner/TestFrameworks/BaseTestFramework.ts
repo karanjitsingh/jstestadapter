@@ -108,8 +108,9 @@ export abstract class BaseTestFramework implements ITestFramework {
                                 testCaseName: string,
                                 sourceFile: string,
                                 specObject: any,
-                                fqnPostFix?: string) {
-        const testCase = this.getTestCase(testCaseName, fullyQualifiedName, sourceFile, fqnPostFix);
+                                fqnPostFix?: string,
+                                attachmentId?: string) {
+        const testCase = this.getTestCase(testCaseName, fullyQualifiedName, sourceFile, fqnPostFix, attachmentId);
         this.applyTestCaseFilter(testCase, specObject);
 
         // should check if spec was already active and not ended
@@ -148,9 +149,10 @@ export abstract class BaseTestFramework implements ITestFramework {
                                failedExpectations: Array<FailedExpectation>,
                                startTime: Date,
                                endTime: Date,
-                               fqnPostFix?: string) {
+                               fqnPostFix?: string,
+                               attachmentId?: string) {
 
-        const testCase = this.getTestCase(testCaseName, fullyQualifiedName, sourceFile, fqnPostFix);
+        const testCase = this.getTestCase(testCaseName, fullyQualifiedName, sourceFile, fqnPostFix, attachmentId);
 
         const specResult = <TestSpecEventArgs> {
             TestCase: testCase,
@@ -192,7 +194,7 @@ export abstract class BaseTestFramework implements ITestFramework {
         this.testFrameworkEvents.onTestCaseEnd.raise(this, testSpecEventArgs);
     }
 
-    private getTestCase(testCaseName: string, fqn: string, source: string, fqnPostFix: string): TestCase {
+    private getTestCase(testCaseName: string, fqn: string, source: string, fqnPostFix: string, attachmentId: string): TestCase {
         fqn = fqn + (fqnPostFix || '');
 
         if (this.testExecutionCount.has(fqn)) {
@@ -206,7 +208,7 @@ export abstract class BaseTestFramework implements ITestFramework {
             EqtTrace.warn(`BaseTestFramework: Fqn length exceeding 512 characters with value: '${fqn}'`);
         }
 
-        const testCase = new TestCase(source, fqn, Constants.executorURI);
+        const testCase = new TestCase(source, fqn, Constants.executorURI, attachmentId);
         testCase.DisplayName = testCaseName;
 
         return testCase;

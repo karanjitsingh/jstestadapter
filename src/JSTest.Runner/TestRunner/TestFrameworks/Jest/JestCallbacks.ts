@@ -7,7 +7,8 @@ export interface JestCallbacks {
         testCaseName: string,
         sourceFile: string,
         specObject: any,
-        fqnPostFix?: string);
+        fqnPostFix?: string,
+        attachmentId?: string);
     handleSpecResult(fullyQualifiedName: string,
         testCaseName: string,
         sourceFile: string,
@@ -15,6 +16,7 @@ export interface JestCallbacks {
         failedExpectations: Array<FailedExpectation>,
         startTime: Date,
         endTime: Date,
-        fqnPostFix?: string);
+        fqnPostFix?: string,
+        attachmentId?: string);
     handleErrorMessage(message: string);
 }
