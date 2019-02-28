@@ -29,7 +29,7 @@ export class MochaTestFramework extends BaseTestFramework {
     private getMocha() {
         switch (this.environmentType) {
             case EnvironmentType.NodeJS:
-            // tslint:disable-next-line
+                // tslint:disable-next-line
                 return require('mocha');
             default:
                 throw new Exception('Not implemented.', ExceptionType.NotImplementedException);
@@ -113,7 +113,7 @@ export class MochaTestFramework extends BaseTestFramework {
                     outcome = TestOutcome.Passed;
                 } else if (args.state === 'failed') {
                     outcome = TestOutcome.Failed;
-                    failedExpectations.push(<FailedExpectation> {
+                    failedExpectations.push(<FailedExpectation>{
                         Message: args.err.message,
                         StackTrace: args.err.stack
                     });
@@ -126,40 +126,40 @@ export class MochaTestFramework extends BaseTestFramework {
                 this.handleSpecDone(outcome, failedExpectations);
 
                 break;
-            
-                case ReporterEvent.SessionError:
-                    EqtTrace.warn(`MochaTestFramework: Mocha session error: ${args.title}`);
 
-                    const match = args.title.match(/(\".*?\" hook).*/i);
-                    const testHooks = ['\"before all\" hook', '\"after all\" hook', '\"before each\" hook', '\"after each\" hook'];
+            case ReporterEvent.SessionError:
+                EqtTrace.warn(`MochaTestFramework: Mocha session error: ${args.title}`);
 
-                    if (match && testHooks.indexOf(match[1]) >= 0) {
-                        switch (match[1]) {
-                            case testHooks[0]:
-                                this.handleErrorMessage(args.err.message, args.err.stack);
+                const match = args.title.match(/(\".*?\" hook).*/i);
+                const testHooks = ['\"before all\" hook', '\"after all\" hook', '\"before each\" hook', '\"after each\" hook'];
 
-                                args.parent.tests.forEach(test => {
-                                    this.handleSpecResult(test.fullTitle(),
-                                                          test.title,
-                                                          test.file,
-                                                          TestOutcome.Failed,
-                                                          [], new Date(), new Date());
-                                });
-                                break;
-                            
-                            case testHooks[2]:
+                if (match && testHooks.indexOf(match[1]) >= 0) {
+                    switch (match[1]) {
+                        case testHooks[0]:
+                            this.handleErrorMessage(args.err.message, args.err.stack);
 
-                                this.handleSpecDone(TestOutcome.Failed, [<FailedExpectation> {
-                                    Message: args.err.message,
-                                    StackTrace: args.err.stack
-                                }]);
-                                break;
-                            
-                            case testHooks[1]:
-                            case testHooks[3]:
-                                this.handleErrorMessage(args.err.message, args.err.stack);                    
-                        }
+                            args.parent.tests.forEach(test => {
+                                this.handleSpecResult(test.fullTitle(),
+                                    test.title,
+                                    test.file,
+                                    TestOutcome.Failed,
+                                    [], new Date(), new Date());
+                            });
+                            break;
+
+                        case testHooks[2]:
+
+                            this.handleSpecDone(TestOutcome.Failed, [<FailedExpectation>{
+                                Message: args.err.message,
+                                StackTrace: args.err.stack
+                            }]);
+                            break;
+
+                        case testHooks[1]:
+                        case testHooks[3]:
+                            this.handleErrorMessage(args.err.message, args.err.stack);
                     }
+                }
         }
     }
 

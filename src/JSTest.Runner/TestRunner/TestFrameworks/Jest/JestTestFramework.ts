@@ -33,12 +33,12 @@ export class JestTestFramework extends BaseTestFramework {
                 return require('jest');
             default:
                 throw new Exception('Not implemented.', ExceptionType.NotImplementedException);
-                /*
-                 * TODO CHECK FOR FRAMEWORK SPECIFIC ERRORS
-                 * report as test framework threw an error,
-                 * rethrow all errors wrapped in exception
-                 * don't take dependency on exception here
-                 */
+            /*
+             * TODO CHECK FOR FRAMEWORK SPECIFIC ERRORS
+             * report as test framework threw an error,
+             * rethrow all errors wrapped in exception
+             * don't take dependency on exception here
+             */
         }
     }
 
@@ -72,7 +72,7 @@ export class JestTestFramework extends BaseTestFramework {
 
         //tslint:disable:no-require-imports
         this.jestReporter = require('./JestReporter');
-        this.jestReporter.INITIALIZE_REPORTER(<JestCallbacks> {
+        this.jestReporter.INITIALIZE_REPORTER(<JestCallbacks>{
             handleJestRunComplete: this.reporterRunCompleteHandler.bind(this),
             handleSpecFound: this.handleSpecStarted.bind(this),
             handleSpecResult: this.handleSpecResult.bind(this),
@@ -199,13 +199,13 @@ export class JestTestFramework extends BaseTestFramework {
     }
 
     private async runTestAsync(runConfigPath: string,
-                               sources: Array<string>,
-                               configOverride: JSON,
-                               testNames?: Array<string>,
-                               discovery: boolean = false) {
+        sources: Array<string>,
+        configOverride: JSON,
+        testNames?: Array<string>,
+        discovery: boolean = false) {
         const jestArgv = this.jestArgv;
         sources = sources || [];
-        
+
         if (configOverride instanceof Object) {
             Object.keys(configOverride).forEach(key => {
                 jestArgv[key] = configOverride[key];
@@ -228,11 +228,11 @@ export class JestTestFramework extends BaseTestFramework {
 
         if (this.options.CollectCoverage && this.options.RunAttachmentsDirectory) {
             coverageDirectory = path.join(this.options.RunAttachmentsDirectory, this.getPseudoGuid());
-            
+
             try {
                 fs.mkdtempSync(coverageDirectory);
                 jestArgv.collectCoverage = true;
-                jestArgv.coverageReporters = [ 'clover' ];
+                jestArgv.coverageReporters = ['clover'];
                 jestArgv.coverageDirectory = coverageDirectory;
 
                 EqtTrace.info('JestTestFramework: Generating coverage for jest at ' + coverageDirectory);
@@ -241,7 +241,7 @@ export class JestTestFramework extends BaseTestFramework {
                 coverageDirectory = null;
             }
         }
-        
+
         const src = [];
         sources.forEach((source, i) => {
             src.push(source.replace(/\\/g, '/'));  //  Cannot run specific test files in jest unless path separator is '/'
@@ -286,9 +286,9 @@ export class JestTestFramework extends BaseTestFramework {
     private getPseudoGuid() {
         const s = () => {
             // tslint:disable-next-line
-            return (((1+Math.random())*0x10000)|0).toString(16).substring(1); 
+            return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
         };
-         
+
         return (`${s()}${s()}-${s()}-${s()}-${s()}-${s()}${s()}${s()}`).toLowerCase();
     }
 
