@@ -7,6 +7,7 @@ export interface ITestFramework {
     readonly testFrameworkEvents: ITestFrameworkEvents;
     readonly canHandleMultipleSources: boolean;
     readonly supportsJsonOptions: boolean;
+    readonly supportsCodeCoverage: boolean;
 
     initialize(): void;
     startExecutionWithSources(sources: Array<string>, options: JSON): void;
