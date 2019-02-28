@@ -18,6 +18,7 @@ export class MochaTestFramework extends BaseTestFramework {
     public readonly environmentType: EnvironmentType;
     public readonly canHandleMultipleSources: boolean = true;
     public readonly supportsJsonOptions: boolean = true;
+    public readonly supportsCodeCoverage: boolean = false;
 
     protected sources: Array<string>;
 

@@ -9,6 +9,7 @@ export abstract class BaseTestFramework implements ITestFramework {
     public readonly abstract environmentType: EnvironmentType;
     public readonly abstract canHandleMultipleSources: boolean;
     public readonly abstract supportsJsonOptions: boolean;
+    public readonly abstract supportsCodeCoverage: boolean;
     public readonly testFrameworkEvents: ITestFrameworkEvents;
 
     protected abstract sources: Array<string>;
