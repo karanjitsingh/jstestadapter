@@ -12,8 +12,9 @@ import { BaseExecutionManager } from './BaseExecutionManager';
 import { TestFrameworkEventHandlers } from '../TestFrameworks/TestFrameworkEventHandlers';
 
 export class ExecutionManager extends BaseExecutionManager {
-    private jsTestSettings: JSTestSettings;
-    private testFramework: TestFrameworks;
+    protected readonly jsTestSettings: JSTestSettings;
+    protected readonly testFramework: TestFrameworks;
+
     private testCollection: Map<string, TestCase>;
 
     constructor(environment: IEnvironment, messageSender: MessageSender, jsTestSettings: JSTestSettings) {

@@ -1,12 +1,13 @@
 import { IEnvironment } from '../../Environment/IEnvironment';
-import { MessageSender } from '../MessageSender';
-import { TestFrameworkFactory } from '../TestFrameworks/TestFrameworkFactory';
-import { IEvent, IEventArgs } from '../../ObjectModel/Common';
-import { TestFrameworkEventHandlers } from '../TestFrameworks/TestFrameworkEventHandlers';
-import { TestSessionManager } from './TestSessionManager';
-import { TestFrameworks, ITestFramework } from '../../ObjectModel/TestFramework';
 import { Exception, ExceptionType } from '../../Exceptions';
+import { JSTestSettings } from '../../ObjectModel';
+import { IEvent, IEventArgs } from '../../ObjectModel/Common';
 import { EqtTrace } from '../../ObjectModel/EqtTrace';
+import { ITestFramework, TestFrameworks } from '../../ObjectModel/TestFramework';
+import { MessageSender } from '../MessageSender';
+import { TestFrameworkEventHandlers } from '../TestFrameworks/TestFrameworkEventHandlers';
+import { TestFrameworkFactory } from '../TestFrameworks/TestFrameworkFactory';
+import { TestSessionManager } from './TestSessionManager';
 
 export abstract class BaseExecutionManager {
     protected readonly environment: IEnvironment;
@@ -14,7 +15,10 @@ export abstract class BaseExecutionManager {
     protected readonly testFrameworkFactory: TestFrameworkFactory;
     protected readonly onComplete: IEvent<IEventArgs>;
     protected readonly testSessionManager: TestSessionManager;
-
+    
+    protected readonly abstract jsTestSettings: JSTestSettings;
+    protected readonly abstract testFramework: TestFrameworks;
+    
     protected abstract testFrameworkEventHandlers: TestFrameworkEventHandlers;
 
     constructor(environment: IEnvironment, messageSender: MessageSender, testFramework: TestFrameworks) {
@@ -47,7 +51,9 @@ export abstract class BaseExecutionManager {
     protected createTestFramework(framework: TestFrameworks): ITestFramework {
         const testFrameworkInstance = this.testFrameworkFactory.createTestFramework(framework);
         try {
-            testFrameworkInstance.initialize();
+            testFrameworkInstance.initialize({
+                RunAttachmentsDirectory: this.jsTestSettings.AttachmentsFolder
+            });
         } catch (e) {
             EqtTrace.error(`BaseExecutionManager: error initializing test framework`, e);
             throw new Exception('Error initializing test framework: ' + e.message, ExceptionType.TestFrameworkError);

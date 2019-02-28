@@ -3,3 +3,4 @@ export { TestSpecEventArgs, TestSessionEventArgs, TestSuiteEventArgs, TestErrorM
 export { FailedExpectation } from './FailedExpectation';
 export { ITestFrameworkEvents } from './ITestFrameworkEvents';
 export { TestFrameworks } from './TestFrameworks';
+export { TestFrameworkOptions } from './TestFrameworkOptions';

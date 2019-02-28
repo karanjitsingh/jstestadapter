@@ -92,7 +92,7 @@ export class JestTestFramework extends BaseTestFramework {
                     const source = path.normalize(path.dirname(configPath) + '\\' + fqnRegex[2]);
                     if (configToSourceMap.has(configPath)) {
                         configToTestNamesMap.get(configPath).push(fqnRegex[1]);
-                        configToSourceMap.get(configPath)[source] = 1;
+                        configToSourceMap.get(configPath)[source] = <any>1;
                     } else {
                         const sourceArray = [];
                         sourceArray[source] = 1;

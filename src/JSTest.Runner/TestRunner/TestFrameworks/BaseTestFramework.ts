@@ -11,6 +11,7 @@ export abstract class BaseTestFramework implements ITestFramework {
     public readonly abstract supportsJsonOptions: boolean;
     public readonly abstract supportsCodeCoverage: boolean;
     public readonly testFrameworkEvents: ITestFrameworkEvents;
+    public readonly abstract supportsCodeCoverage: boolean;
 
     protected abstract sources: Array<string>;
     protected executingWithTests: boolean = false;

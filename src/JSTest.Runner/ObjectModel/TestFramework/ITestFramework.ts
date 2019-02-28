@@ -1,6 +1,6 @@
-import { EnvironmentType } from '../Common/EnvironmentType';
-import { ITestFrameworkEvents } from './ITestFrameworkEvents';
 import { TestCase } from '../Common';
+import { EnvironmentType } from '../Common/EnvironmentType';
+import { ITestFrameworkEvents, TestFrameworkOptions } from './';
 
 export interface ITestFramework {
     readonly environmentType: EnvironmentType;
@@ -9,7 +9,7 @@ export interface ITestFramework {
     readonly supportsJsonOptions: boolean;
     readonly supportsCodeCoverage: boolean;
 
-    initialize(): void;
+    initialize(options: TestFrameworkOptions): void;
     startExecutionWithSources(sources: Array<string>, options: JSON): void;
     startExecutionWithTests(sources: Array<string>, tests: Map<string, TestCase>, options: JSON): void;
     startDiscovery(sources: Array<string>): void;

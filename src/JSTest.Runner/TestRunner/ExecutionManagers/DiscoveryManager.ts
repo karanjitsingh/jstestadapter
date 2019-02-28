@@ -7,8 +7,8 @@ import { BaseExecutionManager } from './BaseExecutionManager';
 import { TestMessageLevel, JSTestSettings } from '../../ObjectModel';
 
 export class DiscoveryManager extends BaseExecutionManager {
-    private jsTestSettings: JSTestSettings;
-    private testFramework: TestFrameworks;
+    protected readonly jsTestSettings: JSTestSettings;
+    protected readonly testFramework: TestFrameworks;
 
     constructor(environment: IEnvironment, messageSender: MessageSender, jsTestSettings: JSTestSettings) {
         super(environment, messageSender, jsTestSettings.JavaScriptTestFramework);
