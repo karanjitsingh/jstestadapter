@@ -1,9 +1,10 @@
 import { ITestFramework, TestSessionEventArgs, TestSuiteEventArgs, TestSpecEventArgs,
-         FailedExpectation, ITestFrameworkEvents, TestErrorMessageEventArgs } from '../../ObjectModel/TestFramework';
+         FailedExpectation, ITestFrameworkEvents, TestErrorMessageEventArgs, TestFrameworkOptions } from '../../ObjectModel/TestFramework';
 import { TestCase, TestOutcome, EnvironmentType } from '../../ObjectModel/Common';
 import { SessionHash } from '../../Utils/Hashing/SessionHash';
 import { Constants } from '../../Constants';
 import { EqtTrace } from '../../ObjectModel/EqtTrace';
+import { AttachmentSet } from '../../ObjectModel';
 
 export abstract class BaseTestFramework implements ITestFramework {
     public readonly abstract environmentType: EnvironmentType;
@@ -11,7 +12,6 @@ export abstract class BaseTestFramework implements ITestFramework {
     public readonly abstract supportsJsonOptions: boolean;
     public readonly abstract supportsCodeCoverage: boolean;
     public readonly testFrameworkEvents: ITestFrameworkEvents;
-    public readonly abstract supportsCodeCoverage: boolean;
 
     protected abstract sources: Array<string>;
     protected executingWithTests: boolean = false;
@@ -31,7 +31,7 @@ export abstract class BaseTestFramework implements ITestFramework {
 
     public abstract startExecutionWithSources(sources: Array<string>, options: JSON);
     public abstract startDiscovery(sources: Array<string>);
-    public abstract initialize();
+    public abstract initialize(options: TestFrameworkOptions);
 
     protected abstract skipSpec(specObject: any);
 
@@ -184,6 +184,10 @@ export abstract class BaseTestFramework implements ITestFramework {
         this.testFrameworkEvents.onErrorMessage.raise(this, <TestErrorMessageEventArgs> {
             Message: message
         });
+    }
+
+    protected handleRunAttachments(attachmentCollection: Array<AttachmentSet>) {
+        //
     }
 
     private handleTestCaseEnd(testSpecEventArgs: TestSpecEventArgs) {

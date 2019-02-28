@@ -1,4 +1,4 @@
-import { ITestFrameworkEvents } from '../../../ObjectModel/TestFramework';
+import { ITestFrameworkEvents, TestFrameworkOptions } from '../../../ObjectModel/TestFramework';
 import { EnvironmentType, TestCase } from '../../../ObjectModel/Common';
 import { Exception, ExceptionType } from '../../../Exceptions';
 import { BaseTestFramework } from '../BaseTestFramework';
@@ -6,6 +6,9 @@ import { JestCallbacks } from './JestCallbacks';
 import * as rewire from 'rewire';
 import * as path from 'path';
 import { EqtTrace } from '../../../ObjectModel/EqtTrace';
+import * as fs from 'fs';
+import { AttachmentSet } from '../../../ObjectModel';
+import { Constants } from 'Constants';
 
 export class JestTestFramework extends BaseTestFramework {
     public readonly environmentType: EnvironmentType;
@@ -16,6 +19,8 @@ export class JestTestFramework extends BaseTestFramework {
 
     protected sources: Array<string>;
 
+    private options: TestFrameworkOptions;
+
     private jest: any;
     private jestArgv: any;
     private jestProjects: any;
@@ -24,17 +29,16 @@ export class JestTestFramework extends BaseTestFramework {
     private getJest() {
         switch (this.environmentType) {
             case EnvironmentType.NodeJS:
-                // tslint:disable-next-line
                 // tslint:disable-next-line:no-require-imports
                 return require('jest');
             default:
                 throw new Exception('Not implemented.', ExceptionType.NotImplementedException);
-            /*
-             * TODO CHECK FOR FRAMEWORK SPECIFIC ERRORS
-             * report as test framework threw an error,
-             * rethrow all errors wrapped in exception
-             * don't take dependency on exception here
-             */
+                /*
+                 * TODO CHECK FOR FRAMEWORK SPECIFIC ERRORS
+                 * report as test framework threw an error,
+                 * rethrow all errors wrapped in exception
+                 * don't take dependency on exception here
+                 */
         }
     }
 
@@ -43,8 +47,18 @@ export class JestTestFramework extends BaseTestFramework {
         this.environmentType = envrionmentType;
     }
 
-    public initialize() {
+    public initialize(options: TestFrameworkOptions) {
         EqtTrace.info('JestTestFramework: initializing jest');
+
+        this.options = options;
+
+        if (this.options.CollectCoverage) {
+            if (this.options.RunAttachmentsDirectory) {
+                EqtTrace.info(`JestTestFramework: Attachments directory "${this.options.RunAttachmentsDirectory}"`);
+            } else {
+                EqtTrace.info('JestTestFramework: No temp dir provided.');
+            }
+        }
 
         this.jest = this.getJest();
 
@@ -58,7 +72,7 @@ export class JestTestFramework extends BaseTestFramework {
 
         //tslint:disable:no-require-imports
         this.jestReporter = require('./JestReporter');
-        this.jestReporter.INITIALIZE_REPORTER(<JestCallbacks>{
+        this.jestReporter.INITIALIZE_REPORTER(<JestCallbacks> {
             handleJestRunComplete: this.reporterRunCompleteHandler.bind(this),
             handleSpecFound: this.handleSpecStarted.bind(this),
             handleSpecResult: this.handleSpecResult.bind(this),
@@ -185,13 +199,13 @@ export class JestTestFramework extends BaseTestFramework {
     }
 
     private async runTestAsync(runConfigPath: string,
-        sources: Array<string>,
-        configOverride: JSON,
-        testNames?: Array<string>,
-        discovery: boolean = false) {
+                               sources: Array<string>,
+                               configOverride: JSON,
+                               testNames?: Array<string>,
+                               discovery: boolean = false) {
         const jestArgv = this.jestArgv;
         sources = sources || [];
-
+        
         if (configOverride instanceof Object) {
             Object.keys(configOverride).forEach(key => {
                 jestArgv[key] = configOverride[key];
@@ -210,6 +224,24 @@ export class JestTestFramework extends BaseTestFramework {
         jestArgv.rootDir = path.dirname(runConfigPath);
         jestArgv.reporters = [require.resolve('./JestReporter.js')];
 
+        let coverageDirectory: string = null;
+
+        if (this.options.CollectCoverage && this.options.RunAttachmentsDirectory) {
+            coverageDirectory = path.join(this.options.RunAttachmentsDirectory, this.getPseudoGuid());
+            
+            try {
+                fs.mkdtempSync(coverageDirectory);
+                jestArgv.collectCoverage = true;
+                jestArgv.coverageReporters = [ 'clover' ];
+                jestArgv.coverageDirectory = coverageDirectory;
+
+                EqtTrace.info('JestTestFramework: Generating coverage for jest at ' + coverageDirectory);
+            } catch (e) {
+                EqtTrace.error('JestTestFramework: Could not create directory ' + coverageDirectory + 'for test results.', e);
+                coverageDirectory = null;
+            }
+        }
+        
         const src = [];
         sources.forEach((source, i) => {
             src.push(source.replace(/\\/g, '/'));  //  Cannot run specific test files in jest unless path separator is '/'
@@ -223,7 +255,22 @@ export class JestTestFramework extends BaseTestFramework {
         this.handleSessionStarted();
         this.jestReporter.UPDATE_CONFIG(runConfigPath);
 
-        return this.jest.runCLI(jestArgv, this.jestProjects);
+        try {
+            await this.jest.runCLI(jestArgv, this.jestProjects);
+            EqtTrace.info('JestTestFramework: Execution complete');
+        } catch (e) {
+            EqtTrace.error('JestTestFramework: Exception on await runCLI', e);
+        }
+
+        if (coverageDirectory) {
+            const coverageFile = path.join(coverageDirectory, 'clover.xml');
+            if (fs.existsSync(coverageFile)) {
+                this.handleRunAttachments([this.getAttachmentObject([coverageFile], 'Code Coverage')]);
+            } else {
+                EqtTrace.error(`Coverage file ${coverageFile} does not exist`, null);
+            }
+        }
+        return;
     }
 
     private getTestNamePattern(testCaseNames: Array<string>) {
@@ -234,6 +281,22 @@ export class JestTestFramework extends BaseTestFramework {
         });
 
         return testCaseNames.join('|');
+    }
+
+    private getPseudoGuid() {
+        const s = () => {
+            // tslint:disable-next-line
+            return (((1+Math.random())*0x10000)|0).toString(16).substring(1); 
+        };
+         
+        return (`${s()}${s()}-${s()}-${s()}-${s()}-${s()}${s()}${s()}`).toLowerCase();
+    }
+
+    private getAttachmentObject(attachments: Array<string>, displayName: string): AttachmentSet {
+        const attachmentSet = new AttachmentSet(Constants.executorURI, 'Code Coverage');
+        attachments.forEach(filePath => attachmentSet.addAttachment(path.resolve(filePath), ''));
+
+        return attachmentSet;
     }
 
     private reporterRunCompleteHandler() {

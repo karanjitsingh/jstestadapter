@@ -52,7 +52,8 @@ export abstract class BaseExecutionManager {
         const testFrameworkInstance = this.testFrameworkFactory.createTestFramework(framework);
         try {
             testFrameworkInstance.initialize({
-                RunAttachmentsDirectory: this.jsTestSettings.AttachmentsFolder
+                RunAttachmentsDirectory: this.jsTestSettings.AttachmentsFolder,
+                CollectCoverage: this.jsTestSettings.CoverageEnabled
             });
         } catch (e) {
             EqtTrace.error(`BaseExecutionManager: error initializing test framework`, e);
