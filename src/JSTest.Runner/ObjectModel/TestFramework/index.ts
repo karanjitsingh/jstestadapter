@@ -1,6 +1,6 @@
-export { ITestFramework } from './ITestFramework';
-export { TestSpecEventArgs, TestSessionEventArgs, TestSuiteEventArgs, TestErrorMessageEventArgs } from './TestFrameworkEventArgs';
 export { FailedExpectation } from './FailedExpectation';
+export { ITestFramework } from './ITestFramework';
 export { ITestFrameworkEvents } from './ITestFrameworkEvents';
-export { TestFrameworks } from './TestFrameworks';
+export { TestErrorMessageEventArgs, TestSessionEventArgs, TestSpecEventArgs, TestSuiteEventArgs } from './TestFrameworkEventArgs';
 export { TestFrameworkOptions } from './TestFrameworkOptions';
+export { TestFrameworks } from './TestFrameworks';

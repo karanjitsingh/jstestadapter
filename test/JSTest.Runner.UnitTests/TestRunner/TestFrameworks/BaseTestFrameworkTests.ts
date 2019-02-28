@@ -1,15 +1,14 @@
-import { BaseTestFramework } from '../../../../src/JSTest.Runner/TestRunner/TestFrameworks/BaseTestFramework';
-import { EnvironmentType, TestOutcome, TestCase } from '../../../../src/JSTest.Runner/ObjectModel/Common';
-import { ITestFrameworkEvents, TestSessionEventArgs, TestSuiteEventArgs, TestSpecEventArgs }
-    from '../../../../src/JSTest.Runner/ObjectModel/TestFramework';
-import { Environment } from '../../../../src/JSTest.Runner/Environment/Node/Environment';
-import { SessionHash } from '../../../../src/JSTest.Runner/Utils/Hashing/SessionHash';
-import { Constants } from '../../../../src/JSTest.Runner/Constants';
-import { TestUtils } from '../../TestUtils';
-import { Mock, It, Times } from 'typemoq';
 import * as Assert from 'assert';
+import { It, Mock, Times } from 'typemoq';
+import { Constants } from '../../../../src/JSTest.Runner/Constants';
+import { Environment } from '../../../../src/JSTest.Runner/Environment/Node/Environment';
+import { EnvironmentType, TestCase, TestOutcome } from '../../../../src/JSTest.Runner/ObjectModel/Common';
 import { EqtTrace } from '../../../../src/JSTest.Runner/ObjectModel/EqtTrace';
-import { TestCaseEndEventArgs } from '../../../../src/JSTest.Runner/ObjectModel/Payloads';
+import { ITestFrameworkEvents, TestSessionEventArgs, TestSpecEventArgs, TestSuiteEventArgs }
+    from '../../../../src/JSTest.Runner/ObjectModel/TestFramework';
+import { BaseTestFramework } from '../../../../src/JSTest.Runner/TestRunner/TestFrameworks/BaseTestFramework';
+import { SessionHash } from '../../../../src/JSTest.Runner/Utils/Hashing/SessionHash';
+import { TestUtils } from '../../TestUtils';
 
 class TestableBaseTestFramework extends BaseTestFramework {
     public readonly canHandleMultipleSources: boolean = true;

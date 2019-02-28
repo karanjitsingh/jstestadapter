@@ -1,14 +1,14 @@
-import { ITestFrameworkEvents, TestFrameworkOptions } from '../../../ObjectModel/TestFramework';
-import { EnvironmentType, TestCase } from '../../../ObjectModel/Common';
+import { Constants } from 'Constants';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as rewire from 'rewire';
 import { Exception, ExceptionType } from '../../../Exceptions';
+import { AttachmentSet } from '../../../ObjectModel';
+import { EnvironmentType, TestCase } from '../../../ObjectModel/Common';
+import { EqtTrace } from '../../../ObjectModel/EqtTrace';
+import { ITestFrameworkEvents, TestFrameworkOptions } from '../../../ObjectModel/TestFramework';
 import { BaseTestFramework } from '../BaseTestFramework';
 import { JestCallbacks } from './JestCallbacks';
-import * as rewire from 'rewire';
-import * as path from 'path';
-import { EqtTrace } from '../../../ObjectModel/EqtTrace';
-import * as fs from 'fs';
-import { AttachmentSet } from '../../../ObjectModel';
-import { Constants } from 'Constants';
 
 export class JestTestFramework extends BaseTestFramework {
     public readonly environmentType: EnvironmentType;

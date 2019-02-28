@@ -1,15 +1,17 @@
-import * as path from 'path';
 import * as fs from 'fs';
-import { ITestFramework, TestSessionEventArgs, TestSpecEventArgs, TestFrameworks,
-         TestErrorMessageEventArgs } from '../../ObjectModel/TestFramework';
-import { TestMessageLevel, TestResult, JSTestSettings, AttachmentSet } from '../../ObjectModel';
+import * as path from 'path';
+import { IEnvironment } from '../../Environment/IEnvironment';
+import { AttachmentSet, JSTestSettings, TestMessageLevel, TestResult } from '../../ObjectModel';
 import { TestCase } from '../../ObjectModel/Common';
 import { EqtTrace } from '../../ObjectModel/EqtTrace';
-import { IEnvironment } from '../../Environment/IEnvironment';
+import {
+    ITestFramework, TestErrorMessageEventArgs, TestFrameworks,
+    TestSessionEventArgs, TestSpecEventArgs
+} from '../../ObjectModel/TestFramework';
 import { TimeSpan } from '../../Utils/TimeUtils';
 import { MessageSender } from '../MessageSender';
-import { BaseExecutionManager } from './BaseExecutionManager';
 import { TestFrameworkEventHandlers } from '../TestFrameworks/TestFrameworkEventHandlers';
+import { BaseExecutionManager } from './BaseExecutionManager';
 
 export class ExecutionManager extends BaseExecutionManager {
     protected readonly jsTestSettings: JSTestSettings;
@@ -112,7 +114,7 @@ export class ExecutionManager extends BaseExecutionManager {
             this.messageSender.sendMessage(err.stack ?
                 err.stack :
                 (err.constructor.name + ': ' + err.message),
-            TestMessageLevel.Error);
+                TestMessageLevel.Error);
         }
     }
 
@@ -125,9 +127,9 @@ export class ExecutionManager extends BaseExecutionManager {
                 framework.startExecutionWithSources(sources, this.jsTestSettings.TestFrameworkConfigJson);
             }
         },
-        (e) => {
-            this.sessionError(sources, e);
-        });
+            (e) => {
+                this.sessionError(sources, e);
+            });
     }
 
     private executionComplete = () => {

@@ -1,8 +1,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { TestFrameworks } from './TestFramework';
 import { IEnvironment } from '../Environment/IEnvironment';
 import { Exception, ExceptionType } from '../Exceptions';
+import { TestFrameworks } from './TestFramework';
 
 export class JSTestSettings {
     // tslint:disable:variable-name
