@@ -1,7 +1,7 @@
-import { Constants } from 'Constants';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as rewire from 'rewire';
+import { Constants } from '../../../Constants';
 import { Exception, ExceptionType } from '../../../Exceptions';
 import { AttachmentSet } from '../../../ObjectModel';
 import { EnvironmentType, TestCase } from '../../../ObjectModel/Common';
@@ -20,7 +20,6 @@ export class JestTestFramework extends BaseTestFramework {
     protected sources: Array<string>;
 
     private options: TestFrameworkOptions;
-
     private jest: any;
     private jestArgv: any;
     private jestProjects: any;
@@ -42,6 +41,11 @@ export class JestTestFramework extends BaseTestFramework {
         }
     }
 
+    private getJestCLI() {
+        const jestjs = require.resolve('jest');
+        return rewire(path.join(path.dirname(path.dirname(jestjs)), 'node_modules', 'jest-cli', 'build', 'cli'));
+    }
+
     constructor(testFrameworkEvents: ITestFrameworkEvents, envrionmentType: EnvironmentType) {
         super(testFrameworkEvents);
         this.environmentType = envrionmentType;
@@ -56,14 +60,12 @@ export class JestTestFramework extends BaseTestFramework {
             if (this.options.RunAttachmentsDirectory) {
                 EqtTrace.info(`JestTestFramework: Attachments directory "${this.options.RunAttachmentsDirectory}"`);
             } else {
-                EqtTrace.info('JestTestFramework: No temp dir provided.');
+                EqtTrace.warn('JestTestFramework: Code coverage was enabled but run attachments directory was not provided.');
             }
         }
 
         this.jest = this.getJest();
-
-        const jestjs = require.resolve('jest');
-        const jestCLI = rewire(path.join(path.dirname(path.dirname(jestjs)), 'node_modules', 'jest-cli', 'build', 'cli'));
+        const jestCLI = this.getJestCLI();
 
         this.jestArgv = jestCLI.__get__('buildArgv')();
         this.jestArgv.reporters = ['./JestReporter.js'];
@@ -230,7 +232,7 @@ export class JestTestFramework extends BaseTestFramework {
             coverageDirectory = path.join(this.options.RunAttachmentsDirectory, this.getPseudoGuid());
 
             try {
-                fs.mkdtempSync(coverageDirectory);
+                fs.mkdirSync(coverageDirectory);
                 jestArgv.collectCoverage = true;
                 jestArgv.coverageReporters = ['clover'];
                 jestArgv.coverageDirectory = coverageDirectory;
@@ -267,7 +269,7 @@ export class JestTestFramework extends BaseTestFramework {
             if (fs.existsSync(coverageFile)) {
                 this.handleRunAttachments([this.getAttachmentObject([coverageFile], 'Code Coverage')]);
             } else {
-                EqtTrace.error(`Coverage file ${coverageFile} does not exist`, null);
+                EqtTrace.error(`JestTestFramework: Coverage file ${coverageFile} does not exist`, null);
             }
         }
         return;
@@ -293,7 +295,7 @@ export class JestTestFramework extends BaseTestFramework {
     }
 
     private getAttachmentObject(attachments: Array<string>, displayName: string): AttachmentSet {
-        const attachmentSet = new AttachmentSet(Constants.executorURI, 'Code Coverage');
+        const attachmentSet = new AttachmentSet(Constants.executorURI, displayName);
         attachments.forEach(filePath => attachmentSet.addAttachment(path.resolve(filePath), ''));
 
         return attachmentSet;
