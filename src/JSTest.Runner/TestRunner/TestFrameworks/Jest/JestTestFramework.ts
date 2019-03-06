@@ -237,9 +237,9 @@ export class JestTestFramework extends BaseTestFramework {
                 jestArgv.coverageReporters = ['clover'];
                 jestArgv.coverageDirectory = coverageDirectory;
 
-                EqtTrace.info('JestTestFramework: Generating coverage for jest at ' + coverageDirectory);
+                EqtTrace.info(`JestTestFramework: Generating coverage for jest at ${coverageDirectory}`);
             } catch (e) {
-                EqtTrace.error('JestTestFramework: Could not create directory ' + coverageDirectory + 'for test results.', e);
+                EqtTrace.error(`JestTestFramework: Could not create directory ${coverageDirectory} for test results.`, e);
                 coverageDirectory = null;
             }
         }
