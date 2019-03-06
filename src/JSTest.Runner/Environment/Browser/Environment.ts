@@ -32,12 +32,4 @@ export class Environment implements IEnvironment {
     public exit(exitCode: number) {
         throw new Exception('Not implemented', ExceptionType.NotImplementedException);
     }
-
-    public setupGlobalLogger() {
-        throw new Exception('Not implemented', ExceptionType.NotImplementedException);
-    }
-
-    public reinitializeConsoleLogger() {
-        throw new Exception('Not implemented', ExceptionType.NotImplementedException);
-    }
 }

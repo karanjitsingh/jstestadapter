@@ -1,14 +1,15 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { TestFrameworks } from './TestFramework';
 import { IEnvironment } from '../Environment/IEnvironment';
 import { Exception, ExceptionType } from '../Exceptions';
+import { TestFrameworks } from './TestFramework';
 
 export class JSTestSettings {
     // tslint:disable:variable-name
-    public JavaScriptTestFramework: TestFrameworks;
-    public TestFrameworkConfigJson: JSON;
-    public AttachmentsFolder: string;
+    public readonly JavaScriptTestFramework: TestFrameworks;
+    public readonly TestFrameworkConfigJson: JSON;
+    public readonly AttachmentsFolder: string;
+    public readonly CoverageEnabled: boolean;
 
     constructor(json: any, environment: IEnvironment) {
         this.JavaScriptTestFramework = -1;
@@ -35,9 +36,18 @@ export class JSTestSettings {
             this.TestFrameworkConfigJson = JSON.parse('{}');
         }
 
-        let attachmentsFolder = json.AttachmentsFolder;
+        this.CoverageEnabled = json.CoverageEnabled === true;
+
+        // Set attachments folder and environment variable
+        // TODO: we should probably get the env key from jstestcontext package
+        /* tslint:disable:no-string-literal max-line-length */
+        process.env['JSTEST_RESULTS_DIRECTORY'] = this.AttachmentsFolder = this.createAttachmentsFolder(json.AttachmentsFolder, environment.getTempDirectory());
+    }
+
+    private createAttachmentsFolder(baseAttachmentsFolder: string, tempDirectory: string): string {
+        let attachmentsFolder = baseAttachmentsFolder;
         if (!attachmentsFolder) {
-            attachmentsFolder = environment.getTempDirectory();
+            attachmentsFolder = tempDirectory;
         }
 
         if (!fs.existsSync(attachmentsFolder)) {
@@ -67,12 +77,6 @@ export class JSTestSettings {
             fs.mkdirSync(attachmentsFolder);
         }
 
-        // Set attachments folder
-        this.AttachmentsFolder = attachmentsFolder;
-
-        // Set environment variable
-        // TODO: we should probably get the env key from jstestcontext package
-        /* tslint:disable:no-string-literal */
-        process.env['JSTEST_RESULTS_DIRECTORY'] = attachmentsFolder;
+        return attachmentsFolder;
     }
 }

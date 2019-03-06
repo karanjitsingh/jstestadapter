@@ -239,9 +239,9 @@ describe('ExecutionManager Suite', () => {
         }
 
         // Add 2 files to upload to attachments folder
-        const file1 = path.join(attachmentsFolder, "debug.log");
+        const file1 = path.join(attachmentsFolder, 'debug.log');
         fs.writeFileSync(file1, 'Hey there!');
-        const file2 = path.join(attachmentsFolder, "screenshot.png");
+        const file2 = path.join(attachmentsFolder, 'screenshot.png');
         fs.writeFileSync(file2, 'Hey there!');
 
         const sender = <any>{ sender: 'this' };
@@ -261,7 +261,7 @@ describe('ExecutionManager Suite', () => {
             FailedExpectations: []
         };
 
-        const attachmentSet = new AttachmentSet("uri", "Attachments");
+        const attachmentSet = new AttachmentSet('uri', 'Attachments');
         attachmentSet.addAttachment(file1);
         attachmentSet.addAttachment(file2);
         const attachments = [attachmentSet];
@@ -323,7 +323,7 @@ describe('ExecutionManager Suite', () => {
         // Validate execute job
         executeJob();
         mockFactory.verify((x) => x.createTestFramework(TestFrameworks.Jest), Times.once());
-        mockTestFramework.verify((x) => x.initialize(), Times.once());
+        mockTestFramework.verify((x) => x.initialize(It.isAny()), Times.once());
 
         if (testCollection) {
             mockTestFramework.verify((x) => x.startExecutionWithTests(

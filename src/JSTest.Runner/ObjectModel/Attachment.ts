@@ -4,8 +4,8 @@ export class Attachment implements ISerializable {
     private uri: string;
     private description: string;
 
-    constructor(uri: string, description: string) {
-        this.uri = uri;
+    constructor(url: string, description: string) {
+        this.uri = this.getFileUrl(url);
         this.description = description;
     }
 
@@ -14,5 +14,16 @@ export class Attachment implements ISerializable {
             Uri: this.uri,
             Description: this.description
         };
+    }
+
+    private getFileUrl(url: string): string {
+        let pathName = url.replace(/\\/g, '/');
+    
+        // Windows drive letter must be prefixed with a slash
+        if (pathName[0] !== '/') {
+            pathName = '/' + pathName;
+        }
+    
+        return encodeURI('file://' + pathName);
     }
 }

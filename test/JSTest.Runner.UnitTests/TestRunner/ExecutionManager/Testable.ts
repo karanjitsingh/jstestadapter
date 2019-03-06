@@ -1,5 +1,5 @@
 import { IEnvironment } from '../../../../src/JSTest.Runner/Environment/IEnvironment';
-import { ITestFrameworkEvents, ITestFramework } from '../../../../src/JSTest.Runner/ObjectModel/TestFramework';
+import { ITestFrameworkEvents, ITestFramework, TestFrameworks } from '../../../../src/JSTest.Runner/ObjectModel/TestFramework';
 import { EnvironmentType, IEvent, IEventArgs } from '../../../../src/JSTest.Runner/ObjectModel/Common';
 import { TestFrameworkEventHandlers } from '../../../../src/JSTest.Runner/TestRunner/TestFrameworks/TestFrameworkEventHandlers';
 import { ExecutionManager, DiscoveryManager } from '../../../../src/JSTest.Runner/TestRunner/ExecutionManagers';
@@ -82,6 +82,8 @@ export class TestableExecutionManager extends ExecutionManager  {
 
 export class TestableBaseExecutionManager extends BaseExecutionManager {
     protected testFrameworkEventHandlers: TestFrameworkEventHandlers;
+    protected jsTestSettings: JSTestSettings;
+    protected testFramework: TestFrameworks;
 
     constructor(environment: IEnvironment) {
         super(environment, null, null);

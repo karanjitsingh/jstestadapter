@@ -156,7 +156,7 @@ describe('DiscoveryManager Suite', () => {
         // Validate execute job
         executeJob();
         mockFactory.verify((x) => x.createTestFramework(TestFrameworks.Jest), Times.once());
-        mockTestFramework.verify((x) => x.initialize(), Times.once());
+        mockTestFramework.verify((x) => x.initialize(It.isAny()), Times.once());
         mockTestFramework.verify((x) => x.startDiscovery(It.is((x) => TestUtils.assertDeepEqual(x, sources))), Times.once());
         mockEventHandlers.verify((x) => x.Subscribe(It.is((x) => TestUtils.assertDeepEqual(x, mockTestFramework.object))), Times.once());
 

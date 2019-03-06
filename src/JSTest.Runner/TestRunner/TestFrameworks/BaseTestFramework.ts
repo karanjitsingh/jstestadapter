@@ -1,9 +1,12 @@
-import { ITestFramework, TestSessionEventArgs, TestSuiteEventArgs, TestSpecEventArgs,
-         FailedExpectation, ITestFrameworkEvents, TestErrorMessageEventArgs } from '../../ObjectModel/TestFramework';
-import { TestCase, TestOutcome, EnvironmentType } from '../../ObjectModel/Common';
-import { SessionHash } from '../../Utils/Hashing/SessionHash';
 import { Constants } from '../../Constants';
+import { AttachmentSet } from '../../ObjectModel';
+import { EnvironmentType, TestCase, TestOutcome } from '../../ObjectModel/Common';
 import { EqtTrace } from '../../ObjectModel/EqtTrace';
+import {
+    FailedExpectation, ITestFramework, ITestFrameworkEvents, TestErrorMessageEventArgs,
+    TestFrameworkOptions, TestSessionEventArgs, TestSpecEventArgs, TestSuiteEventArgs
+} from '../../ObjectModel/TestFramework';
+import { SessionHash } from '../../Utils/Hashing/SessionHash';
 
 export abstract class BaseTestFramework implements ITestFramework {
     public readonly abstract environmentType: EnvironmentType;
@@ -30,7 +33,7 @@ export abstract class BaseTestFramework implements ITestFramework {
 
     public abstract startExecutionWithSources(sources: Array<string>, options: JSON);
     public abstract startDiscovery(sources: Array<string>);
-    public abstract initialize();
+    public abstract initialize(options: TestFrameworkOptions);
 
     protected abstract skipSpec(specObject: any);
 
@@ -54,7 +57,7 @@ export abstract class BaseTestFramework implements ITestFramework {
     }
 
     protected handleSessionDone() {
-        
+
         if (this.sessionActive) {
             this.sessionEventArgs.EndTime = new Date();
             this.sessionEventArgs.InProgress = false;
@@ -106,17 +109,17 @@ export abstract class BaseTestFramework implements ITestFramework {
     }
 
     protected handleSpecStarted(fullyQualifiedName: string,
-                                testCaseName: string,
-                                sourceFile: string,
-                                specObject: any,
-                                fqnPostFix?: string,
-                                attachmentId?: string) {
+        testCaseName: string,
+        sourceFile: string,
+        specObject: any,
+        fqnPostFix?: string,
+        attachmentId?: string) {
         const testCase = this.getTestCase(testCaseName, fullyQualifiedName, sourceFile, fqnPostFix, attachmentId);
         this.applyTestCaseFilter(testCase, specObject);
 
         // should check if spec was already active and not ended
 
-        this.activeSpec = <TestSpecEventArgs> {
+        this.activeSpec = <TestSpecEventArgs>{
             TestCase: testCase,
             FailedExpectations: [],
             Outcome: TestOutcome.None,
@@ -144,18 +147,18 @@ export abstract class BaseTestFramework implements ITestFramework {
     }
 
     protected handleSpecResult(fullyQualifiedName: string,
-                               testCaseName: string,
-                               sourceFile: string,
-                               testOutcome: TestOutcome,
-                               failedExpectations: Array<FailedExpectation>,
-                               startTime: Date,
-                               endTime: Date,
-                               fqnPostFix?: string,
-                               attachmentId?: string) {
+        testCaseName: string,
+        sourceFile: string,
+        testOutcome: TestOutcome,
+        failedExpectations: Array<FailedExpectation>,
+        startTime: Date,
+        endTime: Date,
+        fqnPostFix?: string,
+        attachmentId?: string) {
 
         const testCase = this.getTestCase(testCaseName, fullyQualifiedName, sourceFile, fqnPostFix, attachmentId);
 
-        const specResult = <TestSpecEventArgs> {
+        const specResult = <TestSpecEventArgs>{
             TestCase: testCase,
             FailedExpectations: failedExpectations,
             Outcome: testOutcome,
@@ -180,18 +183,22 @@ export abstract class BaseTestFramework implements ITestFramework {
 
         EqtTrace.warn(`BaseTestFramework: Error message was received from test framework: ${message}`);
 
-        this.testFrameworkEvents.onErrorMessage.raise(this, <TestErrorMessageEventArgs> {
+        this.testFrameworkEvents.onErrorMessage.raise(this, <TestErrorMessageEventArgs>{
             Message: message
         });
+    }
+
+    protected handleRunAttachments(attachmentCollection: Array<AttachmentSet>) {
+        //
     }
 
     private handleTestCaseEnd(testSpecEventArgs: TestSpecEventArgs) {
         if (this.executingWithTests && !this.testCollection.has(testSpecEventArgs.TestCase.Id)) {
             EqtTrace.verbose('BaseTestFramework: Skipping test result since it is not part of the slice. Test: ' +
-            JSON.stringify(testSpecEventArgs));
+                JSON.stringify(testSpecEventArgs));
             return;
         }
-        
+
         this.testFrameworkEvents.onTestCaseEnd.raise(this, testSpecEventArgs);
     }
 
