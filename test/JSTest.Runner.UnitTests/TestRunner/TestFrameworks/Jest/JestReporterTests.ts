@@ -1,5 +1,6 @@
 import * as Assert from 'assert';
 import { TestOutcome } from '../../../../../src/JSTest.Runner/ObjectModel/Common';
+import { } from '../../../../../src/JSTest.Runner/TestRunner/TestFrameworks/Jest/JestReporter';
 
 describe('JestReporter suite', () => {
     // tslint:disable-next-line:no-require-imports
