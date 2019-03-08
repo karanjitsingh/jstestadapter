@@ -1,16 +1,17 @@
-import { MessageSender } from '../../../../src/JSTest.Runner/TestRunner/MessageSender';
-import { JSTestSettings, TestMessageLevel } from '../../../../src/JSTest.Runner/ObjectModel';
-import { TestFrameworkFactory } from '../../../../src/JSTest.Runner/TestRunner/TestFrameworks/TestFrameworkFactory';
-import { Environment } from '../../../../src/JSTest.Runner/Environment/Node/Environment';
-import { TestSessionManager } from '../../../../src/JSTest.Runner/TestRunner/ExecutionManagers/TestSessionManager';
-import { TestFrameworks, ITestFramework } from '../../../../src/JSTest.Runner/ObjectModel/TestFramework';
-import { TestFrameworkEventHandlers } from '../../../../src/JSTest.Runner/TestRunner/TestFrameworks/TestFrameworkEventHandlers';
-import { Mock, IMock, Times, It } from 'typemoq';
 import * as Assert from 'assert';
-import { TestUtils } from '../../TestUtils';
+import * as OS from 'os';
+import { IMock, It, Mock, Times } from 'typemoq';
+import { IEnvironment } from '../../../../src/JSTest.Runner/Environment/IEnvironment';
+import { Environment } from '../../../../src/JSTest.Runner/Environment/Node/Environment';
 import { Exception, ExceptionType } from '../../../../src/JSTest.Runner/Exceptions';
+import { JSTestSettings, TestMessageLevel } from '../../../../src/JSTest.Runner/ObjectModel';
+import { ITestFramework, TestFrameworks } from '../../../../src/JSTest.Runner/ObjectModel/TestFramework';
+import { TestSessionManager } from '../../../../src/JSTest.Runner/TestRunner/ExecutionManagers/TestSessionManager';
+import { MessageSender } from '../../../../src/JSTest.Runner/TestRunner/MessageSender';
+import { TestFrameworkEventHandlers } from '../../../../src/JSTest.Runner/TestRunner/TestFrameworks/TestFrameworkEventHandlers';
+import { TestFrameworkFactory } from '../../../../src/JSTest.Runner/TestRunner/TestFrameworks/TestFrameworkFactory';
+import { TestUtils } from '../../TestUtils';
 import { TestableDiscoveryManager, TestableFramework, TestableTestFrameworkFactory, TestableTestSessionManager } from './Testable';
-import { defaultTestEnvironment } from '../../Environment/TestEnvironment';
 
 describe('DiscoveryManager Suite', () => {
     let mockDM: IMock<TestableDiscoveryManager>;
@@ -48,7 +49,7 @@ describe('DiscoveryManager Suite', () => {
         settings = new JSTestSettings({
             JavaScriptTestFramework: 'jest',
             TestFrameworkConfigJson: '{}'
-        }, defaultTestEnvironment);
+        }, <IEnvironment>{ getTempDirectory: () => OS.tmpdir() });
         mockMessageSender = Mock.ofType(MessageSender);
         mockDM = Mock.ofInstance(new TestableDiscoveryManager(new Environment(),
             mockMessageSender.object,
