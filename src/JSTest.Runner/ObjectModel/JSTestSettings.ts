@@ -26,17 +26,17 @@ export class JSTestSettings {
                 ExceptionType.UnSupportedTestFramework);
         }
 
-        if (json.TestFrameworkConfigJson !== null && json.TestFrameworkConfigJson !== '') {
+        if (json.TestFrameworkConfigJson && json.TestFrameworkConfigJson !== null && json.TestFrameworkConfigJson !== '') {
             try {
                 this.TestFrameworkConfigJson = JSON.parse(json.TestFrameworkConfigJson);
             } catch (e) {
                 throw new Exception('Invalid TestFrameworkConfigJson: ' + e.message, ExceptionType.InvalidJSONException);
             }
         } else {
-            this.TestFrameworkConfigJson = JSON.parse('{}');
+            this.TestFrameworkConfigJson = <any> {};
         }
 
-        this.CoverageEnabled = json.CoverageEnabled === true;
+        this.CoverageEnabled = json.CodeCoverageEnabled === true;
 
         // Set attachments folder and environment variable
         // TODO: we should probably get the env key from jstestcontext package

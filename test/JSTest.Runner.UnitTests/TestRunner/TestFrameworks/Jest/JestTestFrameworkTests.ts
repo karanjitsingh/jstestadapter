@@ -353,7 +353,7 @@ describe('JestTestFramework suite', () => {
 
         const guid = framework.getPseudoGuid();
         
-        const attachments = new AttachmentSet(Constants.executorURI, 'Code Coverage');
+        const attachments = new AttachmentSet(Constants.ExecutorURI, 'Code Coverage');
         attachments.addAttachment(`C:\\temp\\${guid}\\clover.xml`, '');
 
         framework.handleRunAttachments = (attachmentSet) => {

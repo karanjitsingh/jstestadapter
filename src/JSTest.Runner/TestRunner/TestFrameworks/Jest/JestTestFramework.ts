@@ -228,7 +228,7 @@ export class JestTestFramework extends BaseTestFramework {
 
         let coverageDirectory: string = null;
 
-        if (this.options.CollectCoverage && this.options.RunAttachmentsDirectory) {
+        if (this.options.CollectCoverage && this.options.RunAttachmentsDirectory && !discovery) {
             coverageDirectory = path.join(this.options.RunAttachmentsDirectory, this.getPseudoGuid());
 
             try {
@@ -295,7 +295,7 @@ export class JestTestFramework extends BaseTestFramework {
     }
 
     private getAttachmentObject(attachments: Array<string>, displayName: string): AttachmentSet {
-        const attachmentSet = new AttachmentSet(Constants.executorURI, displayName);
+        const attachmentSet = new AttachmentSet(Constants.ExecutorURI, displayName);
         attachments.forEach(filePath => attachmentSet.addAttachment(path.resolve(filePath), ''));
 
         return attachmentSet;

@@ -31,6 +31,14 @@ describe('JSTestSettings suite', () => {
         done();
     });
 
+    it('JSTestSettings will set CodeCoverageEnabled', () => {
+        let settings = new JSTestSettings({ JavaScriptTestFramework: 'jasmine', CodeCoverageEnabled: true }, defaultTestEnvironment);
+        Assert.equal(settings.CoverageEnabled, true);
+
+        settings = new JSTestSettings({ JavaScriptTestFramework: 'jasmine', CodeCoverageEnabled: 'true' }, defaultTestEnvironment);
+        Assert.equal(settings.CoverageEnabled, false);
+    });
+
     it('will throw for not found attachments folder', (done) => {
         Assert.throws(() => new JSTestSettings({
             JavaScriptTestFramework: 'jasmine',

@@ -1,5 +1,6 @@
 import { TestCase, TestOutcome, IEventArgs } from '../Common';
 import { FailedExpectation } from '.';
+import { AttachmentSet } from '..';
 
 interface BaseTestEventArgs extends IEventArgs {
     StartTime: Date;
@@ -38,4 +39,8 @@ export class TestSessionEventArgs implements BaseTestEventArgs {
 
 export interface TestErrorMessageEventArgs {
     Message: string;
+}
+
+export interface TestRunAttachmentEventArgs {
+    AttachmentCollection: Array<AttachmentSet>;
 }

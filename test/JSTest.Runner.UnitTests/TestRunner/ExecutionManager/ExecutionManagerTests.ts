@@ -222,6 +222,28 @@ describe('ExecutionManager Suite', () => {
 
         done();
     });
+    
+    it('testFrameworkEventHandlers will handle TestRunAttachment', (done) => {
+        const testableDiscoveryManager = new TestableExecutionManager(new Environment(),
+            mockMessageSender.object,
+            settings);
+
+        const eventHandlers = testableDiscoveryManager.getEventHandlers();
+
+        const sender = <any>{ sender: 'this' };
+        const args = <any>{ key: 'value', TestCase: 'test case', Message: 'message' };
+
+        eventHandlers.Subscribe(mockTestFramework.object);
+
+        mockTestFramework.object.testFrameworkEvents.onRunAttachment.raise(sender, {
+            AttachmentCollection: <any>'attachments'
+        });
+
+        mockMessageSender.verify((x) => x.sendRunAttachments(It.is((x) => x === <any>'attachments')), Times.once());
+
+        done();
+    });
+    
 
     it('TestCaseEnd handles the attachments', (done) => {
         // Setup events

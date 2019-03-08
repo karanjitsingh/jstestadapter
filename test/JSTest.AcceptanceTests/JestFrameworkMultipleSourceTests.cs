@@ -64,17 +64,10 @@ namespace JSTest.AcceptanceTests
             this.ExpectedOutput.ExecutionWithTestsOutput = new List<string>
             {
                 "Passed   suite bx > test case b1",
-                //"Skipped  suite bx > test case b2",
                 "Passed   suite cx > test case c1",
-                //"Skipped  suite cx > test case c2",
                 "Passed   suite ax > test case a1",
-                //"Skipped  suite ax > test case a2",
-                //"Skipped  suite ax > test case a3",
                 "Passed   suite c > test case c1",
-                //"Skipped  suite c > test case c2",
-                //"Skipped  suite c > test case c3",
                 "Passed   suite b > test case b1",
-                //"Skipped  suite b > test case b2",
                 "Passed   suite a > test case a1",
                 "Failed   suite a > test case a2",
                 "Passed   suite a > test case a3",
@@ -83,32 +76,12 @@ namespace JSTest.AcceptanceTests
 
             this.ExpectedOutput.ExecutionWithAttachmentsOutput = new List<string>
             {
-                //"Skipped   suite a > test case a1",
-                //"Skipped   suite a > test case a2",
                 "Passed   suite a > test case a3",
-                //"Skipped   suite b > test case b1",
-                //"Skipped   suite b > test case b2",
                 "Passed   suite c > test case c1",
                 "Failed   suite c > test case c2",
                 "Passed   suite c > test case c3",
-                //"Skipped   suite ax > test case a1",
-                //"Skipped  suite ax > test case a2",
                 "Passed   suite ax > test case a3",
-                //"Skipped   suite bx > test case b1",
-                //"Skipped   suite bx > test case b2",
-                //"Skipped   suite cx > test case c1",
-                //"Skipped   suite cx > test case c2",
                 "Total tests: 5. Passed: 4. Failed: 1. Skipped: 0."
-            };
-
-            this.ExpectedAttachments.Attachments = new List<string>()
-            {
-                "suite-a.file1.log",
-                "suite-c.file1.log",
-                "suite-c.file2.log",
-                "suite-ax.file1.log",
-                "suite-ax.file2.log",
-                "suite-ax.file3.log",
             };
         }
 
@@ -133,7 +106,31 @@ namespace JSTest.AcceptanceTests
         [TestMethod]
         public void TestExecutionWithAttachmentsJest_MultipleSources()
         {
-            this.TestExecutionWithAttachments();
+            this.TestExecutionWithAttachments(new List<string>()
+            {
+                "suite-a.file1.log",
+                "suite-c.file1.log",
+                "suite-c.file2.log",
+                "suite-ax.file1.log",
+                "suite-ax.file2.log",
+                "suite-ax.file3.log",
+            });
+        }
+
+        [TestMethod]
+        public void TestExecutionWithCoverageJest_MultipleSources()
+        {
+            this.TestExecutionWithCodeCoverage(new List<string>()
+            {
+                "suite-a.file1.log",
+                "suite-c.file1.log",
+                "suite-c.file2.log",
+                "suite-ax.file1.log",
+                "suite-ax.file2.log",
+                "suite-ax.file3.log",
+                "clover.xml",
+                "clover[1].xml",
+            });
         }
 
         [TestMethod]
