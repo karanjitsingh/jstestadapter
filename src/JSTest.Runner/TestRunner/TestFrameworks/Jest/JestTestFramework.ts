@@ -228,7 +228,7 @@ export class JestTestFramework extends BaseTestFramework {
 
         let coverageDirectory: string = null;
 
-        if (this.options.CollectCoverage && this.options.RunAttachmentsDirectory) {
+        if (this.options.CollectCoverage && this.options.RunAttachmentsDirectory && !discovery) {
             coverageDirectory = path.join(this.options.RunAttachmentsDirectory, this.getPseudoGuid());
 
             try {
