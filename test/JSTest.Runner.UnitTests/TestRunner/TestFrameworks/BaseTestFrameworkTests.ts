@@ -4,7 +4,7 @@ import { Constants } from '../../../../src/JSTest.Runner/Constants';
 import { Environment } from '../../../../src/JSTest.Runner/Environment/Node/Environment';
 import { EnvironmentType, TestCase, TestOutcome } from '../../../../src/JSTest.Runner/ObjectModel/Common';
 import { EqtTrace } from '../../../../src/JSTest.Runner/ObjectModel/EqtTrace';
-import { ITestFrameworkEvents, TestSessionEventArgs, TestSpecEventArgs, TestSuiteEventArgs }
+import { ITestFrameworkEvents, TestSessionEventArgs, TestSpecEventArgs, TestSuiteEventArgs, TestRunAttachmentEventArgs }
     from '../../../../src/JSTest.Runner/ObjectModel/TestFramework';
 import { BaseTestFramework } from '../../../../src/JSTest.Runner/TestRunner/TestFrameworks/BaseTestFramework';
 import { SessionHash } from '../../../../src/JSTest.Runner/Utils/Hashing/SessionHash';
@@ -65,6 +65,9 @@ class TestableBaseTestFramework extends BaseTestFramework {
     public specResult(...args: Array<any>) {
         this.handleSpecResult.apply(this, arguments);
     }
+    public runAttachments(...args: Array<any>) {
+        this.handleRunAttachments.apply(this, arguments);
+    }
     public errorMessage(...args: Array<any>) {
         this.handleErrorMessage.apply(this, arguments);
     }
@@ -84,7 +87,8 @@ describe('BaseTestFramework suite', () => {
             onTestSuiteEnd: env.createEvent(),
             onTestSessionStart: env.createEvent(),
             onTestSessionEnd: env.createEvent(),
-            onErrorMessage: env.createEvent()
+            onErrorMessage: env.createEvent(),
+            onRunAttachment: env.createEvent()
         };
 
         baseTestFramework = new TestableBaseTestFramework(testFrameworkEvents, env.environmentType, sources);
@@ -146,7 +150,7 @@ describe('BaseTestFramework suite', () => {
     });
 
     it('handleSpecResult will raise onTestCaseEnd', (done) => {
-        const testCase: TestCase = new TestCase('source', 'fqnpostfix', Constants.executorURI, 'attachmentId');
+        const testCase: TestCase = new TestCase('source', 'fqnpostfix', Constants.ExecutorURI, 'attachmentId');
         testCase.DisplayName = 'testcase';
 
         testFrameworkEvents.onTestCaseEnd.subscribe((sender: object, args: TestSpecEventArgs) => {
@@ -160,11 +164,12 @@ describe('BaseTestFramework suite', () => {
             done();
         });
 
+        // tslint:disable:max-line-length
         baseTestFramework.specResult('fqn', 'testcase', 'source', TestOutcome.Passed, [], new Date(), new Date(), 'postfix', 'attachmentId');
     });
 
     it('handleSpecStarted/Done will raise onTestCaseStart/End', (done) => {
-        const testCase: TestCase = new TestCase('source', 'fqn', Constants.executorURI, 'attachmentId');
+        const testCase: TestCase = new TestCase('source', 'fqn', Constants.ExecutorURI, 'attachmentId');
         testCase.DisplayName = 'testcase';
         let specArgs: TestSpecEventArgs;
 
@@ -211,6 +216,19 @@ describe('BaseTestFramework suite', () => {
         baseTestFramework.specStarted(new Array(514).join('1'), 'testcase', 'source', null);
 
         done();
+    });
+
+    it('handleRunAttachments will raise onTestRunAttachment', (done) => {
+        const logger = new TestUtils.MockDebugLogger();
+        EqtTrace.initialize(logger, 'file');
+
+        testFrameworkEvents.onRunAttachment.subscribe((sender: object, args: TestRunAttachmentEventArgs) => {
+            Assert.equal(logger.logContains(/Information.*BaseTestFramework: Run attachments received \[\"attachments\"\]/), true);
+            Assert.deepEqual(args.AttachmentCollection, ['attachments']);
+            done();
+        });
+
+        baseTestFramework.runAttachments(['attachments']);
     });
 
     it('startExecutionWithTests will filter test cases', (done) => {

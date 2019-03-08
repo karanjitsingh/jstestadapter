@@ -6,7 +6,7 @@ import { TestCase } from '../../ObjectModel/Common';
 import { EqtTrace } from '../../ObjectModel/EqtTrace';
 import {
     ITestFramework, TestErrorMessageEventArgs, TestFrameworks,
-    TestSessionEventArgs, TestSpecEventArgs
+    TestSessionEventArgs, TestSpecEventArgs, TestRunAttachmentEventArgs
 } from '../../ObjectModel/TestFramework';
 import { TimeSpan } from '../../Utils/TimeUtils';
 import { MessageSender } from '../MessageSender';
@@ -66,6 +66,7 @@ export class ExecutionManager extends BaseExecutionManager {
             framework.testFrameworkEvents.onTestCaseStart.subscribe(this.testFrameworkEventHandlers.TestCaseStart);
             framework.testFrameworkEvents.onTestCaseEnd.subscribe(this.testFrameworkEventHandlers.TestCaseEnd);
             framework.testFrameworkEvents.onErrorMessage.subscribe(this.testFrameworkEventHandlers.TestErrorMessage);
+            framework.testFrameworkEvents.onRunAttachment.subscribe(this.testFrameworkEventHandlers.TestRunAttachment);
         },
 
         TestSessionStart: (sender: object, args: TestSessionEventArgs) => {
@@ -106,6 +107,10 @@ export class ExecutionManager extends BaseExecutionManager {
 
         TestErrorMessage: (sender: object, args: TestErrorMessageEventArgs) => {
             this.messageSender.sendMessage(args.Message, TestMessageLevel.Error);
+        },
+
+        TestRunAttachment: (sender: object, args: TestRunAttachmentEventArgs) => {
+            this.messageSender.sendRunAttachments(args.AttachmentCollection);
         }
     };
 

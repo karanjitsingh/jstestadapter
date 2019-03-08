@@ -295,7 +295,7 @@ export class JestTestFramework extends BaseTestFramework {
     }
 
     private getAttachmentObject(attachments: Array<string>, displayName: string): AttachmentSet {
-        const attachmentSet = new AttachmentSet(Constants.executorURI, displayName);
+        const attachmentSet = new AttachmentSet(Constants.ExecutorURI, displayName);
         attachments.forEach(filePath => attachmentSet.addAttachment(path.resolve(filePath), ''));
 
         return attachmentSet;

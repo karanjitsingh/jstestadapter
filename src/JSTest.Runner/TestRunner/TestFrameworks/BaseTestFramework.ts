@@ -189,7 +189,13 @@ export abstract class BaseTestFramework implements ITestFramework {
     }
 
     protected handleRunAttachments(attachmentCollection: Array<AttachmentSet>) {
-        //
+        EqtTrace.info(`BaseTestFramework: Run attachments received ${JSON.stringify(attachmentCollection)}`);
+        
+        if (attachmentCollection instanceof Array) {
+            this.testFrameworkEvents.onRunAttachment.raise(this, { 
+                AttachmentCollection: attachmentCollection
+            });
+        }
     }
 
     private handleTestCaseEnd(testSpecEventArgs: TestSpecEventArgs) {
@@ -216,7 +222,7 @@ export abstract class BaseTestFramework implements ITestFramework {
             EqtTrace.warn(`BaseTestFramework: Fqn length exceeding 512 characters with value: '${fqn}'`);
         }
 
-        const testCase = new TestCase(source, fqn, Constants.executorURI, attachmentId);
+        const testCase = new TestCase(source, fqn, Constants.ExecutorURI, attachmentId);
         testCase.DisplayName = testCaseName;
 
         return testCase;

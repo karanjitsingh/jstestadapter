@@ -22,10 +22,24 @@ namespace JSTest.Settings
 
         [XmlIgnore]
         [DataMember]
-        public JSTestFramework JavaScriptTestFramework { get; set; }
+        public bool CodeCoverageEnabled { get; set; }
 
-        [XmlElement("NodePath")]
-        public string NodePath { get; set; }
+        [XmlElement("CodeCoverageEnabled")]
+        public string CodeCoverageEnabledAsString {
+            get
+            {
+                return CodeCoverageEnabled.ToString();
+            }
+            set
+            {
+                bool result;
+                CodeCoverageEnabled = bool.TryParse(value, out result) ? result : false;
+            }
+        }
+
+        [XmlIgnore]
+        [DataMember]
+        public JSTestFramework JavaScriptTestFramework { get; set; }
 
         [XmlElement("TestFramework")]
         public string JavaScriptTestFrameworkAsString
@@ -64,6 +78,9 @@ namespace JSTest.Settings
                 }
             }
         }
+
+        [XmlElement("NodePath")]
+        public string NodePath { get; set; }
 
         [DataMember]
         public string TestFrameworkConfigJson { get; set; }

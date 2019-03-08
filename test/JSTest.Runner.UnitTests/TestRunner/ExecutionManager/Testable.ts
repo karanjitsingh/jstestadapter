@@ -29,7 +29,8 @@ export class TestableFramework implements ITestFramework {
             onTestSessionEnd: env.createEvent(),
             onTestSessionStart: env.createEvent(),
             onTestSuiteEnd: env.createEvent(),
-            onTestSuiteStart: env.createEvent()
+            onTestSuiteStart: env.createEvent(),
+            onRunAttachment: env.createEvent()
         };
     }
 }

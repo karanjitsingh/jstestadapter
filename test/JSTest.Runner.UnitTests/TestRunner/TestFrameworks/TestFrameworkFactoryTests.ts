@@ -30,6 +30,7 @@ describe('TestFrameworkFactory Suite', () => {
         Assert.strictEqual(tf.testFrameworkEvents.onTestSessionStart instanceof Event, true);
         Assert.strictEqual(tf.testFrameworkEvents.onTestSuiteEnd instanceof Event, true);
         Assert.strictEqual(tf.testFrameworkEvents.onTestSuiteStart instanceof Event, true);
+        Assert.strictEqual(tf.testFrameworkEvents.onRunAttachment instanceof Event, true);
         done();
     });
 
