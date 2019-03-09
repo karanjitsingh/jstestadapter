@@ -4,24 +4,37 @@ import * as path from 'path';
 import { JSTestSettings } from '../../../src/JSTest.Runner/ObjectModel';
 import { Exception, ExceptionType } from '../../../src/JSTest.Runner/Exceptions';
 import { IEnvironment } from '../../../src/JSTest.Runner/Environment/IEnvironment';
-import { defaultTestEnvironment } from '../Environment/TestEnvironment';
+
+const defaultTestEnvironment = <IEnvironment>{ getTempDirectory: () => OS.tmpdir() };
 
 describe('JSTestSettings suite', () => {
     it('constructor will throw if invalid test framework', (done) => {
-        Assert.throws(() => new JSTestSettings({ JavaScriptTestFramework: 'framework', TestFrameworkConfigJson: '{}' }, defaultTestEnvironment),
+        Assert.throws(() => new JSTestSettings({
+                JavaScriptTestFramework: 'framework',
+                TestFrameworkConfigJson: '{}'
+            }, defaultTestEnvironment),
             (err) => err instanceof Exception && err.exceptionName === ExceptionType[ExceptionType.UnSupportedTestFramework],
-            'Should throw on unsupported test framework.');
+            'Should throw on unsupported test framework.'
+        );
         done();
     });
 
     it('constructor will throw if invalid config json passed', (done) => {
-        Assert.throws(() => new JSTestSettings({ JavaScriptTestFramework: 'jasmine', TestFrameworkConfigJson: '{' }, defaultTestEnvironment),
+        Assert.throws(() => new JSTestSettings({
+                JavaScriptTestFramework: 'jasmine',
+                TestFrameworkConfigJson: '{' 
+            }, defaultTestEnvironment),
             (err) => err instanceof Exception && err.exceptionName === ExceptionType[ExceptionType.InvalidJSONException],
-            'Should throw on invalid config json.');
+            'Should throw on invalid config json.'
+        );
 
-        Assert.doesNotThrow(() => new JSTestSettings({ JavaScriptTestFramework: 'jasmine', TestFrameworkConfigJson: null }, defaultTestEnvironment),
+        Assert.doesNotThrow(() => new JSTestSettings({
+                JavaScriptTestFramework: 'jasmine',
+                TestFrameworkConfigJson: null
+            }, defaultTestEnvironment),
             (err) => err instanceof Exception && err.exceptionName === ExceptionType[ExceptionType.InvalidJSONException],
-            'Should not throw on null config json');
+            'Should not throw on null config json'
+        );
         done();
     });
 
@@ -67,8 +80,8 @@ describe('JSTestSettings suite', () => {
         const tmpDir = OS.tmpdir();
         const settings = new JSTestSettings({
             JavaScriptTestFramework: 'jasmine',
-            TestFrameworkConfigJson: null,
-        }, { getTempDirectory: () => tmpDir } as IEnvironment);
+            TestFrameworkConfigJson: null
+        }, <IEnvironment>{ getTempDirectory: () => tmpDir });
 
         Assert.ok(settings.AttachmentsFolder.indexOf(tmpDir) === 0, 'Invalid attachments folder path');
     });

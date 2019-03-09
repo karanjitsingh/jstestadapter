@@ -1,10 +1,10 @@
-import { Environment } from '../../../../src/JSTest.Runner/Environment/Node/Environment';
-import { CommunicationManager } from '../../../../src/JSTest.Runner/Environment/Node/CommunicationManager';
-import { IEventArgs } from '../../../../src/JSTest.Runner/ObjectModel/Common';
-import { Event } from '../../../../src/JSTest.Runner/Events/Event';
+import * as Assert from 'assert';
 import { Socket } from 'net';
-import * as Assert from 'assert'
 import { Mock } from 'typemoq';
+import { CommunicationManager } from '../../../../src/JSTest.Runner/Environment/Node/CommunicationManager';
+import { Environment } from '../../../../src/JSTest.Runner/Environment/Node/Environment';
+import { Event } from '../../../../src/JSTest.Runner/Events/Event';
+import { IEventArgs } from '../../../../src/JSTest.Runner/ObjectModel/Common';
 
 interface TestableEventArgs extends IEventArgs {
     arg: string;

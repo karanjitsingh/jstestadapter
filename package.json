@@ -26,7 +26,8 @@
     "lint:test": "tslint --project ./test/JSTest.Runner.UnitTests/tsconfig.json",
     "build:Debug": "./node_modules/.bin/tsc -p ./src/JSTest.Runner/tsconfig.json",
     "build:Release": "./node_modules/.bin/tsc -p ./src/JSTest.Runner/tsconfig.json --outDir ./src/JSTest.Runner/bin/Release",
-    "build:test": "./node_modules/.bin/tsc -p ./test/JSTest.Runner.UnitTests/tsconfig.json",
+    "tsc:test": "node_modules/.bin/tsc -p ./test/JSTest.Runner.UnitTests/tsconfig.json",
+    "build:test": "npm run lint:test && npm run tsc:test",
     "build": "npm run build:Debug",
     "test": "npm run build:test && node ./node_modules/mocha/bin/mocha -r source-map-support/register ./test/JSTest.Runner.UnitTests/bin/test/**/*Tests.js",
     "test:debug": "npm run build:test && node --inspect-brk=9229 ./node_modules/mocha/bin/_mocha -r source-map-support/register ./test/JSTest.Runner.UnitTests/bin/test/**/*Tests.js"

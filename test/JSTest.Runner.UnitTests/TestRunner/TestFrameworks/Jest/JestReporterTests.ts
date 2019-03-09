@@ -1,11 +1,8 @@
-import { JestCallbacks } from '../../../../../src/JSTest.Runner/TestRunner/TestFrameworks/Jest/JestCallbacks';
-import { TestUtils } from '../../../TestUtils';
-import { } from '../../../../../src/JSTest.Runner/TestRunner/TestFrameworks/Jest/JestReporter';
 import * as Assert from 'assert';
 import { TestOutcome } from '../../../../../src/JSTest.Runner/ObjectModel/Common';
+import { } from '../../../../../src/JSTest.Runner/TestRunner/TestFrameworks/Jest/JestReporter';
 
 describe('JestReporter suite', () => {
-    const logger = new TestUtils.MockDebugLogger();
     // tslint:disable-next-line:no-require-imports
     const jestReporter = require('../../../../../src/JSTest.Runner/TestRunner/TestFrameworks/Jest/JestReporter');
 
@@ -76,6 +73,8 @@ describe('JestReporter suite', () => {
     
     it('JestReporter will call handleSpecResult', (done) => {
         let specResult = 0;
+        const startTime = new Date().getTime();
+        const reporter = new jestReporter();
 
         jestReporter.INITIALIZE_REPORTER({
             handleSpecResult: (fullName, title, config, outcome, failures, start, end, postfix, attachmentId) => {
@@ -119,12 +118,10 @@ describe('JestReporter suite', () => {
                 }
             }
         });
+
         jestReporter.UPDATE_CONFIG('D:\\a\\b\\package.json');
         jestReporter.discovery = false;
         
-        const startTime = new Date().getTime();
-
-        const reporter = new jestReporter();
         reporter.onTestResult(
             {
                 path: 'D:\\a\\b\\c\\somepath'
