@@ -1,19 +1,22 @@
-import * as path from 'path';
 import * as fs from 'fs';
-import { ITestFramework, TestSessionEventArgs, TestSpecEventArgs, TestFrameworks,
-         TestErrorMessageEventArgs } from '../../ObjectModel/TestFramework';
-import { TestMessageLevel, TestResult, JSTestSettings, AttachmentSet } from '../../ObjectModel';
+import * as path from 'path';
+import { IEnvironment } from '../../Environment/IEnvironment';
+import { AttachmentSet, JSTestSettings, TestMessageLevel, TestResult } from '../../ObjectModel';
 import { TestCase } from '../../ObjectModel/Common';
 import { EqtTrace } from '../../ObjectModel/EqtTrace';
-import { IEnvironment } from '../../Environment/IEnvironment';
+import {
+    ITestFramework, TestErrorMessageEventArgs, TestFrameworks,
+    TestSessionEventArgs, TestSpecEventArgs, TestRunAttachmentEventArgs
+} from '../../ObjectModel/TestFramework';
 import { TimeSpan } from '../../Utils/TimeUtils';
 import { MessageSender } from '../MessageSender';
-import { BaseExecutionManager } from './BaseExecutionManager';
 import { TestFrameworkEventHandlers } from '../TestFrameworks/TestFrameworkEventHandlers';
+import { BaseExecutionManager } from './BaseExecutionManager';
 
 export class ExecutionManager extends BaseExecutionManager {
-    private jsTestSettings: JSTestSettings;
-    private testFramework: TestFrameworks;
+    protected readonly jsTestSettings: JSTestSettings;
+    protected readonly testFramework: TestFrameworks;
+
     private testCollection: Map<string, TestCase>;
 
     constructor(environment: IEnvironment, messageSender: MessageSender, jsTestSettings: JSTestSettings) {
@@ -63,6 +66,7 @@ export class ExecutionManager extends BaseExecutionManager {
             framework.testFrameworkEvents.onTestCaseStart.subscribe(this.testFrameworkEventHandlers.TestCaseStart);
             framework.testFrameworkEvents.onTestCaseEnd.subscribe(this.testFrameworkEventHandlers.TestCaseEnd);
             framework.testFrameworkEvents.onErrorMessage.subscribe(this.testFrameworkEventHandlers.TestErrorMessage);
+            framework.testFrameworkEvents.onRunAttachment.subscribe(this.testFrameworkEventHandlers.TestRunAttachment);
         },
 
         TestSessionStart: (sender: object, args: TestSessionEventArgs) => {
@@ -103,6 +107,10 @@ export class ExecutionManager extends BaseExecutionManager {
 
         TestErrorMessage: (sender: object, args: TestErrorMessageEventArgs) => {
             this.messageSender.sendMessage(args.Message, TestMessageLevel.Error);
+        },
+
+        TestRunAttachment: (sender: object, args: TestRunAttachmentEventArgs) => {
+            this.messageSender.sendRunAttachments(args.AttachmentCollection);
         }
     };
 
@@ -111,7 +119,7 @@ export class ExecutionManager extends BaseExecutionManager {
             this.messageSender.sendMessage(err.stack ?
                 err.stack :
                 (err.constructor.name + ': ' + err.message),
-            TestMessageLevel.Error);
+                TestMessageLevel.Error);
         }
     }
 
@@ -124,9 +132,9 @@ export class ExecutionManager extends BaseExecutionManager {
                 framework.startExecutionWithSources(sources, this.jsTestSettings.TestFrameworkConfigJson);
             }
         },
-        (e) => {
-            this.sessionError(sources, e);
-        });
+            (e) => {
+                this.sessionError(sources, e);
+            });
     }
 
     private executionComplete = () => {

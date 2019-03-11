@@ -13,6 +13,7 @@ export class EventDispatcher extends BaseEventDispatcher {
     constructor() {
         super();
         this.events = new EventEmitter();
+        this.events.setMaxListeners(20);
     }
 
     public subscribe(eventId: string, callback: IEventHandler<IEventArgs>): void {

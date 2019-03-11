@@ -1,5 +1,6 @@
 import { MessageType } from '.';
 import { Exception, ExceptionType} from '../Exceptions';
+import { Constants } from '../Constants';
 
 export class Message {
     /* These variables serialize to a JSON that will be deserialized
@@ -13,6 +14,8 @@ export class Message {
     constructor(messageType: MessageType, payload: any, version?: number) {
         if (version) {
             this.Version = version;
+        } else {
+            this.Version = Constants.MessageProtocolVersion;
         }
 
         this.MessageType = messageType;

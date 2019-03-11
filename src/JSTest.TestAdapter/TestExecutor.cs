@@ -7,6 +7,7 @@ using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 
 namespace JSTest.TestAdapter
@@ -92,6 +93,7 @@ namespace JSTest.TestAdapter
             testRunEvents.onTestCaseEnd += this.OnTestCaseEndHandler;
             testRunEvents.onTestSessionEnd += this.OnTestSessionEndHandler;
             testRunEvents.onTestMessageReceived += this.OnTestMessageReceived;
+            testRunEvents.onTestRunAttachmentReceived += this.OnTestRunAttachmentReceivedHandler;
         }
 
         private void OnTestMessageReceived(object sender, TestMessagePayload e)
@@ -115,6 +117,11 @@ namespace JSTest.TestAdapter
         private void OnTestSessionEndHandler(object sender, EventArgs e)
         {
             this.executionCompletion.Set();
+        }
+
+        private void OnTestRunAttachmentReceivedHandler(object sender, TestRunAttachmentPayload e)
+        {
+            this.frameworkHandle.RecordAttachments(e.Attachments.ToList());
         }
     }
 }

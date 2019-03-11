@@ -17,6 +17,7 @@ export class JasmineTestFramework extends BaseTestFramework implements ITestFram
     public readonly environmentType: EnvironmentType;
     public readonly canHandleMultipleSources: boolean = false;
     public readonly supportsJsonOptions: boolean = false;
+    public readonly supportsCodeCoverage: boolean = false;
 
     protected sources: Array<string>;
 
@@ -40,23 +41,23 @@ export class JasmineTestFramework extends BaseTestFramework implements ITestFram
 
     public initialize() {
         EqtTrace.info('JasmineTestFramework: initializing jasmine');
-        
+
         const jasmineLib = this.getJasmine();
         this.jasmine = new jasmineLib();
-        
+
         // Jasmine forces node to close after completion
         // tslint:disable: no-empty
-        this.jasmine.exit = () => {};
+        this.jasmine.exit = () => { };
         this.jasmine.exitCodeCompletion = () => { };
         // tslint:enable: no-empty
 
         this.initializeReporter();
     }
 
-    public startExecutionWithSources(sources: Array<string>, options: JSON): void {        
+    public startExecutionWithSources(sources: Array<string>, options: JSON): void {
         this.sources = sources;
         this.overrideJasmineExecute(false);
-        
+
         this.jasmine.execute([sources[0]]);
     }
 
@@ -64,8 +65,8 @@ export class JasmineTestFramework extends BaseTestFramework implements ITestFram
         this.sources = sources;
 
         // tslint:disable: no-empty
-        this.jasmine.jasmine.getEnv().beforeAll = () => {};
-        this.jasmine.jasmine.getEnv().afterAll = () => {};
+        this.jasmine.jasmine.getEnv().beforeAll = () => { };
+        this.jasmine.jasmine.getEnv().afterAll = () => { };
         // tslint:enable: no-emptys
 
         this.overrideJasmineExecute(true);
@@ -134,10 +135,10 @@ export class JasmineTestFramework extends BaseTestFramework implements ITestFram
     protected skipSpec() {
         this.skipCurrentSpec = true;
     }
-    
+
     private overrideJasmineExecute(discovery: boolean) {
         const executeSpecHandle = this.jasmine.jasmine.Spec.prototype.execute;
-        const skipSpecHandle = function(onComplete: any) {
+        const skipSpecHandle = function (onComplete: any) {
             this.onStart(this);
             if (!discovery) {
                 this.result.status = 'disabled';
@@ -149,7 +150,7 @@ export class JasmineTestFramework extends BaseTestFramework implements ITestFram
         };
 
         // tslint:disable-next-line                
-        const getExecutor = function (fullyQualifiedName: string, testCaseName: string) { 
+        const getExecutor = function (fullyQualifiedName: string, testCaseName: string) {
             this.skipCurrentSpec = false;
             this.handleSpecStarted(fullyQualifiedName, testCaseName, this.sources[0]);  // Will eventually call skip if skip is required
             if (discovery || this.skipCurrentSpec === true) {
@@ -164,7 +165,7 @@ export class JasmineTestFramework extends BaseTestFramework implements ITestFram
             executor(this.getFullName(), this.description).apply(this, arguments);
         };
     }
-    
+
     private initializeReporter() {
         this.jasmine.clearReporters();
         this.jasmine.addReporter({
