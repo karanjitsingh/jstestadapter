@@ -235,6 +235,11 @@
                     this.testRunEvents.InvokeMessageReceived(this, consolePayload);
                     break;
 
+                case MessageType.RunAttachments:
+                    var attachmentsPayload = this.dataSerializer.DeserializePayload<TestRunAttachmentPayload>(message);
+                    this.testRunEvents.InvokeTestRunAttachmentReceived(this, attachmentsPayload);
+                    break;
+
                 default:
                     Console.WriteLine("JSTest: Unknown message type {0} with payload {1}", message.MessageType, message.Payload);
                     break;

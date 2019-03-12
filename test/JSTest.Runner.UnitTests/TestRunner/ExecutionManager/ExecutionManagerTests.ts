@@ -1,21 +1,21 @@
-import * as fs from 'fs';
-import * as path from 'path';
-import { MessageSender } from '../../../../src/JSTest.Runner/TestRunner/MessageSender';
-import { JSTestSettings, TestMessageLevel, TestResult, AttachmentSet } from '../../../../src/JSTest.Runner/ObjectModel';
-import { TestFrameworkFactory } from '../../../../src/JSTest.Runner/TestRunner/TestFrameworks/TestFrameworkFactory';
-import { Environment } from '../../../../src/JSTest.Runner/Environment/Node/Environment';
-import { TestSessionManager } from '../../../../src/JSTest.Runner/TestRunner/ExecutionManagers/TestSessionManager';
-import { TestFrameworks, ITestFramework, TestSpecEventArgs }
-    from '../../../../src/JSTest.Runner/ObjectModel/TestFramework';
-import { TestOutcome, TestCase } from '../../../../src/JSTest.Runner/ObjectModel/Common';
-import { TestFrameworkEventHandlers } from '../../../../src/JSTest.Runner/TestRunner/TestFrameworks/TestFrameworkEventHandlers';
-import { Mock, IMock, Times, It } from 'typemoq';
 import * as Assert from 'assert';
-import { TestUtils } from '../../TestUtils';
+import * as fs from 'fs';
+import * as OS from 'os';
+import * as path from 'path';
+import { IMock, It, Mock, Times } from 'typemoq';
+import { IEnvironment } from '../../../../src/JSTest.Runner/Environment/IEnvironment';
+import { Environment } from '../../../../src/JSTest.Runner/Environment/Node/Environment';
 import { Exception, ExceptionType } from '../../../../src/JSTest.Runner/Exceptions';
-import { TestableExecutionManager, TestableTestFrameworkFactory, TestableTestSessionManager, TestableFramework } from './Testable';
+import { AttachmentSet, JSTestSettings, TestMessageLevel, TestResult } from '../../../../src/JSTest.Runner/ObjectModel';
+import { TestCase, TestOutcome } from '../../../../src/JSTest.Runner/ObjectModel/Common';
+import { ITestFramework, TestFrameworks, TestSpecEventArgs } from '../../../../src/JSTest.Runner/ObjectModel/TestFramework';
+import { TestSessionManager } from '../../../../src/JSTest.Runner/TestRunner/ExecutionManagers/TestSessionManager';
+import { MessageSender } from '../../../../src/JSTest.Runner/TestRunner/MessageSender';
+import { TestFrameworkEventHandlers } from '../../../../src/JSTest.Runner/TestRunner/TestFrameworks/TestFrameworkEventHandlers';
+import { TestFrameworkFactory } from '../../../../src/JSTest.Runner/TestRunner/TestFrameworks/TestFrameworkFactory';
 import { TimeSpan } from '../../../../src/JSTest.Runner/Utils/TimeUtils';
-import { defaultTestEnvironment } from '../../Environment/TestEnvironment';
+import { TestUtils } from '../../TestUtils';
+import { TestableExecutionManager, TestableFramework, TestableTestFrameworkFactory, TestableTestSessionManager } from './Testable';
 
 describe('ExecutionManager Suite', () => {
     let mockEM: IMock<TestableExecutionManager>;
@@ -58,7 +58,7 @@ describe('ExecutionManager Suite', () => {
         settings = new JSTestSettings({
             JavaScriptTestFramework: 'jest',
             TestFrameworkConfigJson: '{"key": "value"}'
-        }, defaultTestEnvironment);
+        }, <IEnvironment>{ getTempDirectory: () => OS.tmpdir() });
         mockMessageSender = Mock.ofType(MessageSender);
         mockEM = Mock.ofInstance(new TestableExecutionManager(new Environment(),
             mockMessageSender.object,
@@ -222,7 +222,26 @@ describe('ExecutionManager Suite', () => {
 
         done();
     });
+    
+    it('testFrameworkEventHandlers will handle TestRunAttachment', (done) => {
+        const testableDiscoveryManager = new TestableExecutionManager(new Environment(),
+            mockMessageSender.object,
+            settings);
 
+        const eventHandlers = testableDiscoveryManager.getEventHandlers();
+        const sender = <any>{ sender: 'this' };
+
+        eventHandlers.Subscribe(mockTestFramework.object);
+
+        mockTestFramework.object.testFrameworkEvents.onRunAttachment.raise(sender, {
+            AttachmentCollection: <any>'attachments'
+        });
+
+        mockMessageSender.verify((x) => x.sendRunAttachments(It.is((x) => x === <any>'attachments')), Times.once());
+
+        done();
+    });
+    
     it('TestCaseEnd handles the attachments', (done) => {
         // Setup events
         const testableDiscoveryManager = new TestableExecutionManager(new Environment(),
@@ -239,9 +258,9 @@ describe('ExecutionManager Suite', () => {
         }
 
         // Add 2 files to upload to attachments folder
-        const file1 = path.join(attachmentsFolder, "debug.log");
+        const file1 = path.join(attachmentsFolder, 'debug.log');
         fs.writeFileSync(file1, 'Hey there!');
-        const file2 = path.join(attachmentsFolder, "screenshot.png");
+        const file2 = path.join(attachmentsFolder, 'screenshot.png');
         fs.writeFileSync(file2, 'Hey there!');
 
         const sender = <any>{ sender: 'this' };
@@ -261,7 +280,7 @@ describe('ExecutionManager Suite', () => {
             FailedExpectations: []
         };
 
-        const attachmentSet = new AttachmentSet("uri", "Attachments");
+        const attachmentSet = new AttachmentSet('uri', 'Attachments');
         attachmentSet.addAttachment(file1);
         attachmentSet.addAttachment(file2);
         const attachments = [attachmentSet];
@@ -323,7 +342,7 @@ describe('ExecutionManager Suite', () => {
         // Validate execute job
         executeJob();
         mockFactory.verify((x) => x.createTestFramework(TestFrameworks.Jest), Times.once());
-        mockTestFramework.verify((x) => x.initialize(), Times.once());
+        mockTestFramework.verify((x) => x.initialize(It.isAny()), Times.once());
 
         if (testCollection) {
             mockTestFramework.verify((x) => x.startExecutionWithTests(

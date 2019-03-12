@@ -60,7 +60,7 @@ export class TestRunner {
                 let error: Error = null;
                 let errorMessage: string = null;
 
-                if (message.Version === Constants.messageProtocolVersion) {
+                if (message.Version === Constants.MessageProtocolVersion) {
                     try {
                         this.jsTestSettings = new JSTestSettings(message.Payload, this.environment);
                     } catch (err) {
@@ -69,7 +69,7 @@ export class TestRunner {
                     }
                 } else {
                     errorMessage = `TestRunner: Message protocol version mismatch, version is` +
-                        ` ${Constants.messageProtocolVersion}, provided was ${message.Version}`;
+                        ` ${Constants.MessageProtocolVersion}, provided was ${message.Version}`;
                 }
 
                 if (errorMessage) {

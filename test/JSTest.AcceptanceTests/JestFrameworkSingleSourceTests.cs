@@ -54,31 +54,17 @@ namespace JSTest.AcceptanceTests
                 "Failed   suite a > test case a2",
                 "Passed   suite a > test case a3",
                 "Passed   suite c > test case c1",
-                //"Skipped  suite c > test case c2",
-                //"Skipped  suite c > test case c3",
                 "Passed   suite b > test case b1",
-                //"Skipped  suite b > test case b2",
                 "Total tests: 5. Passed: 4. Failed: 1. Skipped: 0."
             };
 
             this.ExpectedOutput.ExecutionWithAttachmentsOutput = new List<string>
             {
-                //"Skipped   suite a > test case a1",
-                //"Skipped   suite a > test case a2",
                 "Passed   suite a > test case a3",
-                //"Skipped   suite b > test case b1",
-                //"Skipped   suite b > test case b2",
                 "Passed   suite c > test case c1",
                 "Failed   suite c > test case c2",
                 "Passed   suite c > test case c3",
                 "Total tests: 4. Passed: 3. Failed: 1. Skipped: 0."
-            };
-
-            this.ExpectedAttachments.Attachments = new List<string>()
-            {
-                "suite-a.file1.log",
-                "suite-c.file1.log",
-                "suite-c.file2.log"
             };
         }
 
@@ -103,7 +89,24 @@ namespace JSTest.AcceptanceTests
         [TestMethod]
         public void TestExecutionWithAttachmentsJest_SingleSource()
         {
-            this.TestExecutionWithAttachments();
+            this.TestExecutionWithAttachments(new List<string>()
+            {
+                "suite-a.file1.log",
+                "suite-c.file1.log",
+                "suite-c.file2.log"
+            });
+        }
+
+        [TestMethod]
+        public void TestExecutionWithCoverageJest_SingleSource()
+        {
+            this.TestExecutionWithCodeCoverage(new List<string>()
+            {
+                "suite-a.file1.log",
+                "suite-c.file1.log",
+                "suite-c.file2.log",
+                "clover.xml"
+            });
         }
 
         [TestMethod]

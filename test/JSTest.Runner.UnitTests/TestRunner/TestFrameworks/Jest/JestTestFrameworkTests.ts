@@ -1,6 +1,12 @@
-import { EnvironmentType, TestCase } from '../../../../../src/JSTest.Runner/ObjectModel/Common';
-import { JestTestFramework } from '../../../../../src/JSTest.Runner/TestRunner/TestFrameworks/Jest/JestTestFramework';
 import * as Assert from 'assert';
+import * as fs from 'fs';
+import { EnvironmentType, TestCase } from '../../../../../src/JSTest.Runner/ObjectModel/Common';
+import { EqtTrace } from '../../../../../src/JSTest.Runner/ObjectModel/EqtTrace';
+import { JestTestFramework } from '../../../../../src/JSTest.Runner/TestRunner/TestFrameworks/Jest/JestTestFramework';
+import { TestUtils } from '../../../TestUtils';
+import { TestFrameworkOptions } from '../../../../../src/JSTest.Runner/ObjectModel/TestFramework';
+import { AttachmentSet } from '../../../../../src/JSTest.Runner/ObjectModel';
+import { Constants } from '../../../../../src/JSTest.Runner/Constants';
 
 describe('JestTestFramework suite', () => {
     let framework: any;
@@ -29,8 +35,13 @@ describe('JestTestFramework suite', () => {
         };
 
         framework.jestProjects = {};
-    });
 
+        framework.options = <TestFrameworkOptions> {
+            RunAttachmentsDirectory: 'C:\\temp',
+            CollectCoverage: false
+        };
+    });
+    
     it('startExecutionWithSources', (done) => {
         let runCount = 0;
 
@@ -245,5 +256,114 @@ describe('JestTestFramework suite', () => {
         testCollection.set(3, new TestCase('C:\\a\\package2.json', 'fqn::fqn::test3.js', 'uri'));
 
         framework.startExecutionWithTests(['C:\\a\\package.json', 'C:\\a\\package2.json'], testCollection, {prop: 'value'} );
+    });
+
+    it('initialize', () => {
+        const logger = new TestUtils.MockDebugLogger();
+        EqtTrace.initialize(logger, 'file');
+
+        const mockJest = {};
+        const mockJestArgv = {};
+        const mockJestProjects = {};
+        const options = {
+            RunAttachmentsDirectory: 'C:\\temp',
+            CollectCoverage: true
+        };
+
+        framework.getJest = () => mockJest;
+        framework.getJestCLI = () => ({
+            __get__: (str: string) => {
+                switch (str) {
+                    case 'buildArgv':
+                        return () => {
+                            return mockJestArgv;
+                        };
+                    case 'getProjectListFromCLIArgs':
+                        return (arg: any) => {
+                            if (arg !== mockJestArgv) {
+                                Assert.fail();
+                            }
+                            return mockJestProjects;
+                        };
+                    default:
+                        Assert.fail();
+                }
+            }
+        });
+    
+        framework.initialize(options);
+
+        Assert.equal(logger.logContains(/Information.*initializing jest.*/), true);
+        Assert.equal(logger.logContains(/Information.*Attachments directory.*C:\\temp.*/), true);
+        Assert.deepEqual(options, framework.options);
+
+        Assert.equal(mockJest, framework.jest);
+        Assert.equal(mockJestArgv, framework.jestArgv);
+        Assert.equal(mockJestProjects, framework.jestProjects);
+
+    });
+
+    it('initialize, no run attachments dir', () => {
+        const logger = new TestUtils.MockDebugLogger();
+        EqtTrace.initialize(logger, 'file');
+        
+        const options = {
+            RunAttachmentsDirectory: '',
+            CollectCoverage: true
+        };
+
+        framework.getJest = () => ({});
+        framework.getJestCLI = () => ({
+            __get__: (str: string) => (() => ({ reporters: null}))
+        });
+    
+        framework.initialize(options);
+
+        Assert.equal(logger.logContains(/Warning.*Code coverage was enabled but run attachments directory was not provided.*/), true);
+    });
+
+    it('sets code coverage arguments for jest', (done) => {
+        const logger = new TestUtils.MockDebugLogger();
+        let coverageDir: string = '';
+
+        Object.defineProperty(fs, 'existsSync', {
+            writable: false,
+            value: () => {
+                return true;
+            }
+        });
+        Object.defineProperty(fs, 'mkdirSync', {
+            writable: false,
+            value: (dir) => {
+                coverageDir = dir;
+            }
+        });
+
+        EqtTrace.initialize(logger, 'file');
+
+        framework.options = {
+            RunAttachmentsDirectory: 'C:\\temp',
+            CollectCoverage: true
+        };
+        framework.jest = {
+            runCLI: async (argv, projects) => {
+                return Promise.resolve();
+            }
+        };
+
+        const guid = framework.getPseudoGuid();
+        
+        const attachments = new AttachmentSet(Constants.ExecutorURI, 'Code Coverage');
+        attachments.addAttachment(`C:\\temp\\${guid}\\clover.xml`, '');
+
+        framework.handleRunAttachments = (attachmentSet) => {
+            Assert.deepEqual(attachmentSet[0], attachments);
+            done();
+        };
+
+        framework.getPseudoGuid = () => guid;
+        framework.startExecutionWithSources(['C:\\a\\package.json'], {prop: 'value'});
+
+        Assert.equal('C:\\temp\\' + guid, coverageDir);
     });
 });

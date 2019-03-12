@@ -41,7 +41,7 @@ namespace JSTest.AcceptanceTests
         #region Protected Variables
 
         protected abstract string[] ContainerExtension { get; }
-
+        
         protected ExpectedOutput ExpectedOutput { get; set; } = new ExpectedOutput(
             new List<string> {
                 "test case a1",
@@ -66,16 +66,11 @@ namespace JSTest.AcceptanceTests
             new List<string>
             {
                 "Passed   test case a1",
-                //"Skipped  test case a2",
                 "Passed   test case b1",
-                //"Skipped  test case b2",
                 "Passed   test case c1",
-                //"Skipped  test case c2",
                 "Total tests: 3. Passed: 3. Failed: 0. Skipped: 0."
             },
             new List<string>());
-
-        protected ExpectedAttachments ExpectedAttachments { get; set; } = new ExpectedAttachments(new List<string>());
 
         #endregion
 
@@ -256,7 +251,7 @@ namespace JSTest.AcceptanceTests
             Directory.CreateDirectory(testRepoPath);
             BaseFrameworkTest.InstallNpmPackage(BaseFrameworkTest.jstestPackage);
         }
-
+        
         #endregion
 
         #region TestMethods
@@ -288,7 +283,7 @@ namespace JSTest.AcceptanceTests
             this.ValidateOutput(output, expectedOutput);
         }
 
-        public void TestExecution(IDictionary<string, string> cliArgs = null, List<string> expectedOutput = null, List<string> expectedAttachments = null)
+        public void TestExecution(IDictionary<string, string> cliArgs = null, List<string> expectedOutput = null, List<string> expectedAttachments = null, bool codeCoverageEnabled = false)
         {
             var files = Directory.EnumerateFiles(BaseFrameworkTest.testRepoPath).Where((file) => this.ContainerExtension.Any((ext) => file.EndsWith(ext)));
 
@@ -298,6 +293,11 @@ namespace JSTest.AcceptanceTests
                 { "TestFramework", BaseFrameworkTest.frameworkName },
                 { "DebugLogs", "true" }
             };
+
+            if (codeCoverageEnabled)
+            {
+                runConfig.Add("CodeCoverageEnabled", "true");
+            }
 
             var output = this.RunTests(files, cliOptions, runConfig, debug: false);
             var expectedStdOut = expectedOutput != null ? expectedOutput : this.ExpectedOutput.ExecutionOutput;
@@ -328,18 +328,21 @@ namespace JSTest.AcceptanceTests
             }, this.ExpectedOutput.ExecutionWithTestsOutput);
         }
 
-        public void TestExecutionWithAttachments()
+        public void TestExecutionWithAttachments(List<string> expectedAttachments)
         {
             this.TestExecution(new Dictionary<string, string>() {
                 { "Tests", "3" },
                 { "ResultsDirectory", GetTestResultsDir() },
                 { "Logger", "trx" }
-            }, this.ExpectedOutput.ExecutionWithAttachmentsOutput, this.ExpectedAttachments.Attachments);
+            }, this.ExpectedOutput.ExecutionWithAttachmentsOutput, expectedAttachments);
         }
 
-        public void TestExecutionWithTestsThroughTranslation()
+        public void TestExecutionWithCodeCoverage(List<string> expectedAttachments)
         {
-
+            this.TestExecution(new Dictionary<string, string>() {
+                { "ResultsDirectory", GetTestResultsDir() },
+                { "Logger", "trx" }
+            }, null, expectedAttachments, true);
         }
 
         #endregion

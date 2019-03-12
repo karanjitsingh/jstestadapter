@@ -1,20 +1,20 @@
-import { BaseTestFramework } from '../../../../src/JSTest.Runner/TestRunner/TestFrameworks/BaseTestFramework';
-import { EnvironmentType, TestOutcome, TestCase } from '../../../../src/JSTest.Runner/ObjectModel/Common';
-import { ITestFrameworkEvents, TestSessionEventArgs, TestSuiteEventArgs, TestSpecEventArgs }
-from '../../../../src/JSTest.Runner/ObjectModel/TestFramework';
-import { Environment } from '../../../../src/JSTest.Runner/Environment/Node/Environment';
-import { SessionHash } from '../../../../src/JSTest.Runner/Utils/Hashing/SessionHash';
-import { Constants } from '../../../../src/JSTest.Runner/Constants';
-import { TestUtils } from '../../TestUtils';
-import { Mock, It, Times } from 'typemoq';
 import * as Assert from 'assert';
+import { It, Mock, Times } from 'typemoq';
+import { Constants } from '../../../../src/JSTest.Runner/Constants';
+import { Environment } from '../../../../src/JSTest.Runner/Environment/Node/Environment';
+import { EnvironmentType, TestCase, TestOutcome } from '../../../../src/JSTest.Runner/ObjectModel/Common';
 import { EqtTrace } from '../../../../src/JSTest.Runner/ObjectModel/EqtTrace';
-import { TestCaseEndEventArgs } from '../../../../src/JSTest.Runner/ObjectModel/Payloads';
+import { ITestFrameworkEvents, TestSessionEventArgs, TestSpecEventArgs, TestSuiteEventArgs, TestRunAttachmentEventArgs }
+    from '../../../../src/JSTest.Runner/ObjectModel/TestFramework';
+import { BaseTestFramework } from '../../../../src/JSTest.Runner/TestRunner/TestFrameworks/BaseTestFramework';
+import { SessionHash } from '../../../../src/JSTest.Runner/Utils/Hashing/SessionHash';
+import { TestUtils } from '../../TestUtils';
 
 class TestableBaseTestFramework extends BaseTestFramework {
     public readonly canHandleMultipleSources: boolean = true;
     public readonly environmentType: EnvironmentType;
     public readonly supportsJsonOptions: boolean = true;
+    public readonly supportsCodeCoverage: boolean = false;
 
     protected sources: Array<string>;
 
@@ -65,6 +65,9 @@ class TestableBaseTestFramework extends BaseTestFramework {
     public specResult(...args: Array<any>) {
         this.handleSpecResult.apply(this, arguments);
     }
+    public runAttachments(...args: Array<any>) {
+        this.handleRunAttachments.apply(this, arguments);
+    }
     public errorMessage(...args: Array<any>) {
         this.handleErrorMessage.apply(this, arguments);
     }
@@ -77,14 +80,15 @@ describe('BaseTestFramework suite', () => {
     const sources = ['file 1', 'file 2'];
 
     beforeEach(() => {
-        testFrameworkEvents = <ITestFrameworkEvents> {
+        testFrameworkEvents = <ITestFrameworkEvents>{
             onTestCaseEnd: env.createEvent(),
             onTestCaseStart: env.createEvent(),
             onTestSuiteStart: env.createEvent(),
             onTestSuiteEnd: env.createEvent(),
             onTestSessionStart: env.createEvent(),
             onTestSessionEnd: env.createEvent(),
-            onErrorMessage: env.createEvent()
+            onErrorMessage: env.createEvent(),
+            onRunAttachment: env.createEvent()
         };
 
         baseTestFramework = new TestableBaseTestFramework(testFrameworkEvents, env.environmentType, sources);
@@ -146,7 +150,7 @@ describe('BaseTestFramework suite', () => {
     });
 
     it('handleSpecResult will raise onTestCaseEnd', (done) => {
-        const testCase: TestCase = new TestCase('source', 'fqnpostfix', Constants.executorURI, 'attachmentId');
+        const testCase: TestCase = new TestCase('source', 'fqnpostfix', Constants.ExecutorURI, 'attachmentId');
         testCase.DisplayName = 'testcase';
 
         testFrameworkEvents.onTestCaseEnd.subscribe((sender: object, args: TestSpecEventArgs) => {
@@ -160,11 +164,12 @@ describe('BaseTestFramework suite', () => {
             done();
         });
 
+        // tslint:disable:max-line-length
         baseTestFramework.specResult('fqn', 'testcase', 'source', TestOutcome.Passed, [], new Date(), new Date(), 'postfix', 'attachmentId');
     });
 
     it('handleSpecStarted/Done will raise onTestCaseStart/End', (done) => {
-        const testCase: TestCase = new TestCase('source', 'fqn', Constants.executorURI, 'attachmentId');
+        const testCase: TestCase = new TestCase('source', 'fqn', Constants.ExecutorURI, 'attachmentId');
         testCase.DisplayName = 'testcase';
         let specArgs: TestSpecEventArgs;
 
@@ -213,13 +218,26 @@ describe('BaseTestFramework suite', () => {
         done();
     });
 
+    it('handleRunAttachments will raise onTestRunAttachment', (done) => {
+        const logger = new TestUtils.MockDebugLogger();
+        EqtTrace.initialize(logger, 'file');
+
+        testFrameworkEvents.onRunAttachment.subscribe((sender: object, args: TestRunAttachmentEventArgs) => {
+            Assert.equal(logger.logContains(/Information.*BaseTestFramework: Run attachments received \[\"attachments\"\]/), true);
+            Assert.deepEqual(args.AttachmentCollection, ['attachments']);
+            done();
+        });
+
+        baseTestFramework.runAttachments(['attachments']);
+    });
+
     it('startExecutionWithTests will filter test cases', (done) => {
         const testCaseMap = new Map<string, TestCase>();
         const testcase = new TestCase('file 1', 'fqn 1', 'uri');
 
         testCaseMap.set(testcase.Id, testcase);
 
-        baseTestFramework.startExecutionWithTests(['file 1', 'file 2'], testCaseMap, <any> 'json');
+        baseTestFramework.startExecutionWithTests(['file 1', 'file 2'], testCaseMap, <any>'json');
 
         const mockFramework = Mock.ofInstance(baseTestFramework);
         mockFramework.callBase = true;
@@ -230,7 +248,7 @@ describe('BaseTestFramework suite', () => {
         baseTestFramework.specStarted('fqn', 'testcase', 'source', 'skip');
 
         mockFramework.verify((x) => x.skipSpec(
-            It.is((x) => x === <any> 'skip')
+            It.is((x) => x === <any>'skip')
         ), Times.once());
 
         done();
@@ -247,7 +265,7 @@ describe('BaseTestFramework suite', () => {
 
         baseTestFramework = mockFramework.object;
 
-        baseTestFramework.startExecutionWithTests(['file 1', 'file 2'], testCaseMap, <any> 'json');
+        baseTestFramework.startExecutionWithTests(['file 1', 'file 2'], testCaseMap, <any>'json');
 
         mockFramework.verify((x) => x.startExecutionWithSources(
             It.is((x) => TestUtils.assertDeepEqual(x, ['file 1', 'file 2'])),
@@ -263,20 +281,20 @@ describe('BaseTestFramework suite', () => {
 
         baseTestFramework = mockFramework.object;
 
-        baseTestFramework.startExecutionWithSources([], <any> 'json');
+        baseTestFramework.startExecutionWithSources([], <any>'json');
         Assert.equal(baseTestFramework.isExecutingWithTests(), false);
 
-        baseTestFramework.startExecutionWithTests(['file 1', 'file 2'], testCaseMap, <any> 'json');
+        baseTestFramework.startExecutionWithTests(['file 1', 'file 2'], testCaseMap, <any>'json');
         Assert.equal(baseTestFramework.isExecutingWithTests(), true);
     });
-    
+
     it('handleSpecDone will not report test if not part of the slice', (done) => {
         const logger = new TestUtils.MockDebugLogger();
         EqtTrace.initialize(logger, 'file');
 
         const testCaseMap = new Map<string, TestCase>();
 
-        baseTestFramework.startExecutionWithTests(['file 1', 'file 2'], testCaseMap, <any> 'json');
+        baseTestFramework.startExecutionWithTests(['file 1', 'file 2'], testCaseMap, <any>'json');
 
         testFrameworkEvents.onTestCaseEnd.subscribe((sender: object, args: TestSpecEventArgs) => {
             Assert.equal('fqn 1', args.TestCase.FullyQualifiedName);
