@@ -1,5 +1,5 @@
 import { IEnvironment } from '../../../../src/JSTest.Runner/Environment/IEnvironment';
-import { ITestFrameworkEvents, ITestFramework } from '../../../../src/JSTest.Runner/ObjectModel/TestFramework';
+import { ITestFrameworkEvents, ITestFramework, TestFrameworks } from '../../../../src/JSTest.Runner/ObjectModel/TestFramework';
 import { EnvironmentType, IEvent, IEventArgs } from '../../../../src/JSTest.Runner/ObjectModel/Common';
 import { TestFrameworkEventHandlers } from '../../../../src/JSTest.Runner/TestRunner/TestFrameworks/TestFrameworkEventHandlers';
 import { ExecutionManager, DiscoveryManager } from '../../../../src/JSTest.Runner/TestRunner/ExecutionManagers';
@@ -19,6 +19,7 @@ export class TestableFramework implements ITestFramework {
     public initialize = () => { return; };
     public startDiscovery = () => { return; };
     public testFrameworkEvents: ITestFrameworkEvents;
+    public supportsCodeCoverage: boolean = false;
 
     constructor(env: IEnvironment) {
         this.testFrameworkEvents = {
@@ -28,7 +29,8 @@ export class TestableFramework implements ITestFramework {
             onTestSessionEnd: env.createEvent(),
             onTestSessionStart: env.createEvent(),
             onTestSuiteEnd: env.createEvent(),
-            onTestSuiteStart: env.createEvent()
+            onTestSuiteStart: env.createEvent(),
+            onRunAttachment: env.createEvent()
         };
     }
 }
@@ -81,6 +83,8 @@ export class TestableExecutionManager extends ExecutionManager  {
 
 export class TestableBaseExecutionManager extends BaseExecutionManager {
     protected testFrameworkEventHandlers: TestFrameworkEventHandlers;
+    protected jsTestSettings: JSTestSettings;
+    protected testFramework: TestFrameworks;
 
     constructor(environment: IEnvironment) {
         super(environment, null, null);
