@@ -223,7 +223,6 @@ export class JestTestFramework extends BaseTestFramework {
 
         jestArgv.$0 = runConfigPath;
         jestArgv.config = runConfigPath;
-        jestArgv.rootDir = path.dirname(runConfigPath);
         jestArgv.reporters = [require.resolve('./JestReporter.js')];
 
         let coverageDirectory: string = null;
@@ -258,7 +257,7 @@ export class JestTestFramework extends BaseTestFramework {
         this.jestReporter.UPDATE_CONFIG(runConfigPath);
 
         try {
-            await this.jest.runCLI(jestArgv, this.jestProjects);
+            var result = await this.jest.runCLI(jestArgv, this.jestProjects);
             EqtTrace.info('JestTestFramework: Execution complete');
         } catch (e) {
             EqtTrace.error('JestTestFramework: Exception on await runCLI', e);
