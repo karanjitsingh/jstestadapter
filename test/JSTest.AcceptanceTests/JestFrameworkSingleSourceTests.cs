@@ -71,7 +71,7 @@ namespace JSTest.AcceptanceTests
         [ClassInitialize]
         public static void ClassInitialize(TestContext context)
         {
-            JestFrameworkMultipleSourceTests.InitializeBase("jest", "Jest", "Jest", "23.6.0");
+            JestFrameworkMultipleSourceTests.InitializeBase("jest", "Jest", "Jest", "*");
         }
 
         [TestMethod]
