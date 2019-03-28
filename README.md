@@ -92,12 +92,10 @@ With RunSettings.xml:
 
 ##### Tested framework versions
 
-Framework | Version
---------- | -------
-Jasmine   | latest
-Mocha     | latest
-Jest      | 23.6.0
-
+![npm (tag)](https://img.shields.io/npm/v/jasmine/latest.svg?label=jasmine%40latest)<br />
+![npm (tag)](https://img.shields.io/npm/v/mocha/latest.svg?label=mocha%40latest)<br />
+![npm (tag)](https://img.shields.io/npm/v/jest/latest.svg?label=jest%40latest)
+ 
 ---
 
 ###### Used and loved by
