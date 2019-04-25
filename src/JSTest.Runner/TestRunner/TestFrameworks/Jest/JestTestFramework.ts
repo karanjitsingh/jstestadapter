@@ -223,7 +223,6 @@ export class JestTestFramework extends BaseTestFramework {
 
         jestArgv.$0 = runConfigPath;
         jestArgv.config = runConfigPath;
-        jestArgv.rootDir = path.dirname(runConfigPath);
         jestArgv.reporters = [require.resolve('./JestReporter.js')];
 
         let coverageDirectory: string = null;
