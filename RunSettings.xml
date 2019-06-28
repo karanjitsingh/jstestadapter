@@ -1,7 +1,9 @@
 <RunSettings>
     <JSTest>
-        <TestFramework>mocha</TestFramework>
+        <TestFramework>karma</TestFramework>
         <TestFrameworkConfigJson>{
+            "timeout": 60000,
+            "testResultsPath": "testresults"
         }</TestFrameworkConfigJson>
     </JSTest>
 </RunSettings>

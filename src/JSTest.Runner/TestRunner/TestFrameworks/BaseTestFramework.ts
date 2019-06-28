@@ -190,9 +190,9 @@ export abstract class BaseTestFramework implements ITestFramework {
 
     protected handleRunAttachments(attachmentCollection: Array<AttachmentSet>) {
         EqtTrace.info(`BaseTestFramework: Run attachments received ${JSON.stringify(attachmentCollection)}`);
-        
+
         if (attachmentCollection instanceof Array) {
-            this.testFrameworkEvents.onRunAttachment.raise(this, { 
+            this.testFrameworkEvents.onRunAttachment.raise(this, {
                 AttachmentCollection: attachmentCollection
             });
         }

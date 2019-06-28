@@ -1,5 +1,6 @@
 export enum TestFrameworks {
     Jasmine,
     Mocha,
-    Jest
+    Jest,
+    Karma
 }

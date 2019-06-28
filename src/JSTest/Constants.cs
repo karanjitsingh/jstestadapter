@@ -9,13 +9,14 @@
         public const string VsTestConnectionTimeout = "VsTestConnectionTimeout";
         public const int MessageProtocolVersion = 1;
         public const int StreamBufferSize = 16384;
-        public const string JSTestVersionInfo = "1.2.2";
+        public const string JSTestVersionInfo = "1.2.3";
 
         public static class TestFrameworkStrings
         {
             public const string Jasmine = "jasmine";
             public const string Mocha = "mocha";
             public const string Jest = "jest";
+             public const string Karma = "karma";
         }
 
         public static class JavaScriptRuntimeStrings
