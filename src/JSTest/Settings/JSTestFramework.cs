@@ -13,6 +13,7 @@ namespace JSTest.Settings
     {
         Jasmine,
         Mocha,
-        Jest
+        Jest,
+        Karma
     }
 }

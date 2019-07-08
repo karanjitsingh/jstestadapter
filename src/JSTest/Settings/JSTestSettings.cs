@@ -56,6 +56,9 @@ namespace JSTest.Settings
 
                     case JSTestFramework.Jest:
                         return Constants.TestFrameworkStrings.Jest;
+
+                    case JSTestFramework.Karma:
+                        return Constants.TestFrameworkStrings.Karma;
                 }
 
                 return string.Empty;
@@ -74,6 +77,10 @@ namespace JSTest.Settings
 
                     case Constants.TestFrameworkStrings.Jest:
                         this.JavaScriptTestFramework = JSTestFramework.Jest;
+                        break;
+
+                    case Constants.TestFrameworkStrings.Karma:
+                        this.JavaScriptTestFramework = JSTestFramework.Karma;
                         break;
                 }
             }
