@@ -248,8 +248,9 @@ namespace JSTest.AcceptanceTests
         {
             Directory.CreateDirectory(testRepoPath);
             BaseFrameworkTest.InstallNpmPackage(BaseFrameworkTest.jstestPackage);
+            BaseFrameworkTest.InstallNpmPackage("jstestcontext", "*");
         }
-        
+
         #endregion
 
         #region TestMethods
