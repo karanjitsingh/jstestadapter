@@ -23,7 +23,7 @@ environmentProvider.getEnvironment().then((env: IEnvironment) => {
         if (cliArgs.traceEnabled) {
             EqtTrace.initialize(env.getDebugLogger(), cliArgs.traceFilePath);
         }
-        
+
         EqtTrace.info(`Index: Environment started for ${env.environmentType} with process arguments ${env.argv}.` );
 
         // Remove arguments for test runner since jest reads arguments from environment
