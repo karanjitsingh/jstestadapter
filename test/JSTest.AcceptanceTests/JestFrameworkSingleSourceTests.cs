@@ -72,7 +72,6 @@ namespace JSTest.AcceptanceTests
         public static void ClassInitialize(TestContext context)
         {
             JestFrameworkMultipleSourceTests.InitializeBase("jest", "Jest", "Jest", "*");
-            BaseFrameworkTest.InstallNpmPackage("jest-cli", "*");
         }
 
         [TestMethod]
