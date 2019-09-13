@@ -55,6 +55,10 @@ With RunSettings.xml:
 </RunSettings>
 ```
 
+#### Test result attachment support
+
+For uploading test result attachments along with tests checkout [karanjitsingh/jstestcontext](https://github.com/karanjitsingh/jstestcontext)
+
 ### Building from source
 ```bash
 # Build binaries and javascript to `./artifacts/Debug/net451/` along with the package tarball in `./artifacts/Debug`
