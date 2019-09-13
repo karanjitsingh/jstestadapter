@@ -61,7 +61,7 @@
 
         private Action<object, string> ProcessOutputReceived => (process, data) =>
         {
-            EqtTrace.Verbose("JSTestHostManager: Node {0} StdOut: {1}", this.jsProcess.ProcessId, data);
+            EqtTrace.Verbose("RuntimeManager: Node {0} StdOut: {1}", this.jsProcess.ProcessId, data);
 
             if (!string.IsNullOrEmpty(data))
             {
@@ -71,7 +71,7 @@
 
         private Action<object, string> ProcessErrorReceived => (process, data) =>
         {
-            EqtTrace.Error("JSTestHostManager: Node {0} StdErr: {1}", this.jsProcess.ProcessId, data);
+            EqtTrace.Error("RuntimeManager: Node {0} StdErr: {1}", this.jsProcess.ProcessId, data);
             
             if (!string.IsNullOrEmpty(data))
             {
@@ -87,7 +87,7 @@
             }
             catch (Exception ex)
             {
-                EqtTrace.Warning("JSTestHostManager: Unable to terminate test host process: " + ex);
+                EqtTrace.Warning("RuntimeManager: Unable to terminate test host process: " + ex);
             }
 
             return Task.FromResult(true);
@@ -99,7 +99,7 @@
             {
                 try
                 {
-                    EqtTrace.Verbose("JSTestHostManager: Starting process '{0}' with command line '{1}'", runtimeProcessStartInfo.FileName, runtimeProcessStartInfo.Arguments);
+                    EqtTrace.Verbose("RuntimeManager: Starting process '{0}' with command line '{1}'", runtimeProcessStartInfo.FileName, runtimeProcessStartInfo.Arguments);
 
                     cancellationToken.ThrowIfCancellationRequested();
 
@@ -115,7 +115,7 @@
                 }
                 catch (OperationCanceledException ex)
                 {
-                    EqtTrace.Error("JSTestHostManager: Failed to launch node: {0}", ex);
+                    EqtTrace.Error("RuntimeManager: Failed to launch node: {0}", ex);
                     Console.WriteLine(ex);
                     return false;
                 }
@@ -147,7 +147,7 @@
         {
             if (jsProcess.IsAlive)
             {
-                EqtTrace.Verbose("JSTestHostManager: Initializing communication with client process.");
+                EqtTrace.Verbose("RuntimeManager: Initializing communication with client process.");
                 var connectionStopwatch = Stopwatch.StartNew();
                 
                 // Start the message loop
@@ -163,8 +163,6 @@
 
         private Task MessageLoopAsync(CommunicationChannel channel, CancellationToken cancellationToken)
         {
-            Exception error = null;
-
             // Set read timeout to avoid blocking receive raw message
             while (channel != null && !cancellationToken.IsCancellationRequested && this.jsProcess.IsAlive)
             {
@@ -177,9 +175,8 @@
                 }
                 catch (Exception exception)
                 {
-                    EqtTrace.Error("JSTestHostManager: Socket: Message loop: failed to receive message {0}", exception);
-                    error = exception;
-                    break;
+                    EqtTrace.Error("RuntimeManager: Communication error: {0}", exception);
+                    Console.Error.WriteLine("JSTest: Communucation error: {0}", exception.Message);
                 }
             }
 
