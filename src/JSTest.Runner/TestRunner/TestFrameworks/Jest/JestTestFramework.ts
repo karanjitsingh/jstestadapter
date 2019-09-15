@@ -42,8 +42,11 @@ export class JestTestFramework extends BaseTestFramework {
     }
 
     private getJestCLI() {
-        const jestjs = require.resolve('jest');
-        return rewire(path.join(path.dirname(path.dirname(jestjs)), 'node_modules', 'jest-cli', 'build', 'cli'));
+        try {
+            return rewire(path.join(path.dirname(require.resolve('jest-cli')), 'cli'));
+        } catch {
+            return rewire(path.join(path.dirname(path.dirname(require.resolve('jest'))), 'node_modules', 'jest-cli', 'build', 'cli'));
+        }
     }
 
     constructor(testFrameworkEvents: ITestFrameworkEvents, envrionmentType: EnvironmentType) {
