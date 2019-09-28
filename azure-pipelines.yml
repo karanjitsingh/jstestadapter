@@ -26,7 +26,7 @@ steps:
     testAssemblyVer2: |
      **\*Tests.js
      !**\node_modules\**\*.js
-    runSettingsFile: '$(System.DefaultWorkingDirectory)\RunSettings.xml'
+    runSettingsFile: '$(System.DefaultWorkingDirectory)\RunSettings.runsettings'
     pathtoCustomTestAdapters: '$(System.DefaultWorkingDirectory)\artifacts\Release\net451'
     platform: '$(BuildPlatform)'
     configuration: '$(BuildConfiguration)'
