@@ -2,6 +2,13 @@
 [![npm version](https://img.shields.io/npm/v/jstestadapter/latest.svg?label=npm&style=flat)](https://www.npmjs.com/package/jstestadapter)
 [![npm version](https://img.shields.io/npm/v/jstestadapter/beta.svg?style=flat)](https://www.npmjs.com/package/jstestadapter)
 
+##### Tested with framework versions
+
+![npm (tag)](https://img.shields.io/npm/v/jasmine/latest.svg?label=jasmine%40latest)<br />
+![npm (tag)](https://img.shields.io/npm/v/mocha/latest.svg?label=mocha%40latest)<br />
+![npm (tag)](https://img.shields.io/npm/v/jest/latest.svg?label=jest%40latest)
+ 
+
 ### jstestadapter
 
 jstestadapter is a JavaScript test adapter extension for [Visual Studio Test Platform](https://github.com/Microsoft/vstest). jstest with vstest can be used as a command line tool to run tests written in mocha, jasmine or jest.
@@ -94,12 +101,6 @@ For uploading test result attachments along with tests checkout [karanjitsingh/j
 | -vstest        | \path\to\custom\vstest.console.exe | Path to vstest.console.exe              | D:\vstest\artifacts\Debug\net451\win7-x64\vstest.console.exe  |
 
 
-##### Tested framework versions
-
-![npm (tag)](https://img.shields.io/npm/v/jasmine/latest.svg?label=jasmine%40latest)<br />
-![npm (tag)](https://img.shields.io/npm/v/mocha/latest.svg?label=mocha%40latest)<br />
-![npm (tag)](https://img.shields.io/npm/v/jest/latest.svg?label=jest%40latest)
- 
 ---
 
 ###### Used and loved by
