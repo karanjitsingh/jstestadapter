@@ -150,19 +150,21 @@ export class JasmineTestFramework extends BaseTestFramework implements ITestFram
         };
 
         // tslint:disable-next-line                
-        const getExecutor = function (fullyQualifiedName: string, testCaseName: string) {
+        const getExecutor = (fullyQualifiedName: string, testCaseName: string, specObject: any) => {
             this.skipCurrentSpec = false;
-            this.handleSpecStarted(fullyQualifiedName, testCaseName, this.sources[0]);  // Will eventually call skip if skip is required
-            if (discovery || this.skipCurrentSpec === true) {
+
+            // Will eventually call skip if skip is required
+            this.handleSpecStarted(fullyQualifiedName, testCaseName, this.sources[0], specObject);
+            if (discovery || this.skipCurrentSpec) {
                 return skipSpecHandle;
             } else {
                 return executeSpecHandle;
             }
-        }.bind(this);
+        };
 
         // tslint:disable-next-line
-        this.jasmine.jasmine.Spec.prototype.execute = function (onComplete: any, args: any, executor: any = getExecutor) {
-            executor(this.getFullName(), this.description).apply(this, arguments);
+        this.jasmine.jasmine.Spec.prototype.execute = function (onComplete: any, args: any, executor: any) {
+            getExecutor(this.getFullName(), this.description, this).apply(this, arguments);
         };
     }
 
