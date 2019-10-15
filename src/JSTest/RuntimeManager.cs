@@ -18,7 +18,7 @@
     {
         private readonly JSTestSettings settings;
         private readonly ManualResetEventSlim versionCheckComplete;
-        private bool runtimeCanExit = false;
+        private readonly ManualResetEventSlim executionComplete;
 
         private readonly JSProcess jsProcess;
         private readonly JsonDataSerializer dataSerializer;
@@ -31,6 +31,7 @@
             this.dataSerializer = dataSerializer;
             this.jsProcess = process;
             this.versionCheckComplete = new ManualResetEventSlim();
+            this.executionComplete = new ManualResetEventSlim();
         }
 
         public TestRuntimeManager(JSTestSettings settings, TestRunEvents testRunEvents)
@@ -52,7 +53,7 @@
 
         private Action<object> ProcessExitReceived => (process) =>
         {
-            if (!runtimeCanExit)
+            if (this.executionComplete.IsSet)
             {
                 this.testRunEvents.InvokeTestSessionEnd(this);
                 throw new JSTestException("JavaScript runtime quit unexpectedly.");
@@ -164,7 +165,7 @@
         private Task MessageLoopAsync(CommunicationChannel channel, CancellationToken cancellationToken)
         {
             // Set read timeout to avoid blocking receive raw message
-            while (channel != null && !cancellationToken.IsCancellationRequested && this.jsProcess.IsAlive)
+            while (channel != null && !cancellationToken.IsCancellationRequested && this.jsProcess.IsAlive && !this.executionComplete.IsSet)
             {
                 try
                 {
@@ -218,7 +219,7 @@
 
                 case MessageType.ExecutionComplete:
                 case MessageType.DiscoveryComplete:
-                    runtimeCanExit = true;
+                    this.executionComplete.Set();
                     this.testRunEvents.InvokeTestSessionEnd(this);
                     break;
 
