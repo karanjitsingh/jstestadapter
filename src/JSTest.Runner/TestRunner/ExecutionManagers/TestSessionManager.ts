@@ -45,6 +45,12 @@ export class TestSessionManager {
         this.continueNextSession(testSession);
     }
 
+    public setSessionCompletedWithErrors(sessionId: string) {
+        const testSession = this.testSessionBucket.get(sessionId);
+        EqtTrace.info(`TestSessionManager: Session ${sessionId} completed with errors.`);
+        this.continueNextSession(testSession);
+    }
+
     public addSession(sources: Array<string>, job: () => void, errorCallback: (err: Error) => void) {
         const testSession = <TestSession> {
             Sources: sources,

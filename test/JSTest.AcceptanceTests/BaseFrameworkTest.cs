@@ -84,8 +84,10 @@ namespace JSTest.AcceptanceTests
 
         #region Protected Methods
 
-        protected ExecutionOutput RunTests(IEnumerable<string> files, IDictionary<string, string> cliOptions, IDictionary<string, string> runConfig, bool debug = false)
+        protected ExecutionOutput RunTests(IEnumerable<string> files, IDictionary<string, string> cliOptions, IDictionary<string, string> runConfig)
         {
+            var debug = true;
+
             var process = new Process();
             var startInfo = new ProcessStartInfo();
 
@@ -99,7 +101,7 @@ namespace JSTest.AcceptanceTests
             if (debug)
             {
                 startInfo.EnvironmentVariables.Add("JSTEST_RUNNER_DEBUG", "1");
-                startInfo.EnvironmentVariables.Add("JSTEST_HOST_DEBUG", "1");
+                startInfo.EnvironmentVariables.Add("JSTEST_HOST_DEBUG", "0");
             }
 
             process.StartInfo = startInfo;
@@ -161,7 +163,7 @@ namespace JSTest.AcceptanceTests
         {
             BaseFrameworkTest.InitializePaths();
             BaseFrameworkTest.InitializeTempFolder();
-            BaseFrameworkTest.InstallNpmPackage(package);
+            BaseFrameworkTest.InstallNpmPackage(package, packageVersion);
             BaseFrameworkTest.CopyRepoItems(itemFolder);
             BaseFrameworkTest.frameworkPackage = package;
             BaseFrameworkTest.frameworkName = frameworkName;
@@ -298,7 +300,7 @@ namespace JSTest.AcceptanceTests
                 runConfig.Add("CodeCoverageEnabled", "true");
             }
 
-            var output = this.RunTests(files, cliOptions, runConfig, debug: false);
+            var output = this.RunTests(files, cliOptions, runConfig);
             var expectedStdOut = expectedOutput != null ? expectedOutput : this.ExpectedOutput.ExecutionOutput;
 
             this.ValidateOutput(output, expectedStdOut, false);
