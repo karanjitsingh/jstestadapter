@@ -38,7 +38,7 @@ TestFramework           | One of the following test frameworks for execution: Ja
 DebugLogs               | Enable debug logs for JavaScript test runner                                          | false
 DebugFilePath           | Path for diagnostic logs                                                              | ""
 TestFrameworkConfigJson | Override test framework configurations (Specific to the testframework) in json format | {}
-RootFolder              | Override location of root directory where the node_modules folder would be            | ""
+NodeModulesPath         | Override path to node_modules                                                         | ""
 
 #### RunSettings can be provided through the the vstest cli itself:
 ```bash

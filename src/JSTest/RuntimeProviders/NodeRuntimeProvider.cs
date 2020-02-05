@@ -13,9 +13,10 @@
     {
         public static NodeRuntimeProvider Instance { get; } = new NodeRuntimeProvider();
 
-        public TestProcessStartInfo GetRuntimeProcessInfo(string nodePath, string rootFolder, bool isDebugEnabled, IEnumerable<string> sources)
+        public TestProcessStartInfo GetRuntimeProcessInfo(string nodePath, string nodeModulesPath, bool isDebugEnabled, IEnumerable<string> sources)
         {
             var processInfo = new TestProcessStartInfo();
+            string rootFolder = Path.GetDirectoryName(typeof(TestRunner).GetTypeInfo().Assembly.GetAssemblyLocation());
 
             if (!string.IsNullOrWhiteSpace(nodePath))
             {
@@ -36,16 +37,10 @@
                 processInfo.FileName = "node.exe";
             }
 
-            if (string.IsNullOrWhiteSpace(rootFolder))
-            {
-                rootFolder = Path.GetDirectoryName(typeof(TestRunner).GetTypeInfo().Assembly.GetAssemblyLocation());
-            }
-
-
             var jstestrunner = Path.Combine(rootFolder, "index.js");
             processInfo.EnvironmentVariables = new Dictionary<string, string>
             {
-                { "NODE_PATH", InitNodePath(sources, rootFolder) },
+                { "NODE_PATH",  string.IsNullOrEmpty(nodeModulesPath) ? InitNodePath(sources, rootFolder) : nodeModulesPath },
                 { "NODE_NO_WARNINGS", "1" }
             };
 
