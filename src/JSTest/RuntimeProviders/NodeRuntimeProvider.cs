@@ -40,7 +40,7 @@
             var jstestrunner = Path.Combine(rootFolder, "index.js");
             processInfo.EnvironmentVariables = new Dictionary<string, string>
             {
-                { "NODE_PATH",  string.IsNullOrEmpty(nodeModulesPath) ? InitNodePath(sources, rootFolder) : nodeModulesPath },
+                { "NODE_PATH",  InitNodePath(sources, rootFolder, nodeModulesPath) },
                 { "NODE_NO_WARNINGS", "1" }
             };
 
@@ -50,7 +50,7 @@
             return processInfo;
         }
 
-        private string InitNodePath(IEnumerable<string> sources, string root)
+        private string InitNodePath(IEnumerable<string> sources, string root, string nodeModulesPath)
         {
             var node_path = Environment.GetEnvironmentVariable("NODE_PATH");
             if (!string.IsNullOrEmpty(node_path))
@@ -75,6 +75,11 @@
                     paths.Add(path);
                     path = Path.GetDirectoryName(path);
                 }
+            }
+
+            if (!string.IsNullOrEmpty(nodeModulesPath))
+            {
+                node_path += ";" + nodeModulesPath;
             }
 
             return node_path;
