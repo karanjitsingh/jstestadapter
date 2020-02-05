@@ -86,7 +86,7 @@ namespace JSTest.AcceptanceTests
 
         protected ExecutionOutput RunTests(IEnumerable<string> files, IDictionary<string, string> cliOptions, IDictionary<string, string> runConfig)
         {
-            var debug = true;
+            var debug = false;
 
             var process = new Process();
             var startInfo = new ProcessStartInfo();
