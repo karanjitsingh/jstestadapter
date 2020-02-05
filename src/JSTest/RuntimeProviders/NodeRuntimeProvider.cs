@@ -13,10 +13,11 @@
     {
         public static NodeRuntimeProvider Instance { get; } = new NodeRuntimeProvider();
 
-        public TestProcessStartInfo GetRuntimeProcessInfo(string nodePath, bool isDebugEnabled, IEnumerable<string> sources)
+        public TestProcessStartInfo GetRuntimeProcessInfo(string nodePath, string nodeModulesPath, bool isDebugEnabled, IEnumerable<string> sources)
         {
             var processInfo = new TestProcessStartInfo();
             string rootFolder = Path.GetDirectoryName(typeof(TestRunner).GetTypeInfo().Assembly.GetAssemblyLocation());
+
             if (!string.IsNullOrWhiteSpace(nodePath))
             {
                 processInfo.FileName = nodePath;
@@ -39,7 +40,7 @@
             var jstestrunner = Path.Combine(rootFolder, "index.js");
             processInfo.EnvironmentVariables = new Dictionary<string, string>
             {
-                { "NODE_PATH", InitNodePath(sources, rootFolder) },
+                { "NODE_PATH",  InitNodePath(sources, rootFolder, nodeModulesPath) },
                 { "NODE_NO_WARNINGS", "1" }
             };
 
@@ -49,7 +50,7 @@
             return processInfo;
         }
 
-        private string InitNodePath(IEnumerable<string> sources, string root)
+        private string InitNodePath(IEnumerable<string> sources, string root, string nodeModulesPath)
         {
             var node_path = Environment.GetEnvironmentVariable("NODE_PATH");
             if (!string.IsNullOrEmpty(node_path))
@@ -74,6 +75,11 @@
                     paths.Add(path);
                     path = Path.GetDirectoryName(path);
                 }
+            }
+
+            if (!string.IsNullOrEmpty(nodeModulesPath))
+            {
+                node_path += ";" + nodeModulesPath;
             }
 
             return node_path;

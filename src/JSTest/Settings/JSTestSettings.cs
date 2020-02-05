@@ -82,6 +82,9 @@ namespace JSTest.Settings
         [XmlElement("NodePath")]
         public string NodePath { get; set; }
 
+        [XmlElement("NodeModulesPath")]
+        public string NodeModulesPath { get; set; }
+
         [DataMember]
         public string TestFrameworkConfigJson { get; set; }
 
@@ -97,6 +100,7 @@ namespace JSTest.Settings
             this.RunInParallel = true;
             this.DebugLogs = false;
             this.NodePath = string.Empty;
+            this.NodeModulesPath = string.Empty;
             this.DebugFilePath = string.Empty;
             this.AttachmentsFolder = string.Empty;
         }
