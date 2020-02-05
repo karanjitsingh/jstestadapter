@@ -5,6 +5,6 @@
 
     internal interface IRuntimeProvider
     {
-        TestProcessStartInfo GetRuntimeProcessInfo(string nodePath, bool debugEnabled, IEnumerable<string> sources);
+        TestProcessStartInfo GetRuntimeProcessInfo(string nodePath, string rootPath, bool debugEnabled, IEnumerable<string> sources);
     }
 }

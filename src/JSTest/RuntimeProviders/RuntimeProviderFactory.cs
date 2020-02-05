@@ -29,7 +29,7 @@ namespace JSTest.RuntimeProviders
             switch (settings.Runtime)
             {
                 case JavaScriptRuntime.NodeJS:
-                    return NodeRuntimeProvider.Instance.GetRuntimeProcessInfo(settings.NodePath, this.IsRuntimeDebuggingEnabled, sources);
+                    return NodeRuntimeProvider.Instance.GetRuntimeProcessInfo(settings.NodePath, settings.RootFolder, this.IsRuntimeDebuggingEnabled, sources);
             }
 
             return null;
