@@ -1,7 +1,8 @@
+import { SessionHash } from '../../Utils/Hashing/SessionHash';
 import { IEnvironment } from '../../Environment/IEnvironment';
 import { JSTestSettings, TestMessageLevel } from '../../ObjectModel';
-import { ITestFramework, TestErrorMessageEventArgs, TestFrameworks, TestSessionEventArgs,
-         TestSpecEventArgs } from '../../ObjectModel/TestFramework';
+import { ITestFramework, TestErrorMessageEventArgs, TestFrameworks,
+         TestSessionEventArgs, TestSpecEventArgs } from '../../ObjectModel/TestFramework';
 import { MessageSender } from '../MessageSender';
 import { TestFrameworkEventHandlers } from '../TestFrameworks/TestFrameworkEventHandlers';
 import { BaseExecutionManager } from './BaseExecutionManager';
@@ -61,15 +62,17 @@ export class DiscoveryManager extends BaseExecutionManager {
         }
 
         const currentSession = this.testSessionManager.getSessionEventArgs(sources);
-
+        let sessionId: string;
+        
         if (currentSession != null) {
             currentSession.InProgress = false;
             currentSession.EndTime = new Date();
+            sessionId = currentSession.SessionId;
         } else {
-            // TODO ??
+            sessionId = SessionHash(sources);
         }
 
-        this.testSessionManager.setSessionComplete(currentSession);
+        this.testSessionManager.setSessionCompletedWithErrors(sessionId);
     }
 
     private addSessionToSessionManager(sources: Array<string>) {
