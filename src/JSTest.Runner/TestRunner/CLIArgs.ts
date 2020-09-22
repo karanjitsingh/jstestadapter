@@ -3,4 +3,5 @@ export interface CLIArgs {
     port: number;
     traceEnabled: boolean;
     traceFilePath: string;
+    runInDomain: boolean;
 }

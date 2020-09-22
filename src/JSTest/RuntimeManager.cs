@@ -40,6 +40,8 @@
             this.settings = settings;
             this.testRunEvents = testRunEvents;
 
+            this.jsProcess.RunInDomain = this.settings.RunInDomain;
+
             if (this.settings.DebugLogs)
             {
                 this.jsProcess.EnableDebugLogs(this.settings.DebugFilePath);
@@ -73,13 +75,13 @@
         private Action<object, string> ProcessErrorReceived => (process, data) =>
         {
             EqtTrace.Error("RuntimeManager: Node {0} StdErr: {1}", this.jsProcess.ProcessId, data);
-            
+
             if (!string.IsNullOrEmpty(data))
             {
                 Console.WriteLine("JSTest: {0} StdErr: {1}", this.jsProcess.ProcessId, data);
             }
         };
-        
+
         public Task CleanProcessAsync()
         {
             try
@@ -150,7 +152,7 @@
             {
                 EqtTrace.Verbose("RuntimeManager: Initializing communication with client process.");
                 var connectionStopwatch = Stopwatch.StartNew();
-                
+
                 // Start the message loop
                 Task.Run(() => { this.MessageLoopAsync(this.jsProcess.CommunicationChannel, cancellationToken); });
                 this.jsProcess.CommunicationChannel.SendMessage(MessageType.TestRunSettings, settings);

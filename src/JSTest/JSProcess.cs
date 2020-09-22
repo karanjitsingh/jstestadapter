@@ -50,8 +50,10 @@ namespace JSTest
         }
 
         public bool IsAlive => this.process != null && !this.process.HasExited;
-        
+
         public string DebugFilePath { get; set; }
+
+        public bool RunInDomain { get; set; }
 
         public void EnableDebugLogs(string debugFilePath)
         {
@@ -62,7 +64,7 @@ namespace JSTest
         public bool LaunchProcess(TestProcessStartInfo startInfo, ProcessCallbacks processStreamCallbacks)
         {
             var endpoint = this.InitializeChannel();
-            
+
             var process = new Process();
             try
             {
@@ -156,10 +158,11 @@ namespace JSTest
         {
             process.StartInfo.FileName = startInfo.FileName;
             process.StartInfo.WorkingDirectory = startInfo.WorkingDirectory;
-            process.StartInfo.Arguments = string.Format("{0} {1} {2} {3}",
+            process.StartInfo.Arguments = string.Format("{0} {1} {2} {3} {4}",
                                                         startInfo.Arguments,
                                                         endPoint.Address,
                                                         endPoint.Port,
+                                                        this.GetTestSessionArgs(),
                                                         this.GetDebugArg());
 
             foreach (var entry in startInfo.EnvironmentVariables)
@@ -189,13 +192,24 @@ namespace JSTest
             return endpoint;
         }
 
+        private string GetTestSessionArgs()
+        {
+            if (!this.RunInDomain)
+            {
+                return string.Empty;
+            }
+
+            return "--runInDomain";
+        }
+
         private string GetDebugArg()
         {
             if (this.debugEnabled)
             {
                 var arg = "--diag";
 
-                try {
+                try
+                {
                     if (File.Exists(this.debugFilePath) || Directory.Exists(Path.GetDirectoryName(this.debugFilePath)) || Directory.Exists(this.debugFilePath))
                     {
                         arg += " " + Uri.EscapeDataString(this.debugFilePath);

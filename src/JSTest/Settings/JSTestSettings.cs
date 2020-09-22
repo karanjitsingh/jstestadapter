@@ -16,6 +16,8 @@ namespace JSTest.Settings
 
         #region JS Runner Specific Settings
 
+        public bool RunInDomain { get; set; }
+
         public bool DebugLogs { get; set; }
 
         public string DebugFilePath { get; set; }
@@ -98,6 +100,7 @@ namespace JSTest.Settings
             this.JavaScriptTestFramework = JSTestFramework.Jasmine;
             this.Discovery = false;
             this.RunInParallel = true;
+            this.RunInDomain = true;
             this.DebugLogs = false;
             this.NodePath = string.Empty;
             this.NodeModulesPath = string.Empty;
