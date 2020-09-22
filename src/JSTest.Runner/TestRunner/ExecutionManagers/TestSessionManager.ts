@@ -17,7 +17,7 @@ export class TestSessionManager {
     private testSessionIterator: IterableIterator<TestSession>;
     private sessionCompleteCount: number;
     private sessionCount: number;
-    private runInDomain: boolean;
+    protected runInDomain: boolean;
     public onAllSessionsComplete: IEvent<IEventArgs>;
 
     public static instance: TestSessionManager;
@@ -77,11 +77,7 @@ export class TestSessionManager {
     }
 
     public executeJobs() {
-        if (this.runInDomain) {
-            this.runSessionInDomain(this.testSessionIterator.next().value);
-        } else {
-            this.runSession(this.testSessionIterator.next().value);
-        }
+        this.runSession(this.testSessionIterator.next().value);
     }
 
     public updateSessionEventArgs(args: TestSessionEventArgs) {
@@ -95,6 +91,14 @@ export class TestSessionManager {
     }
 
     protected runSession(testSession: TestSession) {
+        if (this.runInDomain) {
+            return this.runSessionInDomain(testSession);
+        } else {
+            return this.runSessionNoDomain(testSession);
+        }
+    }
+
+    protected runSessionNoDomain(testSession: TestSession) {
         try {
             EqtTrace.info(`TestSessionManager: Executing session with no domain`);
             testSession.Job();

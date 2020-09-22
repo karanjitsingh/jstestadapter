@@ -1,13 +1,14 @@
-import { IEnvironment } from '../../../../src/JSTest.Runner/Environment/IEnvironment';
-import { ITestFrameworkEvents, ITestFramework, TestFrameworks } from '../../../../src/JSTest.Runner/ObjectModel/TestFramework';
+import { DiscoveryManager, ExecutionManager } from '../../../../src/JSTest.Runner/TestRunner/ExecutionManagers';
 import { EnvironmentType, IEvent, IEventArgs } from '../../../../src/JSTest.Runner/ObjectModel/Common';
-import { TestFrameworkEventHandlers } from '../../../../src/JSTest.Runner/TestRunner/TestFrameworks/TestFrameworkEventHandlers';
-import { ExecutionManager, DiscoveryManager } from '../../../../src/JSTest.Runner/TestRunner/ExecutionManagers';
-import { MessageSender } from '../../../../src/JSTest.Runner/TestRunner/MessageSender';
-import { JSTestSettings } from '../../../../src/JSTest.Runner/ObjectModel';
+import { ITestFramework, ITestFrameworkEvents, TestFrameworks } from '../../../../src/JSTest.Runner/ObjectModel/TestFramework';
+import { TestSession, TestSessionManager } from '../../../../src/JSTest.Runner/TestRunner/ExecutionManagers/TestSessionManager';
+
 import { BaseExecutionManager } from '../../../../src/JSTest.Runner/TestRunner/ExecutionManagers/BaseExecutionManager';
+import { IEnvironment } from '../../../../src/JSTest.Runner/Environment/IEnvironment';
+import { JSTestSettings } from '../../../../src/JSTest.Runner/ObjectModel';
+import { MessageSender } from '../../../../src/JSTest.Runner/TestRunner/MessageSender';
+import { TestFrameworkEventHandlers } from '../../../../src/JSTest.Runner/TestRunner/TestFrameworks/TestFrameworkEventHandlers';
 import { TestFrameworkFactory } from '../../../../src/JSTest.Runner/TestRunner/TestFrameworks/TestFrameworkFactory';
-import { TestSessionManager, TestSession } from '../../../../src/JSTest.Runner/TestRunner/ExecutionManagers/TestSessionManager';
 
 export class TestableFramework implements ITestFramework {
     public executorUri: string = '';
@@ -116,12 +117,12 @@ export class TestableBaseExecutionManager extends BaseExecutionManager {
 }
 
 export class TestableTestSessionManager extends TestSessionManager {
-    constructor(env: IEnvironment) {
-        super(env);
+    constructor(env: IEnvironment, runInDomain: boolean) {
+        super(env, runInDomain);
     }
-
-    public runSession(testSession: TestSession) {
-        return this.runSessionInDomain(testSession);
+    
+    public runTestSession(testSession: TestSession): any {
+        return super.runSession(testSession);
     }
 }
 

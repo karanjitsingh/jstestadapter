@@ -12,8 +12,9 @@ import { CLIArgs } from './TestRunner/CLIArgs';
          for (let i = 4; i < env.argv.length; i++) {
             if (env.argv[i].startsWith('--')) {
                 switch (env.argv[i].substr(2).toLowerCase()) {
-                    case 'runInDomain':
+                    case 'runindomain':
                         runInDomain = true;
+                        break;
                     case 'diag':
                         debugEnabled = true;
                         if (env.argv[++i]) {
