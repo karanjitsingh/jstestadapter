@@ -203,11 +203,8 @@ describe('TestSessionManager Sutie', () => {
             Sources: ['file 1'],
             TestSessionEventArgs: args,
             Job: () => { 
-                setTimeout(() => {
-                    // should throw an error but will be caught by try catch and not domain
-                    // tslint:disable:no-require-imports
-                    require('asdfasdf');
-                }, 100);
+                // tslint:disable:no-require-imports
+                require('asdfasdf');
             },
             ErrorCallback: errorCallback,
             Complete: false

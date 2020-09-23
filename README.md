@@ -30,7 +30,7 @@ path/to/vstest.console.exe --TestAdapterPath:./node_modules/jstestadapter/ path/
 Option                  |  Usage                                                                                | Default
 ----------------------- | ------------------------------------------------------------------------------------- | --------
 TestFramework           | One of the following test frameworks for execution: Jasmine/Mocha/Jest                | Jasmine
-RunInDomain             | Run JavaScript tests in a node [Domain](https://nodejs.org/api/domain.html)           | true
+RunInDomain             | Run JavaScript tests in a node [Domain](https://nodejs.org/api/domain.html). _Note: If set to false the test must complete all execution before returning control. i.e. all callbacks such as setTimeout must be completed before the test completes execution._ | true
 DebugLogs               | Enable debug logs for JavaScript test runner                                          | false
 DebugFilePath           | Path for diagnostic logs                                                              | ""
 TestFrameworkConfigJson | Override test framework configurations (Specific to the testframework) in json format | {}
