@@ -1,4 +1,5 @@
 import * as assert from 'assert';
+
 import { ArgProcessor } from '../../../src/JSTest.Runner/ArgProcessor';
 import { CLIArgs } from '../../../src/JSTest.Runner/TestRunner/CLIArgs';
 
@@ -16,7 +17,8 @@ describe('ArgProcessor Suite', () => {
             ip: '192.168.1.1',
             port: '9999',
             traceEnabled: false,
-            traceFilePath: ''
+            traceFilePath: '',
+            runInDomain: false
         });
     });
     
@@ -28,7 +30,8 @@ describe('ArgProcessor Suite', () => {
             ip: '192.168.1.1',
             port: '9999',
             traceEnabled: true,
-            traceFilePath: ''
+            traceFilePath: '',
+            runInDomain: false
         });
     });
 
@@ -40,7 +43,21 @@ describe('ArgProcessor Suite', () => {
             ip: '192.168.1.1',
             port: '9999',
             traceEnabled: true,
-            traceFilePath: 'file'
+            traceFilePath: 'file',
+            runInDomain: false
+        });
+    });
+    
+    it('Will enable running in domain for logs for --runInDomain', () => {
+        mockEnv.argv = [process.env[0], process.env[1], '192.168.1.1', '9999', '--runInDomain'];
+        const args: CLIArgs = ArgProcessor.processCLIArgs(mockEnv);
+        
+        assert.deepEqual(args, {
+            ip: '192.168.1.1',
+            port: '9999',
+            traceEnabled: false,
+            traceFilePath: '',
+            runInDomain: true
         });
     });
 
