@@ -1,8 +1,9 @@
+import * as Assert from 'assert';
+
 import { Environment } from '../../../../src/JSTest.Runner/Environment/Node/Environment';
+import { Event } from '../../../../src/JSTest.Runner/Events/Event';
 import { TestFrameworkFactory } from '../../../../src/JSTest.Runner/TestRunner/TestFrameworks/TestFrameworkFactory';
 import { TestSessionManager } from '../../../../src/JSTest.Runner/TestRunner/ExecutionManagers/TestSessionManager';
-import { Event } from '../../../../src/JSTest.Runner/Events/Event';
-import * as Assert from 'assert';
 import { TestableBaseExecutionManager } from './Testable';
 
 describe('BaseExecutionManager Suite', () => {
@@ -10,7 +11,7 @@ describe('BaseExecutionManager Suite', () => {
     const environment = new Environment();
 
     TestFrameworkFactory.INITIALIZE(environment);
-    TestSessionManager.INITIALIZE(environment);
+    TestSessionManager.INITIALIZE(environment, true);
 
     before(() => {
         executionManager = new TestableBaseExecutionManager(environment);

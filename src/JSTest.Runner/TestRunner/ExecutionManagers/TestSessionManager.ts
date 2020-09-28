@@ -17,22 +17,24 @@ export class TestSessionManager {
     private testSessionIterator: IterableIterator<TestSession>;
     private sessionCompleteCount: number;
     private sessionCount: number;
+    protected runInDomain: boolean;
     public onAllSessionsComplete: IEvent<IEventArgs>;
 
     public static instance: TestSessionManager;
 
-    protected constructor(environment: IEnvironment) {
+    protected constructor(environment: IEnvironment, runInDomain: boolean) {
         this.sessionCount = 0;
         this.sessionCompleteCount = 0;
         this.onAllSessionsComplete = environment.createEvent();
         this.testSessionBucket = new Map();
         this.testSessionIterator = this.testSessionBucket.values();
+        this.runInDomain = runInDomain;
     }
 
-    public static INITIALIZE(environment: IEnvironment) {
+    public static INITIALIZE(environment: IEnvironment, runInDomain: boolean) {
         if (!TestSessionManager.instance) {
             EqtTrace.info(`TestSessionManager: initializing`);
-            TestSessionManager.instance = new TestSessionManager(environment);
+            TestSessionManager.instance = new TestSessionManager(environment, runInDomain);
         }
     }
 
@@ -75,7 +77,7 @@ export class TestSessionManager {
     }
 
     public executeJobs() {
-        this.runSessionInDomain(this.testSessionIterator.next().value);
+        this.runSession(this.testSessionIterator.next().value);
     }
 
     public updateSessionEventArgs(args: TestSessionEventArgs) {
@@ -86,6 +88,24 @@ export class TestSessionManager {
     public getSessionEventArgs(sources: Array<string>): TestSessionEventArgs {
         const sessionId = SessionHash(sources);
         return this.testSessionBucket.get(sessionId).TestSessionEventArgs;
+    }
+
+    protected runSession(testSession: TestSession) {
+        if (this.runInDomain) {
+            return this.runSessionInDomain(testSession);
+        } else {
+            return this.runSessionNoDomain(testSession);
+        }
+    }
+
+    protected runSessionNoDomain(testSession: TestSession) {
+        try {
+            EqtTrace.info(`TestSessionManager: Executing session with no domain`);
+            testSession.Job();
+        } catch (err) {
+            EqtTrace.error('TestSessionManager: error running session outside of domain', err);
+            this.sessionError(testSession, err);
+        }
     }
 
     protected runSessionInDomain(testSession: TestSession) {

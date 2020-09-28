@@ -125,6 +125,6 @@ export class TestRunner {
 
     private initializeSingletons() {
         TestFrameworkFactory.INITIALIZE(this.environment);
-        TestSessionManager.INITIALIZE(this.environment);
+        TestSessionManager.INITIALIZE(this.environment, this.cliArgs.runInDomain);
     }
 }

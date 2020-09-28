@@ -10,7 +10,7 @@ describe('TestSessionManager Sutie', () => {
     
     beforeEach(() => {
         TestSessionManager.instance = undefined;
-        TestSessionManager.INITIALIZE(new Environment());
+        TestSessionManager.INITIALIZE(new Environment(), true);
         testSessionManager = TestSessionManager.instance;
     });
 
@@ -111,7 +111,7 @@ describe('TestSessionManager Sutie', () => {
 
     it('domain will catch error and call error callback and update event args', (done) => {
         const args = new TestSessionEventArgs(['file 1'], SessionHash(['file 1']));
-        const sessionManager = new TestableTestSessionManager(new Environment());
+        const sessionManager = new TestableTestSessionManager(new Environment(), true);
         let errorCallbackInvoked: boolean = false;
         let domainErrorEventRaised: boolean = false;
 
@@ -137,7 +137,7 @@ describe('TestSessionManager Sutie', () => {
             validate();
         };
 
-        const domain = sessionManager.runSession(<TestSession> {
+        const domain = sessionManager.runTestSession(<TestSession> {
             Sources: ['file 1'],
             TestSessionEventArgs: args,
             Job: () => { 
@@ -158,7 +158,7 @@ describe('TestSessionManager Sutie', () => {
 
     it('runSessionInDomain will handle require errors as well', (done) => {
         const args = new TestSessionEventArgs(['file 1'], SessionHash(['file 1']));
-        const sessionManager = new TestableTestSessionManager(new Environment());
+        const sessionManager = new TestableTestSessionManager(new Environment(), true);
 
         const errorCallback = (err: Error) => { 
             // Error was called and cought in domain;
@@ -168,7 +168,7 @@ describe('TestSessionManager Sutie', () => {
             done();
         };
         
-        sessionManager.runSession(<TestSession> {
+        sessionManager.runTestSession(<TestSession> {
             Sources: ['file 1'],
             TestSessionEventArgs: args,
             Job: () => { 
@@ -177,6 +177,34 @@ describe('TestSessionManager Sutie', () => {
                     // tslint:disable:no-require-imports
                     require('asdfasdf');
                 }, 100);
+            },
+            ErrorCallback: errorCallback,
+            Complete: false
+        });
+
+        Assert.strictEqual(args.EndTime, undefined);
+        Assert.strictEqual(args.InProgress, true);
+
+    });
+
+    it('runSessionNoDomain will handle require errors as well', (done) => {
+        const args = new TestSessionEventArgs(['file 1'], SessionHash(['file 1']));
+        const sessionManager = new TestableTestSessionManager(new Environment(), false);
+
+        const errorCallback = (err: Error) => { 
+            // Error was called and cought in domain;
+            Assert.equal(err.message.startsWith('Cannot find module'), true);
+            Assert.notStrictEqual(args.EndTime, undefined);
+            Assert.strictEqual(args.InProgress, false);
+            done();
+        };
+        
+        sessionManager.runTestSession(<TestSession> {
+            Sources: ['file 1'],
+            TestSessionEventArgs: args,
+            Job: () => { 
+                // tslint:disable:no-require-imports
+                require('asdfasdf');
             },
             ErrorCallback: errorCallback,
             Complete: false

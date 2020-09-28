@@ -10,6 +10,7 @@ export class JSTestSettings {
     public readonly TestFrameworkConfigJson: JSON;
     public readonly AttachmentsFolder: string;
     public readonly CoverageEnabled: boolean;
+    public readonly RunInDomain: boolean;
 
     constructor(json: any, environment: IEnvironment) {
         this.JavaScriptTestFramework = -1;
@@ -37,6 +38,7 @@ export class JSTestSettings {
         }
 
         this.CoverageEnabled = json.CodeCoverageEnabled === true;
+        this.RunInDomain = json.RunInDomain === true;
 
         // Set attachments folder and environment variable
         // TODO: we should probably get the env key from jstestcontext package

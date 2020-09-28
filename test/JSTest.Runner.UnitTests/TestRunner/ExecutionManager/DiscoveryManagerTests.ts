@@ -26,7 +26,7 @@ describe('DiscoveryManager Suite', () => {
     const environment = new Environment();
 
     const testableTestFrameworkFactory = new TestableTestFrameworkFactory(environment);
-    const testableTestSessionManager = new TestableTestSessionManager(environment);
+    const testableTestSessionManager = new TestableTestSessionManager(environment, true);
 
     before(() => {
         mockFactory = Mock.ofInstance(testableTestFrameworkFactory);

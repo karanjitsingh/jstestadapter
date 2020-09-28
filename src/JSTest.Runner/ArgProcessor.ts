@@ -5,12 +5,16 @@ import { CLIArgs } from './TestRunner/CLIArgs';
 
      export function processCLIArgs(env: IEnvironment): CLIArgs {
 
+        let runInDomain = false;
         let debugEnabled = false;
         let debugFilePath = '';
 
          for (let i = 4; i < env.argv.length; i++) {
             if (env.argv[i].startsWith('--')) {
                 switch (env.argv[i].substr(2).toLowerCase()) {
+                    case 'runindomain':
+                        runInDomain = true;
+                        break;
                     case 'diag':
                         debugEnabled = true;
                         if (env.argv[++i]) {
@@ -29,7 +33,8 @@ import { CLIArgs } from './TestRunner/CLIArgs';
             ip: env.argv[2],
             port: Number(env.argv[3]),
             traceEnabled: debugEnabled,
-            traceFilePath: debugFilePath
+            traceFilePath: debugFilePath,
+            runInDomain: runInDomain
         };
     }
 } 
