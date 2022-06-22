@@ -6,7 +6,7 @@
     <PackageReference Include="Microsoft.TestPlatform.ObjectModel" Version="15.8.0" PrivateAssets="All" />
     <PackageReference Include="MSTest.TestAdapter" Version="1.3.2" />
     <PackageReference Include="MSTest.TestFramework" Version="1.3.2" />
-    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <ProjectReference Include="..\..\src\JSTest\JSTest.csproj" Project="832CF89A-268A-4E1B-BD5D-1F621877121F" Name="JSTest" />
   </ItemGroup>
   <ItemGroup>
